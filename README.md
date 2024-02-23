@@ -39,14 +39,16 @@ pip install -r requirements.txt
 ### 5. Build the C++ Game Engine
 
 ```bash
+mkdir lib
+cd GomokuEngine
 mkdir build && cd build
 cmake ..
 make
-mv pygomoku.cpython-310-x86_64-linux-gnu.so pygomoku.so
+mv pygomoku.cpython-310-x86_64-linux-gnu.so ../../lib/pygomoku.so
 ```
 ### 6. Run the Game
 
 ```bash
-cd ..
+cd ../GomokuKivy
 python gomoku.py
 ```
