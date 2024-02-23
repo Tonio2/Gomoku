@@ -9,7 +9,7 @@ def main():
     while not game.is_game_over():
         board_str = game.get_board()
         print(board_str)
-        row, col = map(int, input("Enter your move (row col): ").split())
+        row, col = input("Enter your move (row col): ").split()
         game.make_move(row, col)
         if game.check_win():
             print("We have a winner!")
