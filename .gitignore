@@ -4,8 +4,6 @@ GomokuEngine/build/
 *.pyd
 *.cmake
 
-pybind11/
-
 # Python virtual environment
 venv/
 
