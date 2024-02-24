@@ -38,27 +38,35 @@ std::pair<int, bool> GomokuGame::count_stones_and_gap(size_t row, size_t col, in
 {
     int stones = 0;
     bool gap = false;
+    char other_player = (player == 'X') ? 'O' : 'X';
     for (size_t i = 1; i < 5; i++)
     {
         int x = row + i * row_dir;
         int y = col + i * col_dir;
-        if (!coordinates_are_valid(x, y) or board[x][y] == (player == 'X' ? 'O' : 'X'))
-            break;
-        if (board[x][y] == player)
+        if (!coordinates_are_valid(x, y) or board[x][y] == other_player)
         {
-            stones++;
-            gap = false;
+            if (space && !stones)
+                space = false;
+            break;
+        }
+        else if (board[x][y] == ' ')
+        {
+            bool space_val = space;
+            space = true;
+            gap = true;
+            if (space_val)
+            {
+                if (!stones)
+                    space = false;
+                break;
+            }
         }
         else
         {
-            if (space == true)
-            {
-                if (!gap) gap = true;
-                else space = false;
+            if (stones == 2)
                 break;
-            }
-            space = true;
-            gap = true;
+            stones++;
+            gap = false;
         }
     }
     return std::make_pair(stones, gap);
