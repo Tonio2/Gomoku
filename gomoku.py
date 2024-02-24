@@ -9,11 +9,19 @@ def main():
     while not game.is_game_over():
         board_str = game.get_board()
         print(board_str)
-        row, col = input("Enter your move (row col): ").split()
-        game.make_move(row, col)
-        if game.check_win():
-            print("We have a winner!")
-            break
+        illegal = True
+        error = ""
+        while illegal:
+            try:
+                row, col = input("Enter your move (row col): ").split()
+                game.make_move(row, col)
+                illegal = False
+            except Exception as e:
+                error = str(e)
+                print(f"Error: {error}")
+                illegal = True
+
+    print("Game over!")
 
 
 if __name__ == "__main__":
