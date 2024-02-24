@@ -98,6 +98,10 @@ void GomokuGame::make_move(char row, char col)
 {
     size_t row_num = compute_coordinate(row);
     size_t col_num = compute_coordinate(col);
+    if (!coordinates_are_valid(row_num, col_num))
+    {
+        throw std::invalid_argument("Invalid coordinates");
+    }
     board[row_num][col_num] = current_player;
     std::cout << count_open_threes(row_num, col_num, current_player) << " open threes for this move" << std::endl;
     current_player = (current_player == 'X') ? 'O' : 'X';
