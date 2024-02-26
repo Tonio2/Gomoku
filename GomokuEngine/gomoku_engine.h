@@ -28,7 +28,6 @@ private:
     bool game_over;
     Player winner;
 
-    static std::vector<char> coordinates;
     bool coordinates_are_valid(int row, int col) const;
     std::pair<int, bool> count_stones_and_gap(size_t row, size_t col, int row_dir, int col_dir, Player player, bool &space) const;
     bool check_direction_for_open_three(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
