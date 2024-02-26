@@ -25,7 +25,6 @@ private:
     uint board_size;
     Player current_player;
     std::map<Player, int> player_scores;
-    bool game_over;
     Player winner;
 
     bool coordinates_are_valid(int row, int col) const;

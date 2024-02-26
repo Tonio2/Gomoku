@@ -1,7 +1,7 @@
 #include "gomoku_engine.h"
 
 // Definitions of GomokuGame methods
-GomokuGame::GomokuGame(uint _size) : board_size(_size), board(_size * _size), current_player(X), game_over(false)
+GomokuGame::GomokuGame(uint _size) : board_size(_size), board(_size * _size), current_player(X), winner(E)
 {
     player_scores[X] = 0;
     player_scores[O] = 0;
@@ -24,7 +24,7 @@ Player GomokuGame::other_player(Player player) const
 
 bool GomokuGame::is_game_over() const
 {
-    return game_over;
+    return winner != E;
 }
 
 bool GomokuGame::coordinates_are_valid(int row, int col) const
@@ -112,14 +112,9 @@ void GomokuGame::make_move(int row, int col)
     }
     board[row * board_size + col] = current_player;
     if (check_win(row, col, current_player))
-    {
-        game_over = true;
         winner = current_player;
-    }
     else
-    {
-        current_player = (current_player == X) ? O : X;
-    }
+        current_player = other_player(current_player);
 }
 
 bool GomokuGame::try_direction_for_capture(size_t row, size_t col, int row_dir, int col_dir, Player player)
@@ -213,9 +208,5 @@ bool GomokuGame::check_win(size_t row, size_t col, Player player)
 
 unsigned char GomokuGame::get_winner() const
 {
-    if (!game_over)
-    {
-        throw std::invalid_argument("Game is not over yet");
-    }
     return winner;
 }
