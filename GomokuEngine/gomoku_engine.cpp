@@ -1,8 +1,5 @@
 #include "gomoku_engine.h"
 
-std::vector<char> GomokuGame::coordinates = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                                             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
-
 // Definitions of GomokuGame methods
 GomokuGame::GomokuGame(uint _size) : board_size(_size), board(_size * _size), current_player(X), game_over(false)
 {
@@ -32,7 +29,7 @@ bool GomokuGame::is_game_over() const
 
 bool GomokuGame::coordinates_are_valid(int row, int col) const
 {
-    return row >= 0 && row < 19 && col >= 0 && col < 19;
+    return row >= 0 && row < board_size && col >= 0 && col < board_size;
 }
 
 std::pair<int, bool> GomokuGame::count_stones_and_gap(size_t row, size_t col, int row_dir, int col_dir, Player player, bool &space) const
