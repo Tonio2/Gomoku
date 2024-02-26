@@ -1,0 +1,10 @@
+#:kivy 1.0.9
+
+<RootWidget>:
+
+    board: game_board
+
+    GomokuBoardWidget:
+        pos: self.parent.width * 0.1, self.parent.height * 0.1
+        size: self.parent.width * 0.8, self.parent.height * 0.8
+        id: game_board
