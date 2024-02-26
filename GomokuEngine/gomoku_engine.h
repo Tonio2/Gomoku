@@ -29,7 +29,6 @@ private:
     Player winner;
 
     static std::vector<char> coordinates;
-    int compute_coordinate(char c) const;
     bool coordinates_are_valid(int row, int col) const;
     std::pair<int, bool> count_stones_and_gap(size_t row, size_t col, int row_dir, int col_dir, Player player, bool &space) const;
     bool check_direction_for_open_three(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
@@ -45,7 +44,7 @@ private:
 public:
     GomokuGame(uint _size);
     bool is_game_over() const;
-    void make_move(char row, char col);
+    void make_move(int row, int col);
     bool check_win(size_t row, size_t col, Player player);
     int count_open_threes(size_t row, size_t col, Player player) const;
     unsigned char get_winner() const;

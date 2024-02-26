@@ -25,22 +25,6 @@ Player GomokuGame::other_player(Player player) const
     return (player == X) ? O : X;
 }
 
-int GomokuGame::compute_coordinate(char c) const
-{
-    if (c >= '0' && c <= '9')
-    {
-        return c - '0';
-    }
-    else if (c >= 'A' && c <= 'I')
-    {
-        return c - 'A' + 10;
-    }
-    else
-    {
-        return -1;
-    }
-};
-
 bool GomokuGame::is_game_over() const
 {
     return game_over;
@@ -110,30 +94,27 @@ int GomokuGame::count_open_threes(size_t row, size_t col, Player player) const
     return open_threes;
 }
 
-void GomokuGame::make_move(char row, char col)
+void GomokuGame::make_move(int row, int col)
 {
-    // TODO: Coordinates will be int later
-    int row_num = compute_coordinate(row);
-    int col_num = compute_coordinate(col);
-    if (!coordinates_are_valid(row_num, col_num))
+    if (!coordinates_are_valid(row, col))
     {
         throw std::invalid_argument("Invalid coordinates");
     }
-    if (get_board_value(row_num, col_num) != E)
+    if (get_board_value(row, col) != E)
     {
         throw std::invalid_argument("Cell is already occupied");
     }
-    bool captured = capture(row_num, col_num, current_player);
+    bool captured = capture(row, col, current_player);
     if (!captured)
     {
-        int open_threes = count_open_threes(row_num, col_num, current_player);
+        int open_threes = count_open_threes(row, col, current_player);
         if (open_threes > 1)
         {
             throw std::invalid_argument("Invalid move: more than one open three");
         }
     }
-    board[row_num * board_size + col_num] = current_player;
-    if (check_win(row_num, col_num, current_player))
+    board[row * board_size + col] = current_player;
+    if (check_win(row, col, current_player))
     {
         game_over = true;
         winner = current_player;
