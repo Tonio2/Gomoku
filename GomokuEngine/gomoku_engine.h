@@ -39,6 +39,7 @@ private:
     bool check_dir_for_5_in_a_row(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_5_in_a_row(size_t row, size_t col, Player player) const;
     void set_board_value(int x, int y, Player value);
+    Player other_player(Player player) const;
 
 public:
     GomokuGame(uint _size);

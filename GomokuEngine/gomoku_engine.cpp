@@ -20,6 +20,11 @@ void GomokuGame::set_board_value(int x, int y, Player value)
     board[x * board_size + y] = value;
 }
 
+Player GomokuGame::other_player(Player player) const
+{
+    return (player == X) ? O : X;
+}
+
 int GomokuGame::compute_coordinate(char c) const
 {
     if (c >= '0' && c <= '9')
@@ -50,12 +55,12 @@ std::pair<int, bool> GomokuGame::count_stones_and_gap(size_t row, size_t col, in
 {
     int stones = 0;
     bool gap = false;
-    char other_player = (player == X) ? O : X;
+    char otherPlayer = other_player(player);
     for (size_t i = 1; i < 5; i++)
     {
         int x = row + i * row_dir;
         int y = col + i * col_dir;
-        if (!coordinates_are_valid(x, y) or get_board_value(x, y) == other_player)
+        if (!coordinates_are_valid(x, y) or get_board_value(x, y) == otherPlayer)
         {
             if (space && !stones)
                 space = false;
@@ -141,8 +146,8 @@ void GomokuGame::make_move(char row, char col)
 
 bool GomokuGame::try_direction_for_capture(size_t row, size_t col, int row_dir, int col_dir, Player player)
 {
-    Player other_player = (player == X) ? O : X;
-    std::vector<Player> expected_value = {other_player, other_player, player};
+    Player otherPlayer = other_player(player);
+    std::vector<Player> expected_value = {otherPlayer, otherPlayer, player};
     bool ret = false;
 
     for (int dir = -1; dir <= 1; dir += 2)
