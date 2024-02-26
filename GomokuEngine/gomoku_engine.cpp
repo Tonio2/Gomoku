@@ -95,8 +95,8 @@ bool GomokuGame::check_direction_for_open_three(size_t row, size_t col, int row_
     auto [stones1, gap1] = count_stones_and_gap(row, col, row_dir, col_dir, player, space);
     auto [stones2, gap2] = count_stones_and_gap(row, col, -row_dir, -col_dir, player, space);
     if (row_dir == 0 and col_dir == 1)
-    if (stones1 + stones2 >= 2 and gap1 and gap2)
-        return true;
+        if (stones1 + stones2 >= 2 and gap1 and gap2)
+            return true;
     return false;
 }
 
@@ -148,39 +148,35 @@ bool GomokuGame::try_direction_for_capture(size_t row, size_t col, int row_dir, 
 {
     Player otherPlayer = other_player(player);
     std::vector<Player> expected_value = {otherPlayer, otherPlayer, player};
-    bool ret = false;
 
-    for (int dir = -1; dir <= 1; dir += 2)
+    for (size_t i = 1; i < 4; i++)
     {
-        size_t i = 1;
-        while (i < 4)
-        {
-            int x = row + i * row_dir * dir;
-            int y = col + i * col_dir * dir;
-            if (!coordinates_are_valid(x, y) or get_board_value(x, y) != expected_value[i - 1])
-            {
-                break;
-            }
-            i++;
-        }
-        if (i == 4)
-        {
-            set_board_value(row + row_dir * dir, col + col_dir * dir, E);
-            set_board_value(row + 2 * row_dir * dir, col + 2 * col_dir * dir, E);
-            ret = true;
-            player_scores[player] += 2;
-        }
+        int x = row + i * row_dir;
+        int y = col + i * col_dir;
+        if (!coordinates_are_valid(x, y) or get_board_value(x, y) != expected_value[i - 1])
+            return false;
     }
+    set_board_value(row + row_dir, col + col_dir, E);
+    set_board_value(row + 2 * row_dir, col + 2 * col_dir, E);
+    player_scores[player] += 2;
+    return true;
+}
+
+bool GomokuGame::try_cardinal_for_capture(size_t row, size_t col, int row_dir, int col_dir, Player player)
+{
+    bool ret = try_direction_for_capture(row, col, row_dir, col_dir, player);
+    ret |= try_direction_for_capture(row, col, -row_dir, -col_dir, player);
+
     return ret;
 }
 
 bool GomokuGame::capture(size_t row, size_t col, Player player)
 {
     bool ret = false;
-    ret |= try_direction_for_capture(row, col, 1, 0, player);
-    ret |= try_direction_for_capture(row, col, 0, 1, player);
-    ret |= try_direction_for_capture(row, col, 1, 1, player);
-    ret |= try_direction_for_capture(row, col, 1, -1, player);
+    ret |= try_cardinal_for_capture(row, col, 1, 0, player);
+    ret |= try_cardinal_for_capture(row, col, 0, 1, player);
+    ret |= try_cardinal_for_capture(row, col, 1, 1, player);
+    ret |= try_cardinal_for_capture(row, col, 1, -1, player);
     return ret;
 }
 

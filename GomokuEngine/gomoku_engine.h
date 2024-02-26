@@ -34,6 +34,7 @@ private:
     std::pair<int, bool> count_stones_and_gap(size_t row, size_t col, int row_dir, int col_dir, Player player, bool &space) const;
     bool check_direction_for_open_three(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool try_direction_for_capture(size_t row, size_t col, int row_dir, int col_dir, Player player);
+    bool try_cardinal_for_capture(size_t row, size_t col, int row_dir, int col_dir, Player player);
     bool capture(size_t row, size_t col, Player player);
     int count_stones(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_dir_for_5_in_a_row(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
