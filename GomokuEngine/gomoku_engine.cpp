@@ -204,7 +204,7 @@ bool GomokuGame::check_dir_for_5_in_a_row(size_t row, size_t col, int row_dir, i
 {
     int stones = count_stones(row, col, row_dir, col_dir, player);
     stones += count_stones(row, col, -row_dir, -col_dir, player);
-    return stones >= 5;
+    return stones >= 4;
 }
 
 bool GomokuGame::check_5_in_a_row(size_t row, size_t col, Player player) const
@@ -232,7 +232,7 @@ bool GomokuGame::check_win(size_t row, size_t col, Player player)
     }
 }
 
-Player GomokuGame::get_winner() const
+unsigned char GomokuGame::get_winner() const
 {
     if (!game_over)
     {

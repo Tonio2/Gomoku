@@ -46,7 +46,7 @@ public:
     void make_move(char row, char col);
     bool check_win(size_t row, size_t col, Player player);
     int count_open_threes(size_t row, size_t col, Player player) const;
-    Player get_winner() const;
+    unsigned char get_winner() const;
     unsigned char get_board_value(int x, int y) const;
     int get_board_size() const;
 };
