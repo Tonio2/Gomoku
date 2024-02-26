@@ -15,7 +15,7 @@ unsigned char GomokuGame::get_board_value(int x, int y) const
     return board[x * board_size + y];
 }
 
-void GomokuGame::update_board_value(int x, int y, Player value)
+void GomokuGame::set_board_value(int x, int y, Player value)
 {
     board[x * board_size + y] = value;
 }
@@ -160,8 +160,8 @@ bool GomokuGame::try_direction_for_capture(size_t row, size_t col, int row_dir, 
         }
         if (i == 4)
         {
-            update_board_value(row + row_dir * dir, col + col_dir * dir, E);
-            update_board_value(row + 2 * row_dir * dir, col + 2 * col_dir * dir, E);
+            set_board_value(row + row_dir * dir, col + col_dir * dir, E);
+            set_board_value(row + 2 * row_dir * dir, col + 2 * col_dir * dir, E);
             ret = true;
             player_scores[player] += 2;
         }

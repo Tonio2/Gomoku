@@ -38,7 +38,7 @@ private:
     int count_stones(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_dir_for_5_in_a_row(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_5_in_a_row(size_t row, size_t col, Player player) const;
-    void update_board_value(int x, int y, Player value);
+    void set_board_value(int x, int y, Player value);
 
 public:
     GomokuGame(uint _size);
