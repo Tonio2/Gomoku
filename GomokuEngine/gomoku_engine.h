@@ -36,7 +36,7 @@ private:
     int count_stones(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_dir_for_5_in_a_row(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_5_in_a_row(size_t row, size_t col, Player player) const;
-    void set_board_value(int x, int y, Player value);
+    
     Player other_player(Player player) const;
 
 public:
@@ -48,6 +48,7 @@ public:
     unsigned char get_winner() const;
     unsigned char get_board_value(int x, int y) const;
     int get_board_size() const;
+    void set_board_value(int x, int y, Player value);
 };
 
 #endif // GOMOKU_ENGINE_H
