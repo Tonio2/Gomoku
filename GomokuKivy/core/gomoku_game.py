@@ -13,10 +13,12 @@ class BoardValue(Enum):
 class GomokuGame:
 
     def __init__(self):
-        game = pygomoku.GomokuGame()
+        self.game = pygomoku.GomokuGame()
 
     def get_board_size(self) -> Tuple[int, int]:
-        return (19, 19)
+        size = self.game.get_board_size()
+        return (size, size)
 
     def get_board_value_at(self, row: int, col: int) -> BoardValue:
-        return BoardValue.EMPTY
+        value = self.game.get_board_value(row, col)
+        return BoardValue(value)
