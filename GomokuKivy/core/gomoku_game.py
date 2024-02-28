@@ -21,4 +21,11 @@ class GomokuGame:
 
     def get_board_value_at(self, row: int, col: int) -> BoardValue:
         value = self.game.get_board_value(row, col)
-        return BoardValue(value)
+        board_value = BoardValue(value)
+        return board_value
+
+    def play_at(self, row: int, col: int):
+        try:
+            self.game.make_move(row, col)
+        except:
+            print(f'Failed to play')

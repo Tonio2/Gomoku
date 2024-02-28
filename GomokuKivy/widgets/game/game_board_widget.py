@@ -48,7 +48,7 @@ class GameBoardWidget(Widget):
                             size=(cell_size_x, cell_size_y))
 
             # # Draw board grid
-            Color(GRID_COLOR)
+            Color(*GRID_COLOR)
             for x in range(board_size_x):
                 Rectangle(pos=(self.x + x * cell_size_x, self.y), size=(1, self.height))
             for y in range(board_size_y):
@@ -60,11 +60,11 @@ class GameBoardWidget(Widget):
                     cell_value = gomoku_game.get_board_value_at(x, y)
                     match cell_value:
                         case BoardValue.WHITE:
-                            Color(WHITE_COLOR)
+                            Color(*WHITE_COLOR)
                             Ellipse(pos=(self.x + x * cell_size_x, self.y + y * cell_size_y),
                                     size=(cell_size_x, cell_size_y))
                         case BoardValue.BLACK:
-                            Color(BLACK_COLOR)
+                            Color(*BLACK_COLOR)
                             Ellipse(pos=(self.x + x * cell_size_x, self.y + y * cell_size_y),
                                     size=(cell_size_x, cell_size_y))
 
@@ -83,4 +83,5 @@ class GameBoardWidget(Widget):
             col = int((touch.pos[0] - self.x) / cell_size_x)
             row = int((touch.pos[1] - self.y) / cell_size_y)
 
-            print(f"Cell tapped: ({row}, {col})")
+            gomoku_game.play_at(col, row)
+            self.draw_board()
