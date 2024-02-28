@@ -12,8 +12,8 @@ class BoardValue(Enum):
 
 class GomokuGame:
 
-    def __init__(self):
-        self.game = pygomoku.GomokuGame()
+    def __init__(self, size: int):
+        self.game = pygomoku.GomokuGame(size)
 
     def get_board_size(self) -> Tuple[int, int]:
         size = self.game.get_board_size()
