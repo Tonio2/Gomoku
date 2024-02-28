@@ -2,6 +2,7 @@ from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle, Ellipse
 from kivy.clock import Clock
 
+from app.shared_object import SharedObject
 from core.gomoku_game import GomokuGame, BoardValue
 
 GRID_COLOR = (0, 0, 0)
@@ -11,26 +12,28 @@ DARK_COLOR = (0.5, 0.5, 0.5)
 WHITE_COLOR = (0.9, 0.9, 0.9)
 BLACK_COLOR = (0.1, 0.1, 0.1)
 
-class GomokuBoardWidget(Widget):
-
-    gomoku_game: GomokuGame = None
+class GameBoardWidget(Widget):
 
     def __init__(self, **kwargs):
-        super(GomokuBoardWidget, self).__init__(**kwargs)
+        super(GameBoardWidget, self).__init__(**kwargs)
 
     def on_parent(self, widget, parent):
         if parent is not None:
             Clock.schedule_once(lambda dt: self.draw_board(), 0)
 
+    def get_game(self) -> GomokuGame:
+        return SharedObject.get_instance().get_game()
+
     def draw_board(self):
         self.canvas.clear()
 
-        if self.gomoku_game is None:
+        gomoku_game = self.get_game()
+        if gomoku_game is None:
             return
 
-        print(f"Drawing board of size {self.gomoku_game.get_board_size()} on a canvas of {self.width} * {self.height}")
+        print(f"Drawing board of size {gomoku_game.get_board_size()} on a canvas of {self.width} * {self.height}")
 
-        board_size_x, board_size_y = self.gomoku_game.get_board_size()
+        board_size_x, board_size_y = gomoku_game.get_board_size()
 
         cell_size_x = self.width / board_size_x
         cell_size_y = self.height / board_size_y
@@ -54,7 +57,7 @@ class GomokuBoardWidget(Widget):
             # Draw the pieces
             for x in range(board_size_x):
                 for y in range(board_size_y):
-                    cell_value = self.gomoku_game.get_board_value_at(x, y)
+                    cell_value = gomoku_game.get_board_value_at(x, y)
                     match cell_value:
                         case BoardValue.WHITE:
                             Color(WHITE_COLOR)
@@ -66,8 +69,13 @@ class GomokuBoardWidget(Widget):
                                     size=(cell_size_x, cell_size_y))
 
     def on_touch_down(self, touch):
+
+        gomoku_game = self.get_game()
+        if gomoku_game is None:
+            return
+
         if self.collide_point(*touch.pos):
-            board_size_x, board_size_y = self.gomoku_game.get_board_size()
+            board_size_x, board_size_y = gomoku_game.get_board_size()
 
             cell_size_x = self.width / board_size_x
             cell_size_y = self.height / board_size_y

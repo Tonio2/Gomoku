@@ -1,10 +1,39 @@
 #:kivy 1.0.9
 
-<RootWidget>:
+<MenuScreen>:
+    MenuRootWidget:
+        id: root_widget
 
-    board: game_board
+        BoxLayout:
+            orientation: 'vertical'
 
-    GomokuBoardWidget:
-        pos: self.parent.width * 0.1, self.parent.height * 0.1
-        size: self.parent.width * 0.8, self.parent.height * 0.8
-        id: game_board
+            Label:
+                text: 'Select Board Size:'
+            
+            Slider:
+                id: board_size_slider
+                min: 7
+                max: 40
+                value: 19
+                on_value: root_widget.set_board_size(self.value)
+
+            Button:
+                text: 'Start Game'
+                on_press: root.switch_to_game()
+
+<GameScreen>:
+    GameRootWidget:
+        board: game_board_widget
+
+        GameBoardWidget:
+            id: game_board_widget
+
+            pos: self.parent.width * 0.1, self.parent.height * 0.1
+            size: self.parent.width * 0.8, self.parent.height * 0.8
+
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
