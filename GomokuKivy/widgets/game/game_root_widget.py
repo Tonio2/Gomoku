@@ -12,10 +12,6 @@ class GameRootWidget(Widget):
         super(GameRootWidget, self).__init__(**kwargs)
         self._keyboard = Window.request_keyboard(self._on_keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
-        Window.bind(size=self._on_window_resized)
-
-    def _on_window_resized(self, window, size):
-        self.board.draw_board()
 
     def _on_keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)

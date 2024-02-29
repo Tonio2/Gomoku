@@ -1,9 +1,12 @@
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle, Ellipse
 from kivy.clock import Clock
+from kivy.core.window import Window
 
 from app.shared_object import SharedObject
 from core.gomoku_game import GomokuGame, BoardValue
+
+from core.callback_center import CallbackCenter
 
 GRID_COLOR = (0, 0, 0)
 LIGHT_COLOR = (0.7, 0.7, 0.7)
@@ -16,13 +19,18 @@ class GameBoardWidget(Widget):
 
     def __init__(self, **kwargs):
         super(GameBoardWidget, self).__init__(**kwargs)
+        Window.bind(size=self._on_window_resized)
+        CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_gomokugame_modified)
 
-    def on_parent(self, widget, parent):
-        if parent is not None:
-            Clock.schedule_once(lambda dt: self.draw_board(), 0)
+    def _on_window_resized(self, window, size):
+        self.draw_board()
 
     def get_game(self) -> GomokuGame:
         return SharedObject.get_instance().get_game()
+
+    def on_gomokugame_modified(self, message, game):
+        if game == self.get_game():
+            self.draw_board()
 
     def draw_board(self):
         self.canvas.clear()
@@ -30,8 +38,6 @@ class GameBoardWidget(Widget):
         gomoku_game = self.get_game()
         if gomoku_game is None:
             return
-
-        print(f"Drawing board of size {gomoku_game.get_board_size()} on a canvas of {self.width} * {self.height}")
 
         board_size_x, board_size_y = gomoku_game.get_board_size()
 
@@ -84,4 +90,3 @@ class GameBoardWidget(Widget):
             row = int((touch.pos[1] - self.y) / cell_size_y)
 
             gomoku_game.play_at(col, row)
-            self.draw_board()

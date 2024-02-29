@@ -1,9 +1,11 @@
 from typing import Tuple
 from enum import Enum
-import sys
 
+import sys
 sys.path.append("../lib")
 import pygomoku
+
+from core.callback_center import CallbackCenter
 
 class BoardValue(Enum):
     EMPTY = 0
@@ -24,8 +26,12 @@ class GomokuGame:
         board_value = BoardValue(value)
         return board_value
 
+    def get_current_player(self) -> BoardValue:
+        return BoardValue(self.game.get_current_player())
+
     def play_at(self, row: int, col: int):
         try:
             self.game.make_move(row, col)
+            CallbackCenter.shared().send_message("GomokuGame.modified", self)
         except:
             print(f'Failed to play')

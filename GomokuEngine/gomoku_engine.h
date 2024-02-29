@@ -48,6 +48,7 @@ public:
     unsigned char get_winner() const;
     unsigned char get_board_value(int x, int y) const;
     int get_board_size() const;
+    unsigned char get_current_player() const;
 };
 
 #endif // GOMOKU_ENGINE_H

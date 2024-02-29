@@ -23,7 +23,8 @@ class SharedObject:
 
     _instance = None
 
-    def get_instance():
+    @classmethod
+    def get_instance(cls):
         if SharedObject._instance is None:
             SharedObject._instance = SharedObject()
         return SharedObject._instance
