@@ -5,8 +5,10 @@ class SharedObject:
 
     _size: int
     _game: GomokuGame
+    _player_time: float
 
     def __init__(self):
+        self._player_time = 300
         self.set_size(19)
 
     def set_size(self, size):
@@ -14,7 +16,7 @@ class SharedObject:
         self.reset_game()
 
     def reset_game(self):
-        self._game = GomokuGame(self._size)
+        self._game = GomokuGame(self._size, self._player_time)
 
     def get_game(self):
         return self._game

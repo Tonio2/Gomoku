@@ -3,6 +3,7 @@
 from app.shared_object import SharedObject
 from kivy.uix.screenmanager import ScreenManager, Screen
 from widgets.game.game_root_widget import GameRootWidget
+from core.callback_center import CallbackCenter
 
 class GameScreen(Screen):
 
@@ -14,6 +15,4 @@ class GameScreen(Screen):
         self.manager.current = 'menu'
 
     def on_enter(self):
-        game_board_widget = self.ids.game_board_widget
-        game_board_widget.draw_board()
-        print(f'Drawing with size: {SharedObject.get_instance().get_game().get_board_size()}')
+        CallbackCenter.shared().send_message("Application.draw", None)

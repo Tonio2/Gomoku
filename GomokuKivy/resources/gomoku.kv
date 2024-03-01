@@ -1,39 +1,118 @@
 #:kivy 1.0.9
 
 <MenuScreen>:
+    size_hint: 1, 1
+    
     MenuRootWidget:
         id: root_widget
 
-        BoxLayout:
-            orientation: 'vertical'
+        size: self.parent.size
+        
+        AnchorLayout:
+            anchor_x: 'center'
+            anchor_y: 'center'
 
-            Label:
-                text: 'Select Board Size:'
-            
-            Slider:
-                id: board_size_slider
-                min: 7
-                max: 40
-                value: 19
-                on_value: root_widget.set_board_size(self.value)
+            size: self.parent.size
 
-            Button:
-                text: 'Start Game'
-                on_press: root.switch_to_game()
+            BoxLayout:
+                orientation: 'vertical'
+
+                Label:
+                    text: f'Board Size: {str(int(board_size_slider.value))}'
+
+                Slider:
+                    id: board_size_slider
+                    min: 7
+                    max: 40
+                    value: 19
+                    on_value: root_widget.set_board_size(self.value)
+
+                Button:
+                    text: 'Start Game'
+                    on_press: root.switch_to_game()
 
 <GameScreen>:
     GameRootWidget:
-        board: game_board_widget
+        board_widget: game_board_widget
+        infos_widget: game_infos_widget
 
-        GameBoardWidget:
-            id: game_board_widget
+        BoxLayout:
+            id: root_box_layout
+            orientation: 'horizontal' if self.width > self.height else 'vertical'
 
-            pos: self.parent.width * 0.1, self.parent.height * 0.1
-            size: self.parent.width * 0.8, self.parent.height * 0.8
+            size: root.size
+            pos: root.pos
 
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
+            Widget:
+                size_hint: (0.75, 1) if root_box_layout.orientation == 'horizontal' else (1, 0.75)
+
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+                GameFrameWidget:
+                    id: game_frame_widget
+
+                    size: min(self.parent.width, self.parent.height), min(self.parent.width, self.parent.height)
+                    pos: self.parent.pos[0] + (self.parent.width - self.width) / 2, self.parent.pos[1] + (self.parent.height - self.height) / 2
+
+                    board_widget: game_board_widget
+
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 0, 1
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+
+                    GameBoardWidget:
+                        id: game_board_widget
+
+                        size: self.parent.width - 30, self.parent.height - 30
+                        pos: self.parent.pos[0] + (self.parent.width - self.width) / 2, self.parent.pos[1] + (self.parent.height - self.height) / 2
+
+            BoxLayout:
+                size_hint: (0.25, 1) if root_box_layout.orientation == 'horizontal' else (1, 0.25)
+                orientation: 'horizontal' if self.width > self.height else 'vertical'
+
+                GameInfosWidget:
+                    id: game_infos_widget
+
+                Button:
+                    text: 'Back to Menu'
+                    on_press: root.back_to_menu()
+                    size: 200, 50
+
+<GameInfosWidget>:
+    BoxLayout:
+        orientation: 'vertical'
+        pos: root.pos
+        size: root.size
+
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0.9, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: None
+            height: 80
+            spacing: 10
+
+            GameInfosPlayerIndicatorWidget:
+                player: 1
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: None
+            height: 80
+            spacing: 10
+
+            GameInfosPlayerIndicatorWidget:
+                player: 2

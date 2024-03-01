@@ -6,7 +6,8 @@ from kivy.properties import (
 from kivy.core.window import Window
 
 class GameRootWidget(Widget):
-    board = ObjectProperty(None)
+    board_widget = ObjectProperty(None)
+    infos_widget = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(GameRootWidget, self).__init__(**kwargs)

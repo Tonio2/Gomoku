@@ -8,6 +8,10 @@ from widgets.menu.menu_root_widget import MenuRootWidget
 from widgets.game.game_screen import GameScreen
 from widgets.game.game_root_widget import GameRootWidget
 from widgets.game.game_board_widget import GameBoardWidget
+from widgets.game.game_infos_widget import GameInfosWidget
+from widgets.game.game_frame_widget import GameFrameWidget
+from widgets.game.game_infos_player_indicator_widget import GameInfosPlayerIndicatorWidget
+from core.gomoku_game import GomokuPlayer
 
 class GomokuApp(App):
 

@@ -4,7 +4,7 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 
 from app.shared_object import SharedObject
-from core.gomoku_game import GomokuGame, BoardValue
+from core.gomoku_game import GomokuGame, GomokuPlayer
 
 from core.callback_center import CallbackCenter
 
@@ -21,6 +21,7 @@ class GameBoardWidget(Widget):
         super(GameBoardWidget, self).__init__(**kwargs)
         Window.bind(size=self._on_window_resized)
         CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_gomokugame_modified)
+        CallbackCenter.shared().add_callback("Application.draw", self.on_application_draw)
 
     def _on_window_resized(self, window, size):
         self.draw_board()
@@ -31,6 +32,9 @@ class GameBoardWidget(Widget):
     def on_gomokugame_modified(self, message, game):
         if game == self.get_game():
             self.draw_board()
+
+    def on_application_draw(self, message, _):
+        self.draw_board()
 
     def draw_board(self):
         self.canvas.clear()
@@ -65,11 +69,11 @@ class GameBoardWidget(Widget):
                 for y in range(board_size_y):
                     cell_value = gomoku_game.get_board_value_at(x, y)
                     match cell_value:
-                        case BoardValue.WHITE:
+                        case GomokuPlayer.WHITE:
                             Color(*WHITE_COLOR)
                             Ellipse(pos=(self.x + x * cell_size_x, self.y + y * cell_size_y),
                                     size=(cell_size_x, cell_size_y))
-                        case BoardValue.BLACK:
+                        case GomokuPlayer.BLACK:
                             Color(*BLACK_COLOR)
                             Ellipse(pos=(self.x + x * cell_size_x, self.y + y * cell_size_y),
                                     size=(cell_size_x, cell_size_y))
