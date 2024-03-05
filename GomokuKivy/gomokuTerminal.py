@@ -1,9 +1,28 @@
 import sys
+import json
 
 sys.path.append("../lib")
 import pygomoku
 
 coordinates = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+
+def convert_to_dict(node):
+    """
+    Recursively converts a MoveEvaluation node (and its children) to a Python dictionary.
+    """
+    return {
+        "move": node.move,
+        "score": node.score,
+        "listMoves": [convert_to_dict(child) for child in node.listMoves]
+    }
+
+def write_json(root_node, filename):
+    """
+    Converts the tree of MoveEvaluation nodes into a dictionary and writes it to a JSON file.
+    """
+    root_dict = convert_to_dict(root_node)
+    with open(filename, 'w') as json_file:
+        json.dump(root_dict, json_file, indent=4) 
 
 def main():
     current_player = pygomoku.Player.BLACK
@@ -28,8 +47,9 @@ def main():
                 else:
                     print("White's turn")
                     AI = pygomoku.GomokuAI(game, pygomoku.Player.WHITE, 2)
-                    [row, col] = AI.suggest_move()
-                    game.make_move(row, col)
+                    moveEvaluations = AI.suggest_move()
+                    write_json(moveEvaluations, 'minimax_output.json')
+                    game.make_move(moveEvaluations.move[0], moveEvaluations.move[1])
                     illegal = False
                     current_player = pygomoku.Player.BLACK
             except Exception as e:

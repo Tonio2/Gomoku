@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h> 
 #include "gomoku_engine.h"
 #include "AI1.h"
 
@@ -11,6 +12,11 @@ PYBIND11_MODULE(pygomoku, m)
         .value("BLACK", Player::BLACK)
         .value("WHITE", Player::WHITE)
         .export_values();
+    py::class_<MoveEvaluation>(m, "MoveEvaluation")
+        .def(py::init<>())
+        .def_readwrite("move", &MoveEvaluation::move)
+        .def_readwrite("score", &MoveEvaluation::score)
+        .def_readwrite("listMoves", &MoveEvaluation::listMoves);
     py::class_<GomokuGame>(m, "GomokuGame")
         .def(py::init<uint>())
         .def("is_game_over", &GomokuGame::is_game_over)
