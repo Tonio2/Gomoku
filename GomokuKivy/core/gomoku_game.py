@@ -9,8 +9,8 @@ from core.callback_center import CallbackCenter
 
 class GomokuPlayer(Enum):
     EMPTY = 0
-    WHITE = 1
-    BLACK = 2
+    BLACK = 1
+    WHITE = 2
 
 class GomokuMove:
     player: GomokuPlayer

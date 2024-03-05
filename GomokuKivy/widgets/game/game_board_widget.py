@@ -24,7 +24,7 @@ class GameBoardWidget(Widget):
         CallbackCenter.shared().add_callback("Application.draw", self.on_application_draw)
 
     def _on_window_resized(self, window, size):
-        self.draw_board()
+        Clock.schedule_once(lambda _ : self.draw_board(), 0.1)
 
     def get_game(self) -> GomokuGame:
         return SharedObject.get_instance().get_game()
