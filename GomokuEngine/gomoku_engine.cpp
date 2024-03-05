@@ -210,3 +210,8 @@ unsigned char GomokuGame::get_winner() const
 {
     return winner;
 }
+
+unsigned char GomokuGame::get_current_player() const
+{
+    return current_player;
+}
