@@ -24,7 +24,7 @@ class GameInfosPlayerIndicatorWidget(Widget):
         CallbackCenter.shared().add_callback("Application.draw", self.on_application_draw)
 
     def _on_window_resized(self, window, size):
-        self.draw()
+        Clock.schedule_once(lambda _ : self.draw(), 0.1)
 
     def on_application_draw(self, message, _):
         self.draw()
