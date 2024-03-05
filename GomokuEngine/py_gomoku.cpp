@@ -19,7 +19,7 @@ PYBIND11_MODULE(pygomoku, m)
         .def("count_open_threes", &GomokuGame::count_open_threes)
         .def("get_winner", &GomokuGame::get_winner)
         .def("get_board_value", &GomokuGame::get_board_value)
-        .def("get_board_size", &GomokuGame::get_board_size);
+        .def("get_board_size", &GomokuGame::get_board_size)
         .def("get_current_player", &GomokuGame::get_current_player);
     py::class_<GomokuAI>(m, "GomokuAI")
         .def(py::init<GomokuGame &, Player, int>())
