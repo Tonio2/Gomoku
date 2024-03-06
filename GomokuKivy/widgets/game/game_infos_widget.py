@@ -1,6 +1,7 @@
 from kivy.uix.widget import Widget
 from core.callback_center import CallbackCenter
 from core.gomoku_game import GomokuGame, GomokuPlayer, GomokuMove
+from app.shared_object import SharedObject
 
 class GameInfosWidget(Widget):
 
@@ -12,4 +13,22 @@ class GameInfosWidget(Widget):
 
     def on_game_modified(self, message, game: GomokuGame):
         self.current_player = game.get_current_player()
+
+    def get_game(self) -> GomokuGame:
+        return SharedObject.get_instance().get_game()
+
+    def reverse_move(self):
+        game = self.get_game()
+
+        if game is None:
+            return
         
+        game.reverse_last_move()
+
+    def reapply_move(self):
+        game = self.get_game()
+
+        if game is None:
+            return
+        
+        game.reapply_last_move()

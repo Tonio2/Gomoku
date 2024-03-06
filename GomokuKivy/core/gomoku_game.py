@@ -17,12 +17,14 @@ class GomokuMove:
     row: int
     column: int
     timestamp: float
+    move_result: pygomoku.MoveResult
 
 class GomokuGame:
 
     game: pygomoku.GomokuGame
 
     move_list: List[GomokuMove]
+    last_move_index: int
 
     game_time: float
     players_time: Dict[GomokuPlayer, float]
@@ -31,6 +33,7 @@ class GomokuGame:
         self.game = pygomoku.GomokuGame(size)
 
         self.move_list = []
+        self.last_move_index = -1
 
         self.game_time = 0
         self.players_time = {
@@ -52,11 +55,49 @@ class GomokuGame:
 
     def play_at(self, row: int, col: int):
         try:
-            self.game.make_move(row, col)
+            new_move = GomokuMove()
+            new_move.player = self.get_current_player()
+            new_move.row = row
+            new_move.column = col
+            new_move.timestamp = self.game_time
+            
+            new_move.move_result = self.game.make_move(row, col)
+
+            self.last_move_index += 1
+            self.resize_move_list(self.last_move_index + 1)
+
+            self.move_list[self.last_move_index] = new_move
+
+
             CallbackCenter.shared().send_message("GomokuGame.modified", self)
         except:
             print(f'Failed to play')
 
+    def resize_move_list(self, new_size: int):
+        current_size = len(self.move_list)
+        if current_size < new_size:
+            self.move_list.extend([None] * (new_size - current_size))
+        elif current_size > new_size:
+            self.move_list = self.move_list[:new_size]
+
     def increase_time(self, delta_time: float):
         self.game_time += delta_time
         self.players_time[self.get_current_player()] -= delta_time
+
+    def reverse_last_move(self):
+        if (self.last_move_index < 0):
+            return
+
+        self.game.reverse_move(self.move_list[self.last_move_index].move_result)
+        self.last_move_index -= 1
+        CallbackCenter.shared().send_message("GomokuGame.modified", self)
+
+    def reapply_last_move(self):
+        reapply_index = self.last_move_index + 1
+
+        if (reapply_index >= len(self.move_list)):
+            return
+
+        self.game.reapply_move(self.move_list[reapply_index].move_result)
+        self.last_move_index += 1
+        CallbackCenter.shared().send_message("GomokuGame.modified", self)
