@@ -19,7 +19,7 @@ private:
     Player ai_player;
     Player human_player;
 
-    MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer);
+    MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
     int heuristic_evaluation();
 
 public:
