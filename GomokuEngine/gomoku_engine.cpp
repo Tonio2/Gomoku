@@ -1,7 +1,7 @@
 #include "gomoku_engine.h"
 
 // Definitions of GomokuGame methods
-GomokuGame::GomokuGame(uint _size) : board_size(_size), board(_size * _size), current_player(X), winner(E)
+GomokuGame::GomokuGame(uint _size) : board_size(_size), board(_size * _size), current_player(X), winner(E), structures(3, std::vector<Structure>(0))
 {
     player_scores[X] = 0;
     player_scores[O] = 0;
@@ -132,6 +132,29 @@ int GomokuGame::count_open_threes(size_t row, size_t col, Player player) const
     return open_threes;
 }
 
+void GomokuGame::update_structures()
+{
+    structures[X].clear();
+    structures[O].clear();
+    const std::vector<std::pair<int, int>> directions = {
+        {0, 1}, {1, 0}, {1, -1}, {1, 1}};
+    
+    for (int i = 0; i < 4; i++)
+    {
+        int row = ?;
+        int col = ?;
+        while( ? ) {
+            row = ?;
+            col = ?;
+            while (coordinates_are_valid(row, col)) {
+                std::cout << row << " " << col << std::endl;
+                row = ?;
+                col = ?;
+            }
+        }
+    }
+}
+
 void GomokuGame::make_move(int row, int col)
 {
     if (!coordinates_are_valid(row, col))
@@ -152,6 +175,7 @@ void GomokuGame::make_move(int row, int col)
         }
     }
     board[row * board_size + col] = current_player;
+    update_structures();
     if (check_win(row, col, current_player))
         winner = current_player;
     else

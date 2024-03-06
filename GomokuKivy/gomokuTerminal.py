@@ -47,11 +47,18 @@ def main():
                     current_player = pygomoku.Player.WHITE
                 else:
                     print("White's turn")
-                    AI = pygomoku.GomokuAI(game, pygomoku.Player.WHITE, depth)
-                    moveEvaluations = AI.suggest_move()
-                    write_json(moveEvaluations, 'minimax_output.json')
-                    bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
-                    game.make_move(bestMove[0], bestMove[1])
+                    # AI
+                    # AI = pygomoku.GomokuAI(game, pygomoku.Player.WHITE, depth)
+                    # moveEvaluations = AI.suggest_move()
+                    # write_json(moveEvaluations, 'minimax_output.json')
+                    # bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
+                    # game.make_move(bestMove[0], bestMove[1])
+                    
+                    # Player
+                    row, col = input("Enter your move (row col): ").split()
+                    row = coordinates.index(row)
+                    col = coordinates.index(col)
+                    game.make_move(row, col)
                     illegal = False
                     current_player = pygomoku.Player.BLACK
             except Exception as e:

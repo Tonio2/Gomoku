@@ -18,6 +18,25 @@ enum Player: unsigned char
     WHITE
 };
 
+enum class StructureType
+{
+    OPEN_FOUR,
+    FOUR,
+    OPEN_THREE,
+    THREE,
+    OPEN_TWO,
+    TWO,
+    OPEN_ONE,
+    ONE
+};
+
+struct Structure
+{
+    StructureType type;
+    std::vector<std::pair<int, int>> cells;
+};
+
+
 class GomokuGame
 {
 private:
@@ -26,6 +45,7 @@ private:
     Player current_player;
     std::map<Player, int> player_scores;
     Player winner;
+    std::vector<std::vector<Structure>> structures;
 
     bool coordinates_are_valid(int row, int col) const;
     std::pair<int, bool> count_stones_and_gap(size_t row, size_t col, int row_dir, int col_dir, Player player, bool &space) const;
@@ -36,8 +56,8 @@ private:
     int count_stones(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_dir_for_5_in_a_row(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_5_in_a_row(size_t row, size_t col, Player player) const;
-    
     Player other_player(Player player) const;
+    void update_structures();
 
 public:
     GomokuGame(uint _size);
