@@ -39,8 +39,7 @@ private:
     std::vector<Player> board;
     uint board_size;
     Player current_player;
-    int black_score;
-    int white_score;
+    std::vector<int> players_scores;
     Player winner;
 
     bool coordinates_are_valid(int row, int col) const;
