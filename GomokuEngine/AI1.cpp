@@ -18,31 +18,22 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     if (maximizingPlayer)
     {
         int maxEval = std::numeric_limits<int>::min();
-        for (int i = 0; i < game.get_board_size(); i++)
+        std::vector<std::pair<int, int>> moves = game.findRelevantMoves();
+        for (auto move : moves)
         {
-            for (int j = 0; j < game.get_board_size(); j++)
+            game.make_move(move.first, move.second);
+            MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, false, move.first, move.second);
+            game.set_board_value(move.first, move.second, E);
+
+            if (evalNode.score > maxEval)
             {
-                if (game.get_board_value(i, j) == E)
-                {
-                    game.make_move(i, j);
-                    MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, false, i, j);
-                    game.set_board_value(i, j, E);
-
-                    if (evalNode.score > maxEval)
-                    {
-                        maxEval = evalNode.score;
-                        node.score = maxEval;
-                        alpha = std::max(alpha, evalNode.score);
-                    }
-
-                    node.listMoves.push_back(evalNode);
-
-                    if (beta <= alpha)
-                    {
-                        break;
-                    }
-                }
+                maxEval = evalNode.score;
+                node.score = maxEval;
+                alpha = std::max(alpha, evalNode.score);
             }
+
+            node.listMoves.push_back(evalNode);
+
             if (beta <= alpha)
             {
                 break;
@@ -52,31 +43,22 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     else
     {
         int minEval = std::numeric_limits<int>::max();
-        for (int i = 0; i < game.get_board_size(); i++)
+        std::vector<std::pair<int, int>> moves = game.findRelevantMoves();
+        for (auto move : moves)
         {
-            for (int j = 0; j < game.get_board_size(); j++)
+            game.make_move(move.first, move.second);
+            MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, true, move.first, move.second);
+            game.set_board_value(move.first, move.second, E);
+
+            if (evalNode.score < minEval)
             {
-                if (game.get_board_value(i, j) == E)
-                {
-                    game.make_move(i, j);
-                    MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, true, i, j);
-                    game.set_board_value(i, j, E);
-
-                    if (evalNode.score < minEval)
-                    {
-                        minEval = evalNode.score;
-                        node.score = minEval;
-                        beta = std::min(beta, evalNode.score);
-                    }
-
-                    node.listMoves.push_back(evalNode);
-
-                    if (beta <= alpha)
-                    {
-                        break;
-                    }
-                }
+                minEval = evalNode.score;
+                node.score = minEval;
+                beta = std::min(beta, evalNode.score);
             }
+
+            node.listMoves.push_back(evalNode);
+
             if (beta <= alpha)
             {
                 break;

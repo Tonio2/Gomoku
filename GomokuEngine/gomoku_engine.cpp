@@ -32,6 +32,47 @@ bool GomokuGame::coordinates_are_valid(int row, int col) const
     return row >= 0 && row < board_size && col >= 0 && col < board_size;
 }
 
+std::vector<std::pair<int, int>> GomokuGame::findRelevantMoves() const
+{
+    std::vector<std::pair<int, int>> relevantMoves;
+
+    // Directions to check around each cell (8 directions).
+    const std::vector<std::pair<int, int>> directions = {
+        {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+
+    for (int row = 0; row < board_size; ++row)
+    {
+        for (int col = 0; col < board_size; ++col)
+        {
+            if (get_board_value(row, col) == E)
+            { // Empty cell
+                bool foundStone = false;
+                for (const auto &dir : directions)
+                {
+                    for (int step = 1; step <= 2; ++step)
+                    {
+                        int newRow = row + step * dir.first;
+                        int newCol = col + step * dir.second;
+
+                        if (coordinates_are_valid(newRow, newCol) && get_board_value(newRow, newCol) != E)
+                        {
+                            relevantMoves.push_back({row, col});
+                            foundStone = true;
+                            break; // No need to check further if one stone is found near this cell.
+                        }
+                    }
+                    if (foundStone)
+                    {
+                        break; // No need to check further if one stone is found near this cell.
+                    }
+                }
+            }
+        }
+    }
+
+    return relevantMoves;
+}
+
 std::pair<int, bool> GomokuGame::count_stones_and_gap(size_t row, size_t col, int row_dir, int col_dir, Player player, bool &space) const
 {
     int stones = 0;

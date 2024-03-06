@@ -50,6 +50,7 @@ public:
     int get_board_size() const;
     void set_board_value(int x, int y, Player value);
     unsigned char get_current_player() const;
+    std::vector<std::pair<int, int>> findRelevantMoves() const;
 };
 
 #endif // GOMOKU_ENGINE_H
