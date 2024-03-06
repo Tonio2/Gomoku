@@ -5,6 +5,7 @@ sys.path.append("../lib")
 import pygomoku
 
 coordinates = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+depth = 2
 
 def convert_to_dict(node):
     """
@@ -46,10 +47,11 @@ def main():
                     current_player = pygomoku.Player.WHITE
                 else:
                     print("White's turn")
-                    AI = pygomoku.GomokuAI(game, pygomoku.Player.WHITE, 2)
+                    AI = pygomoku.GomokuAI(game, pygomoku.Player.WHITE, depth)
                     moveEvaluations = AI.suggest_move()
                     write_json(moveEvaluations, 'minimax_output.json')
-                    game.make_move(moveEvaluations.move[0], moveEvaluations.move[1])
+                    bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
+                    game.make_move(bestMove[0], bestMove[1])
                     illegal = False
                     current_player = pygomoku.Player.BLACK
             except Exception as e:
