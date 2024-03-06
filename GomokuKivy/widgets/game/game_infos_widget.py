@@ -12,6 +12,10 @@ class GameInfosWidget(Widget):
 
     time_marker_black = ObjectProperty(None)
     time_marker_white = ObjectProperty(None)
+
+    score_marker_black = ObjectProperty(None)
+    score_marker_white = ObjectProperty(None)
+
     current_player: GomokuPlayer
 
     def __init__(self, **kwargs):
@@ -30,6 +34,8 @@ class GameInfosWidget(Widget):
 
     def on_game_modified(self, message, game: GomokuGame):
         self.current_player = game.get_current_player()
+        self.score_marker_black.text = str(game.get_player_score(GomokuPlayer.BLACK))
+        self.score_marker_white.text = str(game.get_player_score(GomokuPlayer.WHITE))
 
     def on_game_time_modified(self, message, game: GomokuGame):
         if game is None:

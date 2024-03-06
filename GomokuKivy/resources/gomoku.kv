@@ -88,8 +88,11 @@
 
 <GameInfosWidget>:
 
-    time_marker_black: time_marker_1
-    time_marker_white: time_marker_2
+    time_marker_black: time_label_black
+    time_marker_white: time_label_white
+
+    score_marker_black: score_label_black
+    score_marker_white: score_label_white
 
     BoxLayout:
         orientation: 'vertical'
@@ -124,13 +127,22 @@
                     pos_hint: {'center_x': 0.5, 'top': 1}
 
                 Label:
-                    id: time_marker_1
+                    id: time_label_black
                     text: "time p1"
                     size_hint: None, None
                     size: self.texture_size
                     pos_hint: {'center_x': 0.5, 'top': 0.5}
                     color: 0.8, 0.8, 0.8, 1
                     font_name: 'resources/cascadia'
+
+                Label:
+                    id: score_label_black
+                    text: "score p1"
+                    size_hint: None, None
+                    size: self.texture_size
+                    pos_hint: {'center_x': 0.5, 'top': 0.95}
+                    color: 0.7, 0.0, 0.0, 1
+                    bold: True
 
             RelativeLayout:
                 size_hint_y: None
@@ -141,10 +153,19 @@
                     pos_hint: {'center_x': 0.5, 'top': 1}
 
                 Label:
-                    id: time_marker_2
+                    id: time_label_white
                     text: "time p2"
                     size_hint: None, None
                     size: self.texture_size
                     pos_hint: {'center_x': 0.5, 'top': 0.5}
                     color: 0.3, 0.3, 0.3, 1
                     font_name: 'resources/cascadia'
+
+                Label:
+                    id: score_label_white
+                    text: "score p2"
+                    size_hint: None, None
+                    size: self.texture_size
+                    pos_hint: {'center_x': 0.5, 'top': 0.95}
+                    color: 0.7, 0.0, 0.0, 1
+                    bold: True

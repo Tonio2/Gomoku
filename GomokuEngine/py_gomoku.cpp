@@ -17,6 +17,7 @@ PYBIND11_MODULE(pygomoku, m)
       .def("get_board_value", &GomokuGame::get_board_value)
       .def("get_board_size", &GomokuGame::get_board_size)
       .def("get_current_player", &GomokuGame::get_current_player)
+      .def("get_player_score", &GomokuGame::get_player_score)
       .def("reverse_move", &GomokuGame::reverse_move)
       .def("reapply_move", &GomokuGame::reapply_move);
   py::class_<CellChange>(m, "CellChange")

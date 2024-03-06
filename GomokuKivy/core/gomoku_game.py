@@ -53,6 +53,10 @@ class GomokuGame:
     def get_current_player(self) -> GomokuPlayer:
         return GomokuPlayer(self.game.get_current_player())
 
+    def get_player_score(self, player: GomokuPlayer) -> int:
+        game_player = pygomoku.Player(player.value)
+        return self.game.get_player_score(game_player)
+
     def play_at(self, row: int, col: int):
         modified = False
         try:
