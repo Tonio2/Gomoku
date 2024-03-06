@@ -17,12 +17,14 @@ class GomokuMove:
     row: int
     column: int
     timestamp: float
+    move_result: pygomoku.MoveResult
 
 class GomokuGame:
 
     game: pygomoku.GomokuGame
 
     move_list: List[GomokuMove]
+    last_move_index: int
 
     game_time: float
     players_time: Dict[GomokuPlayer, float]
@@ -31,6 +33,7 @@ class GomokuGame:
         self.game = pygomoku.GomokuGame(size)
 
         self.move_list = []
+        self.last_move_index = -1
 
         self.game_time = 0
         self.players_time = {
@@ -72,6 +75,13 @@ class GomokuGame:
         
         if modified:
             CallbackCenter.shared().send_message("GomokuGame.modified", self)
+
+    def resize_move_list(self, new_size: int):
+        current_size = len(self.move_list)
+        if current_size < new_size:
+            self.move_list.extend([None] * (new_size - current_size))
+        elif current_size > new_size:
+            self.move_list = self.move_list[:new_size]
 
     def increase_time(self, delta_time: float):
         self.game_time += delta_time

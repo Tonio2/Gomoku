@@ -24,9 +24,9 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
             {
                 if (game.get_board_value(i, j) == E)
                 {
-                    game.make_move(i, j);
+                    MoveResult game_move = game.make_move(i, j);
                     MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, false, i, j);
-                    game.set_board_value(i, j, E);
+                    game.reverse_move(game_move);
 
                     if (evalNode.score > maxEval)
                     {
@@ -58,9 +58,9 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
             {
                 if (game.get_board_value(i, j) == E)
                 {
-                    game.make_move(i, j);
+                    MoveResult game_move = game.make_move(i, j);
                     MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, true, i, j);
-                    game.set_board_value(i, j, E);
+                    game.reverse_move(game_move);
 
                     if (evalNode.score < minEval)
                     {

@@ -103,6 +103,14 @@
                 pos: self.pos
                 size: self.size
 
+        Button:
+            text: 'back'
+            on_press: root.reverse_move()
+
+        Button:
+            text: 'forward'
+            on_press: root.reapply_move()
+
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None

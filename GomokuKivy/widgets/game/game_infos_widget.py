@@ -62,3 +62,12 @@ class GameInfosWidget(Widget):
         if game is None:
             return
         
+        game.reverse_last_move()
+
+    def reapply_move(self):
+        game = self.get_game()
+
+        if game is None:
+            return
+        
+        game.reapply_last_move()
