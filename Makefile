@@ -14,3 +14,6 @@ reTerm:
 	cd GomokuEngine/build && make
 	mv GomokuEngine/build/pygomoku.cpython-310-x86_64-linux-gnu.so lib/pygomoku.so
 	cd GomokuKivy && python gomokuTerminal.py
+
+startTerm:
+	cd GomokuKivy && python gomokuTerminal.py

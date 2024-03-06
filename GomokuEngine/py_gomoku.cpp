@@ -1,5 +1,7 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h> 
 #include "gomoku_engine.h"
+#include "AI1.h"
 
 namespace py = pybind11;
 
@@ -28,4 +30,17 @@ PYBIND11_MODULE(pygomoku, m)
       .def_readwrite("cell_changes", &MoveResult::cell_changes)
       .def_readwrite("white_score_change", &MoveResult::white_score_change)
       .def_readwrite("black_score_change", &MoveResult::black_score_change);
+  py::enum_<Player>(m, "Player")
+      .value("EMPTY", Player::EMPTY)
+      .value("BLACK", Player::BLACK)
+      .value("WHITE", Player::WHITE)
+      .export_values();
+  py::class_<MoveEvaluation>(m, "MoveEvaluation")
+      .def(py::init<>())
+      .def_readwrite("move", &MoveEvaluation::move)
+      .def_readwrite("score", &MoveEvaluation::score)
+      .def_readwrite("listMoves", &MoveEvaluation::listMoves);
+  py::class_<GomokuAI>(m, "GomokuAI")
+      .def(py::init<GomokuGame &, Player, int>())
+      .def("suggest_move", &GomokuAI::suggest_move);
 }
