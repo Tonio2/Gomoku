@@ -87,6 +87,10 @@
                     size: 200, 50
 
 <GameInfosWidget>:
+
+    time_marker_black: time_marker_1
+    time_marker_white: time_marker_2
+
     BoxLayout:
         orientation: 'vertical'
         pos: root.pos
@@ -100,19 +104,39 @@
                 size: self.size
 
         BoxLayout:
-            orientation: 'vertical'
+            orientation: 'horizontal'
             size_hint_y: None
-            height: 80
-            spacing: 10
 
-            GameInfosPlayerIndicatorWidget:
-                player: 1
+            RelativeLayout:
+                size_hint_y: None
+                height: 80
 
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint_y: None
-            height: 80
-            spacing: 10
+                GameInfosPlayerIndicatorWidget:
+                    player: 1
+                    pos_hint: {'center_x': 0.5, 'top': 1}
 
-            GameInfosPlayerIndicatorWidget:
-                player: 2
+                Label:
+                    id: time_marker_1
+                    text: "time p1"
+                    size_hint: None, None
+                    size: self.texture_size
+                    pos_hint: {'center_x': 0.5, 'top': 0.5}
+                    color: 0.8, 0.8, 0.8, 1
+                    font_name: 'resources/cascadia'
+
+            RelativeLayout:
+                size_hint_y: None
+                height: 80
+
+                GameInfosPlayerIndicatorWidget:
+                    player: 2
+                    pos_hint: {'center_x': 0.5, 'top': 1}
+
+                Label:
+                    id: time_marker_2
+                    text: "time p2"
+                    size_hint: None, None
+                    size: self.texture_size
+                    pos_hint: {'center_x': 0.5, 'top': 0.5}
+                    color: 0.3, 0.3, 0.3, 1
+                    font_name: 'resources/cascadia'
