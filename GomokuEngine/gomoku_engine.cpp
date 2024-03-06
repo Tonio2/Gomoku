@@ -1,10 +1,14 @@
 #include "gomoku_engine.h"
 
 // Definitions of GomokuGame methods
-GomokuGame::GomokuGame(uint _size) : board_size(_size), board(_size * _size), current_player(X), winner(E)
+GomokuGame::GomokuGame(uint _size) :
+    board_size(_size),
+    board(_size * _size),
+    current_player(X),
+    players_scores({0, 0, 0}),
+    winner(E)
 {
-    black_score = 0;
-    white_score = 0;
+
 }
 
 static inline int board_index(int row, int col, uint board_size)
@@ -41,17 +45,7 @@ Player GomokuGame::other_player(Player player) const
 
 void GomokuGame::modify_player_score(Player player, int score)
 {
-    switch (player)
-    {
-        case X:
-            black_score += score;
-            break;
-        case O:
-            white_score += score;
-            break;
-        default:
-            break;
-    }
+    players_scores[player] += score;
 }
 
 bool GomokuGame::is_game_over() const
@@ -296,14 +290,5 @@ unsigned char GomokuGame::get_current_player() const
 
 int GomokuGame::get_player_score(Player player) const
 {
-    switch (player)
-    {
-        case Player::BLACK:
-            return black_score;
-        case Player::WHITE:
-            return white_score;
-        default:
-            break;
-    }
-    return 0;
+    return players_scores[player];
 }
