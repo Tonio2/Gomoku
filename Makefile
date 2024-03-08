@@ -17,3 +17,6 @@ reTerm:
 
 startTerm:
 	cd GomokuKivy && python gomokuTerminal.py
+
+start:
+	cd GomokuKivy && python gomoku.py

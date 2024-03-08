@@ -1,14 +1,36 @@
 #include "gomoku_engine.h"
 
-// Definitions of GomokuGame methods
-GomokuGame::GomokuGame(uint _size) :
-    board_size(_size),
-    board(_size * _size),
-    current_player(X),
-    players_scores({0, 0, 0}),
-    winner(E)
-{
+std::vector<Pattern> patterns = {
+    {StructureType::OPEN_FOUR, "ECCCCE"},
+    {StructureType::FOUR, "ECCCCB"},
+    {StructureType::FOUR, "BCCCCE"},
+    {StructureType::OPEN_THREE, "ECCCE"},
+    {StructureType::OPEN_THREE, "ECECCE"},
+    {StructureType::OPEN_THREE, "ECCECE"},
+    {StructureType::THREE, "BCCCE"},
+    {StructureType::THREE, "ECCCB"},
+    {StructureType::THREE, "BCECCE"},
+    {StructureType::THREE, "ECECCB"},
+    {StructureType::THREE, "BCCECE"},
+    {StructureType::THREE, "ECCECB"},
+    {StructureType::OPEN_TWO, "ECCE"}, // Should i add open two with a gap in between?
+    {StructureType::TWO, "BCCE"},
+    {StructureType::TWO, "ECCB"},
+    {StructureType::OPEN_ONE, "ECE"},
+    {StructureType::ONE, "BCE"},
+    {StructureType::ONE, "ECB"}};
 
+std::vector<std::string> structure_names = {"OPEN_FOUR", "FOUR", "OPEN_THREE", "THREE", "OPEN_TWO", "TWO", "OPEN_ONE", "ONE"};
+std::vector<std::string> player_names = {"E", "X", "O"};
+
+// Definitions of GomokuGame methods
+GomokuGame::GomokuGame(uint _size) : board_size(_size),
+                                     board(_size * _size),
+                                     current_player(X),
+                                     players_scores({0, 0, 0}),
+                                     winner(E),
+                                     structures(3, std::vector<Structure>(0))
+{
 }
 
 static inline int board_index(int row, int col, uint board_size)
@@ -28,7 +50,6 @@ CellChange GomokuGame::set_board_value(int row, int col, Player value)
     cell_change.row = row;
     cell_change.col = col;
 
-    
     const int index = board_index(row, col, board_size);
 
     cell_change.old_value = board[index];
@@ -46,6 +67,171 @@ Player GomokuGame::other_player(Player player) const
 void GomokuGame::modify_player_score(Player player, int score)
 {
     players_scores[player] += score;
+}
+
+std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, std::string pattern, StructureType type, Player player, std::pair<int, int> dir) const
+{
+    std::cout << "Checking pattern " << pattern << std::endl;
+    std::vector<std::pair<int, int>> cells;
+    Player otherPlayer = other_player(player);
+    for (int i = 0; i < pattern.size(); i++)
+    {
+        int y = row + (i - 1) * dir.first;
+        int x = col + (i - 1) * dir.second;
+        char val;
+        if (!coordinates_are_valid(y, x) or get_board_value(y, x) == otherPlayer)
+        {
+            val = 'B';
+        }
+        else if (get_board_value(y, x) == player)
+        {
+            val = 'C';
+        }
+        else
+        {
+            val = 'E';
+        }
+        std::cout << "(" << y << ", " << x << "): " << val << " | Expected: " << pattern[i] << std::endl;
+        if (val != pattern[i])
+        {
+            throw std::invalid_argument("Invalid pattern");
+        }
+        cells.push_back({y, x});
+    }
+    return cells;
+}
+
+void GomokuGame::update_structures(Player player)
+{
+    std::cout << "Updating structures for player " << player_names[player] << std::endl;
+    structures[player].clear();
+    // Check for structures in rows
+    for (uint row = 0; row < board_size; row++)
+    {
+        for (uint col = 0; col < board_size; col++)
+        {
+            if (get_board_value(row, col) == player)
+            {
+                std::cout << "Found stone at " << row << " " << col << std::endl;
+                for (uint i = 0; i < patterns.size(); i++)
+                {
+                    std::string pattern = patterns[i].pattern;
+                    StructureType type = patterns[i].type;
+                    try
+                    {
+                        std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {0, 1});
+                        structures[player].push_back({type, cells});
+                    }
+                    catch (const std::invalid_argument &e)
+                    {
+                    }
+                }
+            }
+        }
+    }
+
+    // Check for structures in columns
+    for (uint col = 0; col < board_size; col++)
+    {
+        for (uint row = 0; row < board_size; row++)
+        {
+            if (get_board_value(row, col) == player)
+            {
+                std::cout << "Found stone at " << row << " " << col << std::endl;
+                for (uint i = 0; i < patterns.size(); i++)
+                {
+                    std::string pattern = patterns[i].pattern;
+                    StructureType type = patterns[i].type;
+                    try
+                    {
+                        std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, 0});
+                        structures[player].push_back({type, cells});
+                    }
+                    catch (const std::invalid_argument &e)
+                    {
+                    }
+                }
+            }
+        }
+    }
+
+    // Check for structures in diagonals (1, -1)
+    uint row = 0;
+    uint col = 0;
+    while (row != 18 or col != 18)
+    {
+        if (not coordinates_are_valid(row, col))
+        {
+            if (row <= 18)
+            {
+                col = row;
+                row = 0;
+            }
+            else
+            {
+                row = col + 2;
+                col = 18;
+            }
+        }
+        if (get_board_value(row, col) == player)
+        {
+            std::cout << "Found stone at " << row << " " << col << std::endl;
+            for (uint i = 0; i < patterns.size(); i++)
+            {
+                std::string pattern = patterns[i].pattern;
+                StructureType type = patterns[i].type;
+                try
+                {
+                    std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, -1});
+                    structures[player].push_back({type, cells});
+                }
+                catch (const std::invalid_argument &e)
+                {
+                }
+            }
+        }
+        row--;
+        col++;
+    }
+
+    // Check for structures in diagonals (1, 1)
+    row = 0;
+    col = 18;
+    while (row != 18 or col != 0)
+    {
+        if (not coordinates_are_valid(row, col))
+        {
+            if (row <= 18)
+            {
+                col = 18 - row;
+                row = 0;
+            }
+            else
+            {
+                row = 20 - col;
+                col = 0;
+            }
+        }
+        if (get_board_value(row, col) == player)
+        {
+            std::cout << "Found stone at " << row << " " << col << std::endl;
+            for (uint i = 0; i < patterns.size(); i++)
+            {
+                std::string pattern = patterns[i].pattern;
+                StructureType type = patterns[i].type;
+                try
+                {
+                    std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, 1});
+                    structures[player].push_back({type, cells});
+                }
+                catch (const std::invalid_argument &e)
+                {
+                }
+            }
+        }
+        row++;
+        col++;
+    }
 }
 
 bool GomokuGame::is_game_over() const
@@ -144,6 +330,8 @@ MoveResult GomokuGame::make_move(int row, int col)
     }
 
     const CellChange cell_change = set_board_value(row, col, current_player);
+    update_structures(current_player);
+    update_structures(other_player(current_player));
     move_result.cell_changes.push_back(cell_change);
 
     if (check_win(row, col, current_player))
@@ -157,33 +345,33 @@ MoveResult GomokuGame::make_move(int row, int col)
     return move_result;
 }
 
-void GomokuGame::reverse_move(const MoveResult& move)
+void GomokuGame::reverse_move(const MoveResult &move)
 {
     modify_player_score(X, -move.black_score_change);
     modify_player_score(O, -move.white_score_change);
 
     current_player = other_player(current_player);
 
-    for (const CellChange& cell_change : move.cell_changes)
+    for (const CellChange &cell_change : move.cell_changes)
     {
         set_board_value(cell_change.row, cell_change.col, cell_change.old_value);
     }
 }
 
-void GomokuGame::reapply_move(const MoveResult& move)
+void GomokuGame::reapply_move(const MoveResult &move)
 {
     modify_player_score(X, move.black_score_change);
     modify_player_score(O, move.white_score_change);
 
     current_player = other_player(current_player);
 
-    for (const CellChange& cell_change : move.cell_changes)
+    for (const CellChange &cell_change : move.cell_changes)
     {
         set_board_value(cell_change.row, cell_change.col, cell_change.new_value);
     }
 }
 
-bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult& move_result)
+bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
     Player otherPlayer = other_player(player);
     std::vector<Player> expected_value = {otherPlayer, otherPlayer, player};
@@ -196,18 +384,16 @@ bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int 
             return false;
     }
     move_result.cell_changes.push_back(
-        set_board_value(row + row_dir, col + col_dir, E)
-    );
+        set_board_value(row + row_dir, col + col_dir, E));
 
     move_result.cell_changes.push_back(
-        set_board_value(row + 2 * row_dir, col + 2 * col_dir, E)
-    );
+        set_board_value(row + 2 * row_dir, col + 2 * col_dir, E));
 
     modify_player_score(player, 2);
     return true;
 }
 
-bool GomokuGame::try_cardinal_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult& move_result)
+bool GomokuGame::try_cardinal_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
     bool ret = try_direction_for_capture(row, col, row_dir, col_dir, player, move_result);
     ret |= try_direction_for_capture(row, col, -row_dir, -col_dir, player, move_result);
@@ -215,7 +401,7 @@ bool GomokuGame::try_cardinal_for_capture(uint row, uint col, int row_dir, int c
     return ret;
 }
 
-bool GomokuGame::capture(uint row, uint col, Player player, MoveResult& move_result)
+bool GomokuGame::capture(uint row, uint col, Player player, MoveResult &move_result)
 {
     bool ret = false;
     ret |= try_cardinal_for_capture(row, col, 1, 0, player, move_result);
@@ -291,4 +477,20 @@ unsigned char GomokuGame::get_current_player() const
 int GomokuGame::get_player_score(Player player) const
 {
     return players_scores[player];
+}
+
+void GomokuGame::display_struct() const
+{
+    for (uint i = 1; i < structures.size(); i++)
+    {
+        for (uint j = 0; j < structures[i].size(); j++)
+        {
+            std::cout << player_names[i] << ": Structure " << j << " " << structure_names[structures[i][j].type] << " ";
+            for (uint k = 0; k < structures[i][j].cells.size(); k++)
+            {
+                std::cout << "(" << structures[i][j].cells[k].first << ", " << structures[i][j].cells[k].second << ") ";
+            }
+            std::cout << std::endl;
+        }
+    }
 }

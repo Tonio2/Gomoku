@@ -19,7 +19,8 @@ PYBIND11_MODULE(pygomoku, m)
       .def("get_current_player", &GomokuGame::get_current_player)
       .def("get_player_score", &GomokuGame::get_player_score)
       .def("reverse_move", &GomokuGame::reverse_move)
-      .def("reapply_move", &GomokuGame::reapply_move);
+      .def("reapply_move", &GomokuGame::reapply_move)
+      .def("display_struct", &GomokuGame::display_struct);
   py::class_<CellChange>(m, "CellChange")
       .def(py::init<>())
       .def_readwrite("row", &CellChange::row)

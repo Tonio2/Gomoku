@@ -18,6 +18,30 @@ enum Player: unsigned char
     WHITE
 };
 
+enum StructureType
+{
+    OPEN_FOUR,
+    FOUR,
+    OPEN_THREE,
+    THREE,
+    OPEN_TWO,
+    TWO,
+    OPEN_ONE,
+    ONE
+};
+
+struct Pattern
+{
+    StructureType type;
+    std::string pattern;
+};
+
+struct Structure
+{
+    StructureType type;
+    std::vector<std::pair<int, int>> cells;
+};
+
 struct CellChange {
     unsigned short row;
     unsigned short col;
@@ -41,6 +65,7 @@ private:
     Player current_player;
     std::vector<int> players_scores;
     Player winner;
+    std::vector<std::vector<Structure>> structures;
 
     bool coordinates_are_valid(int row, int col) const;
     Player other_player(Player player) const;
@@ -63,6 +88,9 @@ private:
     CellChange set_board_value(int row, int col, Player value);
     void modify_player_score(Player player, int score);
 
+    std::vector<std::pair<int, int>> check_pattern(uint row, uint col, std::string pattern, StructureType type, Player player, std::pair<int, int> dir) const;
+    void update_structures(Player player);
+
 public:
     GomokuGame(uint _size);
 
@@ -77,6 +105,7 @@ public:
     int get_board_size() const;
     unsigned char get_current_player() const;
     int get_player_score(Player player) const;
+    void display_struct() const;
 };
 
 #endif // GOMOKU_ENGINE_H
