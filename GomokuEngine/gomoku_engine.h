@@ -11,7 +11,7 @@
 #define O Player::WHITE
 #define E Player::EMPTY
 
-enum Player: unsigned char
+enum Player : unsigned char
 {
     EMPTY,
     BLACK,
@@ -30,12 +30,25 @@ enum class StructureType
     ONE
 };
 
+enum class cellValue
+{
+    EMPTY,      // Empty cell
+    CUR_PLAYER, // Cell occupied by the current player
+    OTH_PLAYER, // Cell occupied by the other player
+    BLOCKED     // Cell is blocked by wall or other player's stone
+};
+
+struct Pattern
+{
+    StructureType type;
+    std::string pattern;
+};
+
 struct Structure
 {
     StructureType type;
     std::vector<std::pair<int, int>> cells;
 };
-
 
 class GomokuGame
 {
@@ -57,7 +70,7 @@ private:
     bool check_dir_for_5_in_a_row(size_t row, size_t col, int row_dir, int col_dir, Player player) const;
     bool check_5_in_a_row(size_t row, size_t col, Player player) const;
     Player other_player(Player player) const;
-    void update_structures();
+    void update_structures(Player player);
 
 public:
     GomokuGame(uint _size);

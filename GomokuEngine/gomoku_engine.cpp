@@ -1,5 +1,25 @@
 #include "gomoku_engine.h"
 
+std::vector<Pattern> patterns = {
+    {StructureType::OPEN_FOUR, "ECCCCE"},
+    {StructureType::FOUR, "ECCCCB"},
+    {StructureType::FOUR, "BCCCCE"},
+    {StructureType::OPEN_THREE, "ECCCE"},
+    {StructureType::OPEN_THREE, "ECECCE"},
+    {StructureType::OPEN_THREE, "ECCECE"},
+    {StructureType::THREE, "BCCCE"},
+    {StructureType::THREE, "ECCCB"},
+    {StructureType::THREE, "BCECCE"},
+    {StructureType::THREE, "ECECCB"},
+    {StructureType::THREE, "BCCECE"},
+    {StructureType::THREE, "ECCECB"},
+    {StructureType::OPEN_TWO, "ECCE"}, // Should i add open two with a gap in between?
+    {StructureType::TWO, "BCCE"},
+    {StructureType::TWO, "ECCB"},
+    {StructureType::OPEN_ONE, "ECE"},
+    {StructureType::ONE, "BCE"},
+    {StructureType::ONE, "ECB"}};
+
 // Definitions of GomokuGame methods
 GomokuGame::GomokuGame(uint _size) : board_size(_size), board(_size * _size), current_player(X), winner(E), structures(3, std::vector<Structure>(0))
 {
@@ -132,25 +152,17 @@ int GomokuGame::count_open_threes(size_t row, size_t col, Player player) const
     return open_threes;
 }
 
-void GomokuGame::update_structures()
+void GomokuGame::update_structures(Player player)
 {
-    structures[X].clear();
-    structures[O].clear();
-    const std::vector<std::pair<int, int>> directions = {
-        {0, 1}, {1, 0}, {1, -1}, {1, 1}};
-    
-    for (int i = 0; i < 4; i++)
+    structures[player].clear();
+
+    for (int row = 0; row < board_size; row++)
     {
-        int row = ?;
-        int col = ?;
-        while( ? ) {
-            row = ?;
-            col = ?;
-            while (coordinates_are_valid(row, col)) {
-                std::cout << row << " " << col << std::endl;
-                row = ?;
-                col = ?;
-            }
+        for (int col = 0; col < board_size; col++)
+        {
+            if (get_board_value(row, col) == player)
+            {
+                        }
         }
     }
 }
