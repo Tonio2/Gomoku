@@ -43,7 +43,7 @@ class GameBoardWidget(Widget):
         if gomoku_game is None:
             return
 
-        board_size_x, board_size_y = gomoku_game.get_board_size()
+        board_size_y, board_size_x = gomoku_game.get_board_size()
 
         cell_size_x = self.width / board_size_x
         cell_size_y = self.height / board_size_y
@@ -67,7 +67,7 @@ class GameBoardWidget(Widget):
             # Draw the pieces
             for x in range(board_size_x):
                 for y in range(board_size_y):
-                    cell_value = gomoku_game.get_board_value_at(x, y)
+                    cell_value = gomoku_game.get_board_value_at(board_size_y - y - 1, x)
                     match cell_value:
                         case GomokuPlayer.WHITE:
                             Color(*WHITE_COLOR)
@@ -93,4 +93,4 @@ class GameBoardWidget(Widget):
             col = int((touch.pos[0] - self.x) / cell_size_x)
             row = int((touch.pos[1] - self.y) / cell_size_y)
 
-            gomoku_game.play_at(col, row)
+            gomoku_game.play_at(gomoku_game.get_board_size()[1] - 1 - row, col)
