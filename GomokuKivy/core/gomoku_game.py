@@ -91,7 +91,7 @@ class GomokuGame:
             self.move_list[self.last_move_index] = new_move
 
         except:
-            print(f'Failed to play')
+            print(f'Failed to play at {row}:{col}')
         
         if modified:
             CallbackCenter.shared().send_message("GomokuGame.modified", self)
