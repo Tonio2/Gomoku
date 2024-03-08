@@ -16,6 +16,9 @@ class GameInfosWidget(Widget):
     score_marker_black = ObjectProperty(None)
     score_marker_white = ObjectProperty(None)
 
+    button_previous = ObjectProperty(None)
+    button_next = ObjectProperty(None)
+
     current_player: GomokuPlayer
 
     def __init__(self, **kwargs):
@@ -36,6 +39,8 @@ class GameInfosWidget(Widget):
         self.current_player = game.get_current_player()
         self.score_marker_black.text = str(game.get_player_score(GomokuPlayer.BLACK))
         self.score_marker_white.text = str(game.get_player_score(GomokuPlayer.WHITE))
+        self.button_previous.disabled = not game.can_reverse_move()
+        self.button_next.disabled = not game.can_reapply_move()
 
     def on_game_time_modified(self, message, game: GomokuGame):
         if game is None:
