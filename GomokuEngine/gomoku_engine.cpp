@@ -105,6 +105,7 @@ void GomokuGame::update_structures(Player player)
 {
     std::cout << "Updating structures for player " << player_names[player] << std::endl;
     structures[player].clear();
+
     // Check for structures in rows
     for (uint row = 0; row < board_size; row++)
     {
@@ -112,7 +113,6 @@ void GomokuGame::update_structures(Player player)
         {
             if (get_board_value(row, col) == player)
             {
-                std::cout << "Found stone at " << row << " " << col << std::endl;
                 for (uint i = 0; i < patterns.size(); i++)
                 {
                     std::string pattern = patterns[i].pattern;
@@ -137,7 +137,6 @@ void GomokuGame::update_structures(Player player)
         {
             if (get_board_value(row, col) == player)
             {
-                std::cout << "Found stone at " << row << " " << col << std::endl;
                 for (uint i = 0; i < patterns.size(); i++)
                 {
                     std::string pattern = patterns[i].pattern;
@@ -156,9 +155,9 @@ void GomokuGame::update_structures(Player player)
     }
 
     // Check for structures in diagonals (1, -1)
-    uint row = 0;
-    uint col = 0;
-    while (row != 18 or col != 18)
+    int row = 0;
+    int col = 0;
+    while (row != 19 or col != 17)
     {
         if (not coordinates_are_valid(row, col))
         {
@@ -175,7 +174,6 @@ void GomokuGame::update_structures(Player player)
         }
         if (get_board_value(row, col) == player)
         {
-            std::cout << "Found stone at " << row << " " << col << std::endl;
             for (uint i = 0; i < patterns.size(); i++)
             {
                 std::string pattern = patterns[i].pattern;
@@ -190,14 +188,14 @@ void GomokuGame::update_structures(Player player)
                 }
             }
         }
-        row--;
-        col++;
+        row++;
+        col--;
     }
 
     // Check for structures in diagonals (1, 1)
     row = 0;
     col = 18;
-    while (row != 18 or col != 0)
+    while (row != 19 or col != 1)
     {
         if (not coordinates_are_valid(row, col))
         {
@@ -214,7 +212,6 @@ void GomokuGame::update_structures(Player player)
         }
         if (get_board_value(row, col) == player)
         {
-            std::cout << "Found stone at " << row << " " << col << std::endl;
             for (uint i = 0; i < patterns.size(); i++)
             {
                 std::string pattern = patterns[i].pattern;
