@@ -336,8 +336,8 @@ MoveResult GomokuGame::make_move(int row, int col)
 
     if (check_win(row, col, current_player))
         winner = current_player;
-    else
-        current_player = other_player(current_player);
+    
+    current_player = other_player(current_player);
 
     move_result.black_score_change = get_player_score(X) - old_black_score;
     move_result.white_score_change = get_player_score(O) - old_white_score;
@@ -356,6 +356,8 @@ void GomokuGame::reverse_move(const MoveResult &move)
     {
         set_board_value(cell_change.row, cell_change.col, cell_change.old_value);
     }
+
+    winner = E;
 }
 
 void GomokuGame::reapply_move(const MoveResult &move)
@@ -363,12 +365,16 @@ void GomokuGame::reapply_move(const MoveResult &move)
     modify_player_score(X, move.black_score_change);
     modify_player_score(O, move.white_score_change);
 
-    current_player = other_player(current_player);
-
-    for (const CellChange &cell_change : move.cell_changes)
+    for (const CellChange& cell_change : move.cell_changes)
     {
         set_board_value(cell_change.row, cell_change.col, cell_change.new_value);
     }
+
+    CellChange cell = move.cell_changes.back();
+    if (check_win(cell.row, cell.col, current_player))
+        winner = current_player;
+    
+    current_player = other_player(current_player);
 }
 
 bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)

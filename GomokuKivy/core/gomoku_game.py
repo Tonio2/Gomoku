@@ -12,6 +12,16 @@ class GomokuPlayer(Enum):
     BLACK = 1
     WHITE = 2
 
+    def to_str(self):
+        match self:
+            case GomokuPlayer.EMPTY:
+                return "No One"
+            case GomokuPlayer.BLACK:
+                return "Black"
+            case GomokuPlayer.WHITE:
+                return "White"
+        return "None"
+
 class GomokuMove:
     player: GomokuPlayer
     row: int
@@ -57,6 +67,12 @@ class GomokuGame:
         game_player = pygomoku.Player(player.value)
         return self.game.get_player_score(game_player)
 
+    def get_winner(self) -> GomokuPlayer:
+        if self.game.is_game_over():
+            winning_player = self.game.get_winner()
+            return GomokuPlayer(winning_player)
+        return GomokuPlayer.EMPTY
+
     def play_at(self, row: int, col: int):
         modified = False
         try:
@@ -75,10 +91,13 @@ class GomokuGame:
             self.move_list[self.last_move_index] = new_move
 
         except:
-            print(f'Failed to play')
+            print(f'Failed to play at {row}:{col}')
         
         if modified:
             CallbackCenter.shared().send_message("GomokuGame.modified", self)
+
+            if self.game.is_game_over():
+                CallbackCenter.shared().send_message("GomokuGame.gameover", self)
 
     def resize_move_list(self, new_size: int):
         current_size = len(self.move_list)
@@ -92,19 +111,25 @@ class GomokuGame:
         self.players_time[self.get_current_player()] -= delta_time
         CallbackCenter.shared().send_message("GomokuGame.time", self)
 
+    def can_reverse_move(self):
+        return self.last_move_index >= 0
+
     def reverse_last_move(self):
-        if (self.last_move_index < 0):
+        if not self.can_reverse_move():
             return
 
         self.game.reverse_move(self.move_list[self.last_move_index].move_result)
         self.last_move_index -= 1
         CallbackCenter.shared().send_message("GomokuGame.modified", self)
 
-    def reapply_last_move(self):
-        reapply_index = self.last_move_index + 1
+    def can_reapply_move(self):
+        return self.last_move_index + 1 < len(self.move_list)
 
-        if (reapply_index >= len(self.move_list)):
+    def reapply_last_move(self):
+        if not self.can_reapply_move():
             return
+
+        reapply_index = self.last_move_index + 1
 
         self.game.reapply_move(self.move_list[reapply_index].move_result)
         self.last_move_index += 1
