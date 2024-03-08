@@ -106,6 +106,8 @@ public:
     unsigned char get_current_player() const;
     int get_player_score(Player player) const;
     void display_struct() const;
+    std::vector<std::pair<int, int>> findRelevantMoves() const;
+    std::vector<std::vector<Structure>> get_structures() const;
 };
 
 #endif // GOMOKU_ENGINE_H

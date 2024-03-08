@@ -57,13 +57,20 @@ def main():
                     # game.make_move(bestMove[0], bestMove[1])
                     
                     # Player
+                    
+                    AI = pygomoku.GomokuAI(game, pygomoku.Player.WHITE, depth)
+                    moveEvaluations = AI.suggest_move()
+                    write_json(moveEvaluations, 'minimax_output.json')
+                    bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
+                    print(f"AI move: {coordinates[bestMove[0]]} {coordinates[bestMove[1]]}")
+                    
                     row, col = input("Enter your move (row col): ").split()
                     row = coordinates.index(row)
                     col = coordinates.index(col)
                     game.make_move(row, col)
                     illegal = False
                     current_player = pygomoku.Player.BLACK
-                game.display_struct()
+                # game.display_struct()
             except Exception as e:
                 error = str(e)
                 print(f"Error: {error}")

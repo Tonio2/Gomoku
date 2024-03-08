@@ -20,7 +20,7 @@ private:
     Player human_player;
 
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
-    int heuristic_evaluation();
+    int heuristic_evaluation(unsigned char player);
 
 public:
     GomokuAI(GomokuGame game, Player ai_player, int depth);
