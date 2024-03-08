@@ -78,13 +78,34 @@
                 size_hint: (0.25, 1) if root_box_layout.orientation == 'horizontal' else (1, 0.25)
                 orientation: 'horizontal' if self.width > self.height else 'vertical'
 
+                Button:
+                    text: 'Menu'
+                    on_press: root.back_to_menu()
+                    size_hint: None, None
+                    size: 60, 50
+
+                ScrollView:
+                    do_scroll_x: False
+
+                    GameMoveListWidget:
+                        id: game_move_list_widget
+                        grid_widget: grid_layout
+
+                        GridLayout:
+                            id: grid_layout
+                            cols: 2
+                            size_hint: None, None
+                            size: game_move_list_widget.width, 0
+                            spacing: dp(10)
+
                 GameInfosWidget:
                     id: game_infos_widget
 
-                Button:
-                    text: 'Back to Menu'
-                    on_press: root.back_to_menu()
-                    size: 200, 50
+                    size_hint_x: 1 if root_box_layout.orientation == 'horizontal' else None
+                    width: self.width if root_box_layout.orientation == 'horizontal' else 120
+
+                    size_hint_y: None if root_box_layout.orientation == 'horizontal' else 1
+                    height: 150 if root_box_layout.orientation == 'horizontal' else self.height
 
 <GameInfosWidget>:
 
@@ -93,6 +114,9 @@
 
     score_marker_black: score_label_black
     score_marker_white: score_label_white
+
+    button_previous: reverse_move_button
+    button_next: reapply_move_button
 
     BoxLayout:
         orientation: 'vertical'
@@ -106,32 +130,41 @@
                 pos: self.pos
                 size: self.size
 
-        Button:
-            text: 'back'
-            on_press: root.reverse_move()
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.3
 
-        Button:
-            text: 'forward'
-            on_press: root.reapply_move()
+            Button:
+                id: reverse_move_button
+                text: 'back'
+                on_press: root.reverse_move()
+                disabled: True
+
+            Button:
+                id: reapply_move_button
+                text: 'forward'
+                on_press: root.reapply_move()
+                disabled: True
 
         BoxLayout:
             orientation: 'horizontal'
-            size_hint_y: None
+            size_hint_y: 0.7
 
             RelativeLayout:
                 size_hint_y: None
-                height: 80
 
                 GameInfosPlayerIndicatorWidget:
                     player: 1
-                    pos_hint: {'center_x': 0.5, 'top': 1}
+                    size_hint_y: None
+                    height: self.parent.height
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
                 Label:
                     id: time_label_black
                     text: "time p1"
                     size_hint: None, None
                     size: self.texture_size
-                    pos_hint: {'center_x': 0.5, 'top': 0.5}
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                     color: 0.8, 0.8, 0.8, 1
                     font_name: 'resources/cascadia'
 
@@ -140,24 +173,25 @@
                     text: "score p1"
                     size_hint: None, None
                     size: self.texture_size
-                    pos_hint: {'center_x': 0.5, 'top': 0.95}
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.75}
                     color: 0.7, 0.0, 0.0, 1
                     bold: True
 
             RelativeLayout:
                 size_hint_y: None
-                height: 80
 
                 GameInfosPlayerIndicatorWidget:
                     player: 2
-                    pos_hint: {'center_x': 0.5, 'top': 1}
+                    size_hint_y: None
+                    height: self.parent.height
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
                 Label:
                     id: time_label_white
                     text: "time p2"
                     size_hint: None, None
                     size: self.texture_size
-                    pos_hint: {'center_x': 0.5, 'top': 0.5}
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                     color: 0.3, 0.3, 0.3, 1
                     font_name: 'resources/cascadia'
 
@@ -166,6 +200,6 @@
                     text: "score p2"
                     size_hint: None, None
                     size: self.texture_size
-                    pos_hint: {'center_x': 0.5, 'top': 0.95}
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.75}
                     color: 0.7, 0.0, 0.0, 1
                     bold: True
