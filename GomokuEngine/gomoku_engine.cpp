@@ -354,6 +354,9 @@ void GomokuGame::reverse_move(const MoveResult &move)
         set_board_value(cell_change.row, cell_change.col, cell_change.old_value);
     }
 
+    update_structures(current_player);
+    update_structures(other_player(current_player));
+
     winner = E;
 }
 
@@ -368,6 +371,10 @@ void GomokuGame::reapply_move(const MoveResult &move)
     }
 
     CellChange cell = move.cell_changes.back();
+
+    update_structures(current_player);
+    update_structures(other_player(current_player));
+    
     if (check_win(cell.row, cell.col, current_player))
         winner = current_player;
     
