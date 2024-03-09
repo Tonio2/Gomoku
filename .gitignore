@@ -27,3 +27,7 @@ GomokuEngine/log.txt
 
 # c++ executables
 GomokuEngine/main
+
+# Performance evaluation
+GomokuEngine/analysis.txt
+GomokuEngine/gmon.out

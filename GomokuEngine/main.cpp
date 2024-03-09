@@ -109,7 +109,7 @@ int main()
     // game.make_move(0, 0);
     // game.make_move(0, 1);
     game.display_struct();
-    GomokuAI AI(game, O, 2);
+    GomokuAI AI(game, O, 3);
     MoveEvaluation moveEvalutation = AI.suggest_move();
     logMoveEvaluation(moveEvalutation);
     displayBoard(game);

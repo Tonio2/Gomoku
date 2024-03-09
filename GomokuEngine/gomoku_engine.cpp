@@ -75,14 +75,19 @@ std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, s
     Player otherPlayer = other_player(player);
     for (int i = 0; i < pattern.size(); i++)
     {
+        if (i == 1) {
+            cells.push_back({row, col});
+            continue;
+        }
         int y = row + (i - 1) * dir.first;
         int x = col + (i - 1) * dir.second;
         char val;
-        if (!coordinates_are_valid(y, x) or get_board_value(y, x) == otherPlayer)
+        unsigned char cell = get_board_value(y, x);
+        if (!coordinates_are_valid(y, x) or cell == otherPlayer)
         {
             val = 'B';
         }
-        else if (get_board_value(y, x) == player)
+        else if (cell == player)
         {
             val = 'C';
         }
@@ -90,10 +95,10 @@ std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, s
         {
             val = 'E';
         }
+
         if (val != pattern[i])
-        {
             throw std::invalid_argument("Invalid pattern");
-        }
+
         cells.push_back({y, x});
     }
     return cells;
@@ -247,13 +252,14 @@ std::pair<int, bool> GomokuGame::count_stones_and_gap(uint row, uint col, int ro
     {
         int x = row + i * row_dir;
         int y = col + i * col_dir;
-        if (!coordinates_are_valid(x, y) or get_board_value(x, y) == otherPlayer)
+        unsigned char cell = get_board_value(x, y);
+        if (!coordinates_are_valid(x, y) or cell == otherPlayer)
         {
             if (space && !stones)
                 space = false;
             break;
         }
-        else if (get_board_value(x, y) == E)
+        else if (cell == E)
         {
             bool space_val = space;
             space = true;
