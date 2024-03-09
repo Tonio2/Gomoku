@@ -115,5 +115,6 @@ int main()
     displayBoard(game);
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
+    Timer::printAccumulatedTimes();
     return 0;
 }

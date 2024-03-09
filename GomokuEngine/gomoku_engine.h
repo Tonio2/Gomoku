@@ -6,6 +6,8 @@
 #include <map>
 #include <iostream>
 #include <cstddef>
+#include <chrono>
+#include "Timer.h"
 
 #define X Player::BLACK
 #define O Player::WHITE

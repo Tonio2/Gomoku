@@ -8,6 +8,7 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), a
 
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
 {
+    Timer timer("minimax");
     // If the depth is 0 or the game is over, return the heuristic evaluation of the current board.
     MoveEvaluation node;
     node.move = {row, col}; // Initialize with an invalid move.
