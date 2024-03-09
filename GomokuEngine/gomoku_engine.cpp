@@ -75,7 +75,8 @@ std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, s
     Player otherPlayer = other_player(player);
     for (int i = 0; i < pattern.size(); i++)
     {
-        if (i == 1) {
+        if (i == 1)
+        {
             cells.push_back({row, col});
             continue;
         }
@@ -384,9 +385,9 @@ void GomokuGame::reapply_move(const MoveResult &move)
     current_player = other_player(current_player);
 }
 
-std::vector<std::pair<int, int>> GomokuGame::findRelevantMoves() const
+std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves() const
 {
-    std::vector<std::pair<int, int>> relevantMoves;
+    std::vector<std::pair<std::pair<int, int>, int>> relevantMoves;
 
     // Directions to check around each cell (8 directions).
     const std::vector<std::pair<int, int>> directions = {
@@ -408,7 +409,7 @@ std::vector<std::pair<int, int>> GomokuGame::findRelevantMoves() const
 
                         if (coordinates_are_valid(newRow, newCol) && get_board_value(newRow, newCol) != E)
                         {
-                            relevantMoves.push_back({row, col});
+                            relevantMoves.push_back({{row, col}, 0});
                             foundStone = true;
                             break; // No need to check further if one stone is found near this cell.
                         }

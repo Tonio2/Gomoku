@@ -1,4 +1,5 @@
 #include "AI1.h"
+#include <algorithm>
 
 GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), ai_player(ai_player), depth(depth)
 {
@@ -7,79 +8,60 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), a
 
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
 {
+    // If the depth is 0 or the game is over, return the heuristic evaluation of the current board.
     MoveEvaluation node;
     node.move = {row, col}; // Initialize with an invalid move.
     if (depth == 0 || game.is_game_over())
     {
-        if (game.is_game_over())
-        {
-            if (maximizingPlayer)
-            {
-                node.score = std::numeric_limits<int>::max();
-            }
-            else
-            {
-                node.score = std::numeric_limits<int>::min();
-            }
-        }
-        node.score = heuristic_evaluation();
+        node.score = game.is_game_over() ? (maximizingPlayer ? std::numeric_limits<int>::max() : std::numeric_limits<int>::min()) : heuristic_evaluation();
         return node;
     }
 
-    if (maximizingPlayer)
+    // Else find all the relevant moves and sort them by their heuristic evaluation if the depth is not 1.
+    std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves();
+    if (depth > 1)
     {
-        int maxEval = std::numeric_limits<int>::min();
-        std::vector<std::pair<int, int>> moves = game.findRelevantMoves();
-        for (auto move : moves)
+        if (maximizingPlayer)
+            std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
+                      { return a.second > b.second; });
+        else
+            std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
+                      { return a.second < b.second; });
+    }
+
+    // For each move, make the move, call minimax recursively and reverse the move.
+    int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+    for (auto moveWithScore : moves)
+    {
+        std::pair<int, int> move = moveWithScore.first;
+        MoveResult game_move = game.make_move(move.first, move.second);
+        MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, !maximizingPlayer, move.first, move.second);
+        game.reverse_move(game_move);
+
+        if (maximizingPlayer)
         {
-            if (game.get_board_value(move.first, move.second) == E)
+            if (evalNode.score > extremeEval)
             {
-                MoveResult game_move = game.make_move(move.first, move.second);
-                MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, false, move.first, move.second);
-                game.reverse_move(game_move);
-
-                if (evalNode.score > maxEval)
-                {
-                    maxEval = evalNode.score;
-                    node.score = maxEval;
-                    alpha = std::max(alpha, evalNode.score);
-                }
-
-                node.listMoves.push_back(evalNode);
-
-                if (beta <= alpha)
-                {
-                    break;
-                }
+                extremeEval = evalNode.score;
+                node.score = extremeEval;
+                alpha = std::max(alpha, evalNode.score);
             }
         }
-    }
-    else
-    {
-        int minEval = std::numeric_limits<int>::max();
-        std::vector<std::pair<int, int>> moves = game.findRelevantMoves();
-        for (auto move : moves)
+        else
         {
-            if (game.get_board_value(move.first, move.second) == E)
+            if (evalNode.score < extremeEval)
             {
-                MoveResult game_move = game.make_move(move.first, move.second);
-                MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, true, move.first, move.second);
-                game.reverse_move(game_move);
-
-                if (evalNode.score < minEval)
-                {
-                    minEval = evalNode.score;
-                    node.score = minEval;
-                    beta = std::min(beta, evalNode.score);
-                }
-
-                node.listMoves.push_back(evalNode);
-
-                if (beta <= alpha)
-                {
-                    break;
-                }
+                extremeEval = evalNode.score;
+                node.score = extremeEval;
+                beta = std::min(beta, evalNode.score);
             }
+        }
+
+        node.listMoves.push_back(evalNode);
+
+        if (beta <= alpha)
+        {
+            break;
         }
     }
     return node;
@@ -91,7 +73,7 @@ int GomokuAI::heuristic_evaluation()
     std::vector<std::vector<Structure>> structuresAll = game.get_structures();
     int multiplier = 1;
     int score = 0;
-    std::vector<int> counts(8,0);
+    std::vector<int> counts(8, 0);
 
     for (int i = 0; i < 2; i++)
     {
@@ -107,7 +89,9 @@ int GomokuAI::heuristic_evaluation()
         else if (counts[OPEN_THREE] >= 2 or counts[FOUR] >= 2 or (counts[OPEN_THREE] >= 1 and counts[FOUR] >= 1))
         {
             score += 9000 * multiplier;
-        } else {
+        }
+        else
+        {
             score += counts[OPEN_THREE] * 1000 * multiplier;
             score += counts[THREE] * 500 * multiplier;
             score += counts[OPEN_TWO] * 100 * multiplier;
@@ -117,7 +101,7 @@ int GomokuAI::heuristic_evaluation()
         }
         player = human_player;
         multiplier = -1;
-        counts = {0,0,0,0,0,0,0,0};
+        counts = {0, 0, 0, 0, 0, 0, 0, 0};
     }
     return score;
 }

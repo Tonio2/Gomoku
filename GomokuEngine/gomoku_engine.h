@@ -11,7 +11,7 @@
 #define O Player::WHITE
 #define E Player::EMPTY
 
-enum Player: unsigned char
+enum Player : unsigned char
 {
     EMPTY,
     BLACK,
@@ -42,7 +42,8 @@ struct Structure
     std::vector<std::pair<int, int>> cells;
 };
 
-struct CellChange {
+struct CellChange
+{
     unsigned short row;
     unsigned short col;
     Player old_value;
@@ -80,9 +81,9 @@ private:
     bool check_direction_for_open_three(uint row, uint col, int row_dir, int col_dir, Player player) const;
 
     /** Capture */
-    bool try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult& move_result);
-    bool try_cardinal_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult& move_result);
-    bool capture(uint row, uint col, Player player, MoveResult& move_result);
+    bool try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result);
+    bool try_cardinal_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result);
+    bool capture(uint row, uint col, Player player, MoveResult &move_result);
 
     /** Board state */
     CellChange set_board_value(int row, int col, Player value);
@@ -96,8 +97,8 @@ public:
 
     bool is_game_over() const;
     MoveResult make_move(int row, int col);
-    void reverse_move(const MoveResult& move);
-    void reapply_move(const MoveResult& move);
+    void reverse_move(const MoveResult &move);
+    void reapply_move(const MoveResult &move);
     bool check_win(uint row, uint col, Player player);
     int count_open_threes(uint row, uint col, Player player) const;
     unsigned char get_winner() const;
@@ -106,7 +107,7 @@ public:
     unsigned char get_current_player() const;
     int get_player_score(Player player) const;
     void display_struct() const;
-    std::vector<std::pair<int, int>> findRelevantMoves() const;
+    std::vector<std::pair<std::pair<int, int>, int>> findRelevantMoves() const;
     std::vector<std::vector<Structure>> get_structures() const;
 };
 
