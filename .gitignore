@@ -20,3 +20,10 @@ __pycache__/
 
 # logs
 GomokuKivy/minimax_output.json
+GomokuEngine/log.txt
+
+# c++ object files
+*.o
+
+# c++ executables
+GomokuEngine/main
