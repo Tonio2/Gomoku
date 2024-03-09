@@ -22,7 +22,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                 node.score = std::numeric_limits<int>::min();
             }
         }
-        node.score = heuristic_evaluation(game.get_current_player() == 1 ? 2 : 1);
+        node.score = heuristic_evaluation();
         return node;
     }
 
@@ -85,33 +85,40 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     return node;
 }
 
-int GomokuAI::heuristic_evaluation(unsigned char player)
+int GomokuAI::heuristic_evaluation()
 {
-    std::vector<Structure> structures = game.get_structures()[player];
+    int player = ai_player;
+    std::vector<std::vector<Structure>> structuresAll = game.get_structures();
+    int multiplier = 1;
     int score = 0;
-    std::vector<int> counts(8, 0);
+    std::vector<int> counts(8,0);
 
-    for (Structure &structure : structures)
+    for (int i = 0; i < 2; i++)
     {
-        counts[structure.type] += 1;
-    }
+        for (Structure &structure : structuresAll[player])
+        {
+            counts[structure.type] += 1;
+        }
 
-    if (counts[OPEN_FOUR] >= 1)
-    {
-        score += 10000;
+        if (counts[OPEN_FOUR] >= 1)
+        {
+            score += 10000 * multiplier;
+        }
+        else if (counts[OPEN_THREE] >= 2 or counts[FOUR] >= 2 or (counts[OPEN_THREE] >= 1 and counts[FOUR] >= 1))
+        {
+            score += 9000 * multiplier;
+        } else {
+            score += counts[OPEN_THREE] * 1000 * multiplier;
+            score += counts[THREE] * 500 * multiplier;
+            score += counts[OPEN_TWO] * 100 * multiplier;
+            score += counts[TWO] * 50 * multiplier;
+            score += counts[OPEN_ONE] * 10 * multiplier;
+            score += counts[ONE] * 5 * multiplier;
+        }
+        player = human_player;
+        multiplier = -1;
+        counts = {0,0,0,0,0,0,0,0};
     }
-    else if (counts[OPEN_THREE] >= 2 or counts[FOUR] >= 2 or (counts[OPEN_THREE] >= 1 and counts[FOUR] >= 1))
-    {
-        score += 9000;
-    } else {
-        score += counts[OPEN_THREE] * 1000;
-        score += counts[THREE] * 500;
-        score += counts[OPEN_TWO] * 100;
-        score += counts[TWO] * 50;
-        score += counts[OPEN_ONE] * 10;
-        score += counts[ONE] * 5;
-    }
-
     return score;
 }
 

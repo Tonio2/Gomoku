@@ -106,8 +106,9 @@ int main()
     game.make_move(4, 4);
     game.make_move(2, 2);
     game.make_move(5, 4);
-    game.make_move(0, 0);
-    game.make_move(2, 4);
+    // game.make_move(0, 0);
+    // game.make_move(0, 1);
+    game.display_struct();
     GomokuAI AI(game, O, 2);
     MoveEvaluation moveEvalutation = AI.suggest_move();
     logMoveEvaluation(moveEvalutation);
