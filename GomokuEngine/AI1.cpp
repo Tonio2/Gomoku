@@ -6,6 +6,23 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), a
     human_player = (ai_player == X) ? O : X;
 }
 
+void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer)
+{
+    Timer timer("sortMoves");
+    for (std::pair<std::pair<int, int>, int> &move : moves)
+    {
+        MoveResult game_move = game.make_move(move.first.first, move.first.second);
+        move.second = heuristic_evaluation();
+        game.reverse_move(game_move);
+    }
+    if (maximizingPlayer)
+        std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
+                  { return a.second > b.second; });
+    else
+        std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
+                  { return a.second < b.second; });
+}
+
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
 {
     Timer timer("minimax");
@@ -22,12 +39,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves();
     if (depth > 1)
     {
-        if (maximizingPlayer)
-            std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
-                      { return a.second > b.second; });
-        else
-            std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
-                      { return a.second < b.second; });
+        sortMoves(moves, maximizingPlayer);
     }
 
     // For each move, make the move, call minimax recursively and reverse the move.
@@ -70,6 +82,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
 int GomokuAI::heuristic_evaluation()
 {
+    Timer timer("heuristic_evaluation");
     int player = ai_player;
     std::vector<std::vector<Structure>> structuresAll = game.get_structures();
     int multiplier = 1;
