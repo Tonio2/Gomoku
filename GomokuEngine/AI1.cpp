@@ -97,23 +97,14 @@ int GomokuAI::heuristic_evaluation()
             counts[structure.type] += 1;
         }
 
-        if (counts[OPEN_FOUR] >= 1)
-        {
-            score += 10000 * multiplier;
-        }
-        else if (counts[OPEN_THREE] >= 2 or counts[FOUR] >= 2 or (counts[OPEN_THREE] >= 1 and counts[FOUR] >= 1))
-        {
-            score += 9000 * multiplier;
-        }
-        else
-        {
-            score += counts[OPEN_THREE] * 1000 * multiplier;
-            score += counts[THREE] * 500 * multiplier;
-            score += counts[OPEN_TWO] * 100 * multiplier;
-            score += counts[TWO] * 50 * multiplier;
-            score += counts[OPEN_ONE] * 10 * multiplier;
-            score += counts[ONE] * 5 * multiplier;
-        }
+        score += counts[OPEN_FOUR] * 10000 * multiplier;
+        score += (counts[OPEN_THREE] >= 2 or counts[FOUR] >= 2 or (counts[OPEN_THREE] >= 1 and counts[FOUR] >= 1)) * 9000 * multiplier;
+        score += counts[OPEN_THREE] * 1000 * multiplier;
+        score += counts[THREE] * 500 * multiplier;
+        score += counts[OPEN_TWO] * 100 * multiplier;
+        score += counts[TWO] * 50 * multiplier;
+        score += counts[OPEN_ONE] * 10 * multiplier;
+        score += counts[ONE] * 5 * multiplier;
         player = human_player;
         multiplier = -1;
         counts = {0, 0, 0, 0, 0, 0, 0, 0};

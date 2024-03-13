@@ -9,6 +9,7 @@ private:
     std::string functionName;
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
     static std::map<std::string, double> accumulatedTimes;
+    static std::map<std::string, int> count;
     static std::set<std::string> activeFunctions;
     bool isActive;
 
@@ -20,6 +21,7 @@ public:
             start = std::chrono::high_resolution_clock::now();
             activeFunctions.insert(name);
             isActive = true;
+            count[name]++;
         }
     }
 

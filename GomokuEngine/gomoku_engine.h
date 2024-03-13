@@ -68,7 +68,7 @@ private:
     Player current_player;
     std::vector<int> players_scores;
     Player winner;
-    std::vector<std::vector<Structure>> structures;
+    std::vector<std::vector<Structure>> players_structures;
 
     bool coordinates_are_valid(int row, int col) const;
     Player other_player(Player player) const;

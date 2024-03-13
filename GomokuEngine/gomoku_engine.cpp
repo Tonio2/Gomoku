@@ -2,6 +2,7 @@
 
 std::map<std::string, double> Timer::accumulatedTimes;
 std::set<std::string> Timer::activeFunctions;
+std::map<std::string, int> Timer::count;
 
 std::vector<Pattern> patterns = {
     {StructureType::OPEN_FOUR, "ECCCCE"},
@@ -32,7 +33,7 @@ GomokuGame::GomokuGame(uint _size) : board_size(_size),
                                      current_player(X),
                                      players_scores({0, 0, 0}),
                                      winner(E),
-                                     structures(3, std::vector<Structure>(0))
+                                     players_structures(3, std::vector<Structure>(0))
 {
 }
 
@@ -110,7 +111,8 @@ std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, s
 
 void GomokuGame::update_structures(Player player)
 {
-    structures[player].clear();
+    Timer timer("update_structures");
+    players_structures[player].clear();
 
     // Check for structures in rows
     for (uint row = 0; row < board_size; row++)
@@ -126,7 +128,7 @@ void GomokuGame::update_structures(Player player)
                     try
                     {
                         std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {0, 1});
-                        structures[player].push_back({type, cells});
+                        players_structures[player].push_back({type, cells});
                     }
                     catch (const std::invalid_argument &e)
                     {
@@ -150,7 +152,7 @@ void GomokuGame::update_structures(Player player)
                     try
                     {
                         std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, 0});
-                        structures[player].push_back({type, cells});
+                        players_structures[player].push_back({type, cells});
                     }
                     catch (const std::invalid_argument &e)
                     {
@@ -187,7 +189,7 @@ void GomokuGame::update_structures(Player player)
                 try
                 {
                     std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, -1});
-                    structures[player].push_back({type, cells});
+                    players_structures[player].push_back({type, cells});
                 }
                 catch (const std::invalid_argument &e)
                 {
@@ -225,7 +227,7 @@ void GomokuGame::update_structures(Player player)
                 try
                 {
                     std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, 1});
-                    structures[player].push_back({type, cells});
+                    players_structures[player].push_back({type, cells});
                 }
                 catch (const std::invalid_argument &e)
                 {
@@ -428,12 +430,12 @@ std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves()
 
 std::vector<std::vector<Structure>> GomokuGame::get_structures() const
 {
-    return structures;
+    return players_structures;
 }
 
 void GomokuGame::set_structures(std::vector<std::vector<Structure>> _structures)
 {
-    structures = _structures;
+    players_structures = _structures;
 }
 
 bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
@@ -546,14 +548,14 @@ int GomokuGame::get_player_score(Player player) const
 
 void GomokuGame::display_struct() const
 {
-    for (uint i = 1; i < structures.size(); i++)
+    for (uint i = 1; i < players_structures.size(); i++)
     {
-        for (uint j = 0; j < structures[i].size(); j++)
+        for (uint j = 0; j < players_structures[i].size(); j++)
         {
-            std::cout << player_names[i] << ": Structure " << j << " " << structure_names[structures[i][j].type] << " ";
-            for (uint k = 0; k < structures[i][j].cells.size(); k++)
+            std::cout << player_names[i] << ": Structure " << j << " " << structure_names[players_structures[i][j].type] << " ";
+            for (uint k = 0; k < players_structures[i][j].cells.size(); k++)
             {
-                std::cout << "(" << structures[i][j].cells[k].first << ", " << structures[i][j].cells[k].second << ") ";
+                std::cout << "(" << players_structures[i][j].cells[k].first << ", " << players_structures[i][j].cells[k].second << ") ";
             }
             std::cout << std::endl;
         }
