@@ -165,11 +165,11 @@ void GomokuGame::update_structures(Player player)
     // Check for structures in diagonals (1, -1)
     int row = 0;
     int col = 0;
-    while (row != 19 or col != 17)
+    while (row != board_size or col != board_size - 2)
     {
         if (not coordinates_are_valid(row, col))
         {
-            if (row <= 18)
+            if (row <= board_size - 1)
             {
                 col = row;
                 row = 0;
@@ -177,7 +177,7 @@ void GomokuGame::update_structures(Player player)
             else
             {
                 row = col + 2;
-                col = 18;
+                col = board_size - 1;
             }
         }
         if (get_board_value(row, col) == player)
@@ -202,19 +202,19 @@ void GomokuGame::update_structures(Player player)
 
     // Check for structures in diagonals (1, 1)
     row = 0;
-    col = 18;
-    while (row != 19 or col != 1)
+    col = board_size - 1;
+    while (row != board_size or col != 1)
     {
         if (not coordinates_are_valid(row, col))
         {
-            if (row <= 18)
+            if (row <= board_size - 1)
             {
-                col = 18 - row;
+                col = board_size - 1 - row;
                 row = 0;
             }
             else
             {
-                row = 20 - col;
+                row = board_size + 1 - col;
                 col = 0;
             }
         }
