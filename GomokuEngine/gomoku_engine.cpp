@@ -1,6 +1,6 @@
 #include "gomoku_engine.h"
 
-std::map<std::string, double> Timer::accumulatedTimes;
+std::map<std::string, Timer::FunctionAccumulation> Timer::accumulatedFunctions;
 std::set<std::string> Timer::activeFunctions;
 
 std::vector<Pattern> patterns = {
@@ -48,6 +48,7 @@ unsigned char GomokuGame::get_board_value(int row, int col) const
 
 CellChange GomokuGame::set_board_value(int row, int col, Player value)
 {
+    Timer timer(__FUNCTION__);
     CellChange cell_change;
 
     cell_change.row = row;
