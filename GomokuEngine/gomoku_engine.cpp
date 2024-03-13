@@ -1,6 +1,7 @@
 #include "gomoku_engine.h"
 
 std::map<std::string, double> Timer::accumulatedTimes;
+std::set<std::string> Timer::activeFunctions;
 
 std::vector<Pattern> patterns = {
     {StructureType::OPEN_FOUR, "ECCCCE"},
@@ -109,7 +110,6 @@ std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, s
 
 void GomokuGame::update_structures(Player player)
 {
-    Timer timer("update_structures");
     structures[player].clear();
 
     // Check for structures in rows
@@ -309,7 +309,6 @@ int GomokuGame::count_open_threes(uint row, uint col, Player player) const
 
 MoveResult GomokuGame::make_move(int row, int col)
 {
-    Timer timer("make_move");
     MoveResult move_result;
     const int old_black_score = get_player_score(X);
     const int old_white_score = get_player_score(O);
@@ -352,7 +351,6 @@ MoveResult GomokuGame::make_move(int row, int col)
 
 void GomokuGame::reverse_move(const MoveResult &move)
 {
-    Timer timer("reverse_move");
     modify_player_score(X, -move.black_score_change);
     modify_player_score(O, -move.white_score_change);
 
@@ -362,9 +360,6 @@ void GomokuGame::reverse_move(const MoveResult &move)
     {
         set_board_value(cell_change.row, cell_change.col, cell_change.old_value);
     }
-
-    update_structures(current_player);
-    update_structures(other_player(current_player));
 
     winner = E;
 }
@@ -392,7 +387,6 @@ void GomokuGame::reapply_move(const MoveResult &move)
 
 std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves() const
 {
-    Timer timer("findRelevantMoves");
     std::vector<std::pair<std::pair<int, int>, int>> relevantMoves;
 
     // Directions to check around each cell (8 directions).
@@ -435,6 +429,11 @@ std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves()
 std::vector<std::vector<Structure>> GomokuGame::get_structures() const
 {
     return structures;
+}
+
+void GomokuGame::set_structures(std::vector<std::vector<Structure>> _structures)
+{
+    structures = _structures;
 }
 
 bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)

@@ -8,12 +8,13 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), a
 
 void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer)
 {
-    Timer timer("sortMoves");
     for (std::pair<std::pair<int, int>, int> &move : moves)
     {
+        std::vector<std::vector<Structure>> structuresAll = game.get_structures();
         MoveResult game_move = game.make_move(move.first.first, move.first.second);
         move.second = heuristic_evaluation();
         game.reverse_move(game_move);
+        game.set_structures(structuresAll);
     }
     if (maximizingPlayer)
         std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
@@ -25,7 +26,6 @@ void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves
 
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
 {
-    Timer timer("minimax");
     // If the depth is 0 or the game is over, return the heuristic evaluation of the current board.
     MoveEvaluation node;
     node.move = {row, col}; // Initialize with an invalid move.
@@ -47,9 +47,11 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     for (auto moveWithScore : moves)
     {
         std::pair<int, int> move = moveWithScore.first;
+        std::vector<std::vector<Structure>> structuresAll = game.get_structures();
         MoveResult game_move = game.make_move(move.first, move.second);
         MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, !maximizingPlayer, move.first, move.second);
         game.reverse_move(game_move);
+        game.set_structures(structuresAll);
 
         if (maximizingPlayer)
         {
@@ -82,7 +84,6 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
 int GomokuAI::heuristic_evaluation()
 {
-    Timer timer("heuristic_evaluation");
     int player = ai_player;
     std::vector<std::vector<Structure>> structuresAll = game.get_structures();
     int multiplier = 1;
@@ -122,6 +123,7 @@ int GomokuAI::heuristic_evaluation()
 
 MoveEvaluation GomokuAI::suggest_move()
 {
+    Timer timer("suggest_move");
     MoveEvaluation result = minimax(depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
     return result;
 }

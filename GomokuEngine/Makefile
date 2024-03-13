@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags, e.g. -g for debugging, -O2 for optimisation and -Wall for turning on most warnings
-CXXFLAGS = -pg -O0 -Wall
+CXXFLAGS =  -O3 -Wall
 
 # Define the C++ source files
 SRCS = AI1.cpp gomoku_engine.cpp main.cpp

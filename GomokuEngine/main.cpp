@@ -106,6 +106,7 @@ int main()
     game.make_move(4, 4);
     game.make_move(2, 2);
     game.make_move(5, 4);
+    // game.update_structures(O);
     // game.make_move(0, 0);
     // game.make_move(0, 1);
     game.display_struct();
