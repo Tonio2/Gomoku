@@ -2,7 +2,6 @@
 
 std::map<std::string, Timer::FunctionAccumulation> Timer::accumulatedFunctions;
 std::set<std::string> Timer::activeFunctions;
-std::map<std::string, int> Timer::count;
 
 std::vector<Pattern> patterns = {
     {StructureType::OPEN_FOUR, "ECCCCE"},
@@ -49,7 +48,7 @@ unsigned char GomokuGame::get_board_value(int row, int col) const
 
 CellChange GomokuGame::set_board_value(int row, int col, Player value)
 {
-    Timer timer(__FUNCTION__);
+    Timer timer("set_board_value");
     CellChange cell_change;
 
     cell_change.row = row;
