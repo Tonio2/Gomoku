@@ -99,6 +99,8 @@ std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlaye
     return bestMove;
 }
 
+#include "gomoku_structure_pattern.h"
+
 int main()
 {
     std::cout << "Hello, World!" << std::endl;
@@ -110,12 +112,78 @@ int main()
     // game.make_move(0, 0);
     // game.make_move(0, 1);
     game.display_struct();
-    GomokuAI AI(game, O, 3);
-    MoveEvaluation moveEvalutation = AI.suggest_move();
-    logMoveEvaluation(moveEvalutation);
-    displayBoard(game);
-    std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
-    std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
+
+    GomokuPatternReconizer reconizer(Player::BLACK);
+    reconizer.find_patterns_in_board(game);
+    reconizer.print_patterns();
+    // GomokuAI AI(game, O, 3);
+    // MoveEvaluation moveEvalutation = AI.suggest_move();
+    // logMoveEvaluation(moveEvalutation);
+    // displayBoard(game);
+    // std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
+    // std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
     Timer::printAccumulatedTimes();
     return 0;
 }
+
+
+// GomokuPatternReconizer::CellState random_state() {
+//     return GomokuPatternReconizer::CellState(random() % 3);
+// }
+
+// void print_cell_state(GomokuPatternReconizer::CellState state)
+// {
+//     switch (state) {
+//         case GomokuPatternReconizer::CellState::CELL_STATE_EMPTY:
+//             std::cout << "_";
+//             break;
+//         case GomokuPatternReconizer::CellState::CELL_STATE_STONE:
+//             std::cout << "O";
+//             break;
+//         case GomokuPatternReconizer::CellState::CELL_STATE_BLOCK:
+//             std::cout << "X";
+//             break;
+//     }
+// }
+
+// int main()
+// {
+//     GomokuPatternReconizer reconizer;
+
+//     GomokuPatternReconizer::CellData cell_data = GomokuPatternReconizer::CellData::pre_bound_element();
+//     cell_data.print();
+//     std::cout << std::endl;
+
+//     GomokuPatternReconizer::CellState states[20] {
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_BLOCK,
+//         GomokuPatternReconizer::CellState::CELL_STATE_STONE,
+//         GomokuPatternReconizer::CellState::CELL_STATE_STONE,
+//         GomokuPatternReconizer::CellState::CELL_STATE_STONE,
+//         GomokuPatternReconizer::CellState::CELL_STATE_STONE,
+//         GomokuPatternReconizer::CellState::CELL_STATE_BLOCK,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_STONE,
+//         GomokuPatternReconizer::CellState::CELL_STATE_STONE,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//         GomokuPatternReconizer::CellState::CELL_STATE_STONE,
+//         GomokuPatternReconizer::CellState::CELL_STATE_STONE,
+//         GomokuPatternReconizer::CellState::CELL_STATE_EMPTY,
+//     };
+//     for (int i = 0; i < 20; i++)
+//     {
+//         // GomokuPatternReconizer::CellState new_state = random_state();
+//         GomokuPatternReconizer::CellState new_state = states[i];
+//         print_cell_state(new_state);
+//         std::cout << " -> ";
+//         cell_data = reconizer.cell_data_following(cell_data, new_state);
+//         cell_data.print();
+//         std::cout << std::endl;
+//     }
+// }
