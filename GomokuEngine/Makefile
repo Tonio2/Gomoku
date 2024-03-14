@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS =  -O3 -Wall
 
 # Define the C++ source files
-SRCS = AI1.cpp gomoku_engine.cpp main.cpp
+SRCS = AI1.cpp gomoku_engine.cpp gomoku_structure_pattern.cpp main.cpp
 
 # Define the C++ object files 
 OBJS = $(SRCS:.cpp=.o)
