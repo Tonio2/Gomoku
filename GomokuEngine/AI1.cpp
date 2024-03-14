@@ -6,15 +6,23 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), a
     human_player = (ai_player == X) ? O : X;
 }
 
-void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer)
+void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
 {
+    Timer timer("sortMoves");
     for (std::pair<std::pair<int, int>, int> &move : moves)
     {
-        std::vector<std::vector<Structure>> structuresAll = game.get_structures();
-        MoveResult game_move = game.make_move(move.first.first, move.first.second);
-        move.second = heuristic_evaluation();
-        game.reverse_move(game_move);
-        game.set_structures(structuresAll);
+        if (depth > 1)
+        {
+            std::vector<std::vector<Structure>> structuresAll = game.get_structures();
+            MoveResult game_move = game.make_move(move.first.first, move.first.second);
+            move.second = heuristic_evaluation();
+            game.reverse_move(game_move);
+            game.set_structures(structuresAll);
+        }
+        else
+        {
+            move.second = pseudo_heuristic_evaluation(move.first);
+        }
     }
     if (maximizingPlayer)
         std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
@@ -37,10 +45,10 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
     // Else find all the relevant moves and sort them by their heuristic evaluation if the depth is not 1.
     std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves();
-    if (depth > 1)
-    {
-        sortMoves(moves, maximizingPlayer);
-    }
+    node.totalEvalCount = moves.size();
+    node.evaluatedMoves = moves.size();
+    int moveIdx = 1;
+    sortMoves(moves, maximizingPlayer, depth);
 
     // For each move, make the move, call minimax recursively and reverse the move.
     int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
@@ -60,6 +68,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                 extremeEval = evalNode.score;
                 node.score = extremeEval;
                 alpha = std::max(alpha, evalNode.score);
+                node.neededEvalCount = moveIdx;
             }
         }
         else
@@ -69,6 +78,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                 extremeEval = evalNode.score;
                 node.score = extremeEval;
                 beta = std::min(beta, evalNode.score);
+                node.neededEvalCount = moveIdx;
             }
         }
 
@@ -76,8 +86,10 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
         if (beta <= alpha)
         {
+            node.evaluatedMoves = moveIdx;
             break;
         }
+        moveIdx++;
     }
     return node;
 }
@@ -108,6 +120,42 @@ int GomokuAI::heuristic_evaluation()
         player = human_player;
         multiplier = -1;
         counts = {0, 0, 0, 0, 0, 0, 0, 0};
+    }
+    return score;
+}
+
+int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
+{
+    std::vector<std::vector<Structure>> structuresAll = game.get_structures();
+    int score = 0;
+
+    // Define the scores for each structure type for both the AI and the opponent.
+    std::map<StructureType, int> structureScores = {
+        {OPEN_FOUR, 100},
+        {FOUR, 50},
+        {OPEN_THREE, 25},
+        {THREE, 10},
+        {OPEN_TWO, 5},
+        {TWO, 2},
+        {OPEN_ONE, 1},
+        {ONE, 0}};
+
+    // Iterate through all structures to check their proximity to the move
+    for (std::vector<Structure> &playerStructures : structuresAll)
+    {
+        for (auto &structure : playerStructures)
+        {
+            for (auto &cell : structure.cells)
+            {
+                if (game.get_board_value(cell.first, cell.second) == E)
+                {
+                    if (move.first == cell.first and move.second == cell.second)
+                    {
+                        score += structureScores[structure.type];
+                    }
+                }
+            }
+        }
     }
     return score;
 }
