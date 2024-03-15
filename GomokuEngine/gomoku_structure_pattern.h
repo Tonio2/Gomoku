@@ -5,23 +5,11 @@
 struct GomokuCellIndex {
     unsigned short row;
     unsigned short col;
-};
 
-struct PatternCellIndex {
-    int row;
-    int col;
-
-    PatternCellIndex(GomokuCellIndex gomoku_index) :
-     row(gomoku_index.row + 1),
-     col(gomoku_index.col + 1)
+    GomokuCellIndex(int r, int c) :
+    row(r),
+    col(c)
     {}
-
-    GomokuCellIndex to_game_index() const {
-        GomokuCellIndex index;
-        index.row = row - 1;
-        index.col = col - 1;
-        return index;
-    }
 };
 
 /** State of one cell.
@@ -79,6 +67,29 @@ struct CellPatternData {
     void print();
 };
 
+struct PatternCellIndex {
+    int row;
+    int col;
+
+    PatternCellIndex(int r, int c) :
+    row(r),
+    col(c)
+    {}
+
+    PatternCellIndex(GomokuCellIndex gomoku_index) :
+     row(gomoku_index.row + 1),
+     col(gomoku_index.col + 1)
+    {}
+
+    GomokuCellIndex to_game_index() const {
+        return GomokuCellIndex(row - 1, col - 1);
+    }
+
+    bool is_valid(const Matrix<CellPatternData>& mat) const {
+        return row >= 0 && col >= 0 && row < mat.get_height() && col < mat.get_width();
+    }
+};
+
 class GomokuPatternReconizer
 {
 
@@ -93,21 +104,22 @@ public:
     void print_patterns();
 
 
-// private:
+private:
 
     Player _gomoku_player;
 
-    static const int PATTERN_DIRECTION_LEFT_TO_RIGHT = 0;
-    static const int PATTERN_DIRECTION_UP_TO_DOWN = 1;
-    static const int PATTERN_DIRECTION_UPLEFT_TO_DOWNRIGHT = 2;
-    static const int PATTERN_DIRECTION_UPRIGHT_TO_DOWNLEFT = 3;
-
-    static const int PATTERN_DIRECTIONS_COUNT = 4;
+    enum PatternDirection: uint8_t {
+        LeftToRight = 0,
+        UpToDown = 1,
+        UpleftToDownright = 2,
+        UprightToDownleft = 3,
+        last = 4
+    };
 
     std::vector<Matrix<CellPatternData>> _pattern_direction_cell_matrices;
 
     /** Return the state of a cell for our gomoku player */
-    CellPatternState cell_state_at(const GomokuGame& board, int row, int col) const;
+    CellPatternState cell_state_at(const GomokuGame& board, PatternCellIndex index) const;
 
     /** Calculate the next state from a cell when meeting each state. */
     CellPatternData cell_data_following(const CellPatternData& cell, CellPatternState state) const;
@@ -122,16 +134,16 @@ public:
     void update_all_cells(const GomokuGame& board);
 
     /** Update cell in all direction matrices */
-    void update_cell(const GomokuGame& board, int row, int col);
+    void update_cell(const GomokuGame& board, PatternCellIndex index);
 
     /** Update cells in left to right matrices at the specified location
      * 
      * up_to_bound: Should we update everything until the end or stop when
      * we find identical results.
     */
-    void update_cell_left_to_right(const GomokuGame& board, int row, int col, bool up_to_bound = false);
-    void update_cell_up_to_down(const GomokuGame& board, int row, int col, bool up_to_bound = false);
-    void update_cell_upleft_to_downright(const GomokuGame& board, int row, int col, bool up_to_bound = false);
-    void update_cell_upright_to_downleft(const GomokuGame& board, int row, int col, bool up_to_bound = false);
+    void update_cell_line(const GomokuGame& board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
+
+    PatternCellIndex get_previous_index(PatternCellIndex index, PatternDirection direction) const;
+    PatternCellIndex get_next_index(PatternCellIndex index, PatternDirection direction) const;
 
 };

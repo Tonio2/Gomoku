@@ -1,5 +1,6 @@
 
 #include "gomoku_structure_pattern.h"
+#include <cassert>
 
 
 /** CellPatternData */
@@ -35,7 +36,7 @@ void CellPatternData::print() {
 GomokuPatternReconizer::GomokuPatternReconizer(Player player)
 :
 _gomoku_player(player),
-_pattern_direction_cell_matrices(PATTERN_DIRECTIONS_COUNT)
+_pattern_direction_cell_matrices(static_cast<int>(PatternDirection::last))
 {}
 
 void GomokuPatternReconizer::find_patterns_in_board(const GomokuGame& board)
@@ -52,7 +53,7 @@ void GomokuPatternReconizer::update_patterns_with_move(const GomokuGame& board, 
     Timer timer("update_patterns_with_move");
 
     for (CellChange change : last_move.cell_changes) {
-        update_cell(board, change.row + 1, change.col + 1);
+        update_cell(board, PatternCellIndex(GomokuCellIndex(change.row, change.col)));
     }
 }
 
@@ -62,11 +63,15 @@ void GomokuPatternReconizer::print_patterns()
 }
 
 
-CellPatternState GomokuPatternReconizer::cell_state_at(const GomokuGame& board, int row, int col) const {
-    if (row >= board.get_board_size() + 1 || col >= board.get_board_size() + 1)
+CellPatternState GomokuPatternReconizer::cell_state_at(const GomokuGame& board, PatternCellIndex index) const {
+    if (index.row >= _pattern_direction_cell_matrices[0].get_height()
+        || index.col >= _pattern_direction_cell_matrices[0].get_width())
         return CellPatternState::CELL_STATE_BLOCK;
 
-    Player player = Player(board.get_board_value(row - 1, col - 1));
+    const GomokuCellIndex gomoku_index = index.to_game_index();
+
+    Player player = Player(board.get_board_value(gomoku_index.row, gomoku_index.col));
+
     if (player == _gomoku_player)
         return CellPatternState::CELL_STATE_STONE;
     if (player == Player::EMPTY)
@@ -118,7 +123,7 @@ CellPatternData GomokuPatternReconizer::cell_data_following(const CellPatternDat
 bool GomokuPatternReconizer::adjust_matrices_size(const GomokuGame& board) {
     bool modified_matrices = false;
 
-    for (int i = 0; i < PATTERN_DIRECTIONS_COUNT; ++i) {
+    for (int i = 0; i < PatternDirection::last; ++i) {
         int width = board.get_board_size() + 2;
         int height = board.get_board_size() + 2;
 
@@ -138,7 +143,7 @@ void GomokuPatternReconizer::initialize_matrices_bounds() {
 
     CellPatternData out_cell = CellPatternData::pre_bound_element();
 
-    for (int i = 0; i < PATTERN_DIRECTIONS_COUNT; ++i) {
+    for (int i = 0; i < PatternDirection::last; ++i) {
         
         Matrix<CellPatternData>& mat(_pattern_direction_cell_matrices[i]);
 
@@ -156,72 +161,87 @@ void GomokuPatternReconizer::initialize_matrices_bounds() {
 void GomokuPatternReconizer::update_all_cells(const GomokuGame& board) {
 
     {
-        const int height = _pattern_direction_cell_matrices[PATTERN_DIRECTION_LEFT_TO_RIGHT].get_height() - 1;
-        for (int row = 1; row < height; ++row) {
-            update_cell_left_to_right(board, row, 1, true);
+        const PatternDirection direction = PatternDirection::LeftToRight;
+        const int height = _pattern_direction_cell_matrices[direction].get_height() - 1;
+        PatternCellIndex index(1, 1);
+        for (index.row = 1; index.row < height; ++index.row) {
+            update_cell_line(board, index, direction, true);
         }
     }
 
     {
-        const int width = _pattern_direction_cell_matrices[PATTERN_DIRECTION_UP_TO_DOWN].get_width() - 1;
-        for (int col = 1; col < width; ++col) {
-            update_cell_up_to_down(board, 1, col, true);
+        const PatternDirection direction = PatternDirection::UpToDown;
+        const int width = _pattern_direction_cell_matrices[direction].get_width() - 1;
+        PatternCellIndex index(1, 1);
+        for (index.col = 1; index.col < width; ++index.col) {
+            update_cell_line(board, index, direction, true);
         }
     }
 
     {
-        const int height = _pattern_direction_cell_matrices[PATTERN_DIRECTION_UPLEFT_TO_DOWNRIGHT].get_height() - 1;
-        for (int row = 1; row < height; ++row) {
-            update_cell_upleft_to_downright(board, row, 1, true);
+        const PatternDirection direction = PatternDirection::UpleftToDownright;
+        PatternCellIndex index(1, 1);
+        const int height = _pattern_direction_cell_matrices[direction].get_height() - 1;
+        for (index.row = 1; index.row < height; ++index.row) {
+            update_cell_line(board, index, direction, true);
         }
-        const int width = _pattern_direction_cell_matrices[PATTERN_DIRECTION_UPLEFT_TO_DOWNRIGHT].get_width() - 1;
-        for (int col = 2; col < width; ++col) {
-            update_cell_upleft_to_downright(board, 1, col, true);
+        const int width = _pattern_direction_cell_matrices[direction].get_width() - 1;
+        index.row = 1;
+        for (index.col = 2; index.col < width; ++index.col) {
+            update_cell_line(board, index, direction, true);
         }
     }
 
     {
-        const int width = _pattern_direction_cell_matrices[PATTERN_DIRECTION_UPRIGHT_TO_DOWNLEFT].get_width() - 1;
-        for (int col = 1; col < width; ++col) {
-            update_cell_upright_to_downleft(board, 1, col, true);
+        const PatternDirection direction = PatternDirection::UprightToDownleft;
+        PatternCellIndex index(1, 1);
+        const int width = _pattern_direction_cell_matrices[direction].get_width() - 1;
+        for (index.col = 1; index.col < width; ++index.col) {
+            update_cell_line(board, index, direction, true);
         }
-        const int height = _pattern_direction_cell_matrices[PATTERN_DIRECTION_UPRIGHT_TO_DOWNLEFT].get_height() - 1;
-        for (int row = 2; row < height; ++row) {
-            update_cell_upright_to_downleft(board, row, width - 1, true);
+        const int height = _pattern_direction_cell_matrices[direction].get_height() - 1;
+        index.col = width - 1;
+        for (index.row = 2; index.row < height; ++index.row) {
+            update_cell_line(board, index, direction, true);
         }
     }
 
 }
 
-void GomokuPatternReconizer::update_cell(const GomokuGame& board, int row, int col) {
-    update_cell_left_to_right(board, row, col);
-    update_cell_up_to_down(board, row, col);
-    update_cell_upleft_to_downright(board, row, col);
-    update_cell_upright_to_downleft(board, row, col);
+void GomokuPatternReconizer::update_cell(const GomokuGame& board, PatternCellIndex index) {
+    for (int i = 0; i < PatternDirection::last; ++i) {
+        update_cell_line(board, index, PatternDirection(i));
+    }
 }
 
-void GomokuPatternReconizer::update_cell_left_to_right(const GomokuGame& board, int row, int col, bool up_to_bound) {
-    Matrix<CellPatternData>& cell_matrix(_pattern_direction_cell_matrices[PATTERN_DIRECTION_LEFT_TO_RIGHT]);
+void GomokuPatternReconizer::update_cell_line(const GomokuGame& board, PatternCellIndex index, PatternDirection direction, bool up_to_bound) {
+    Matrix<CellPatternData>& cell_matrix(_pattern_direction_cell_matrices[direction]);
 
-    if (col >= cell_matrix.get_width())
+    assert(get_previous_index(index, direction).is_valid(cell_matrix));
+
+    if (index.col >= cell_matrix.get_width() || index.row >= cell_matrix.get_height())
         return;
 
-    const CellPatternState cell_state = cell_state_at(board, row, col);
+    const CellPatternState cell_state = cell_state_at(board, index);
 
-    const CellPatternData old_data = cell_matrix(row, col);
-    const CellPatternData new_data = cell_data_following(cell_matrix(row, col - 1), cell_state);
-    cell_matrix(row, col) = new_data;
+    const CellPatternData old_data = cell_matrix(index.row, index.col);
+
+    const PatternCellIndex prev = get_previous_index(index, direction);
+    const CellPatternData new_data = cell_data_following(cell_matrix(prev.row, prev.col), cell_state);
+
+    cell_matrix(index.row, index.col) = new_data;
+
     if (old_data.structure_length) {
         std::cout << "-- Struct "
             << (old_data.is_structure_closed ? "Close-" : "Open-")
             << int(old_data.structure_length)
-            << " [" << row << ';' << col << "]"
+            << " [" << index.row << ';' << index.col << "]"
             << (_gomoku_player == Player::BLACK ? " (Black)" : " (white)" )
             << std::endl;
     }
     if (old_data.is_gap_open_three) {
         std::cout << "-- Struct GapOp-3"
-            << " [" << row << ';' << col << "]"
+            << " [" << index.row << ';' << index.col << "]"
             << (_gomoku_player == Player::BLACK ? " (Black)" : " (white)" )
             << std::endl;
     }
@@ -229,13 +249,13 @@ void GomokuPatternReconizer::update_cell_left_to_right(const GomokuGame& board, 
         std::cout << "++ Struct "
             << (new_data.is_structure_closed ? "Close-" : "Open-")
             << int(new_data.structure_length)
-            << " [" << row << ';' << col << "]"
+            << " [" << index.row << ';' << index.col << "]"
             << (_gomoku_player == Player::BLACK ? " (Black)" : " (white)" )
             << std::endl;
     }
     if (new_data.is_gap_open_three) {
         std::cout << "++ Struct GapOp-3"
-            << " [" << row << ';' << col << "]"
+            << " [" << index.row << ';' << index.col << "]"
             << (_gomoku_player == Player::BLACK ? " (Black)" : " (white)" )
             << std::endl;
     }
@@ -243,17 +263,40 @@ void GomokuPatternReconizer::update_cell_left_to_right(const GomokuGame& board, 
     const bool should_continue = up_to_bound || old_data != new_data;
 
     if (should_continue)
-        update_cell_left_to_right(board, row, col + 1);
+    {
+        const PatternCellIndex next = get_next_index(index, direction);
+        if (next.is_valid(cell_matrix)) {
+            update_cell_line(board, next, direction, up_to_bound);
+        }
+    }
 }
 
-void GomokuPatternReconizer::update_cell_up_to_down(const GomokuGame& board, int row, int col, bool up_to_bound) {
-
+PatternCellIndex GomokuPatternReconizer::get_previous_index(PatternCellIndex index, PatternDirection direction) const {
+    switch (direction) {
+    case PatternDirection::LeftToRight:
+        return PatternCellIndex(index.row, index.col - 1);
+    case PatternDirection::UpToDown:
+        return PatternCellIndex(index.row - 1, index.col);
+    case PatternDirection::UpleftToDownright:
+        return PatternCellIndex(index.row - 1, index.col - 1);
+    case PatternDirection::UprightToDownleft:
+        return PatternCellIndex(index.row - 1, index.col + 1);
+    default:
+        return index;
+    }
 }
 
-void GomokuPatternReconizer::update_cell_upleft_to_downright(const GomokuGame& board, int row, int col, bool up_to_bound) {
-
-}
-
-void GomokuPatternReconizer::update_cell_upright_to_downleft(const GomokuGame& board, int row, int col, bool up_to_bound) {
-
+PatternCellIndex GomokuPatternReconizer::get_next_index(PatternCellIndex index, PatternDirection direction) const {
+    switch (direction) {
+    case PatternDirection::LeftToRight:
+        return PatternCellIndex(index.row, index.col + 1);
+    case PatternDirection::UpToDown:
+        return PatternCellIndex(index.row + 1, index.col);
+    case PatternDirection::UpleftToDownright:
+        return PatternCellIndex(index.row + 1, index.col + 1);
+    case PatternDirection::UprightToDownleft:
+        return PatternCellIndex(index.row + 1, index.col - 1);
+    default:
+        return index;
+    }
 }
