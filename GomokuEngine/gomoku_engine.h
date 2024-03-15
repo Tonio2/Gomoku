@@ -114,6 +114,7 @@ public:
     void set_structures(std::vector<std::vector<Structure>> _structures);
     CellChange set_board_value(int row, int col, Player value);
     void update_structures(Player player);
+    void display_board() const;
 
 };
 

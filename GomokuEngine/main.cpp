@@ -11,36 +11,6 @@
 
 std::vector<char> boardCoordinates = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
 
-void displayBoard(GomokuGame &game)
-{
-    std::cout << " ";
-    for (char coordinate : boardCoordinates)
-    {
-        std::cout << " " << coordinate;
-    }
-    std::cout << std::endl;
-    for (int i = 0; i < game.get_board_size(); i++)
-    {
-        std::cout << boardCoordinates[i] << " ";
-        for (int j = 0; j < game.get_board_size(); j++)
-        {
-            if (game.get_board_value(i, j) == X)
-            {
-                std::cout << "X ";
-            }
-            else if (game.get_board_value(i, j) == O)
-            {
-                std::cout << "O ";
-            }
-            else
-            {
-                std::cout << ". ";
-            }
-        }
-        std::cout << std::endl;
-    }
-}
-
 void writeMoveEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth = 0)
 {
     // Create indentation based on the depth
@@ -199,7 +169,7 @@ void test_problems() {
         // Get the best move
         std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
         // Print the best move
-        displayBoard(game);
+        game.display_board();
         std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
     }
 }
@@ -246,7 +216,7 @@ void test_problem(int problem_idx) {
     // Get the best move
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     // Print the best move
-    displayBoard(game);
+    game.display_board();
     std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
     logMoveEvaluation(moveEvalutation);
     logTooManyEvaluationsList(moveEvalutation);
