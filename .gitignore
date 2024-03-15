@@ -32,3 +32,4 @@ GomokuEngine/main
 # Performance evaluation
 GomokuEngine/analysis.txt
 GomokuEngine/gmon.out
+GomokuEngine/create_puzzle

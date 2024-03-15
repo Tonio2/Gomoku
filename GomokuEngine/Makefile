@@ -5,13 +5,13 @@ CXX = g++
 CXXFLAGS = -g -O0 -Wall
 
 # Define the C++ source files
-SRCS = AI1.cpp gomoku_engine.cpp main.cpp
+SRCS = AI1.cpp gomoku_engine.cpp create_puzzle.cpp
 
 # Define the C++ object files 
 OBJS = $(SRCS:.cpp=.o)
 
 # Define the executable file 
-MAIN = main
+MAIN = create_puzzle
 
 all: $(MAIN)
 	echo "Successfully compiled $(MAIN) executable."
