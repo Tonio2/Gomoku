@@ -19,16 +19,24 @@ CellPatternData CellPatternData::pre_bound_element() {
     return CellPatternData { 0, true, 0, false, 0, false, false };
 }
 
-void CellPatternData::print() {
-    std::cout << "[" << static_cast<int>(sequence_length)
-        << (is_sequence_closed ? " X " : " O ")
-        << static_cast<int>(structure_length)
-        << (is_structure_closed ? "x (" : "o (")
-        << static_cast<int>(previous_structure_length)
-        << (is_previous_structure_closed ? "x" : "o")
-        << ")"
-        << (is_gap_open_three ? " - GOT" : "")
-        << "]";
+bool CellPatternData::contains_structure() const {
+    return structure_length > 0 || is_gap_open_three;
+}
+
+std::ostream& operator<<(std::ostream& stream, const CellPatternData& c) {
+    stream << "[" << static_cast<int>(c.sequence_length)
+        << (c.is_sequence_closed ? " X " : " O ")
+        << static_cast<int>(c.structure_length)
+        << (c.is_structure_closed ? "x (" : "o (")
+        << static_cast<int>(c.previous_structure_length)
+        << (c.is_previous_structure_closed ? "x" : "o")
+        << ")";
+    if (c.is_gap_open_three)
+        stream << "-G3" << (c.is_gap_open_three_closed ? "x" : "o");
+
+    stream << "]";
+
+    return stream;
 }
 
 /** GomokuPatternReconizer */
@@ -36,7 +44,8 @@ void CellPatternData::print() {
 GomokuPatternReconizer::GomokuPatternReconizer(Player player)
 :
 _gomoku_player(player),
-_pattern_direction_cell_matrices(static_cast<int>(PatternDirection::last))
+_pattern_direction_cell_matrices(static_cast<int>(PatternDirection::Count)),
+_pattern_direction_structure_maps(static_cast<int>(PatternDirection::Count))
 {}
 
 void GomokuPatternReconizer::find_patterns_in_board(const GomokuGame& board)
@@ -48,29 +57,53 @@ void GomokuPatternReconizer::find_patterns_in_board(const GomokuGame& board)
     update_all_cells(board);
 }
 
-void GomokuPatternReconizer::update_patterns_with_move(const GomokuGame& board, const MoveResult& last_move)
+void GomokuPatternReconizer::update_patterns_with_move(const GomokuGame& board, const MoveResult& Count_move)
 {
     Timer timer("update_patterns_with_move");
 
-    for (CellChange change : last_move.cell_changes) {
+    for (CellChange change : Count_move.cell_changes) {
         update_cell(board, PatternCellIndex(GomokuCellIndex(change.row, change.col)));
     }
 }
 
-void GomokuPatternReconizer::print_patterns()
-{
-    std::cout << "Nothing here" << std::endl;
+std::ostream& operator<<(std::ostream& stream, PatternDirection direction) {
+    switch (direction) {
+    case PatternDirection::LeftToRight:
+        stream << "→";
+        break;
+    case PatternDirection::UpToDown:
+        stream << "↓";
+        break;
+    case PatternDirection::UpleftToDownright:
+        stream << "↘";
+        break;
+    case PatternDirection::UprightToDownleft:
+        stream << "↙";
+        break;
+    default:
+        break;
+    }
+    return stream;
 }
 
+void GomokuPatternReconizer::print_patterns()
+{
+    std::cout << "Pattern(" << _gomoku_player << "):" << std::endl;
+    for_each_structures([](PatternCellIndex index, CellPatternData data, PatternDirection direction) {
+        GomokuCellIndex game_index = index.to_game_index();
+        std::cout << direction << " " << data << " [" << game_index.row << ';' << game_index.col << "]" << std::endl;
+    });
+}
 
 CellPatternState GomokuPatternReconizer::cell_state_at(const GomokuGame& board, PatternCellIndex index) const {
-    if (index.row >= _pattern_direction_cell_matrices[0].get_height()
-        || index.col >= _pattern_direction_cell_matrices[0].get_width())
+
+    const GomokuCellIndex game_index = index.to_game_index();
+
+    if (game_index.row < 0 || game_index.row >= board.get_board_size()
+        || game_index.col < 0 || game_index.col >= board.get_board_size())
         return CellPatternState::CELL_STATE_BLOCK;
 
-    const GomokuCellIndex gomoku_index = index.to_game_index();
-
-    Player player = Player(board.get_board_value(gomoku_index.row, gomoku_index.col));
+    Player player = Player(board.get_board_value(game_index.row, game_index.col));
 
     if (player == _gomoku_player)
         return CellPatternState::CELL_STATE_STONE;
@@ -94,6 +127,8 @@ CellPatternData GomokuPatternReconizer::cell_data_following(const CellPatternDat
         result.is_gap_open_three =
             (cell.previous_structure_length == 2 && result.structure_length == 1)
             || (cell.previous_structure_length == 1 && result.structure_length == 2);
+        result.is_gap_open_three_closed =
+            result.is_gap_open_three ? cell.is_previous_structure_closed : false;
         break;
     case CELL_STATE_STONE:
         result.sequence_length = cell.sequence_length + 1;
@@ -103,6 +138,7 @@ CellPatternData GomokuPatternReconizer::cell_data_following(const CellPatternDat
         result.previous_structure_length = cell.previous_structure_length;
         result.is_previous_structure_closed = cell.is_previous_structure_closed;
         result.is_gap_open_three = false;
+        result.is_gap_open_three_closed = false;
         break;
     case CELL_STATE_BLOCK:
         result.sequence_length = 0;
@@ -112,9 +148,10 @@ CellPatternData GomokuPatternReconizer::cell_data_following(const CellPatternDat
         result.is_structure_closed = structure_present;
         result.previous_structure_length = 0;
         result.is_previous_structure_closed = 0;
-        result.is_gap_open_three =
-            (cell.previous_structure_length == 2 && result.structure_length == 1)
-            || (cell.previous_structure_length == 1 && result.structure_length == 2);
+        result.is_gap_open_three = !cell.is_previous_structure_closed
+            && ((cell.previous_structure_length == 2 && result.structure_length == 1)
+                || (cell.previous_structure_length == 1 && result.structure_length == 2));
+        result.is_gap_open_three_closed = result.is_gap_open_three;
         break;
     };
     return result;
@@ -123,7 +160,7 @@ CellPatternData GomokuPatternReconizer::cell_data_following(const CellPatternDat
 bool GomokuPatternReconizer::adjust_matrices_size(const GomokuGame& board) {
     bool modified_matrices = false;
 
-    for (int i = 0; i < PatternDirection::last; ++i) {
+    for (int i = 0; i < PatternDirection::Count; ++i) {
         int width = board.get_board_size() + 2;
         int height = board.get_board_size() + 2;
 
@@ -143,7 +180,7 @@ void GomokuPatternReconizer::initialize_matrices_bounds() {
 
     CellPatternData out_cell = CellPatternData::pre_bound_element();
 
-    for (int i = 0; i < PatternDirection::last; ++i) {
+    for (int i = 0; i < PatternDirection::Count; ++i) {
         
         Matrix<CellPatternData>& mat(_pattern_direction_cell_matrices[i]);
 
@@ -209,7 +246,7 @@ void GomokuPatternReconizer::update_all_cells(const GomokuGame& board) {
 }
 
 void GomokuPatternReconizer::update_cell(const GomokuGame& board, PatternCellIndex index) {
-    for (int i = 0; i < PatternDirection::last; ++i) {
+    for (int i = 0; i < PatternDirection::Count; ++i) {
         update_cell_line(board, index, PatternDirection(i));
     }
 }
@@ -231,34 +268,11 @@ void GomokuPatternReconizer::update_cell_line(const GomokuGame& board, PatternCe
 
     cell_matrix(index.row, index.col) = new_data;
 
-    if (old_data.structure_length) {
-        std::cout << "-- Struct "
-            << (old_data.is_structure_closed ? "Close-" : "Open-")
-            << int(old_data.structure_length)
-            << " [" << index.row << ';' << index.col << "]"
-            << (_gomoku_player == Player::BLACK ? " (Black)" : " (white)" )
-            << std::endl;
-    }
-    if (old_data.is_gap_open_three) {
-        std::cout << "-- Struct GapOp-3"
-            << " [" << index.row << ';' << index.col << "]"
-            << (_gomoku_player == Player::BLACK ? " (Black)" : " (white)" )
-            << std::endl;
-    }
-    if (new_data.structure_length) {
-        std::cout << "++ Struct "
-            << (new_data.is_structure_closed ? "Close-" : "Open-")
-            << int(new_data.structure_length)
-            << " [" << index.row << ';' << index.col << "]"
-            << (_gomoku_player == Player::BLACK ? " (Black)" : " (white)" )
-            << std::endl;
-    }
-    if (new_data.is_gap_open_three) {
-        std::cout << "++ Struct GapOp-3"
-            << " [" << index.row << ';' << index.col << "]"
-            << (_gomoku_player == Player::BLACK ? " (Black)" : " (white)" )
-            << std::endl;
-    }
+    if (old_data.contains_structure() && !new_data.contains_structure())
+        untag_celldata_structure(index, direction);
+
+    if (!old_data.contains_structure() && new_data.contains_structure())
+        tag_celldata_structure(index, direction);
 
     const bool should_continue = up_to_bound || old_data != new_data;
 
@@ -298,5 +312,30 @@ PatternCellIndex GomokuPatternReconizer::get_next_index(PatternCellIndex index, 
         return PatternCellIndex(index.row + 1, index.col - 1);
     default:
         return index;
+    }
+}
+
+void GomokuPatternReconizer::untag_celldata_structure(PatternCellIndex index, PatternDirection direction) {
+    _pattern_direction_structure_maps[direction][index.row].erase(index.col);
+}
+
+void GomokuPatternReconizer::tag_celldata_structure(PatternCellIndex index, PatternDirection direction) {
+    _pattern_direction_structure_maps[direction][index.row].insert(index.col);
+}
+
+void GomokuPatternReconizer::for_each_structures(std::function<void(PatternCellIndex, CellPatternData, PatternDirection)> lambda) {
+    for (int direction = 0; direction < PatternDirection::Count; ++direction) {
+        const auto& structure_map = _pattern_direction_structure_maps[direction];
+        for (auto structure_set_row : structure_map) {
+            int row = structure_set_row.first;
+            for (int col : structure_set_row.second) {
+
+                PatternCellIndex index(row, col);
+                CellPatternData data = _pattern_direction_cell_matrices[direction](row, col);
+
+                lambda(index, data, PatternDirection(direction));
+
+            }
+        }
     }
 }

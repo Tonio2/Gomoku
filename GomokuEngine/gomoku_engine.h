@@ -20,6 +20,8 @@ enum Player : unsigned char
     WHITE
 };
 
+std::ostream& operator<<(std::ostream& stream, Player player);
+
 enum StructureType
 {
     OPEN_FOUR,
