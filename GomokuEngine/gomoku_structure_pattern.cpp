@@ -92,7 +92,7 @@ void GomokuPatternReconizer::print_patterns()
     std::cout << "Pattern(" << _gomoku_player << "):" << std::endl;
     for_each_structures([](PatternCellIndex index, CellPatternData data, PatternDirection direction) {
         GomokuCellIndex game_index = index.to_game_index();
-        std::cout << direction << " " << data << " [" << game_index.row << ';' << game_index.col << "]" << std::endl;
+        std::cout << direction << " " << data << " [" << int(game_index.row) << ';' << int(game_index.col) << "]" << std::endl;
     });
 }
 

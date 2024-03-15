@@ -391,6 +391,10 @@ MoveResult GomokuGame::make_move(int row, int col)
     players_reconizers[X].update_patterns_with_move(*this, move_result);
     players_reconizers[O].update_patterns_with_move(*this, move_result);
 
+    std::cout << std::endl << std::endl;
+    players_reconizers[X].print_patterns();
+    players_reconizers[O].print_patterns();
+
     return move_result;
 }
 

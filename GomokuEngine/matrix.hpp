@@ -8,11 +8,15 @@ class Matrix {
 
 public:
 
-    class Index {
+    struct Index {
         int8_t row;
         int8_t col;
 
-        bool is_valid(const Matrix<Element>& matrix) {
+        Index() : row(0), col(0) {}
+
+        Index(int r, int c) : row(r), col(c) {}
+
+        bool is_valid(const Matrix<Element>& matrix) const {
             return matrix.is_in_bound(row, col);
         }
     };

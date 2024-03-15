@@ -9,16 +9,6 @@
 
 class GomokuGame;
 
-struct GomokuCellIndex {
-    unsigned short row;
-    unsigned short col;
-
-    GomokuCellIndex(int r, int c) :
-    row(r),
-    col(c)
-    {}
-};
-
 /** State of one cell.
  * Empty means no player is there.
  * Stone means we have one of our stone there
@@ -79,26 +69,20 @@ struct CellPatternData {
 
 std::ostream& operator<<(std::ostream& stream, const CellPatternData& cell_data);
 
-struct PatternCellIndex {
-    int row;
-    int col;
+typedef Matrix<Player>::Index GomokuCellIndex;
 
-    PatternCellIndex(int r, int c) :
-    row(r),
-    col(c)
+struct PatternCellIndex : public Matrix<CellPatternData>::Index {
+
+    PatternCellIndex(int row, int col) :
+    Matrix<CellPatternData>::Index(row, col)
     {}
 
     PatternCellIndex(GomokuCellIndex gomoku_index) :
-     row(gomoku_index.row + 1),
-     col(gomoku_index.col + 1)
+        Matrix<CellPatternData>::Index(gomoku_index.row + 1, gomoku_index.col + 1)
     {}
 
     GomokuCellIndex to_game_index() const {
         return GomokuCellIndex(row - 1, col - 1);
-    }
-
-    bool is_valid(const Matrix<CellPatternData>& mat) const {
-        return row >= 0 && col >= 0 && row < mat.get_height() && col < mat.get_width();
     }
 };
 
