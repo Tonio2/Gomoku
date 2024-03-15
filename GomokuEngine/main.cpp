@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <algorithm>
 
 #include "AI1.h"
 
@@ -53,7 +54,7 @@ void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int 
     {
         return;
     }
-    
+
     if (eval.neededEvalCount != eval.evaluatedMoves)
     {
         out << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << "\n";
@@ -110,28 +111,34 @@ std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlaye
     return bestMove;
 }
 
-std::vector<std::string> split(const std::string &str, char delimiter) {
+std::vector<std::string> split(const std::string &str, char delimiter)
+{
     std::vector<std::string> tokens;
     std::string token;
     std::istringstream tokenStream(str);
-    
-    while (std::getline(tokenStream, token, delimiter)) {
+
+    while (std::getline(tokenStream, token, delimiter))
+    {
         tokens.push_back(token);
     }
 
     return tokens;
 }
 
-int getCoordinate(char coordinate) {
-    for (int i = 0; i < boardCoordinates.size(); i++) {
-        if (boardCoordinates[i] == coordinate) {
+int getCoordinate(char coordinate)
+{
+    for (int i = 0; i < boardCoordinates.size(); i++)
+    {
+        if (boardCoordinates[i] == coordinate)
+        {
             return i;
         }
     }
     return -1;
 }
 
-void test_problems() {
+void test_problems()
+{
     // Read problems.txt
     std::ifstream in("problems.txt");
     if (!in.is_open())
@@ -142,14 +149,20 @@ void test_problems() {
 
     // Loop over each line
     std::string line;
+    std::string description;
     while (std::getline(in, line))
     {
+        if (line[0] == '#')
+        {
+            description = line;
+            continue;
+        }
         // Create a game with the given board size
         GomokuGame game(19);
         std::vector<std::string> problem = split(line, ':');
         std::vector<std::string> moves = split(problem[0], ',');
         // Loop over each character in the line
-        for (std::string move: moves)
+        for (std::string move : moves)
         {
             // Get the row and column from the line
             int row = getCoordinate(move[0]);
@@ -157,24 +170,48 @@ void test_problems() {
             // Make the move
             game.make_move(row, col);
         }
-        // Create an AI with the game and the depth
-        std::cout << "Moves: ";
-        for (std::string move: moves) {
-            std::cout << move << " ";
-        }
-        std::cout << std::endl;
         GomokuAI AI(game, moves.size() % 2 == 0 ? X : O, DEPTH);
         // Suggest a move
         MoveEvaluation moveEvalutation = AI.suggest_move();
         // Get the best move
         std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
-        // Print the best move
-        game.display_board();
-        std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
+
+        std::vector<std::string> expected_moves_string;
+        std::vector<std::string> expected_moves;
+        std::vector<std::string> forbidden_moves;
+
+        if (problem[1].find("|") != std::string::npos) {
+            expected_moves_string = split(problem[1], '|');
+            expected_moves = split(expected_moves_string[0], ',');
+            forbidden_moves = split(expected_moves_string[1], ',');
+        } else {
+            expected_moves = split(problem[1], ',');
+        }
+
+        
+        std::string best_move_string = std::to_string(bestMove.first) + std::to_string(bestMove.second);
+        if (std::find(forbidden_moves.begin(), forbidden_moves.end(), best_move_string) != forbidden_moves.end())
+        {
+            // Print the description then print "...NOK" to std::cout in red color
+            std::cout << "\033[1;31m" << description << "...NOK"
+                      << "\033[0m" << std::endl;
+        }
+        else if (std::find(expected_moves.begin(), expected_moves.end(), best_move_string) != expected_moves.end())
+        {
+            // Print the description then print "...OK" to std::cout in green color
+            std::cout << "\033[1;32m" << description << "...OK"
+                      << "\033[0m" << std::endl;
+        }
+        else
+        {
+            std::cout << "\033[1;31m" << description << "...NOK"
+                      << "\033[0m" << std::endl;
+        }
     }
 }
 
-void test_problem(int problem_idx) {
+void test_problem(int problem_idx)
+{
     std::ifstream in("problems.txt");
     if (!in.is_open())
     {
@@ -186,17 +223,21 @@ void test_problem(int problem_idx) {
     std::string line;
     while (std::getline(in, line))
     {
-        if (problem_idx == 1) {
-            break;
+        if (line[0] != '#')
+        {
+            if (problem_idx == 1)
+            {
+                break;
+            }
+            problem_idx--;
         }
-        problem_idx--;
     }
-    std::vector<std::string> problem = split(line, ':');    
+    std::vector<std::string> problem = split(line, ':');
     std::vector<std::string> moves = split(problem[0], ',');
 
     GomokuGame game(19);
     // Loop over each character in the line
-    for (std::string move: moves)
+    for (std::string move : moves)
     {
         // Get the row and column from the line
         int row = getCoordinate(move[0]);
@@ -206,7 +247,8 @@ void test_problem(int problem_idx) {
     }
     // Create an AI with the game and the depth
     std::cout << "Moves: ";
-    for (std::string move: moves) {
+    for (std::string move : moves)
+    {
         std::cout << move << " ";
     }
     std::cout << std::endl;
@@ -220,27 +262,15 @@ void test_problem(int problem_idx) {
     std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
     logMoveEvaluation(moveEvalutation);
     logTooManyEvaluationsList(moveEvalutation);
-
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    // GomokuGame game(19);
-    // game.make_move(4, 4);
-    // game.make_move(2, 2);
-    // game.make_move(5, 4);
-    // // game.update_structures(O);
-    // // game.make_move(0, 0);
-    // // game.make_move(0, 1);
-    // // game.display_struct();
-    // GomokuAI AI(game, O, 3);
-    // MoveEvaluation moveEvalutation = AI.suggest_move();
-    // logMoveEvaluation(moveEvalutation);
-    // logTooManyEvaluationsList(moveEvalutation);
-    // displayBoard(game);
-    // std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
-    // std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
-    // Timer::printAccumulatedTimes();
-    test_problem(1);
+    // If no arguments are given, run the test_problems function
+    // If an argument is given, run the test_problem function with the given argument
+    if (argc == 1)
+        test_problems();
+    else
+        test_problem(atoi(argv[1]));
     return 0;
 }

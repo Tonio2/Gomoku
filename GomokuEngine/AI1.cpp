@@ -111,6 +111,7 @@ int GomokuAI::heuristic_evaluation()
 
         score += counts[OPEN_FOUR] * 10000 * multiplier;
         score += (counts[OPEN_THREE] >= 2 or counts[FOUR] >= 2 or (counts[OPEN_THREE] >= 1 and counts[FOUR] >= 1)) * 9000 * multiplier;
+        score += counts[FOUR] * 1000 * multiplier;
         score += counts[OPEN_THREE] * 1000 * multiplier;
         score += counts[THREE] * 500 * multiplier;
         score += counts[OPEN_TWO] * 100 * multiplier;

@@ -1,1 +1,34 @@
-44,64,45,65,46,66,47,67:48
+# 1. Find win by open 4 -> 5 in a row
+44,64,45,65,46,66,47,67:48,43
+# 2. Find win by closed 4 -> 5 in a row
+44,64,45,65,46,66,47,48:43
+# 3. Find win by capture
+44,45,54,46,47,48,57,49,4A,4B,5A,4C,4D,4E,5D,4F,4G,5G,3D,6G:7G
+# 4. Block closed 4 even if able to make an open 3 or make a 4th capture
+44,64,45,65,46,43,47:48
+# 5. Create an open 3 with capture rather than without
+74,63,75,53,43,00,42:73
+# 6. Block open 3
+44,64,45,65,46:47,43
+# 7. Capture a stone to remove an open 3 rather than blocking it
+44,55,45,00,35,40,46:25
+# 8. Don't block open 3 if able make an open 4 first
+66,86,67,87,68,88:65,69
+# 9. Don't block open 3 if able to make a 4th capture that will turn into a 5th capture next turn
+44,45,74,75,1G,A4,4G,A5,7G,46,AG,76,DG,DF,GG,DE,HD,AF,DD,AE,AD,7F,G7,7E,7D,A6:47,77
+# 10. Create open 3 if possible
+66,A6,67,A7:65,68
+# 11. Create a double closed 4 if possible and opponent not about to win
+66,A6,67,A7,68,59,79,6A,89,A8,99,EB:69
+# 12. Create a closed 4 and an open 3 if possible
+66,A6,67,A7,68,65,79,G8,89,GD:69
+# 13. Create a double 3 by capturing if possible
+66,69,67,6A,78,D8,88,D9,6B,FF:68
+# 14. Do not create a double 3 if no capture is possible
+66,B6,67,EA,78,FE,88,AE:|68
+# 15. Make a 4th capture if possible (open 4 > 4th capture > open 3)
+32,33,62,63,A2,A3,E2,E3,4D,34,4E,64,EE,A4,HG,E4,35,EF,65,G9,A5,CA:E5
+# 16. Make an open 4 and not a 4th capture (open 4 > 4th capture > open 3)
+32,33,62,63,A2,A3,E2,E3,4D,34,4E,64,EE,A4,HG,E4,35,EF,65,G9,A5,CA,4F,BF:4G,4C
+# 17. Make a 3rd capture if no open 3 or better are possible
+32,33,62,63,A2,A3,E2,E3,4D,34,EE,64,HF,A4,35,8F,65,1G:A5
