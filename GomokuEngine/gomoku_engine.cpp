@@ -28,6 +28,11 @@ std::vector<Pattern> patterns = {
 std::vector<std::string> structure_names = {"OPEN_FOUR", "FOUR", "OPEN_THREE", "THREE", "OPEN_TWO", "TWO", "OPEN_ONE", "ONE"};
 std::vector<std::string> player_names = {"E", "X", "O"};
 
+std::ostream& operator<<(std::ostream& stream, Player player) {
+    stream << player_names[player];
+    return stream;
+}
+
 // Definitions of GomokuGame methods
 GomokuGame::GomokuGame(uint _size) : board_size(_size),
                                      board(_size * _size),
@@ -364,6 +369,10 @@ MoveResult GomokuGame::make_move(int row, int col)
 
     white_reconizer->update_patterns_with_move(*this, move_result);
     black_reconizer->update_patterns_with_move(*this, move_result);
+
+    std::cout << std::endl << std::endl;
+    black_reconizer->print_patterns();
+    white_reconizer->print_patterns();
 
     return move_result;
 }

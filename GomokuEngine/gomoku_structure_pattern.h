@@ -1,6 +1,9 @@
 
 #include "matrix.hpp"
 #include "gomoku_engine.h"
+#include <map>
+#include <set>
+#include <functional>
 
 struct GomokuCellIndex {
     unsigned short row;
@@ -59,13 +62,18 @@ struct CellPatternData {
      * Handle niche case where we have sequence of open one and two
      */
     bool is_gap_open_three;
+    /** Is the gaped open three closed.
+    */
+    bool is_gap_open_three_closed;
 
     bool operator!=(const CellPatternData& comp) const;
 
     static CellPatternData pre_bound_element();
 
-    void print();
+    bool contains_structure() const;
 };
+
+std::ostream& operator<<(std::ostream& stream, const CellPatternData& cell_data);
 
 struct PatternCellIndex {
     int row;
@@ -90,6 +98,14 @@ struct PatternCellIndex {
     }
 };
 
+enum PatternDirection: uint8_t {
+    LeftToRight = 0,
+    UpToDown = 1,
+    UpleftToDownright = 2,
+    UprightToDownleft = 3,
+    Count = 4
+};
+
 class GomokuPatternReconizer
 {
 
@@ -99,24 +115,12 @@ public:
 
     void find_patterns_in_board(const GomokuGame& board);
 
-    void update_patterns_with_move(const GomokuGame& board, const MoveResult& last_move);
+    void update_patterns_with_move(const GomokuGame& board, const MoveResult& Count_move);
 
     void print_patterns();
 
 
 private:
-
-    Player _gomoku_player;
-
-    enum PatternDirection: uint8_t {
-        LeftToRight = 0,
-        UpToDown = 1,
-        UpleftToDownright = 2,
-        UprightToDownleft = 3,
-        last = 4
-    };
-
-    std::vector<Matrix<CellPatternData>> _pattern_direction_cell_matrices;
 
     /** Return the state of a cell for our gomoku player */
     CellPatternState cell_state_at(const GomokuGame& board, PatternCellIndex index) const;
@@ -145,5 +149,14 @@ private:
 
     PatternCellIndex get_previous_index(PatternCellIndex index, PatternDirection direction) const;
     PatternCellIndex get_next_index(PatternCellIndex index, PatternDirection direction) const;
+
+    void untag_celldata_structure(PatternCellIndex index, PatternDirection direction);
+    void tag_celldata_structure(PatternCellIndex index, PatternDirection direction);
+
+    void for_each_structures(std::function<void(PatternCellIndex, CellPatternData, PatternDirection)> lambda);
+
+    Player _gomoku_player;
+    std::vector<Matrix<CellPatternData>> _pattern_direction_cell_matrices;
+    std::vector<std::map<int, std::set<int>>> _pattern_direction_structure_maps;
 
 };
