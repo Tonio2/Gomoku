@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h> 
 #include "gomoku_engine.h"
+#include "gomoku_structure_pattern.h"
 #include "AI1.h"
 
 namespace py = pybind11;

@@ -1,5 +1,7 @@
 #include "gomoku_engine.h"
 
+#include "gomoku_structure_pattern.h"
+
 std::map<std::string, Timer::FunctionAccumulation> Timer::accumulatedFunctions;
 std::set<std::string> Timer::activeFunctions;
 
@@ -32,8 +34,20 @@ GomokuGame::GomokuGame(uint _size) : board_size(_size),
                                      current_player(X),
                                      players_scores({0, 0, 0}),
                                      winner(E),
-                                     players_structures(3, std::vector<Structure>(0))
+                                     players_structures(3, std::vector<Structure>(0)),
+                                     white_reconizer(new GomokuPatternReconizer(Player::WHITE)),
+                                     black_reconizer(new GomokuPatternReconizer(Player::BLACK))
 {
+    white_reconizer->find_patterns_in_board(*this);
+    black_reconizer->find_patterns_in_board(*this);
+}
+
+GomokuGame::~GomokuGame()
+{
+    delete white_reconizer;
+    delete black_reconizer;
+
+    Timer::printAccumulatedTimes();
 }
 
 static inline int board_index(int row, int col, uint board_size)
@@ -347,6 +361,9 @@ MoveResult GomokuGame::make_move(int row, int col)
 
     move_result.black_score_change = get_player_score(X) - old_black_score;
     move_result.white_score_change = get_player_score(O) - old_white_score;
+
+    white_reconizer->update_patterns_with_move(*this, move_result);
+    black_reconizer->update_patterns_with_move(*this, move_result);
 
     return move_result;
 }

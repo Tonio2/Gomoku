@@ -2,6 +2,28 @@
 #include "matrix.hpp"
 #include "gomoku_engine.h"
 
+struct GomokuCellIndex {
+    unsigned short row;
+    unsigned short col;
+};
+
+struct PatternCellIndex {
+    int row;
+    int col;
+
+    PatternCellIndex(GomokuCellIndex gomoku_index) :
+     row(gomoku_index.row + 1),
+     col(gomoku_index.col + 1)
+    {}
+
+    GomokuCellIndex to_game_index() const {
+        GomokuCellIndex index;
+        index.row = row - 1;
+        index.col = col - 1;
+        return index;
+    }
+};
+
 /** State of one cell.
  * Empty means no player is there.
  * Stone means we have one of our stone there
@@ -50,6 +72,8 @@ struct CellPatternData {
      */
     bool is_gap_open_three;
 
+    bool operator!=(const CellPatternData& comp) const;
+
     static CellPatternData pre_bound_element();
 
     void print();
@@ -82,6 +106,9 @@ public:
 
     std::vector<Matrix<CellPatternData>> _pattern_direction_cell_matrices;
 
+    /** Return the state of a cell for our gomoku player */
+    CellPatternState cell_state_at(const GomokuGame& board, int row, int col) const;
+
     /** Calculate the next state from a cell when meeting each state. */
     CellPatternData cell_data_following(const CellPatternData& cell, CellPatternState state) const;
 
@@ -91,9 +118,20 @@ public:
     /** Initialize matrices bounds to block elements */
     void initialize_matrices_bounds();
 
+    /** Update all cells of the matrices */
     void update_all_cells(const GomokuGame& board);
 
     /** Update cell in all direction matrices */
-    void update_cell(int width, int height, CellPatternState state);
+    void update_cell(const GomokuGame& board, int row, int col);
+
+    /** Update cells in left to right matrices at the specified location
+     * 
+     * up_to_bound: Should we update everything until the end or stop when
+     * we find identical results.
+    */
+    void update_cell_left_to_right(const GomokuGame& board, int row, int col, bool up_to_bound = false);
+    void update_cell_up_to_down(const GomokuGame& board, int row, int col, bool up_to_bound = false);
+    void update_cell_upleft_to_downright(const GomokuGame& board, int row, int col, bool up_to_bound = false);
+    void update_cell_upright_to_downleft(const GomokuGame& board, int row, int col, bool up_to_bound = false);
 
 };

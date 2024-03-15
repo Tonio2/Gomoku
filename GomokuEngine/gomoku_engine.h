@@ -60,6 +60,8 @@ struct MoveResult
     short int black_score_change = 0;
 };
 
+class GomokuPatternReconizer;
+
 class GomokuGame
 {
 private:
@@ -69,6 +71,8 @@ private:
     std::vector<int> players_scores;
     Player winner;
     std::vector<std::vector<Structure>> players_structures;
+    GomokuPatternReconizer* white_reconizer;
+    GomokuPatternReconizer* black_reconizer;
 
     bool coordinates_are_valid(int row, int col) const;
     Player other_player(Player player) const;
@@ -96,6 +100,8 @@ private:
 
 public:
     GomokuGame(uint _size);
+
+    virtual ~GomokuGame();
 
     bool is_game_over() const;
     MoveResult make_move(int row, int col);
