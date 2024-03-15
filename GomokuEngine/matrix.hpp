@@ -8,6 +8,15 @@ class Matrix {
 
 public:
 
+    class Index {
+        int8_t row;
+        int8_t col;
+
+        bool is_valid(const Matrix<Element>& matrix) {
+            return matrix.is_in_bound(row, col);
+        }
+    };
+
     /** Init */
 
     Matrix() :
@@ -59,21 +68,17 @@ public:
         return _elements[index_at(row, col)];
     }
 
+    Element& operator[](Index index) {
+        return _elements[index_at(index.row, index.col)];
+    }
+
+    const Element& operator[](Index index) const {
+        return _elements[index_at(index.row, index.col)];
+    }
+
     bool is_in_bound(int row, int col) const {
         return row >= 0 && row < _height
             && col >= 0 && col < _width;
-    }
-
-    const Element& safe_get_at(int row, int col) const {
-        if (is_in_bound(row, col))
-            return _elements[index_at(row, col)];
-        else
-            return out_value;
-    }
-
-    void safe_set_at(int row, int col, const Element& value) {
-        if (is_in_bound(row, col))
-            _elements[index_at(row, col)] = value;
     }
 
     int get_width() const {
@@ -88,7 +93,7 @@ public:
     /** Print */
 
     void print() const {
-        std::cout << "[" << _width << ";" << _height << "] (out=" << out_value << ")" << std::endl;
+        std::cout << "[" << _width << ";" << _height << "]" << std::endl;
         for (int row = 0; row < _height; ++row)
         {
             for (int col = 0; col < _width; ++col)
@@ -98,8 +103,6 @@ public:
             std::cout << std::endl;
         }
     }
-
-    Element out_value;
 
 private:
 

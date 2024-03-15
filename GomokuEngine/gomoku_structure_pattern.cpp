@@ -1,5 +1,6 @@
 
 #include "gomoku_structure_pattern.h"
+#include "gomoku_engine.h"
 #include <cassert>
 
 

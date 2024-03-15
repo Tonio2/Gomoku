@@ -34,35 +34,29 @@ std::ostream& operator<<(std::ostream& stream, Player player) {
 }
 
 // Definitions of GomokuGame methods
-GomokuGame::GomokuGame(uint _size) : board_size(_size),
-                                     board(_size * _size),
+GomokuGame::GomokuGame(uint _size) : board(_size, _size),
                                      current_player(X),
                                      players_scores({0, 0, 0}),
-                                     winner(E),
                                      players_structures(3, std::vector<Structure>(0)),
-                                     white_reconizer(new GomokuPatternReconizer(Player::WHITE)),
-                                     black_reconizer(new GomokuPatternReconizer(Player::BLACK))
+                                     players_reconizers({
+                                        GomokuPatternReconizer(E),
+                                        GomokuPatternReconizer(X),
+                                        GomokuPatternReconizer(O),
+                                     }),
+                                     winner(E)
 {
-    white_reconizer->find_patterns_in_board(*this);
-    black_reconizer->find_patterns_in_board(*this);
+    players_reconizers[X].find_patterns_in_board(*this);
+    players_reconizers[O].find_patterns_in_board(*this);
 }
 
 GomokuGame::~GomokuGame()
 {
-    delete white_reconizer;
-    delete black_reconizer;
-
     Timer::printAccumulatedTimes();
 }
 
-static inline int board_index(int row, int col, uint board_size)
+Player GomokuGame::get_board_value(int row, int col) const
 {
-    return row * board_size + col;
-}
-
-unsigned char GomokuGame::get_board_value(int row, int col) const
-{
-    return board[board_index(row, col, board_size)];
+    return board(row, col);
 }
 
 CellChange GomokuGame::set_board_value(int row, int col, Player value)
@@ -73,10 +67,8 @@ CellChange GomokuGame::set_board_value(int row, int col, Player value)
     cell_change.row = row;
     cell_change.col = col;
 
-    const int index = board_index(row, col, board_size);
-
-    cell_change.old_value = board[index];
-    board[index] = value;
+    cell_change.old_value = board(row, col);
+    board(row, col) = value;
     cell_change.new_value = value;
 
     return cell_change;
@@ -106,7 +98,7 @@ std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, s
         int y = row + (i - 1) * dir.first;
         int x = col + (i - 1) * dir.second;
         char val;
-        unsigned char cell = get_board_value(y, x);
+        Player cell = get_board_value(y, x);
         if (!coordinates_are_valid(y, x) or cell == otherPlayer)
         {
             val = 'B';
@@ -134,9 +126,9 @@ void GomokuGame::update_structures(Player player)
     players_structures[player].clear();
 
     // Check for structures in rows
-    for (uint row = 0; row < board_size; row++)
+    for (uint row = 0; row < board.get_height(); row++)
     {
-        for (uint col = 0; col < board_size; col++)
+        for (uint col = 0; col < board.get_width(); col++)
         {
             if (get_board_value(row, col) == player)
             {
@@ -158,9 +150,9 @@ void GomokuGame::update_structures(Player player)
     }
 
     // Check for structures in columns
-    for (uint col = 0; col < board_size; col++)
+    for (uint col = 0; col < board.get_width(); col++)
     {
-        for (uint row = 0; row < board_size; row++)
+        for (uint row = 0; row < board.get_height(); row++)
         {
             if (get_board_value(row, col) == player)
             {
@@ -184,11 +176,11 @@ void GomokuGame::update_structures(Player player)
     // Check for structures in diagonals (1, -1)
     int row = 0;
     int col = 0;
-    while (row != board_size or col != board_size - 2)
+    while (row != board.get_height() or col != board.get_width() - 2)
     {
         if (not coordinates_are_valid(row, col))
         {
-            if (row <= board_size - 1)
+            if (row <= board.get_height() - 1)
             {
                 col = row;
                 row = 0;
@@ -196,7 +188,7 @@ void GomokuGame::update_structures(Player player)
             else
             {
                 row = col + 2;
-                col = board_size - 1;
+                col = board.get_width() - 1;
             }
         }
         if (get_board_value(row, col) == player)
@@ -221,19 +213,19 @@ void GomokuGame::update_structures(Player player)
 
     // Check for structures in diagonals (1, 1)
     row = 0;
-    col = board_size - 1;
-    while (row != board_size or col != 1)
+    col = board.get_width() - 1;
+    while (row != board.get_height() or col != 1)
     {
         if (not coordinates_are_valid(row, col))
         {
-            if (row <= board_size - 1)
+            if (row <= board.get_height() - 1)
             {
-                col = board_size - 1 - row;
+                col = board.get_width() - 1 - row;
                 row = 0;
             }
             else
             {
-                row = board_size + 1 - col;
+                row = board.get_height() + 1 - col;
                 col = 0;
             }
         }
@@ -265,7 +257,7 @@ bool GomokuGame::is_game_over() const
 
 bool GomokuGame::coordinates_are_valid(int row, int col) const
 {
-    return row >= 0 && row < board_size && col >= 0 && col < board_size;
+    return board.is_in_bound(row, col);
 }
 
 std::pair<int, bool> GomokuGame::count_stones_and_gap(uint row, uint col, int row_dir, int col_dir, Player player, bool &space) const
@@ -277,7 +269,7 @@ std::pair<int, bool> GomokuGame::count_stones_and_gap(uint row, uint col, int ro
     {
         int x = row + i * row_dir;
         int y = col + i * col_dir;
-        unsigned char cell = get_board_value(x, y);
+        Player cell = get_board_value(x, y);
         if (!coordinates_are_valid(x, y) or cell == otherPlayer)
         {
             if (space && !stones)
@@ -355,8 +347,6 @@ MoveResult GomokuGame::make_move(int row, int col)
     }
 
     const CellChange cell_change = set_board_value(row, col, current_player);
-    update_structures(current_player);
-    update_structures(other_player(current_player));
     move_result.cell_changes.push_back(cell_change);
 
     if (check_win(row, col, current_player))
@@ -367,12 +357,8 @@ MoveResult GomokuGame::make_move(int row, int col)
     move_result.black_score_change = get_player_score(X) - old_black_score;
     move_result.white_score_change = get_player_score(O) - old_white_score;
 
-    white_reconizer->update_patterns_with_move(*this, move_result);
-    black_reconizer->update_patterns_with_move(*this, move_result);
-
-    std::cout << std::endl << std::endl;
-    black_reconizer->print_patterns();
-    white_reconizer->print_patterns();
+    players_reconizers[X].update_patterns_with_move(*this, move_result);
+    players_reconizers[O].update_patterns_with_move(*this, move_result);
 
     return move_result;
 }
@@ -404,9 +390,6 @@ void GomokuGame::reapply_move(const MoveResult &move)
 
     CellChange cell = move.cell_changes.back();
 
-    update_structures(current_player);
-    update_structures(other_player(current_player));
-
     if (check_win(cell.row, cell.col, current_player))
         winner = current_player;
 
@@ -421,9 +404,9 @@ std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves()
     const std::vector<std::pair<int, int>> directions = {
         {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
-    for (int row = 0; row < board_size; ++row)
+    for (int row = 0; row < board.get_height(); ++row)
     {
-        for (int col = 0; col < board_size; ++col)
+        for (int col = 0; col < board.get_width(); ++col)
         {
             if (get_board_value(row, col) == E)
             { // Empty cell
@@ -506,7 +489,7 @@ bool GomokuGame::capture(uint row, uint col, Player player, MoveResult &move_res
 
 int GomokuGame::get_board_size() const
 {
-    return board_size;
+    return board.get_width();
 }
 
 int GomokuGame::count_stones(uint row, uint col, int row_dir, int col_dir, Player player) const
@@ -557,12 +540,12 @@ bool GomokuGame::check_win(uint row, uint col, Player player)
     }
 }
 
-unsigned char GomokuGame::get_winner() const
+Player GomokuGame::get_winner() const
 {
     return winner;
 }
 
-unsigned char GomokuGame::get_current_player() const
+Player GomokuGame::get_current_player() const
 {
     return current_player;
 }

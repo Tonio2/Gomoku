@@ -1,80 +1,20 @@
-#ifndef GOMOKU_ENGINE_H
-#define GOMOKU_ENGINE_H
 
-#include <string>
-#include <vector>
-#include <map>
-#include <iostream>
-#include <cstddef>
-#include <chrono>
-#include "Timer.h"
+#pragma once
 
-#define X Player::BLACK
-#define O Player::WHITE
-#define E Player::EMPTY
-
-enum Player : unsigned char
-{
-    EMPTY,
-    BLACK,
-    WHITE
-};
-
-std::ostream& operator<<(std::ostream& stream, Player player);
-
-enum StructureType
-{
-    OPEN_FOUR,
-    FOUR,
-    OPEN_THREE,
-    THREE,
-    OPEN_TWO,
-    TWO,
-    OPEN_ONE,
-    ONE
-};
-
-struct Pattern
-{
-    StructureType type;
-    std::string pattern;
-};
-
-struct Structure
-{
-    StructureType type;
-    std::vector<std::pair<int, int>> cells;
-};
-
-struct CellChange
-{
-    unsigned short row;
-    unsigned short col;
-    Player old_value;
-    Player new_value;
-};
-
-struct MoveResult
-{
-    std::vector<CellChange> cell_changes;
-
-    short int white_score_change = 0;
-    short int black_score_change = 0;
-};
-
-class GomokuPatternReconizer;
+#include "gomoku_engine_types.h"
+#include "gomoku_structure_pattern.h"
 
 class GomokuGame
 {
 private:
-    std::vector<Player> board;
-    uint board_size;
+
+    Matrix<Player> board;
+
     Player current_player;
     std::vector<int> players_scores;
     Player winner;
     std::vector<std::vector<Structure>> players_structures;
-    GomokuPatternReconizer* white_reconizer;
-    GomokuPatternReconizer* black_reconizer;
+    std::vector<GomokuPatternReconizer> players_reconizers;
 
     bool coordinates_are_valid(int row, int col) const;
     Player other_player(Player player) const;
@@ -98,7 +38,6 @@ private:
     void modify_player_score(Player player, int score);
 
     std::vector<std::pair<int, int>> check_pattern(uint row, uint col, std::string pattern, StructureType type, Player player, std::pair<int, int> dir) const;
-    
 
 public:
     GomokuGame(uint _size);
@@ -111,10 +50,13 @@ public:
     void reapply_move(const MoveResult &move);
     bool check_win(uint row, uint col, Player player);
     int count_open_threes(uint row, uint col, Player player) const;
-    unsigned char get_winner() const;
-    unsigned char get_board_value(int row, int col) const;
+    Player get_winner() const;
+    Player get_board_value(int row, int col) const;
+
+    // TODO: Replace with get_width && get_height
     int get_board_size() const;
-    unsigned char get_current_player() const;
+
+    Player get_current_player() const;
     int get_player_score(Player player) const;
     void display_struct() const;
     std::vector<std::pair<std::pair<int, int>, int>> findRelevantMoves() const;
@@ -124,5 +66,3 @@ public:
     void update_structures(Player player);
 
 };
-
-#endif // GOMOKU_ENGINE_H

@@ -1,9 +1,13 @@
 
+#pragma once
+
+#include "gomoku_engine_types.h"
 #include "matrix.hpp"
-#include "gomoku_engine.h"
 #include <map>
 #include <set>
 #include <functional>
+
+class GomokuGame;
 
 struct GomokuCellIndex {
     unsigned short row;
