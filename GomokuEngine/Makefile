@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags, e.g. -g for debugging, -O2 for optimisation and -Wall for turning on most warnings
-CXXFLAGS =  -O3 -Wall
+CXXFLAGS = -g -O3 -Wall
 
 # Define the C++ source files
 SRCS = AI1.cpp gomoku_engine.cpp gomoku_structure_pattern.cpp main.cpp
@@ -20,7 +20,7 @@ $(MAIN): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(MAIN) $(OBJS)
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) -c $<  -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	$(RM) *.o *~ $(MAIN)

@@ -250,6 +250,37 @@ void GomokuGame::update_structures(Player player)
     }
 }
 
+void GomokuGame::display_board() const
+{
+    std::vector<char> boardCoordinates = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
+    std::cout << " ";
+    for (char coordinate : boardCoordinates)
+    {
+        std::cout << " " << coordinate;
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < get_board_size(); i++)
+    {
+        std::cout << boardCoordinates[i] << " ";
+        for (int j = 0; j < get_board_size(); j++)
+        {
+            if (get_board_value(i, j) == X)
+            {
+                std::cout << "X ";
+            }
+            else if (get_board_value(i, j) == O)
+            {
+                std::cout << "O ";
+            }
+            else
+            {
+                std::cout << ". ";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
 bool GomokuGame::is_game_over() const
 {
     return winner != E;

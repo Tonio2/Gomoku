@@ -9,6 +9,9 @@
 struct MoveEvaluation {
     std::pair<int, int> move;
     int score;
+    int neededEvalCount;
+    int totalEvalCount;
+    int evaluatedMoves;
     std::vector<MoveEvaluation> listMoves;
 };
 
@@ -19,9 +22,10 @@ private:
     Player ai_player;
     Player human_player;
 
-    void sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer);
+    void sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth);
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
     int heuristic_evaluation();
+    int pseudo_heuristic_evaluation(std::pair<int, int> move);
 
 public:
     GomokuAI(GomokuGame game, Player ai_player, int depth);
