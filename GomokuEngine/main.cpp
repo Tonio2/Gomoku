@@ -180,15 +180,17 @@ void test_problems()
         std::vector<std::string> expected_moves;
         std::vector<std::string> forbidden_moves;
 
-        if (problem[1].find("|") != std::string::npos) {
+        if (problem[1].find("|") != std::string::npos)
+        {
             expected_moves_string = split(problem[1], '|');
             expected_moves = split(expected_moves_string[0], ',');
             forbidden_moves = split(expected_moves_string[1], ',');
-        } else {
+        }
+        else
+        {
             expected_moves = split(problem[1], ',');
         }
 
-        
         std::string best_move_string = std::to_string(bestMove.first) + std::to_string(bestMove.second);
         if (std::find(forbidden_moves.begin(), forbidden_moves.end(), best_move_string) != forbidden_moves.end())
         {
@@ -262,6 +264,7 @@ void test_problem(int problem_idx)
     std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
     logMoveEvaluation(moveEvalutation);
     logTooManyEvaluationsList(moveEvalutation);
+    Timer::printAccumulatedTimes();
 }
 
 int main(int argc, char *argv[])
@@ -274,7 +277,6 @@ int main(int argc, char *argv[])
         test_problem(atoi(argv[1]));
     return 0;
 }
-
 
 // GomokuPatternReconizer::CellState random_state() {
 //     return GomokuPatternReconizer::CellState(random() % 3);

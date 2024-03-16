@@ -8,7 +8,6 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), a
 
 void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
 {
-    Timer timer("sortMoves");
     for (std::pair<std::pair<int, int>, int> &move : moves)
     {
         if (depth > 1)

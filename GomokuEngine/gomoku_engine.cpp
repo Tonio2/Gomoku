@@ -28,7 +28,8 @@ std::vector<Pattern> patterns = {
 std::vector<std::string> structure_names = {"OPEN_FOUR", "FOUR", "OPEN_THREE", "THREE", "OPEN_TWO", "TWO", "OPEN_ONE", "ONE"};
 std::vector<std::string> player_names = {"E", "X", "O"};
 
-std::ostream& operator<<(std::ostream& stream, Player player) {
+std::ostream &operator<<(std::ostream &stream, Player player)
+{
     stream << player_names[player];
     return stream;
 }
@@ -39,9 +40,9 @@ GomokuGame::GomokuGame(uint _size) : board(_size, _size),
                                      players_scores({0, 0, 0}),
                                      players_structures(3, std::vector<Structure>(0)),
                                      players_reconizers({
-                                        GomokuPatternReconizer(E),
-                                        GomokuPatternReconizer(X),
-                                        GomokuPatternReconizer(O),
+                                         GomokuPatternReconizer(E),
+                                         GomokuPatternReconizer(X),
+                                         GomokuPatternReconizer(O),
                                      }),
                                      winner(E)
 {
@@ -49,10 +50,7 @@ GomokuGame::GomokuGame(uint _size) : board(_size, _size),
     players_reconizers[O].find_patterns_in_board(*this);
 }
 
-GomokuGame::~GomokuGame()
-{
-    Timer::printAccumulatedTimes();
-}
+GomokuGame::~GomokuGame() {}
 
 Player GomokuGame::get_board_value(int row, int col) const
 {
@@ -61,7 +59,6 @@ Player GomokuGame::get_board_value(int row, int col) const
 
 CellChange GomokuGame::set_board_value(int row, int col, Player value)
 {
-    Timer timer("set_board_value");
     CellChange cell_change;
 
     cell_change.row = row;
@@ -122,7 +119,6 @@ std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, s
 
 void GomokuGame::update_structures(Player player)
 {
-    Timer timer("update_structures");
     players_structures[player].clear();
 
     // Check for structures in rows
@@ -391,9 +387,10 @@ MoveResult GomokuGame::make_move(int row, int col)
     players_reconizers[X].update_patterns_with_move(*this, move_result);
     players_reconizers[O].update_patterns_with_move(*this, move_result);
 
-    std::cout << std::endl << std::endl;
-    players_reconizers[X].print_patterns();
-    players_reconizers[O].print_patterns();
+    // std::cout << std::endl
+    //           << std::endl;
+    // players_reconizers[X].print_patterns();
+    // players_reconizers[O].print_patterns();
 
     return move_result;
 }
