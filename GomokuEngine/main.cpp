@@ -191,7 +191,7 @@ void test_problems()
             expected_moves = split(problem[1], ',');
         }
 
-        std::string best_move_string = std::to_string(bestMove.first) + std::to_string(bestMove.second);
+        std::string best_move_string = std::string(1, boardCoordinates[bestMove.first]) + std::string(1, boardCoordinates[bestMove.second]);
         if (std::find(forbidden_moves.begin(), forbidden_moves.end(), best_move_string) != forbidden_moves.end())
         {
             // Print the description then print "...NOK" to std::cout in red color
