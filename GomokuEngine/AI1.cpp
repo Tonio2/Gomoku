@@ -1,7 +1,7 @@
 #include "AI1.h"
 #include <algorithm>
 
-GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), ai_player(ai_player), depth(depth)
+GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), depth(depth), ai_player(ai_player)
 {
     human_player = (ai_player == X) ? O : X;
 }
