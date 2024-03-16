@@ -7,7 +7,6 @@
 class GomokuGame
 {
 private:
-
     Matrix<Player> board;
 
     Player current_player;
@@ -34,10 +33,8 @@ private:
     bool capture(uint row, uint col, Player player, MoveResult &move_result);
 
     /** Board state */
-    
-    void modify_player_score(Player player, int score);
 
-    std::vector<std::pair<int, int>> check_pattern(uint row, uint col, std::string pattern, StructureType type, Player player, std::pair<int, int> dir) const;
+    void modify_player_score(Player player, int score);
 
 public:
     GomokuGame(uint _size);
@@ -63,7 +60,5 @@ public:
     std::vector<std::vector<Structure>> get_structures() const;
     void set_structures(std::vector<std::vector<Structure>> _structures);
     CellChange set_board_value(int row, int col, Player value);
-    void update_structures(Player player);
     void display_board() const;
-
 };

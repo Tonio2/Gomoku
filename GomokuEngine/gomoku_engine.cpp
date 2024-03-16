@@ -38,13 +38,13 @@ std::ostream &operator<<(std::ostream &stream, Player player)
 GomokuGame::GomokuGame(uint _size) : board(_size, _size),
                                      current_player(X),
                                      players_scores({0, 0, 0}),
+                                     winner(E),
                                      players_structures(3, std::vector<Structure>(0)),
                                      players_reconizers({
                                          GomokuPatternReconizer(E),
                                          GomokuPatternReconizer(X),
                                          GomokuPatternReconizer(O),
-                                     }),
-                                     winner(E)
+                                     })
 {
     players_reconizers[X].find_patterns_in_board(*this);
     players_reconizers[O].find_patterns_in_board(*this);
@@ -79,171 +79,6 @@ Player GomokuGame::other_player(Player player) const
 void GomokuGame::modify_player_score(Player player, int score)
 {
     players_scores[player] += score;
-}
-
-std::vector<std::pair<int, int>> GomokuGame::check_pattern(uint row, uint col, std::string pattern, StructureType type, Player player, std::pair<int, int> dir) const
-{
-    std::vector<std::pair<int, int>> cells;
-    Player otherPlayer = other_player(player);
-    for (int i = 0; i < pattern.size(); i++)
-    {
-        if (i == 1)
-        {
-            cells.push_back({row, col});
-            continue;
-        }
-        int y = row + (i - 1) * dir.first;
-        int x = col + (i - 1) * dir.second;
-        char val;
-        Player cell = get_board_value(y, x);
-        if (!coordinates_are_valid(y, x) or cell == otherPlayer)
-        {
-            val = 'B';
-        }
-        else if (cell == player)
-        {
-            val = 'C';
-        }
-        else
-        {
-            val = 'E';
-        }
-
-        if (val != pattern[i])
-            throw std::invalid_argument("Invalid pattern");
-
-        cells.push_back({y, x});
-    }
-    return cells;
-}
-
-void GomokuGame::update_structures(Player player)
-{
-    players_structures[player].clear();
-
-    // Check for structures in rows
-    for (uint row = 0; row < board.get_height(); row++)
-    {
-        for (uint col = 0; col < board.get_width(); col++)
-        {
-            if (get_board_value(row, col) == player)
-            {
-                for (uint i = 0; i < patterns.size(); i++)
-                {
-                    std::string pattern = patterns[i].pattern;
-                    StructureType type = patterns[i].type;
-                    try
-                    {
-                        std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {0, 1});
-                        players_structures[player].push_back({type, cells});
-                    }
-                    catch (const std::invalid_argument &e)
-                    {
-                    }
-                }
-            }
-        }
-    }
-
-    // Check for structures in columns
-    for (uint col = 0; col < board.get_width(); col++)
-    {
-        for (uint row = 0; row < board.get_height(); row++)
-        {
-            if (get_board_value(row, col) == player)
-            {
-                for (uint i = 0; i < patterns.size(); i++)
-                {
-                    std::string pattern = patterns[i].pattern;
-                    StructureType type = patterns[i].type;
-                    try
-                    {
-                        std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, 0});
-                        players_structures[player].push_back({type, cells});
-                    }
-                    catch (const std::invalid_argument &e)
-                    {
-                    }
-                }
-            }
-        }
-    }
-
-    // Check for structures in diagonals (1, -1)
-    int row = 0;
-    int col = 0;
-    while (row != board.get_height() or col != board.get_width() - 2)
-    {
-        if (not coordinates_are_valid(row, col))
-        {
-            if (row <= board.get_height() - 1)
-            {
-                col = row;
-                row = 0;
-            }
-            else
-            {
-                row = col + 2;
-                col = board.get_width() - 1;
-            }
-        }
-        if (get_board_value(row, col) == player)
-        {
-            for (uint i = 0; i < patterns.size(); i++)
-            {
-                std::string pattern = patterns[i].pattern;
-                StructureType type = patterns[i].type;
-                try
-                {
-                    std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, -1});
-                    players_structures[player].push_back({type, cells});
-                }
-                catch (const std::invalid_argument &e)
-                {
-                }
-            }
-        }
-        row++;
-        col--;
-    }
-
-    // Check for structures in diagonals (1, 1)
-    row = 0;
-    col = board.get_width() - 1;
-    while (row != board.get_height() or col != 1)
-    {
-        if (not coordinates_are_valid(row, col))
-        {
-            if (row <= board.get_height() - 1)
-            {
-                col = board.get_width() - 1 - row;
-                row = 0;
-            }
-            else
-            {
-                row = board.get_height() + 1 - col;
-                col = 0;
-            }
-        }
-        if (get_board_value(row, col) == player)
-        {
-            for (uint i = 0; i < patterns.size(); i++)
-            {
-                std::string pattern = patterns[i].pattern;
-                StructureType type = patterns[i].type;
-                try
-                {
-                    std::vector<std::pair<int, int>> cells = check_pattern(row, col, pattern, type, player, {1, 1});
-                    players_structures[player].push_back({type, cells});
-                }
-                catch (const std::invalid_argument &e)
-                {
-                }
-            }
-        }
-        row++;
-        col++;
-    }
 }
 
 void GomokuGame::display_board() const
