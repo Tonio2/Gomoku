@@ -222,6 +222,8 @@ void test_problems()
             std::cout << "\033[1;31m" << description << "...NOK"
                       << "\033[0m" << std::endl;
         }
+        std::cout << "Best move: " << best_move_string << std::endl;
+
         Timer::printAccumulatedTimes();
         Timer::reset();
     }
@@ -252,18 +254,19 @@ void test_problem(int problem_idx)
     std::vector<std::string> problem = split(line, ':');
     std::vector<std::string> moves = split(problem[0], ',');
     display_moves(moves);
+    Player player = moves.size() % 2 ? O : X;
 
     GomokuGame game(19);
     apply_moves(game, moves);
 
-    GomokuAI AI(game, moves.size() % 2 == 0 ? X : O, DEPTH);
+    GomokuAI AI(game, player, DEPTH);
     // Suggest a move
     MoveEvaluation moveEvalutation = AI.suggest_move();
     // Get the best move
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     // Print the best move
     game.display_board();
-    std::cout << "Best move: (" << bestMove.first << ", " << bestMove.second << ")" << std::endl;
+    std::cout << "Best move for player " << player << ": " << boardCoordinates[bestMove.first] << boardCoordinates[bestMove.second] << std::endl;
     logMoveEvaluation(moveEvalutation);
     logTooManyEvaluationsList(moveEvalutation);
     Timer::printAccumulatedTimes();
