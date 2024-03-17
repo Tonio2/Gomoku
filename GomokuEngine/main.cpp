@@ -209,6 +209,8 @@ void test_problems()
             std::cout << "\033[1;31m" << description << "...NOK"
                       << "\033[0m" << std::endl;
         }
+        Timer::printAccumulatedTimes();
+        Timer::reset();
     }
 }
 
@@ -265,6 +267,15 @@ void test_problem(int problem_idx)
     logMoveEvaluation(moveEvalutation);
     logTooManyEvaluationsList(moveEvalutation);
     Timer::printAccumulatedTimes();
+    std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
+    for (int i = 0; i < patterns_count.size(); i++)
+    {
+        for (int j = 0; j < patterns_count[i].size(); j++)
+        {
+            std::cout << patterns_count[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
 }
 
 int main(int argc, char *argv[])

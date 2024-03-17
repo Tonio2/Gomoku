@@ -7,7 +7,7 @@
 # 4. Block closed 4 even if able to make an open 3 or make a 4th capture
 44,64,45,65,46,43,47:48
 # 5. Create an open 3 with capture rather than without
-74,63,75,53,43,00,42:73
+74,63,75,53,43,00,42,0I:73
 # 6. Block open 3
 44,64,45,65,46:47,43
 # 7. Capture a stone to remove an open 3 rather than blocking it

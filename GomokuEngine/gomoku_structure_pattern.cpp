@@ -92,6 +92,60 @@ void GomokuPatternReconizer::print_patterns()
         std::cout << direction << " " << data << " [" << int(game_index.row) << ';' << int(game_index.col) << "]" << std::endl; });
 }
 
+std::vector<int> GomokuPatternReconizer::get_pattern_count()
+{
+    std::vector<int> pattern_count(8, 0);
+    for (int direction = 0; direction < PatternDirection::Count; ++direction)
+    {
+        const auto &structure_map = _pattern_direction_structure_maps[direction];
+        for (auto structure_set_row : structure_map)
+        {
+            int row = structure_set_row.first;
+            for (int col : structure_set_row.second)
+            {
+
+                PatternCellIndex index(row, col);
+                CellPatternData data = _pattern_direction_cell_matrices[direction](row, col);
+                GomokuCellIndex game_index = index.to_game_index();
+
+                if (data.structure_length == 4 && !data.is_sequence_closed)
+                {
+                    pattern_count[0]++;
+                }
+                else if (data.structure_length == 4 && data.is_sequence_closed)
+                {
+                    pattern_count[1]++;
+                }
+                else if (data.structure_length == 3 && !data.is_sequence_closed)
+                {
+                    pattern_count[2]++;
+                }
+                else if (data.structure_length == 3 && data.is_sequence_closed)
+                {
+                    pattern_count[3]++;
+                }
+                else if (data.structure_length == 2 && !data.is_sequence_closed)
+                {
+                    pattern_count[4]++;
+                }
+                else if (data.structure_length == 2 && data.is_sequence_closed)
+                {
+                    pattern_count[5]++;
+                }
+                else if (data.structure_length == 1 && !data.is_sequence_closed)
+                {
+                    pattern_count[6]++;
+                }
+                else if (data.structure_length == 1 && data.is_sequence_closed)
+                {
+                    pattern_count[7]++;
+                }
+            }
+        }
+    }
+    return pattern_count;
+}
+
 CellPatternState GomokuPatternReconizer::cell_state_at(const GomokuGame &board, PatternCellIndex index) const
 {
 

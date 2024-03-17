@@ -112,6 +112,14 @@ void GomokuGame::display_board() const
     }
 }
 
+std::vector<std::vector<int>> GomokuGame::get_patterns_count()
+{
+    std::vector<std::vector<int>> patterns_count(3, std::vector<int>(8, 0));
+    patterns_count[1] = players_reconizers[X].get_pattern_count();
+    patterns_count[2] = players_reconizers[O].get_pattern_count();
+    return patterns_count;
+}
+
 bool GomokuGame::is_game_over() const
 {
     return winner != E;
@@ -241,6 +249,9 @@ void GomokuGame::reverse_move(const MoveResult &move)
     {
         set_board_value(cell_change.row, cell_change.col, cell_change.old_value);
     }
+
+    players_reconizers[X].update_patterns_with_move(*this, move);
+    players_reconizers[O].update_patterns_with_move(*this, move);
 
     winner = E;
 }

@@ -13,8 +13,9 @@ class GomokuGame;
  * Empty means no player is there.
  * Stone means we have one of our stone there
  * Block means the opponent has a stone there or we're out of bound.
-*/
-enum CellPatternState {
+ */
+enum CellPatternState
+{
     CELL_STATE_EMPTY,
     CELL_STATE_STONE,
     CELL_STATE_BLOCK,
@@ -28,8 +29,9 @@ enum CellPatternState {
  * When a cell is updated from the game, we only have to modify the
  * matching cell in the structure matrix and all following cells until
  * we've stopped modifying it.
-*/
-struct CellPatternData {
+ */
+struct CellPatternData
+{
     /** Length of the potential sequence we're doing */
     uint8_t sequence_length;
     /** Define if the sequence bounded by an obstable at the begining */
@@ -41,15 +43,15 @@ struct CellPatternData {
     uint8_t structure_length;
     /** Define if the structure is closed from one side.
      * If the structure is closed on both sides, it's not a structure.
-    */
+     */
     bool is_structure_closed;
 
     /** Size of the structure that we're directly following.
      * This case is relevant to check for open three with gaps.
-    */
+     */
     uint8_t previous_structure_length;
     /** Is the previous structure closed
-    */
+     */
     bool is_previous_structure_closed;
 
     /** Is gaped open three.
@@ -57,36 +59,39 @@ struct CellPatternData {
      */
     bool is_gap_open_three;
     /** Is the gaped open three closed.
-    */
+     */
     bool is_gap_open_three_closed;
 
-    bool operator!=(const CellPatternData& comp) const;
+    bool operator!=(const CellPatternData &comp) const;
 
     static CellPatternData pre_bound_element();
 
     bool contains_structure() const;
 };
 
-std::ostream& operator<<(std::ostream& stream, const CellPatternData& cell_data);
+std::ostream &operator<<(std::ostream &stream, const CellPatternData &cell_data);
 
 typedef Matrix<Player>::Index GomokuCellIndex;
 
-struct PatternCellIndex : public Matrix<CellPatternData>::Index {
+struct PatternCellIndex : public Matrix<CellPatternData>::Index
+{
 
-    PatternCellIndex(int row, int col) :
-    Matrix<CellPatternData>::Index(row, col)
-    {}
+    PatternCellIndex(int row, int col) : Matrix<CellPatternData>::Index(row, col)
+    {
+    }
 
-    PatternCellIndex(GomokuCellIndex gomoku_index) :
-        Matrix<CellPatternData>::Index(gomoku_index.row + 1, gomoku_index.col + 1)
-    {}
+    PatternCellIndex(GomokuCellIndex gomoku_index) : Matrix<CellPatternData>::Index(gomoku_index.row + 1, gomoku_index.col + 1)
+    {
+    }
 
-    GomokuCellIndex to_game_index() const {
+    GomokuCellIndex to_game_index() const
+    {
         return GomokuCellIndex(row - 1, col - 1);
     }
 };
 
-enum PatternDirection: uint8_t {
+enum PatternDirection : uint8_t
+{
     LeftToRight = 0,
     UpToDown = 1,
     UpleftToDownright = 2,
@@ -98,42 +103,41 @@ class GomokuPatternReconizer
 {
 
 public:
-
     GomokuPatternReconizer(Player player);
 
-    void find_patterns_in_board(const GomokuGame& board);
+    void find_patterns_in_board(const GomokuGame &board);
 
-    void update_patterns_with_move(const GomokuGame& board, const MoveResult& Count_move);
+    void update_patterns_with_move(const GomokuGame &board, const MoveResult &Count_move);
 
     void print_patterns();
 
+    std::vector<int> get_pattern_count();
 
 private:
-
     /** Return the state of a cell for our gomoku player */
-    CellPatternState cell_state_at(const GomokuGame& board, PatternCellIndex index) const;
+    CellPatternState cell_state_at(const GomokuGame &board, PatternCellIndex index) const;
 
     /** Calculate the next state from a cell when meeting each state. */
-    CellPatternData cell_data_following(const CellPatternData& cell, CellPatternState state) const;
+    CellPatternData cell_data_following(const CellPatternData &cell, CellPatternState state) const;
 
     /** Check if pattern cell matrices are of the desired size or adjust them */
-    bool adjust_matrices_size(const GomokuGame& board);
+    bool adjust_matrices_size(const GomokuGame &board);
 
     /** Initialize matrices bounds to block elements */
     void initialize_matrices_bounds();
 
     /** Update all cells of the matrices */
-    void update_all_cells(const GomokuGame& board);
+    void update_all_cells(const GomokuGame &board);
 
     /** Update cell in all direction matrices */
-    void update_cell(const GomokuGame& board, PatternCellIndex index);
+    void update_cell(const GomokuGame &board, PatternCellIndex index);
 
     /** Update cells in left to right matrices at the specified location
-     * 
+     *
      * up_to_bound: Should we update everything until the end or stop when
      * we find identical results.
-    */
-    void update_cell_line(const GomokuGame& board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
+     */
+    void update_cell_line(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
 
     PatternCellIndex get_previous_index(PatternCellIndex index, PatternDirection direction) const;
     PatternCellIndex get_next_index(PatternCellIndex index, PatternDirection direction) const;
@@ -146,5 +150,4 @@ private:
     Player _gomoku_player;
     std::vector<Matrix<CellPatternData>> _pattern_direction_cell_matrices;
     std::vector<std::map<int, std::set<int>>> _pattern_direction_structure_maps;
-
 };

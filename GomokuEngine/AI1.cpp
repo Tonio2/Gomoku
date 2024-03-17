@@ -18,10 +18,10 @@ void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves
             game.reverse_move(game_move);
             game.set_structures(structuresAll);
         }
-        else
-        {
-            move.second = pseudo_heuristic_evaluation(move.first);
-        }
+        // else
+        // {
+        //     move.second = pseudo_heuristic_evaluation(move.first);
+        // }
     }
     if (maximizingPlayer)
         std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
@@ -96,30 +96,25 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 int GomokuAI::heuristic_evaluation()
 {
     int player = ai_player;
-    std::vector<std::vector<Structure>> structuresAll = game.get_structures();
+    std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
     int multiplier = 1;
     int score = 0;
-    std::vector<int> counts(8, 0);
+    std::vector<int> capture_scores = {100, 200, 300, 1000};
 
     for (int i = 0; i < 2; i++)
     {
-        for (Structure &structure : structuresAll[player])
-        {
-            counts[structure.type] += 1;
-        }
-
-        score += counts[OPEN_FOUR] * 10000 * multiplier;
-        score += (counts[OPEN_THREE] >= 2 or counts[FOUR] >= 2 or (counts[OPEN_THREE] >= 1 and counts[FOUR] >= 1)) * 9000 * multiplier;
-        score += counts[FOUR] * 1000 * multiplier;
-        score += counts[OPEN_THREE] * 1000 * multiplier;
-        score += counts[THREE] * 500 * multiplier;
-        score += counts[OPEN_TWO] * 100 * multiplier;
-        score += counts[TWO] * 50 * multiplier;
-        score += counts[OPEN_ONE] * 10 * multiplier;
-        score += counts[ONE] * 5 * multiplier;
+        std::vector<int> player_patterns_count = patterns_count[player];
+        score += player_patterns_count[OPEN_FOUR] * 10000 * multiplier;
+        score += (player_patterns_count[OPEN_THREE] >= 2 or player_patterns_count[FOUR] >= 2 or (player_patterns_count[OPEN_THREE] >= 1 and player_patterns_count[FOUR] >= 1)) * 9000 * multiplier;
+        score += player_patterns_count[FOUR] * 1000 * multiplier;
+        score += player_patterns_count[OPEN_THREE] * 1000 * multiplier;
+        score += player_patterns_count[THREE] * 500 * multiplier;
+        score += player_patterns_count[OPEN_TWO] * 100 * multiplier;
+        score += player_patterns_count[TWO] * 50 * multiplier;
+        score += player_patterns_count[OPEN_ONE] * 10 * multiplier;
+        score += player_patterns_count[ONE] * 5 * multiplier;
         player = human_player;
         multiplier = -1;
-        counts = {0, 0, 0, 0, 0, 0, 0, 0};
     }
     return score;
 }
