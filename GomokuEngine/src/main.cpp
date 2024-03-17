@@ -297,9 +297,10 @@ void test_eval(std::string moves_string)
         }
         std::cout << std::endl;
     }
-    GomokuAI AI(game, moves.size() % 2 ? X : O, DEPTH);
+    Player player = moves.size() % 2 ? X : O;
+    GomokuAI AI(game, player, DEPTH);
     int evaluation = AI.heuristic_evaluation();
-    std::cout << "Board evaluation: " << evaluation << std::endl;
+    std::cout << "Board evaluation for " << player << ": " << evaluation << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -310,7 +311,7 @@ int main(int argc, char *argv[])
         test_problems();
     else if (std::string(argv[1]).compare("eval") == 0)
     {
-        std::string moves_string = "44,55,45,00,35,40,46,53,43,25";
+        std::string moves_string = "44,55,45,00,35,40,46,53,47,25";
         test_eval(moves_string);
     }
     else
