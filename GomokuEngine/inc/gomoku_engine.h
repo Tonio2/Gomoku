@@ -62,4 +62,5 @@ public:
     CellChange set_board_value(int row, int col, Player value);
     void display_board() const;
     std::vector<std::vector<int>> get_patterns_count();
+    void print_patterns();
 };

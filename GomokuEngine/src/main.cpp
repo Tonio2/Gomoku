@@ -137,6 +137,27 @@ int getCoordinate(char coordinate)
     return -1;
 }
 
+void display_moves(std::vector<std::string> moves)
+{
+    for (std::string move : moves)
+    {
+        std::cout << move << " ";
+    }
+    std::cout << std::endl;
+}
+
+void apply_moves(GomokuGame &game, std::vector<std::string> moves)
+{
+    for (std::string move : moves)
+    {
+        // Get the row and column from the line
+        int row = getCoordinate(move[0]);
+        int col = getCoordinate(move[1]);
+        // Make the move
+        game.make_move(row, col);
+    }
+}
+
 void test_problems()
 {
     // Read problems.txt
@@ -161,15 +182,7 @@ void test_problems()
         GomokuGame game(19);
         std::vector<std::string> problem = split(line, ':');
         std::vector<std::string> moves = split(problem[0], ',');
-        // Loop over each character in the line
-        for (std::string move : moves)
-        {
-            // Get the row and column from the line
-            int row = getCoordinate(move[0]);
-            int col = getCoordinate(move[1]);
-            // Make the move
-            game.make_move(row, col);
-        }
+        apply_moves(game, moves);
         GomokuAI AI(game, moves.size() % 2 == 0 ? X : O, DEPTH);
         // Suggest a move
         MoveEvaluation moveEvalutation = AI.suggest_move();
@@ -238,24 +251,11 @@ void test_problem(int problem_idx)
     }
     std::vector<std::string> problem = split(line, ':');
     std::vector<std::string> moves = split(problem[0], ',');
+    display_moves(moves);
 
     GomokuGame game(19);
-    // Loop over each character in the line
-    for (std::string move : moves)
-    {
-        // Get the row and column from the line
-        int row = getCoordinate(move[0]);
-        int col = getCoordinate(move[1]);
-        // Make the move
-        game.make_move(row, col);
-    }
-    // Create an AI with the game and the depth
-    std::cout << "Moves: ";
-    for (std::string move : moves)
-    {
-        std::cout << move << " ";
-    }
-    std::cout << std::endl;
+    apply_moves(game, moves);
+
     GomokuAI AI(game, moves.size() % 2 == 0 ? X : O, DEPTH);
     // Suggest a move
     MoveEvaluation moveEvalutation = AI.suggest_move();
@@ -278,14 +278,45 @@ void test_problem(int problem_idx)
     }
 }
 
+void test_eval(std::string moves_string)
+{
+    GomokuGame game(19);
+    std::vector<std::string> moves = split(moves_string, ',');
+    display_moves(moves);
+    apply_moves(game, moves);
+
+    game.display_board();
+    game.print_patterns();
+    std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
+    for (int i = 1; i < patterns_count.size(); i++)
+    {
+        std::cout << "Patterns count for player " << (i == 1 ? "X: " : "O: ");
+        for (int j = 0; j < patterns_count[i].size(); j++)
+        {
+            std::cout << patterns_count[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    GomokuAI AI(game, O, DEPTH);
+    int evaluation = AI.heuristic_evaluation();
+    std::cout << "Board evaluation: " << evaluation << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
     // If no arguments are given, run the test_problems function
     // If an argument is given, run the test_problem function with the given argument
     if (argc == 1)
         test_problems();
+    else if (argv[1] == "eval")
+    {
+        std::string moves_string = "44,55,45,00,35,40,46,25,45,43";
+        test_eval(moves_string);
+    }
     else
+    {
         test_problem(atoi(argv[1]));
+    }
     return 0;
 }
 

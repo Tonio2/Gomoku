@@ -6,7 +6,8 @@
 #include <utility>
 #include <random>
 
-struct MoveEvaluation {
+struct MoveEvaluation
+{
     std::pair<int, int> move;
     int score;
     int neededEvalCount;
@@ -15,7 +16,8 @@ struct MoveEvaluation {
     std::vector<MoveEvaluation> listMoves;
 };
 
-class GomokuAI {
+class GomokuAI
+{
 private:
     GomokuGame game;
     int depth;
@@ -24,12 +26,12 @@ private:
 
     void sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth);
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
-    int heuristic_evaluation();
     int pseudo_heuristic_evaluation(std::pair<int, int> move);
 
 public:
     GomokuAI(GomokuGame game, Player ai_player, int depth);
     MoveEvaluation suggest_move();
+    int heuristic_evaluation();
 };
 
 #endif // GOMOKU_AI_H

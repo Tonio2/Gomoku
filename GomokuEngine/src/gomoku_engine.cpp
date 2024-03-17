@@ -120,6 +120,12 @@ std::vector<std::vector<int>> GomokuGame::get_patterns_count()
     return patterns_count;
 }
 
+void GomokuGame::print_patterns()
+{
+    players_reconizers[X].print_patterns();
+    players_reconizers[O].print_patterns();
+}
+
 bool GomokuGame::is_game_over() const
 {
     return winner != E;

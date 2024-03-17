@@ -49,6 +49,11 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     int moveIdx = 1;
     sortMoves(moves, maximizingPlayer, depth);
 
+    // if (depth == 2)
+    // {
+    //     std::cout << row << " " << col << std::endl;
+    // }
+
     // For each move, make the move, call minimax recursively and reverse the move.
     int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
     for (auto moveWithScore : moves)
@@ -95,11 +100,11 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
 int GomokuAI::heuristic_evaluation()
 {
-    int player = ai_player;
+    Player player = ai_player;
     std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
     int multiplier = 1;
     int score = 0;
-    std::vector<int> capture_scores = {100, 200, 300, 1000};
+    std::vector<int> capture_scores = {0, 100, 200, 300, 1000};
 
     for (int i = 0; i < 2; i++)
     {
@@ -113,6 +118,9 @@ int GomokuAI::heuristic_evaluation()
         score += player_patterns_count[TWO] * 50 * multiplier;
         score += player_patterns_count[OPEN_ONE] * 10 * multiplier;
         score += player_patterns_count[ONE] * 5 * multiplier;
+
+        int score_capture = game.get_player_score(player);
+        score += capture_scores[score_capture / 2] * multiplier;
         player = human_player;
         multiplier = -1;
     }
