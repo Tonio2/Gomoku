@@ -108,35 +108,35 @@ std::vector<int> GomokuPatternReconizer::get_pattern_count()
                 CellPatternData data = _pattern_direction_cell_matrices[direction](row, col);
                 GomokuCellIndex game_index = index.to_game_index();
 
-                if (data.structure_length == 4 && !data.is_sequence_closed)
+                if (data.structure_length == 4 && !data.is_structure_closed)
                 {
                     pattern_count[0]++;
                 }
-                else if (data.structure_length == 4 && data.is_sequence_closed)
+                else if (data.structure_length == 4 && data.is_structure_closed)
                 {
                     pattern_count[1]++;
                 }
-                else if (data.structure_length == 3 && !data.is_sequence_closed)
+                else if (data.structure_length == 3 && !data.is_structure_closed)
                 {
                     pattern_count[2]++;
                 }
-                else if (data.structure_length == 3 && data.is_sequence_closed)
+                else if (data.structure_length == 3 && data.is_structure_closed)
                 {
                     pattern_count[3]++;
                 }
-                else if (data.structure_length == 2 && !data.is_sequence_closed)
+                else if (data.structure_length == 2 && !data.is_structure_closed)
                 {
                     pattern_count[4]++;
                 }
-                else if (data.structure_length == 2 && data.is_sequence_closed)
+                else if (data.structure_length == 2 && data.is_structure_closed)
                 {
                     pattern_count[5]++;
                 }
-                else if (data.structure_length == 1 && !data.is_sequence_closed)
+                else if (data.structure_length == 1 && !data.is_structure_closed)
                 {
                     pattern_count[6]++;
                 }
-                else if (data.structure_length == 1 && data.is_sequence_closed)
+                else if (data.structure_length == 1 && data.is_structure_closed)
                 {
                     pattern_count[7]++;
                 }
