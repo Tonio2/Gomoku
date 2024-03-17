@@ -10,10 +10,10 @@ MODE ?= perf
 
 # Compiler flags, e.g. -g for debugging, -O2 for optimisation and -Wall for turning on most warnings
 CXXFLAGSPERF = -O3 -Wall -I$(INCDIR)
-CXXFLAGSDEBUG = -pg -Wall -I$(INCDIR)
+CXXFLAGSDEBUG = -g -p -Wall -I$(INCDIR)
 
 # Conditional assignment based on the MODE variable
-ifeq ($(MODE),debug)
+ifeq ($(MODE),DEBUG)
 CXXFLAGS = $(CXXFLAGSDEBUG)
 else
 CXXFLAGS = $(CXXFLAGSPERF)
