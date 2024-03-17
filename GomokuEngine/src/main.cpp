@@ -297,7 +297,7 @@ void test_eval(std::string moves_string)
         }
         std::cout << std::endl;
     }
-    GomokuAI AI(game, O, DEPTH);
+    GomokuAI AI(game, moves.size() % 2 ? X : O, DEPTH);
     int evaluation = AI.heuristic_evaluation();
     std::cout << "Board evaluation: " << evaluation << std::endl;
 }
@@ -308,9 +308,9 @@ int main(int argc, char *argv[])
     // If an argument is given, run the test_problem function with the given argument
     if (argc == 1)
         test_problems();
-    else if (argv[1] == "eval")
+    else if (std::string(argv[1]).compare("eval") == 0)
     {
-        std::string moves_string = "44,55,45,00,35,40,46,25,45,43";
+        std::string moves_string = "44,55,45,00,35,40,46,53,43,25";
         test_eval(moves_string);
     }
     else
