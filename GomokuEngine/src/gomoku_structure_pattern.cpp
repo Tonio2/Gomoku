@@ -124,6 +124,14 @@ std::vector<int> GomokuPatternReconizer::get_pattern_count()
                 {
                     pattern_count[3]++;
                 }
+                else if (data.is_gap_open_three && !data.is_gap_open_three_closed)
+                {
+                    pattern_count[2]++;
+                }
+                else if (data.is_gap_open_three && data.is_gap_open_three_closed)
+                {
+                    pattern_count[3]++;
+                }
                 else if (data.structure_length == 2 && !data.is_structure_closed)
                 {
                     pattern_count[4]++;
