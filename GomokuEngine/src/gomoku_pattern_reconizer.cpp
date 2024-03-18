@@ -193,7 +193,7 @@ void GomokuPatternReconizer::print_patterns()
         std::cout << "  " << direction << " " << data << " [" << int(game_index.row) << ';' << int(game_index.col) << "]" << std::endl; });
 
     std::cout << "  cached:" << std::endl;
-    for (int i = 0; i < _cached_pattern_count.size(); i++)
+    for (size_t i = 0; i < _cached_pattern_count.size(); i++)
     {
         std::cout << "    " << StructureType(i) << ':' << _cached_pattern_count[i] << std::endl;
     }

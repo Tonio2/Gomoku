@@ -129,7 +129,7 @@ std::vector<std::string> split(const std::string &str, char delimiter)
 
 int getCoordinate(char coordinate)
 {
-    for (int i = 0; i < boardCoordinates.size(); i++)
+    for (size_t i = 0; i < boardCoordinates.size(); i++)
     {
         if (boardCoordinates[i] == coordinate)
         {
@@ -311,9 +311,9 @@ void test_problem(int problem_idx)
     logTooManyEvaluationsList(moveEvalutation);
     Timer::printAccumulatedTimes();
     std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
-    for (int i = 0; i < patterns_count.size(); i++)
+    for (size_t i = 0; i < patterns_count.size(); i++)
     {
-        for (int j = 0; j < patterns_count[i].size(); j++)
+        for (size_t j = 0; j < patterns_count[i].size(); j++)
         {
             std::cout << patterns_count[i][j] << " ";
         }
@@ -331,10 +331,10 @@ void test_eval(std::string moves_string)
     game.display_board();
     game.print_patterns();
     std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
-    for (int i = 1; i < patterns_count.size(); i++)
+    for (size_t i = 1; i < patterns_count.size(); i++)
     {
         std::cout << "Patterns count for player " << (i == 1 ? "X: " : "O: ");
-        for (int j = 0; j < patterns_count[i].size(); j++)
+        for (size_t j = 0; j < patterns_count[i].size(); j++)
         {
             std::cout << patterns_count[i][j] << " ";
         }

@@ -79,7 +79,7 @@ std::string getColor(int depth)
 std::string getIndent(int depth)
 {
   std::string indent;
-  for (size_t i = 0; i < depth - 1; ++i)
+  for (int i = 0; i < depth - 1; ++i)
   {
     indent += (i < depth - 2) ? "|   " : "|-- ";
   }
