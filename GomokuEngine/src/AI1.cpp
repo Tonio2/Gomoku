@@ -141,38 +141,7 @@ int GomokuAI::heuristic_evaluation()
 
 int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
 {
-    std::vector<std::vector<Structure>> structuresAll = game.get_structures();
-    int score = 0;
-
-    // Define the scores for each structure type for both the AI and the opponent.
-    std::map<StructureType, int> structureScores = {
-        {OPEN_FOUR, 100},
-        {FOUR, 50},
-        {OPEN_THREE, 25},
-        {THREE, 10},
-        {OPEN_TWO, 5},
-        {TWO, 2},
-        {OPEN_ONE, 1},
-        {ONE, 0}};
-
-    // Iterate through all structures to check their proximity to the move
-    for (std::vector<Structure> &playerStructures : structuresAll)
-    {
-        for (auto &structure : playerStructures)
-        {
-            for (auto &cell : structure.cells)
-            {
-                if (game.get_board_value(cell.first, cell.second) == E)
-                {
-                    if (move.first == cell.first and move.second == cell.second)
-                    {
-                        score += structureScores[structure.type];
-                    }
-                }
-            }
-        }
-    }
-    return score;
+    return 0;
 }
 
 MoveEvaluation GomokuAI::suggest_move()

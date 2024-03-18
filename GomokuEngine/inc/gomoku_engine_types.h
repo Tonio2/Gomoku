@@ -20,7 +20,7 @@ enum Player : unsigned char
     WHITE
 };
 
-std::ostream& operator<<(std::ostream& stream, Player player);
+std::ostream &operator<<(std::ostream &stream, Player player);
 
 enum StructureType
 {
@@ -32,18 +32,6 @@ enum StructureType
     TWO,
     OPEN_ONE,
     ONE
-};
-
-struct Pattern
-{
-    StructureType type;
-    std::string pattern;
-};
-
-struct Structure
-{
-    StructureType type;
-    std::vector<std::pair<int, int>> cells;
 };
 
 struct CellChange

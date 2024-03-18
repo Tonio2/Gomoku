@@ -12,7 +12,6 @@ private:
     Player current_player;
     std::vector<int> players_scores;
     Player winner;
-    std::vector<std::vector<Structure>> players_structures;
     std::vector<GomokuPatternReconizer> players_reconizers;
 
     bool coordinates_are_valid(int row, int col) const;
@@ -55,10 +54,7 @@ public:
 
     Player get_current_player() const;
     int get_player_score(Player player) const;
-    void display_struct() const;
     std::vector<std::pair<std::pair<int, int>, int>> findRelevantMoves() const;
-    std::vector<std::vector<Structure>> get_structures() const;
-    void set_structures(std::vector<std::vector<Structure>> _structures);
     CellChange set_board_value(int row, int col, Player value);
     void display_board() const;
     std::vector<std::vector<int>> get_patterns_count();
