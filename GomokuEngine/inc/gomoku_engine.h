@@ -14,7 +14,6 @@ private:
     Player winner;
     std::vector<GomokuPatternReconizer> players_reconizers;
 
-    bool coordinates_are_valid(int row, int col) const;
     Player other_player(Player player) const;
 
     /** Stone counting */
@@ -36,7 +35,7 @@ private:
     void modify_player_score(Player player, int score);
 
 public:
-    GomokuGame(uint _size);
+    GomokuGame(uint width, uint height);
 
     virtual ~GomokuGame();
 
@@ -49,8 +48,9 @@ public:
     Player get_winner() const;
     Player get_board_value(int row, int col) const;
 
-    // TODO: Replace with get_width && get_height
-    int get_board_size() const;
+    int get_board_width() const;
+    int get_board_height() const;
+    bool coordinates_are_valid(int row, int col) const;
 
     Player get_current_player() const;
     int get_player_score(Player player) const;

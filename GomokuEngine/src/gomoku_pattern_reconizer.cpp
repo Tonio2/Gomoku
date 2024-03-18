@@ -159,7 +159,7 @@ PatternCellState GomokuPatternReconizer::cell_state_at(const GomokuGame &board, 
 
     const GomokuCellIndex game_index = index.to_game_index();
 
-    if (game_index.row < 0 || game_index.row >= board.get_board_size() || game_index.col < 0 || game_index.col >= board.get_board_size())
+    if (!board.coordinates_are_valid(game_index.row, game_index.col))
         return PatternCellState::CELL_STATE_BLOCK;
 
     Player player = Player(board.get_board_value(game_index.row, game_index.col));
@@ -220,8 +220,8 @@ bool GomokuPatternReconizer::adjust_matrices_size(const GomokuGame &board)
 
     for (int i = 0; i < PatternDirection::Count; ++i)
     {
-        int width = board.get_board_size() + 2;
-        int height = board.get_board_size() + 2;
+        int width = board.get_board_width() + 2;
+        int height = board.get_board_height() + 2;
 
         const bool size_differ = _pattern_direction_cell_matrices[i].get_width() != width || _pattern_direction_cell_matrices[i].get_height() != height;
 

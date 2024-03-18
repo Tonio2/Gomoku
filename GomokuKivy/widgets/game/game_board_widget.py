@@ -43,7 +43,7 @@ class GameBoardWidget(Widget):
         if gomoku_game is None:
             return
 
-        board_size_y, board_size_x = gomoku_game.get_board_size()
+        board_size_y, board_size_x = gomoku_game.get_board_height(), gomoku_game.get_board_width()
 
         cell_size_x = self.width / board_size_x
         cell_size_y = self.height / board_size_y
@@ -85,7 +85,7 @@ class GameBoardWidget(Widget):
             return
 
         if self.collide_point(*touch.pos):
-            board_size_x, board_size_y = gomoku_game.get_board_size()
+            board_size_x, board_size_y = gomoku_game.get_board_width(), gomoku_game.get_board_height()
 
             cell_size_x = self.width / board_size_x
             cell_size_y = self.height / board_size_y
@@ -93,4 +93,4 @@ class GameBoardWidget(Widget):
             col = int((touch.pos[0] - self.x) / cell_size_x)
             row = int((touch.pos[1] - self.y) / cell_size_y)
 
-            gomoku_game.play_at(gomoku_game.get_board_size()[1] - 1 - row, col)
+            gomoku_game.play_at(board_size_y - 1 - row, col)

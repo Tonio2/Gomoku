@@ -3,7 +3,7 @@
 #include "gomoku_pattern_reconizer.h"
 
 std::vector<std::string> structure_names = {"OPEN_FOUR", "FOUR", "OPEN_THREE", "THREE", "OPEN_TWO", "TWO", "OPEN_ONE", "ONE"};
-std::vector<std::string> player_names = {"E", "X", "O"};
+std::vector<std::string> player_names = {".", "X", "O"};
 
 std::ostream &operator<<(std::ostream &stream, Player player)
 {
@@ -11,16 +11,23 @@ std::ostream &operator<<(std::ostream &stream, Player player)
     return stream;
 }
 
+std::ostream &operator<<(std::ostream &stream, StructureType structure_type)
+{
+    stream << structure_names[structure_type];
+    return stream;
+}
+
 // Definitions of GomokuGame methods
-GomokuGame::GomokuGame(uint _size) : board(_size, _size),
-                                     current_player(X),
-                                     players_scores({0, 0, 0}),
-                                     winner(E),
-                                     players_reconizers({
-                                         GomokuPatternReconizer(E),
-                                         GomokuPatternReconizer(X),
-                                         GomokuPatternReconizer(O),
-                                     })
+GomokuGame::GomokuGame(uint width, uint height)
+    : board(width, height),
+      current_player(X),
+      players_scores({0, 0, 0}),
+      winner(E),
+      players_reconizers({
+          GomokuPatternReconizer(E),
+          GomokuPatternReconizer(X),
+          GomokuPatternReconizer(O),
+      })
 {
     players_reconizers[X].find_patterns_in_board(*this);
     players_reconizers[O].find_patterns_in_board(*this);
@@ -66,23 +73,12 @@ void GomokuGame::display_board() const
         std::cout << " " << coordinate;
     }
     std::cout << std::endl;
-    for (int i = 0; i < get_board_size(); i++)
+    for (int row = 0; row < get_board_height(); ++row)
     {
-        std::cout << boardCoordinates[i] << " ";
-        for (int j = 0; j < get_board_size(); j++)
+        std::cout << boardCoordinates[row] << " ";
+        for (int col = 0; col < get_board_width(); ++col)
         {
-            if (get_board_value(i, j) == X)
-            {
-                std::cout << "X ";
-            }
-            else if (get_board_value(i, j) == O)
-            {
-                std::cout << "O ";
-            }
-            else
-            {
-                std::cout << ". ";
-            }
+            std::cout << get_board_value(row, col) << ' ';
         }
         std::cout << std::endl;
     }
@@ -211,11 +207,6 @@ MoveResult GomokuGame::make_move(int row, int col)
     players_reconizers[X].update_patterns_with_move(*this, move_result);
     players_reconizers[O].update_patterns_with_move(*this, move_result);
 
-    // std::cout << std::endl
-    //           << std::endl;
-    // players_reconizers[X].print_patterns();
-    // players_reconizers[O].print_patterns();
-
     return move_result;
 }
 
@@ -246,6 +237,9 @@ void GomokuGame::reapply_move(const MoveResult &move)
     {
         set_board_value(cell_change.row, cell_change.col, cell_change.new_value);
     }
+
+    players_reconizers[X].update_patterns_with_move(*this, move);
+    players_reconizers[O].update_patterns_with_move(*this, move);
 
     CellChange cell = move.cell_changes.back();
 
@@ -336,9 +330,14 @@ bool GomokuGame::capture(uint row, uint col, Player player, MoveResult &move_res
     return ret;
 }
 
-int GomokuGame::get_board_size() const
+int GomokuGame::get_board_width() const
 {
     return board.get_width();
+}
+
+int GomokuGame::get_board_height() const
+{
+    return board.get_height();
 }
 
 int GomokuGame::count_stones(uint row, uint col, int row_dir, int col_dir, Player player) const

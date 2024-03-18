@@ -27,11 +27,11 @@ def write_json(root_node, filename):
 
 def main():
     current_player = pygomoku.Player.BLACK
-    game = pygomoku.GomokuGame(19)
+    game = pygomoku.GomokuGame(19, 19)
     while not game.is_game_over():
-        for x in range(0, game.get_board_size()):
-            for y in range(0, game.get_board_size()):
-                val = game.get_board_value(x, y)
+        for row in range(0, game.get_board_height()):
+            for col in range(0, game.get_board_width()):
+                val = game.get_board_value(row, col)
                 val_formatted = "X" if val == pygomoku.Player.BLACK else "O" if val == pygomoku.Player.WHITE else "."
                 print(val_formatted, end=" ")
             print()
