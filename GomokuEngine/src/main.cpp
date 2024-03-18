@@ -17,7 +17,7 @@ void writeMoveEvaluation(std::ofstream &out, const MoveEvaluation &eval, int dep
     // Create indentation based on the depth
     std::string indent(depth * 4, ' '); // 4 spaces for each level of depth
 
-    out << indent << "Move: (" << eval.move.first << ", " << eval.move.second << ") | " << eval.score << "\n";
+    out << indent << "Move: " << boardCoordinates[eval.move.first] << boardCoordinates[eval.move.second] << " | " << eval.score << "\n";
     if (depth < DEPTH)
     {
         out << indent << "Evals: " << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << "\n";
