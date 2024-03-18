@@ -3,7 +3,7 @@
 # 2. Find win by closed 4 -> 5 in a row
 44,64,45,65,46,66,47,48:43
 # 3. Find win by capture
-44,45,54,46,47,48,57,49,4A,4B,5A,4C,4D,4E,5D,4F,4G,5G,3D,6G:7G
+44,45,54,46,47,48,57,49,4A,4B,5A,4C,4D,4E,5D,4F,4G,5G,00,6G:7G
 # 4. Block closed 4 even if able to make an open 3 or make a 4th capture
 44,64,45,65,46,43,47:48
 # 5. Create an open 3 with capture rather than without
@@ -15,11 +15,11 @@
 # 8. Don't block open 3 if able make an open 4 first
 66,86,67,87,68,88:65,69
 # 9. Don't block open 3 if able to make a 4th capture that will turn into a 5th capture next turn
-44,45,74,75,1G,A4,4G,A5,7G,46,AG,76,DG,DF,GG,DE,HD,AF,DD,AE,AD,7F,G7,7E,7D,A6:47,77
+44,45,74,75,1G,A4,4G,A5,7G,46,AG,76,DG,DF,GG,DE,HD,AF,DD,AE,AD,7F,G7,7E,7D,A6,04,05,G0,06:47,77,07
 # 10. Create open 3 if possible
 66,A6,67,A7:65,68
 # 11. Create a double closed 4 if possible and opponent not about to win
-66,A6,67,A7,68,59,79,6A,89,A8,99,EB:69
+66,65,67,A9,68,DC,79,GF,89,3E,99,DD,8D,GG,8E,3F:69
 # 12. Create a closed 4 and an open 3 if possible
 66,A6,67,A7,68,65,79,G8,89,GD:69
 # 13. Create a double 3 by capturing if possible
