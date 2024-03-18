@@ -29,6 +29,8 @@ private:
     int pseudo_heuristic_evaluation(std::pair<int, int> move);
 
 public:
+    int move_count;
+    int move_evaluated_count;
     GomokuAI(GomokuGame game, Player ai_player, int depth);
     MoveEvaluation suggest_move();
     int heuristic_evaluation();
