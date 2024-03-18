@@ -20,7 +20,7 @@ CXXFLAGS = $(CXXFLAGSPERF)
 endif
 
 # Define the C++ source files
-SRCFILES = AI1.cpp gomoku_engine.cpp gomoku_structure_pattern.cpp main.cpp
+SRCFILES = AI1.cpp gomoku_engine.cpp gomoku_pattern_reconizer.cpp main.cpp
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 
 # Define the C++ object files 

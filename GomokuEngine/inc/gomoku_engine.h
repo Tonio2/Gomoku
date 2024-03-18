@@ -2,7 +2,7 @@
 #pragma once
 
 #include "gomoku_engine_types.h"
-#include "gomoku_structure_pattern.h"
+#include "gomoku_pattern_reconizer.h"
 
 class GomokuGame
 {

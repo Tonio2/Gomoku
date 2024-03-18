@@ -1,6 +1,6 @@
 #include "gomoku_engine.h"
 
-#include "gomoku_structure_pattern.h"
+#include "gomoku_pattern_reconizer.h"
 
 std::map<std::string, Timer::FunctionAccumulation> Timer::accumulatedFunctions;
 std::set<std::string> Timer::activeFunctions;
