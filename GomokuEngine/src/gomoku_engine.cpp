@@ -2,9 +2,6 @@
 
 #include "gomoku_pattern_reconizer.h"
 
-std::map<std::string, Timer::FunctionAccumulation> Timer::accumulatedFunctions;
-std::set<std::string> Timer::activeFunctions;
-
 std::vector<std::string> structure_names = {"OPEN_FOUR", "FOUR", "OPEN_THREE", "THREE", "OPEN_TWO", "TWO", "OPEN_ONE", "ONE"};
 std::vector<std::string> player_names = {"E", "X", "O"};
 
