@@ -16,15 +16,6 @@ private:
 
     Player other_player(Player player) const;
 
-    /** Stone counting */
-    std::pair<int, bool> count_stones_and_gap(uint row, uint col, int row_dir, int col_dir, Player player, bool &space) const;
-    int count_stones(uint row, uint col, int row_dir, int col_dir, Player player) const;
-
-    bool check_dir_for_5_in_a_row(uint row, uint col, int row_dir, int col_dir, Player player) const;
-    bool check_5_in_a_row(uint row, uint col, Player player) const;
-
-    bool check_direction_for_open_three(uint row, uint col, int row_dir, int col_dir, Player player) const;
-
     /** Capture */
     bool try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result);
     bool try_cardinal_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result);
@@ -44,7 +35,6 @@ public:
     void reverse_move(const MoveResult &move);
     void reapply_move(const MoveResult &move);
     bool check_win(uint row, uint col, Player player);
-    int count_open_threes(uint row, uint col, Player player) const;
     Player get_winner() const;
     Player get_board_value(int row, int col) const;
 

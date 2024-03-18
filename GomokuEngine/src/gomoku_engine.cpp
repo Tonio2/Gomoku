@@ -120,70 +120,13 @@ bool GomokuGame::coordinates_are_valid(int row, int col) const
     return board.is_in_bound(row, col);
 }
 
-std::pair<int, bool> GomokuGame::count_stones_and_gap(uint row, uint col, int row_dir, int col_dir, Player player, bool &space) const
-{
-    int stones = 0;
-    bool gap = false;
-    char otherPlayer = other_player(player);
-    for (uint i = 1; i < 5; i++)
-    {
-        int x = row + i * row_dir;
-        int y = col + i * col_dir;
-        Player cell = get_board_value(x, y);
-        if (!coordinates_are_valid(x, y) or cell == otherPlayer)
-        {
-            if (space && !stones)
-                space = false;
-            break;
-        }
-        else if (cell == E)
-        {
-            bool space_val = space;
-            space = true;
-            gap = true;
-            if (space_val)
-            {
-                if (!stones)
-                    space = false;
-                break;
-            }
-        }
-        else
-        {
-            if (stones == 2)
-                break;
-            stones++;
-            gap = false;
-        }
-    }
-    return std::make_pair(stones, gap);
-}
-
-bool GomokuGame::check_direction_for_open_three(uint row, uint col, int row_dir, int col_dir, Player player) const
-{
-    bool space = false;
-    auto [stones1, gap1] = count_stones_and_gap(row, col, row_dir, col_dir, player, space);
-    auto [stones2, gap2] = count_stones_and_gap(row, col, -row_dir, -col_dir, player, space);
-    if (stones1 + stones2 >= 2 and gap1 and gap2)
-        return true;
-    return false;
-}
-
-int GomokuGame::count_open_threes(uint row, uint col, Player player) const
-{
-    int open_threes = 0;
-    open_threes += check_direction_for_open_three(row, col, 1, 0, player);
-    open_threes += check_direction_for_open_three(row, col, 0, 1, player);
-    open_threes += check_direction_for_open_three(row, col, 1, 1, player);
-    open_threes += check_direction_for_open_three(row, col, 1, -1, player);
-    return open_threes;
-}
-
 MoveResult GomokuGame::make_move(int row, int col)
 {
     MoveResult move_result;
     const int old_black_score = get_player_score(X);
     const int old_white_score = get_player_score(O);
+
+    const int old_open_three_count = players_reconizers[current_player].get_pattern_count()[StructureType::OPEN_THREE];
 
     if (!coordinates_are_valid(row, col))
     {
@@ -198,28 +141,26 @@ MoveResult GomokuGame::make_move(int row, int col)
 
     if (!captured)
     {
-        int open_threes = count_open_threes(row, col, current_player);
-        if (open_threes > 1)
+        const int new_open_three_count = players_reconizers[current_player].get_pattern_count()[StructureType::OPEN_THREE];
+        if (new_open_three_count - old_open_three_count > 1)
         {
             throw std::invalid_argument("Invalid move: more than one open three");
         }
     }
 
+    move_result.black_score_change = get_player_score(X) - old_black_score;
+    move_result.white_score_change = get_player_score(O) - old_white_score;
+
     const CellChange cell_change = set_board_value(row, col, current_player);
     move_result.cell_changes.push_back(cell_change);
+
+    players_reconizers[X].update_patterns_with_move(*this, move_result);
+    players_reconizers[O].update_patterns_with_move(*this, move_result);
 
     if (check_win(row, col, current_player))
         winner = current_player;
 
     current_player = other_player(current_player);
-
-    move_result.black_score_change = get_player_score(X) - old_black_score;
-    move_result.white_score_change = get_player_score(O) - old_white_score;
-
-    players_reconizers[X].update_patterns_with_move(*this, move_result);
-    players_reconizers[O].update_patterns_with_move(*this, move_result);
-
-    print_patterns();
 
     return move_result;
 }
@@ -354,52 +295,18 @@ int GomokuGame::get_board_height() const
     return board.get_height();
 }
 
-int GomokuGame::count_stones(uint row, uint col, int row_dir, int col_dir, Player player) const
-{
-    int stones = 0;
-    for (int i = 1; i < 5; i++)
-    {
-        int x = row + i * row_dir;
-        int y = col + i * col_dir;
-        if (!coordinates_are_valid(x, y) or get_board_value(x, y) != player)
-        {
-            break;
-        }
-        stones++;
-    }
-    return stones;
-}
-
-bool GomokuGame::check_dir_for_5_in_a_row(uint row, uint col, int row_dir, int col_dir, Player player) const
-{
-    int stones = count_stones(row, col, row_dir, col_dir, player);
-    stones += count_stones(row, col, -row_dir, -col_dir, player);
-    return stones >= 4;
-}
-
-bool GomokuGame::check_5_in_a_row(uint row, uint col, Player player) const
-{
-    if (check_dir_for_5_in_a_row(row, col, 1, 0, player))
-        return true;
-    if (check_dir_for_5_in_a_row(row, col, 0, 1, player))
-        return true;
-    if (check_dir_for_5_in_a_row(row, col, 1, 1, player))
-        return true;
-    if (check_dir_for_5_in_a_row(row, col, 1, -1, player))
-        return true;
-    return false;
-}
-
 bool GomokuGame::check_win(uint row, uint col, Player player)
 {
     if (get_player_score(player) >= 10)
     {
         return true;
     }
-    else
+    else if (players_reconizers[player].get_pattern_count()
+                 [StructureType::FIVE_OR_MORE])
     {
-        return check_5_in_a_row(row, col, player);
+        return true;
     }
+    return false;
 }
 
 Player GomokuGame::get_winner() const
