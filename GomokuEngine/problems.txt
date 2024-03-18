@@ -21,7 +21,7 @@
 # 11. Create a double closed 4 if possible and opponent not about to win
 66,65,67,A9,68,DC,79,GF,89,3E,99,DD,8D,GG,8E,3F:69
 # 12. Create a closed 4 and an open 3 if possible
-66,A6,67,A7,68,65,79,G8,89,GD:69
+75,D6,76,D7,77,74,89,GA,9A,GB:78
 # 13. Create a double 3 by capturing if possible
 66,69,67,6A,78,D8,88,D9,6B,FF:68
 # 14. Do not create a double 3 if no capture is possible
