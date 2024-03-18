@@ -245,26 +245,26 @@ void test_problems()
         std::cout << "Total evaluation needed count: " << AI.evaluation_needed_count << std::endl;
         std::cout << "Percentage of moves evaluated: " << (AI.move_evaluated_count * 100) / AI.move_count << "%" << std::endl;
         std::cout << "Percentage of evaluations needed: " << (AI.evaluation_needed_count * 100) / AI.move_evaluated_count << "%" << std::endl;
-        double time = Timer::getAccumulatedTime("suggest_move");
-        std::cout << "Ration time / move count: " << time / AI.move_count << std::endl;
-        std::cout << "Ration time / move evaluated: " << time / AI.move_evaluated_count << std::endl;
-        std::cout << "Ration time / evaluation needed: " << time / AI.evaluation_needed_count << std::endl;
+        // double time = Timer::getAccumulatedTime("suggest_move");
+        // std::cout << "Ration time / move count: " << time / AI.move_count << std::endl;
+        // std::cout << "Ration time / move evaluated: " << time / AI.move_evaluated_count << std::endl;
+        // std::cout << "Ration time / evaluation needed: " << time / AI.evaluation_needed_count << std::endl;
 
-        times.push_back(time);
-        move_counts.push_back(AI.move_count);
-        move_evaluated_counts.push_back(AI.move_evaluated_count);
-        evaluation_needed_counts.push_back(AI.evaluation_needed_count);
-        percentage_moves_evaluated.push_back((AI.move_evaluated_count * 100) / AI.move_count);
-        percentage_evaluations_needed.push_back((AI.evaluation_needed_count * 100) / AI.move_evaluated_count);
+        // times.push_back(time);
+        // move_counts.push_back(AI.move_count);
+        // move_evaluated_counts.push_back(AI.move_evaluated_count);
+        // evaluation_needed_counts.push_back(AI.evaluation_needed_count);
+        // percentage_moves_evaluated.push_back((AI.move_evaluated_count * 100) / AI.move_count);
+        // percentage_evaluations_needed.push_back((AI.evaluation_needed_count * 100) / AI.move_evaluated_count);
         Timer::printAccumulatedTimes();
         Timer::reset();
     }
-    print_list(times);
-    print_list(move_counts);
-    print_list(move_evaluated_counts);
-    print_list(evaluation_needed_counts);
-    print_list(percentage_moves_evaluated);
-    print_list(percentage_evaluations_needed);
+    // print_list(times);
+    // print_list(move_counts);
+    // print_list(move_evaluated_counts);
+    // print_list(evaluation_needed_counts);
+    // print_list(percentage_moves_evaluated);
+    // print_list(percentage_evaluations_needed);
 }
 
 void test_problem(int problem_idx)

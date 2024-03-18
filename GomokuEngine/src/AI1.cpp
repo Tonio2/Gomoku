@@ -8,6 +8,7 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), d
 
 std::vector<std::pair<std::pair<int, int>, int>> GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
 {
+    Timer timer("sortMoves");
     std::vector<std::pair<std::pair<int, int>, int>> sortedMoves;
     for (std::pair<std::pair<int, int>, int> &move : moves)
     {
@@ -41,6 +42,7 @@ std::vector<std::pair<std::pair<int, int>, int>> GomokuAI::sortMoves(std::vector
 
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
 {
+    Timer timer("minimax");
     // If the depth is 0 or the game is over, return the heuristic evaluation of the current board.
     MoveEvaluation node;
     node.move = {row, col}; // Initialize with an invalid move.
@@ -116,6 +118,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
 int GomokuAI::heuristic_evaluation()
 {
+    Timer timer("heuristic_evaluation");
     Player player = ai_player;
     std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
     int multiplier = 1;

@@ -55,6 +55,7 @@ void GomokuPatternReconizer::find_patterns_in_board(const GomokuGame &board)
 
 void GomokuPatternReconizer::update_patterns_with_move(const GomokuGame &board, const MoveResult &Count_move)
 {
+    Timer timer("update_patterns_with_move");
     for (CellChange change : Count_move.cell_changes)
     {
         update_cell(board, PatternCellIndex(GomokuCellIndex(change.row, change.col)));

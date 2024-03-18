@@ -2,8 +2,9 @@
 
 #include "gomoku_structure_pattern.h"
 
-std::map<std::string, Timer::FunctionAccumulation> Timer::accumulatedFunctions;
-std::set<std::string> Timer::activeFunctions;
+std::map<Timer::CallStack, Timer::FunctionAccumulation> Timer::accumulatedFunctions;
+std::stack<Timer::CallStack> Timer::callStacks;
+std::map<std::string, int> Timer::activeFunctions;
 
 std::vector<std::string> structure_names = {"OPEN_FOUR", "FOUR", "OPEN_THREE", "THREE", "OPEN_TWO", "TWO", "OPEN_ONE", "ONE"};
 std::vector<std::string> player_names = {"E", "X", "O"};
@@ -93,6 +94,7 @@ void GomokuGame::display_board() const
 
 std::vector<std::vector<int>> GomokuGame::get_patterns_count()
 {
+    Timer timer("get_patterns_count");
     std::vector<std::vector<int>> patterns_count(3, std::vector<int>(8, 0));
     patterns_count[1] = players_reconizers[X].get_pattern_count();
     patterns_count[2] = players_reconizers[O].get_pattern_count();
@@ -176,6 +178,7 @@ int GomokuGame::count_open_threes(uint row, uint col, Player player) const
 
 MoveResult GomokuGame::make_move(int row, int col)
 {
+    Timer timer("make_move");
     MoveResult move_result;
     const int old_black_score = get_player_score(X);
     const int old_white_score = get_player_score(O);
@@ -224,6 +227,7 @@ MoveResult GomokuGame::make_move(int row, int col)
 
 void GomokuGame::reverse_move(const MoveResult &move)
 {
+    Timer timer("reverse_move");
     modify_player_score(X, -move.black_score_change);
     modify_player_score(O, -move.white_score_change);
 
@@ -260,6 +264,7 @@ void GomokuGame::reapply_move(const MoveResult &move)
 
 std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves() const
 {
+    Timer timer("findRelevantMoves");
     std::vector<std::pair<std::pair<int, int>, int>> relevantMoves;
 
     // Directions to check around each cell (8 directions).
