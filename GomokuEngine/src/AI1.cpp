@@ -6,27 +6,37 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), d
     human_player = (ai_player == X) ? O : X;
 }
 
-void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
+std::vector<std::pair<std::pair<int, int>, int>> GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
 {
+    std::vector<std::pair<std::pair<int, int>, int>> sortedMoves;
     for (std::pair<std::pair<int, int>, int> &move : moves)
     {
         if (depth > 1)
         {
-            MoveResult game_move = game.make_move(move.first.first, move.first.second);
-            move.second = heuristic_evaluation();
-            game.reverse_move(game_move);
+            try
+            {
+                MoveResult game_move = game.make_move(move.first.first, move.first.second);
+                move.second = heuristic_evaluation();
+                game.reverse_move(game_move);
+                sortedMoves.push_back(move);
+            }
+            catch (std::exception &e)
+            {
+            }
         }
-        // else
-        // {
-        //     move.second = pseudo_heuristic_evaluation(move.first);
-        // }
+        else
+        {
+            // move.second = pseudo_heuristic_evaluation(move.first);
+            sortedMoves.push_back(move);
+        }
     }
     if (maximizingPlayer)
-        std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
+        std::sort(sortedMoves.begin(), sortedMoves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
                   { return a.second > b.second; });
     else
-        std::sort(moves.begin(), moves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
+        std::sort(sortedMoves.begin(), sortedMoves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
                   { return a.second < b.second; });
+    return sortedMoves;
 }
 
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
@@ -45,7 +55,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     node.totalEvalCount = moves.size();
     node.evaluatedMoves = moves.size();
     int moveIdx = 1;
-    sortMoves(moves, maximizingPlayer, depth);
+    std::vector<std::pair<std::pair<int, int>, int>> sortedMoves = sortMoves(moves, maximizingPlayer, depth);
 
     // if (depth == 2)
     // {
@@ -54,40 +64,46 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
     // For each move, make the move, call minimax recursively and reverse the move.
     int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
-    for (auto moveWithScore : moves)
+    for (auto moveWithScore : sortedMoves)
     {
         std::pair<int, int> move = moveWithScore.first;
-        MoveResult game_move = game.make_move(move.first, move.second);
-        MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, !maximizingPlayer, move.first, move.second);
-        game.reverse_move(game_move);
-
-        if (maximizingPlayer)
+        try
         {
-            if (evalNode.score > extremeEval)
+            MoveResult game_move = game.make_move(move.first, move.second);
+            MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, !maximizingPlayer, move.first, move.second);
+            game.reverse_move(game_move);
+
+            if (maximizingPlayer)
             {
-                extremeEval = evalNode.score;
-                node.score = extremeEval;
-                alpha = std::max(alpha, evalNode.score);
-                node.neededEvalCount = moveIdx;
+                if (evalNode.score > extremeEval)
+                {
+                    extremeEval = evalNode.score;
+                    node.score = extremeEval;
+                    alpha = std::max(alpha, evalNode.score);
+                    node.neededEvalCount = moveIdx;
+                }
+            }
+            else
+            {
+                if (evalNode.score < extremeEval)
+                {
+                    extremeEval = evalNode.score;
+                    node.score = extremeEval;
+                    beta = std::min(beta, evalNode.score);
+                    node.neededEvalCount = moveIdx;
+                }
+            }
+
+            node.listMoves.push_back(evalNode);
+
+            if (beta <= alpha)
+            {
+                node.evaluatedMoves = moveIdx;
+                break;
             }
         }
-        else
+        catch (std::exception &e)
         {
-            if (evalNode.score < extremeEval)
-            {
-                extremeEval = evalNode.score;
-                node.score = extremeEval;
-                beta = std::min(beta, evalNode.score);
-                node.neededEvalCount = moveIdx;
-            }
-        }
-
-        node.listMoves.push_back(evalNode);
-
-        if (beta <= alpha)
-        {
-            node.evaluatedMoves = moveIdx;
-            break;
         }
         moveIdx++;
     }

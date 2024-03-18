@@ -180,9 +180,8 @@ bool GomokuGame::check_direction_for_open_three(uint row, uint col, int row_dir,
     bool space = false;
     auto [stones1, gap1] = count_stones_and_gap(row, col, row_dir, col_dir, player, space);
     auto [stones2, gap2] = count_stones_and_gap(row, col, -row_dir, -col_dir, player, space);
-    if (row_dir == 0 and col_dir == 1)
-        if (stones1 + stones2 >= 2 and gap1 and gap2)
-            return true;
+    if (stones1 + stones2 >= 2 and gap1 and gap2)
+        return true;
     return false;
 }
 

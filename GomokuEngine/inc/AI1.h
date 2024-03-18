@@ -24,7 +24,7 @@ private:
     Player ai_player;
     Player human_player;
 
-    void sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth);
+    std::vector<std::pair<std::pair<int, int>, int>> sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth);
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
     int pseudo_heuristic_evaluation(std::pair<int, int> move);
 

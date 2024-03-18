@@ -25,7 +25,7 @@
 # 13. Create a double 3 by capturing if possible
 66,69,67,6A,78,D8,88,D9,6B,FF:68
 # 14. Do not create a double 3 if no capture is possible
-66,B6,67,EA,78,FE,88,AE:|68
+66,B6,67,EA,78,FE,88,AE:77
 # 15. Make a 4th capture if possible (open 4 > 4th capture > open 3)
 32,33,62,63,A2,A3,E2,E3,4D,34,4E,64,EE,A4,HG,E4,35,EF,65,G9,A5,CA:E5
 # 16. Make an open 4 and not a 4th capture (open 4 > 4th capture > open 3)
