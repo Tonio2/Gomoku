@@ -14,12 +14,14 @@ class GomokuGame;
  * Stone means we have one of our stone there
  * Block means the opponent has a stone there or we're out of bound.
  */
-enum CellPatternState
+enum PatternCellState
 {
-    CELL_STATE_EMPTY,
-    CELL_STATE_STONE,
-    CELL_STATE_BLOCK,
+    Empty,
+    Stoned,
+    Blocked,
 };
+
+std::ostream &operator<<(std::ostream &stream, PatternCellState cell_state);
 
 /** One direction pattern cell.
  * Each cell contains all data required to know about what before them
@@ -30,7 +32,7 @@ enum CellPatternState
  * matching cell in the structure matrix and all following cells until
  * we've stopped modifying it.
  */
-struct CellPatternData
+struct PatternCellData
 {
     /** Length of the potential sequence we're doing */
     uint8_t sequence_length;
@@ -50,54 +52,47 @@ struct CellPatternData
      * This case is relevant to check for open three with gaps.
      */
     uint8_t previous_structure_length;
-    /** Is the previous structure closed
-     */
+    /** Is the previous structure closed */
     bool is_previous_structure_closed;
 
     /** Is gaped open three.
      * Handle niche case where we have sequence of open one and two
      */
     bool is_gap_open_three;
-    /** Is the gaped open three closed.
-     */
+    /** Is the gaped open three closed. */
     bool is_gap_open_three_closed;
 
-    bool operator!=(const CellPatternData &comp) const;
+    bool operator!=(const PatternCellData &comp) const;
 
-    static CellPatternData pre_bound_element();
+    static PatternCellData pre_bound_element();
 
     bool contains_structure() const;
+
+    void get_structures_type_count(std::vector<int> &array, int factor = 1) const;
 };
 
-std::ostream &operator<<(std::ostream &stream, const CellPatternData &cell_data);
+std::ostream &operator<<(std::ostream &stream, const PatternCellData &cell_data);
 
 typedef Matrix<Player>::Index GomokuCellIndex;
 
-struct PatternCellIndex : public Matrix<CellPatternData>::Index
+struct PatternCellIndex : public Matrix<PatternCellData>::Index
 {
+    PatternCellIndex(int row, int col);
+    PatternCellIndex(GomokuCellIndex gomoku_index);
 
-    PatternCellIndex(int row, int col) : Matrix<CellPatternData>::Index(row, col)
-    {
-    }
-
-    PatternCellIndex(GomokuCellIndex gomoku_index) : Matrix<CellPatternData>::Index(gomoku_index.row + 1, gomoku_index.col + 1)
-    {
-    }
-
-    GomokuCellIndex to_game_index() const
-    {
-        return GomokuCellIndex(row - 1, col - 1);
-    }
+    GomokuCellIndex to_game_index() const;
 };
 
 enum PatternDirection : uint8_t
 {
-    LeftToRight = 0,
-    UpToDown = 1,
-    UpleftToDownright = 2,
-    UprightToDownleft = 3,
-    Count = 4
+    LeftToRight,
+    UpToDown,
+    UpleftToDownright,
+    UprightToDownleft,
+    Count_PatternDirection
 };
+
+std::ostream &operator<<(std::ostream &stream, PatternDirection direction);
 
 class GomokuPatternReconizer
 {
@@ -111,14 +106,14 @@ public:
 
     void print_patterns();
 
-    std::vector<int> get_pattern_count();
+    const std::vector<int> &get_pattern_count();
 
-private:
+    // private:
     /** Return the state of a cell for our gomoku player */
-    CellPatternState cell_state_at(const GomokuGame &board, PatternCellIndex index) const;
+    PatternCellState cell_state_at(const GomokuGame &board, PatternCellIndex index) const;
 
     /** Calculate the next state from a cell when meeting each state. */
-    CellPatternData cell_data_following(const CellPatternData &cell, CellPatternState state) const;
+    PatternCellData cell_data_following(const PatternCellData &cell, PatternCellState state) const;
 
     /** Check if pattern cell matrices are of the desired size or adjust them */
     bool adjust_matrices_size(const GomokuGame &board);
@@ -132,12 +127,12 @@ private:
     /** Update cell in all direction matrices */
     void update_cell(const GomokuGame &board, PatternCellIndex index);
 
-    /** Update cells in left to right matrices at the specified location
+    /** Update cells in the direction matrix at the specified location
      *
      * up_to_bound: Should we update everything until the end or stop when
      * we find identical results.
      */
-    void update_cell_line(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
+    void update_cell_direction(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
 
     PatternCellIndex get_previous_index(PatternCellIndex index, PatternDirection direction) const;
     PatternCellIndex get_next_index(PatternCellIndex index, PatternDirection direction) const;
@@ -145,9 +140,10 @@ private:
     void untag_celldata_structure(PatternCellIndex index, PatternDirection direction);
     void tag_celldata_structure(PatternCellIndex index, PatternDirection direction);
 
-    void for_each_structures(std::function<void(PatternCellIndex, CellPatternData, PatternDirection)> lambda);
+    void for_each_structures(std::function<void(PatternCellIndex, PatternCellData, PatternDirection)> lambda);
 
     Player _gomoku_player;
-    std::vector<Matrix<CellPatternData>> _pattern_direction_cell_matrices;
+    std::vector<Matrix<PatternCellData>> _pattern_direction_cell_matrices;
     std::vector<std::map<int, std::set<int>>> _pattern_direction_structure_maps;
+    std::vector<int> _cached_pattern_count;
 };

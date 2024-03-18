@@ -13,6 +13,10 @@ class MenuRootWidget(Widget):
     def __init__(self, **kwargs):
         super(MenuRootWidget, self).__init__(**kwargs)
 
-    def set_board_size(self, value):
+    def set_board_width(self, value):
         shared_object = SharedObject.get_instance()
-        shared_object.set_size(int(value))
+        shared_object.set_size(int(value), shared_object._height)
+
+    def set_board_height(self, value):
+        shared_object = SharedObject.get_instance()
+        shared_object.set_size(shared_object._width, int(value))

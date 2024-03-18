@@ -39,8 +39,8 @@ class GomokuGame:
     game_time: float
     players_time: Dict[GomokuPlayer, float]
 
-    def __init__(self, size: int, player_time: float):
-        self.game = pygomoku.GomokuGame(size)
+    def __init__(self, width: int, height: int, player_time: float):
+        self.game = pygomoku.GomokuGame(width, height)
 
         self.move_list = []
         self.last_move_index = -1
@@ -51,14 +51,24 @@ class GomokuGame:
             GomokuPlayer.BLACK: player_time,
         }
 
-    def get_board_size(self) -> Tuple[int, int]:
-        size = self.game.get_board_size()
-        return (size, size)
+    def get_board_width(self) -> int:
+        return self.game.get_board_width()
+
+    def get_board_height(self) -> int:
+        return self.game.get_board_height()
 
     def get_board_value_at(self, row: int, col: int) -> GomokuPlayer:
         value = self.game.get_board_value(row, col)
         board_value = GomokuPlayer(value)
         return board_value
+
+    _index_names = [str(i) if i < 10 else chr(65 + i - 10) for i in range(36)]
+
+    def coordinate_index_name(self, index: int) -> str:
+        return self._index_names[index]
+
+    def coordinates_name(self, row: int, col: int) -> str:
+        return self.coordinate_index_name(row) + self.coordinate_index_name(col)
 
     def get_current_player(self) -> GomokuPlayer:
         return GomokuPlayer(self.game.get_current_player())

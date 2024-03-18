@@ -17,28 +17,32 @@ enum Player : unsigned char
 {
     EMPTY,
     BLACK,
-    WHITE
+    WHITE,
 };
 
 std::ostream &operator<<(std::ostream &stream, Player player);
 
-enum StructureType
+enum StructureType : uint8_t
 {
-    OPEN_FOUR,
-    FOUR,
-    OPEN_THREE,
-    THREE,
-    OPEN_TWO,
-    TWO,
-    OPEN_ONE,
-    ONE
+    NONE = 0,
+    FIVE_OR_MORE = 1,
+    OPEN_ONE = 2,
+    ONE = 3,
+    OPEN_TWO = 4,
+    TWO = 5,
+    OPEN_THREE = 6,
+    THREE = 7,
+    OPEN_FOUR = 8,
+    FOUR = 9,
+    COUNT_STRUCTURE_TYPE,
 };
+
+std::ostream &operator<<(std::ostream &stream, StructureType structure_type);
 
 struct CellChange
 {
-    // Matrix<Player>::Index index;
-    unsigned short row;
-    unsigned short col;
+    int8_t row;
+    int8_t col;
     Player old_value;
     Player new_value;
 };
@@ -47,6 +51,6 @@ struct MoveResult
 {
     std::vector<CellChange> cell_changes;
 
-    short int white_score_change = 0;
-    short int black_score_change = 0;
+    int8_t white_score_change = 0;
+    int8_t black_score_change = 0;
 };
