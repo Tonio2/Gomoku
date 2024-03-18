@@ -13,6 +13,7 @@ private:
     struct FunctionAccumulation
     {
         double totalTime = 0;
+        double otherTime = 0;
         int callCount = 0;
 
         void addTime(double time)
@@ -71,6 +72,14 @@ public:
             if (!currentCallStack.empty() && currentCallStack.back() == functionName)
             {
                 accumulatedFunctions[currentCallStack].addTime(elapsed.count());
+                accumulatedFunctions[currentCallStack].otherTime += elapsed.count();
+
+                if (currentCallStack.size() > 1)
+                {
+                    CallStack parentCallStack = currentCallStack;
+                    parentCallStack.pop_back();
+                    accumulatedFunctions[parentCallStack].otherTime -= elapsed.count();
+                }
             }
             callStacks.pop();
         }
@@ -106,35 +115,17 @@ public:
             std::cout << indent << color << callStack.back() << ": "
                       << static_cast<int>(accumulation.totalTime) << " ms\033[0m" << std::endl;
 
-            // Calculate and print "other" time after printing all child functions
-            auto nextIt = std::next(it);
-            const CallStack &nextCallStack = nextIt->first;
-            const FunctionAccumulation &nextAccumulation = nextIt->second;
-            if (nextIt != accumulatedFunctions.end() && nextCallStack.size() > callStack.size())
+            if (accumulation.otherTime < accumulation.totalTime)
             {
-                double childrenTime = 0;
-                while (nextIt != accumulatedFunctions.end() && nextCallStack.size() > callStack.size())
+                indent = "";
+                for (size_t i = 0; i < callStack.size(); ++i)
                 {
-                    if (nextCallStack.back() != "other")
-                    {
-                        childrenTime += nextAccumulation.totalTime;
-                    }
-                    ++nextIt;
+                    indent += (i < callStack.size() - 1) ? "|   " : "|-- ";
                 }
 
-                double otherTime = accumulation.totalTime - childrenTime;
-                if (otherTime > 0)
-                {
-                    indent = "";
-                    for (size_t i = 0; i < callStack.size(); ++i)
-                    {
-                        indent += (i < callStack.size() - 1) ? "|   " : "|-- ";
-                    }
-
-                    color = colors[(callStack.size()) % colors.size()];
-                    std::cout << indent << color << "other: "
-                              << static_cast<int>(otherTime) << " ms\033[0m" << std::endl;
-                }
+                color = colors[(callStack.size()) % colors.size()];
+                std::cout << indent << color << "other: "
+                          << static_cast<int>(accumulation.otherTime) << " ms\033[0m" << std::endl;
             }
         }
     }
