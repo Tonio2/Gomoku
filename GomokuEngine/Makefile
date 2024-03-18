@@ -32,11 +32,14 @@ MAIN = main
 all: $(MAIN)
 	echo "Successfully compiled $(MAIN) executable in $(MODE) mode."
 
-$(MAIN): $(OBJS) 
+$(MAIN): $(OBJDIR) $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(MAIN) $(OBJS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 clean:
 	$(RM) $(OBJS) $(MAIN)
