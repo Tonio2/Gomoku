@@ -10,5 +10,5 @@ def display_moves(message, game: GomokuGame):
     print(move_string[:-1])
 
 if __name__ == '__main__':
-    CallbackCenter.shared().add_callback("GomokuGame.modified", display_moves)
+    # CallbackCenter.shared().add_callback("GomokuGame.modified", display_moves)
     GomokuApp().run()

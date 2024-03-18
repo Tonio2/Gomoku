@@ -139,15 +139,6 @@ MoveResult GomokuGame::make_move(int row, int col)
 
     bool captured = capture(row, col, current_player, move_result);
 
-    if (!captured)
-    {
-        const int new_open_three_count = players_reconizers[current_player].get_pattern_count()[StructureType::OPEN_THREE];
-        if (new_open_three_count - old_open_three_count > 1)
-        {
-            throw std::invalid_argument("Invalid move: more than one open three");
-        }
-    }
-
     move_result.black_score_change = get_player_score(X) - old_black_score;
     move_result.white_score_change = get_player_score(O) - old_white_score;
 
@@ -157,7 +148,19 @@ MoveResult GomokuGame::make_move(int row, int col)
     players_reconizers[X].update_patterns_with_move(*this, move_result);
     players_reconizers[O].update_patterns_with_move(*this, move_result);
 
-    if (check_win(row, col, current_player))
+    if (!captured)
+    {
+        const int new_open_three_count = players_reconizers[current_player].get_pattern_count()[StructureType::OPEN_THREE];
+        if (new_open_three_count - old_open_three_count > 1)
+        {
+            Player p = current_player;
+            reverse_move(move_result);
+            current_player = p;
+            throw std::invalid_argument("Invalid move: more than one open three");
+        }
+    }
+
+    if (check_win(current_player))
         winner = current_player;
 
     current_player = other_player(current_player);
@@ -198,7 +201,7 @@ void GomokuGame::reapply_move(const MoveResult &move)
 
     CellChange cell = move.cell_changes.back();
 
-    if (check_win(cell.row, cell.col, current_player))
+    if (check_win(current_player))
         winner = current_player;
 
     current_player = other_player(current_player);
@@ -295,7 +298,7 @@ int GomokuGame::get_board_height() const
     return board.get_height();
 }
 
-bool GomokuGame::check_win(uint row, uint col, Player player)
+bool GomokuGame::check_win(Player player)
 {
     if (get_player_score(player) >= 10)
     {

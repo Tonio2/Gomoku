@@ -34,7 +34,7 @@ public:
     MoveResult make_move(int row, int col);
     void reverse_move(const MoveResult &move);
     void reapply_move(const MoveResult &move);
-    bool check_win(uint row, uint col, Player player);
+    bool check_win(Player player);
     Player get_winner() const;
     Player get_board_value(int row, int col) const;
 
