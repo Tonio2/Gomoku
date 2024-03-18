@@ -19,6 +19,9 @@ else
 CXXFLAGS = $(CXXFLAGSPERF)
 endif
 
+# Add cdefines for the C++ compiler
+CXXFLAGS += -DNOTIMER
+
 # Define the C++ source files
 SRCFILES = Timer.cpp AI1.cpp gomoku_engine.cpp gomoku_pattern_reconizer.cpp main.cpp
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))

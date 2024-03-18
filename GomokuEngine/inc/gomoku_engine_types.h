@@ -13,6 +13,12 @@
 #define O Player::WHITE
 #define E Player::EMPTY
 
+#ifndef NOTIMER
+#define TIMER Timer timer(__FUNCTION__);
+#else
+#define TIMER
+#endif
+
 enum Player : unsigned char
 {
     EMPTY,
