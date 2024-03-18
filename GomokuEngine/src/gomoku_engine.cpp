@@ -2,7 +2,19 @@
 
 #include "gomoku_pattern_reconizer.h"
 
-std::vector<std::string> structure_names = {"OPEN_FOUR", "FOUR", "OPEN_THREE", "THREE", "OPEN_TWO", "TWO", "OPEN_ONE", "ONE"};
+std::vector<std::string> structure_names = {
+    "NONE",
+    "FIVE_OR_MORE",
+    "OPEN_ONE",
+    "ONE",
+    "OPEN_TWO",
+    "TWO",
+    "OPEN_THREE",
+    "THREE",
+    "OPEN_FOUR",
+    "FOUR",
+    "COUNT_STRUCTURE_TYPE"};
+
 std::vector<std::string> player_names = {".", "X", "O"};
 
 std::ostream &operator<<(std::ostream &stream, Player player)
@@ -206,6 +218,8 @@ MoveResult GomokuGame::make_move(int row, int col)
 
     players_reconizers[X].update_patterns_with_move(*this, move_result);
     players_reconizers[O].update_patterns_with_move(*this, move_result);
+
+    print_patterns();
 
     return move_result;
 }

@@ -17,21 +17,24 @@ enum Player : unsigned char
 {
     EMPTY,
     BLACK,
-    WHITE
+    WHITE,
 };
 
 std::ostream &operator<<(std::ostream &stream, Player player);
 
-enum StructureType
+enum StructureType : uint8_t
 {
-    OPEN_FOUR,
-    FOUR,
-    OPEN_THREE,
-    THREE,
-    OPEN_TWO,
-    TWO,
-    OPEN_ONE,
-    ONE
+    NONE = 0,
+    FIVE_OR_MORE = 1,
+    OPEN_ONE = 2,
+    ONE = 3,
+    OPEN_TWO = 4,
+    TWO = 5,
+    OPEN_THREE = 6,
+    THREE = 7,
+    OPEN_FOUR = 8,
+    FOUR = 9,
+    COUNT_STRUCTURE_TYPE,
 };
 
 std::ostream &operator<<(std::ostream &stream, StructureType structure_type);
