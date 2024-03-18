@@ -412,10 +412,10 @@ int main(int argc, char *argv[])
 //     };
 //     for (int i = 0; i < 20; i++)
 //     {
-//         PatternCellState new_state = random_state();
-//         // PatternCellState new_state = states[i];
+//         // PatternCellState new_state = random_state();
+//         PatternCellState new_state = states[i];
 
-//         cell_data = reconizer.cell_data_following(cell_data, new_state);
+//         cell_data = reconizer.cell_data_following_memoized(cell_data, new_state);
 
 //         std::vector<int> all_structures(StructureType::COUNT_STRUCTURE_TYPE, 0);
 

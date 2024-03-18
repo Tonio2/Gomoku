@@ -154,7 +154,6 @@ int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
 MoveEvaluation GomokuAI::suggest_move()
 {
     TIMER
-    Timer timer("suggest_move");
     move_count = 0;
     move_evaluated_count = 0;
     evaluation_needed_count = 0;
