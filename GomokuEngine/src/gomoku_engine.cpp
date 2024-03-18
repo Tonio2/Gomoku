@@ -202,8 +202,6 @@ void GomokuGame::reapply_move(const MoveResult &move)
     players_reconizers[X].update_patterns_with_move(*this, move);
     players_reconizers[O].update_patterns_with_move(*this, move);
 
-    CellChange cell = move.cell_changes.back();
-
     if (check_win(current_player))
         winner = current_player;
 

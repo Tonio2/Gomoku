@@ -193,7 +193,7 @@ void GomokuPatternReconizer::print_patterns()
         std::cout << "  " << direction << " " << data << " [" << int(game_index.row) << ';' << int(game_index.col) << "]" << std::endl; });
 
     std::cout << "  cached:" << std::endl;
-    for (int i = 0; i < _cached_pattern_count.size(); i++)
+    for (size_t i = 0; i < _cached_pattern_count.size(); i++)
     {
         std::cout << "    " << StructureType(i) << ':' << _cached_pattern_count[i] << std::endl;
     }
@@ -269,6 +269,62 @@ PatternCellData GomokuPatternReconizer::cell_data_following(const PatternCellDat
     }
 
     return result;
+}
+
+const PatternCellData &GomokuPatternReconizer::cell_data_following_memoized(const PatternCellData &cell, PatternCellState state) const
+{
+    const int max_seq_len = 10;
+    const int max_prev_len = 3;
+    static PatternCellData cell_values[3][max_seq_len][2][max_prev_len][2];
+    static bool initialized = false;
+
+    if (!initialized)
+    {
+        PatternCellData prev;
+        prev.structure_length = 0;
+        prev.is_structure_closed = false;
+        prev.is_gap_open_three = false;
+        prev.is_gap_open_three_closed = false;
+        std::cout << sizeof(cell_values) << " octets allocated for memoization" << std::endl;
+        for (int s = 0; s < 3; ++s)
+        {
+            for (int seq_len = 0; seq_len < max_seq_len; ++seq_len)
+            {
+                for (int seq_closed = 0; seq_closed < 2; ++seq_closed)
+                {
+                    for (int prev_len = 0; prev_len < max_prev_len; ++prev_len)
+                    {
+                        for (int prev_closed = 0; prev_closed < 2; ++prev_closed)
+                        {
+                            prev.sequence_length = seq_len;
+                            prev.is_sequence_closed = bool(seq_closed);
+                            prev.previous_structure_length = prev_len;
+                            prev.is_previous_structure_closed = bool(prev_closed);
+
+                            PatternCellState ss = static_cast<PatternCellState>(s);
+                            PatternCellData current = cell_data_following(prev, ss);
+
+                            cell_values[ss]
+                                       [seq_len]
+                                       [seq_closed]
+                                       [prev_len]
+                                       [prev_closed] = current;
+                        }
+                    }
+                }
+            }
+        }
+        initialized = true;
+    }
+
+    return cell_values
+        [state]
+        [cell.sequence_length]
+        // [cell.sequence_length >= max_seq_len ? max_seq_len : cell.sequence_length]
+        [cell.is_sequence_closed]
+        // [cell.previous_structure_length >= max_prev_len ? max_prev_len : cell.previous_structure_length]
+        [cell.previous_structure_length]
+        [cell.is_previous_structure_closed];
 }
 
 bool GomokuPatternReconizer::adjust_matrices_size(const GomokuGame &board)
@@ -388,7 +444,7 @@ void GomokuPatternReconizer::update_cell_direction(const GomokuGame &board, Patt
 
     const PatternCellData old_data = cell_matrix[index];
 
-    const PatternCellData new_data = cell_data_following(
+    const PatternCellData new_data = cell_data_following_memoized(
         cell_matrix[get_previous_index(index, direction)],
         cell_state_at(board, index));
 

@@ -14,11 +14,11 @@ class GomokuGame;
  * Stone means we have one of our stone there
  * Block means the opponent has a stone there or we're out of bound.
  */
-enum PatternCellState
+enum PatternCellState : uint8_t
 {
-    Empty,
-    Stoned,
-    Blocked,
+    Empty = 0,
+    Stoned = 1,
+    Blocked = 2,
 };
 
 std::ostream &operator<<(std::ostream &stream, PatternCellState cell_state);
@@ -108,12 +108,15 @@ public:
 
     const std::vector<int> &get_pattern_count();
 
-    // private:
+private:
     /** Return the state of a cell for our gomoku player */
     PatternCellState cell_state_at(const GomokuGame &board, PatternCellIndex index) const;
 
     /** Calculate the next state from a cell when meeting each state. */
     PatternCellData cell_data_following(const PatternCellData &cell, PatternCellState state) const;
+
+    /** Memoized version of cell_data_following */
+    const PatternCellData &cell_data_following_memoized(const PatternCellData &cell, PatternCellState state) const;
 
     /** Check if pattern cell matrices are of the desired size or adjust them */
     bool adjust_matrices_size(const GomokuGame &board);
