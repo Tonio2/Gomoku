@@ -3,7 +3,7 @@ export
 
 # Compiler settings
 CXX = g++
-CXXFLAGS = -Wall -I$(INCDIR)
+CXXFLAGS = -Wall -I$(INCDIR) -DDEPTH=$(DEPTH)
 
 # Directories
 SRCDIR = src
