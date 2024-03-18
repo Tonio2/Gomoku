@@ -17,15 +17,31 @@
             BoxLayout:
                 orientation: 'vertical'
 
-                Label:
-                    text: f'Board Size: {str(int(board_size_slider.value))}'
+                BoxLayout:
+                    orientation: 'horizontal'
 
-                Slider:
-                    id: board_size_slider
-                    min: 7
-                    max: 36
-                    value: 19
-                    on_value: root_widget.set_board_size(self.value)
+                    Label:
+                        text: f'Board Width: {str(int(width_slider.value))}'
+
+                    Slider:
+                        id: width_slider
+                        min: 7
+                        max: 36
+                        value: 19
+                        on_value: root_widget.set_board_width(self.value)
+
+                BoxLayout:
+                    orientation: 'horizontal'
+
+                    Label:
+                        text: f'Board Height: {str(int(height_slider.value))}'
+
+                    Slider:
+                        id: height_slider
+                        min: 7
+                        max: 36
+                        value: 19
+                        on_value: root_widget.set_board_height(self.value)
 
                 Button:
                     text: 'Start Game'

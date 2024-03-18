@@ -39,8 +39,8 @@ class GomokuGame:
     game_time: float
     players_time: Dict[GomokuPlayer, float]
 
-    def __init__(self, size: int, player_time: float):
-        self.game = pygomoku.GomokuGame(size, size)
+    def __init__(self, width: int, height: int, player_time: float):
+        self.game = pygomoku.GomokuGame(width, height)
 
         self.move_list = []
         self.last_move_index = -1
