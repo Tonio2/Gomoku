@@ -5,26 +5,6 @@
 std::map<std::string, Timer::FunctionAccumulation> Timer::accumulatedFunctions;
 std::set<std::string> Timer::activeFunctions;
 
-std::vector<Pattern> patterns = {
-    {StructureType::OPEN_FOUR, "ECCCCE"},
-    {StructureType::FOUR, "ECCCCB"},
-    {StructureType::FOUR, "BCCCCE"},
-    {StructureType::OPEN_THREE, "ECCCE"},
-    {StructureType::OPEN_THREE, "ECECCE"},
-    {StructureType::OPEN_THREE, "ECCECE"},
-    {StructureType::THREE, "BCCCE"},
-    {StructureType::THREE, "ECCCB"},
-    {StructureType::THREE, "BCECCE"},
-    {StructureType::THREE, "ECECCB"},
-    {StructureType::THREE, "BCCECE"},
-    {StructureType::THREE, "ECCECB"},
-    {StructureType::OPEN_TWO, "ECCE"}, // Should i add open two with a gap in between?
-    {StructureType::TWO, "BCCE"},
-    {StructureType::TWO, "ECCB"},
-    {StructureType::OPEN_ONE, "ECE"},
-    {StructureType::ONE, "BCE"},
-    {StructureType::ONE, "ECB"}};
-
 std::vector<std::string> structure_names = {"OPEN_FOUR", "FOUR", "OPEN_THREE", "THREE", "OPEN_TWO", "TWO", "OPEN_ONE", "ONE"};
 std::vector<std::string> player_names = {"E", "X", "O"};
 
@@ -39,7 +19,6 @@ GomokuGame::GomokuGame(uint _size) : board(_size, _size),
                                      current_player(X),
                                      players_scores({0, 0, 0}),
                                      winner(E),
-                                     players_structures(3, std::vector<Structure>(0)),
                                      players_reconizers({
                                          GomokuPatternReconizer(E),
                                          GomokuPatternReconizer(X),
@@ -320,16 +299,6 @@ std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves()
     return relevantMoves;
 }
 
-std::vector<std::vector<Structure>> GomokuGame::get_structures() const
-{
-    return players_structures;
-}
-
-void GomokuGame::set_structures(std::vector<std::vector<Structure>> _structures)
-{
-    players_structures = _structures;
-}
-
 bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
     Player otherPlayer = other_player(player);
@@ -436,20 +405,4 @@ Player GomokuGame::get_current_player() const
 int GomokuGame::get_player_score(Player player) const
 {
     return players_scores[player];
-}
-
-void GomokuGame::display_struct() const
-{
-    for (uint i = 1; i < players_structures.size(); i++)
-    {
-        for (uint j = 0; j < players_structures[i].size(); j++)
-        {
-            std::cout << player_names[i] << ": Structure " << j << " " << structure_names[players_structures[i][j].type] << " ";
-            for (uint k = 0; k < players_structures[i][j].cells.size(); k++)
-            {
-                std::cout << "(" << players_structures[i][j].cells[k].first << ", " << players_structures[i][j].cells[k].second << ") ";
-            }
-            std::cout << std::endl;
-        }
-    }
 }
