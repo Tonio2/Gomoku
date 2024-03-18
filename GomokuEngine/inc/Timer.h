@@ -69,4 +69,9 @@ public:
         accumulatedFunctions.clear();
         activeFunctions.clear();
     }
+
+    static double getAccumulatedTime(std::string _functionName)
+    {
+        return accumulatedFunctions[_functionName].totalTime;
+    }
 };

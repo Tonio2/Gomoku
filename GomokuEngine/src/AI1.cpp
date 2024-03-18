@@ -1,7 +1,7 @@
 #include "AI1.h"
 #include <algorithm>
 
-GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), depth(depth), ai_player(ai_player)
+GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), depth(depth), ai_player(ai_player), move_count(0), move_evaluated_count(0)
 {
     human_player = (ai_player == X) ? O : X;
 }
@@ -52,10 +52,10 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
     // Else find all the relevant moves and sort them by their heuristic evaluation if the depth is not 1.
     std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves();
-    node.totalEvalCount = moves.size();
-    node.evaluatedMoves = moves.size();
     int moveIdx = 1;
     std::vector<std::pair<std::pair<int, int>, int>> sortedMoves = sortMoves(moves, maximizingPlayer, depth);
+    node.totalEvalCount = sortedMoves.size();
+    node.evaluatedMoves = sortedMoves.size();
 
     // if (depth == 2)
     // {
@@ -101,12 +101,16 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                 node.evaluatedMoves = moveIdx;
                 break;
             }
+            moveIdx++;
         }
         catch (std::exception &e)
         {
+            move_count--;
         }
-        moveIdx++;
     }
+    move_count += sortedMoves.size();
+    move_evaluated_count += node.evaluatedMoves;
+    evaluation_needed_count += node.neededEvalCount;
     return node;
 }
 
@@ -147,6 +151,9 @@ int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
 MoveEvaluation GomokuAI::suggest_move()
 {
     Timer timer("suggest_move");
+    move_count = 0;
+    move_evaluated_count = 0;
+    evaluation_needed_count = 0;
     MoveEvaluation result = minimax(depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
     return result;
 }
