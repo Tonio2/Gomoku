@@ -1,32 +1,34 @@
-# Define the compiler
-CXX = g++
+-include .env
+export
 
+# Compiler settings
+CXX = g++
+CXXFLAGS = -Wall -I$(INCDIR)
+
+# Directories
 SRCDIR = src
 INCDIR = inc
 OBJDIR = obj
 
-# Default mode is perf
-MODE ?= perf
 
-# Compiler flags, e.g. -g for debugging, -O2 for optimisation and -Wall for turning on most warnings
-CXXFLAGSPERF = -O3 -Wall -I$(INCDIR)
-CXXFLAGSDEBUG = -g -p -Wall -I$(INCDIR)
 
-# Conditional assignment based on the MODE variable
+# Mode configuration: Default is performance (PERF)
+MODE ?= PERF
 ifeq ($(MODE),DEBUG)
-CXXFLAGS = $(CXXFLAGSDEBUG)
+	CXXFLAGS += -g -p # Debug flags
 else
-CXXFLAGS = $(CXXFLAGSPERF)
+	CXXFLAGS += -O3 # Optimize for performance
 endif
 
-# Add cdefines for the C++ compiler
-CXXFLAGS += -DNOTIMER
+# Timer configuration: Disabled by default
+TIMER ?= OFF
+ifeq ($(TIMER),OFF)
+	CXXFLAGS += -DNOTIMER # Define NOTIMER to disable timing functionality
+endif
 
-# Define the C++ source files
+# Source and object files
 SRCFILES = Timer.cpp AI1.cpp gomoku_engine.cpp gomoku_pattern_reconizer.cpp main.cpp
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
-
-# Define the C++ object files 
 OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 # Define the executable file 
