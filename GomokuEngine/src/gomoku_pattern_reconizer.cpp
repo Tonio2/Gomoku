@@ -475,13 +475,13 @@ void GomokuPatternReconizer::update_cell_direction(const GomokuGame &board, Patt
     old_data.get_structures_type_count(_cached_pattern_count, -1);
     new_data.get_structures_type_count(_cached_pattern_count, 1);
 
-    if (old_data.contains_structure() && !new_data.contains_structure())
-        untag_celldata_structure(index, direction);
+    // if (old_data.contains_structure() && !new_data.contains_structure())
+    //     untag_celldata_structure(index, direction);
 
     cell_matrix[index] = new_data;
 
-    if (!old_data.contains_structure() && new_data.contains_structure())
-        tag_celldata_structure(index, direction);
+    // if (!old_data.contains_structure() && new_data.contains_structure())
+    //     tag_celldata_structure(index, direction);
 
     const bool should_continue = up_to_bound || old_data != new_data;
 
