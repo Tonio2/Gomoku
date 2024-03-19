@@ -27,6 +27,9 @@ private:
 
 public:
     GomokuGame(uint width, uint height);
+    GomokuGame(const GomokuGame& copy);
+
+    GomokuGame& operator=(const GomokuGame& copy);
 
     virtual ~GomokuGame();
 

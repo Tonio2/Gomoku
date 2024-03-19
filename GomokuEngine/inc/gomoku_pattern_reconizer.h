@@ -99,6 +99,11 @@ class GomokuPatternReconizer
 
 public:
     GomokuPatternReconizer(Player player);
+    GomokuPatternReconizer(const GomokuPatternReconizer& copy);
+
+    GomokuPatternReconizer& operator=(const GomokuPatternReconizer& copy);
+
+    ~GomokuPatternReconizer();
 
     void find_patterns_in_board(const GomokuGame &board);
 

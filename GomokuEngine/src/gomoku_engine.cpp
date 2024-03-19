@@ -45,6 +45,28 @@ GomokuGame::GomokuGame(uint width, uint height)
     players_reconizers[O].find_patterns_in_board(*this);
 }
 
+GomokuGame::GomokuGame(const GomokuGame& copy)
+    : board(copy.board),
+      current_player(copy.current_player),
+      players_scores(copy.players_scores),
+      winner(copy.winner),
+      players_reconizers(copy.players_reconizers)
+{
+}
+
+GomokuGame& GomokuGame::operator=(const GomokuGame& copy)
+{
+    if (this != &copy)
+    {
+        board = copy.board;
+        current_player = copy.current_player;
+        players_scores = copy.players_scores;
+        winner = copy.winner;
+        players_reconizers = copy.players_reconizers;
+    }
+    return *this;
+}
+
 GomokuGame::~GomokuGame() {}
 
 Player GomokuGame::get_board_value(int row, int col) const
