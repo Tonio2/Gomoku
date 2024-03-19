@@ -1,12 +1,12 @@
 #include "AI1.h"
 #include <algorithm>
 
-GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), depth(depth), ai_player(ai_player), move_count(0), move_evaluated_count(0)
+GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), depth(depth), ai_player(ai_player)
 {
     human_player = (ai_player == X) ? O : X;
 }
 
-void sortMovesUtil(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
+void sortMovesUtil(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer)
 {
     TIMER
     auto compare = [maximizingPlayer](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
@@ -16,7 +16,7 @@ void sortMovesUtil(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool
     std::sort(moves.begin(), moves.end(), compare);
 }
 
-void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
+void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer)
 {
     TIMER
     for (std::pair<std::pair<int, int>, int> &move : moves)
@@ -33,7 +33,7 @@ void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves
         }
     }
 
-    sortMovesUtil(moves, maximizingPlayer, depth);
+    sortMovesUtil(moves, maximizingPlayer);
 }
 
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
@@ -51,10 +51,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     // Else find all the relevant moves and sort them by their heuristic evaluation if the depth is not 1.
     std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves();
     if (depth > 1)
-        sortMoves(moves, maximizingPlayer, depth);
-    int moveIdx = 1;
-    node.totalEvalCount = moves.size();
-    node.evaluatedMoves = moves.size();
+        sortMoves(moves, maximizingPlayer);
 
     // For each move, make the move, call minimax recursively and reverse the move.
     int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
@@ -74,7 +71,6 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                     extremeEval = evalNode.score;
                     node.score = extremeEval;
                     alpha = std::max(alpha, evalNode.score);
-                    node.neededEvalCount = moveIdx;
                 }
             }
             else
@@ -84,7 +80,6 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                     extremeEval = evalNode.score;
                     node.score = extremeEval;
                     beta = std::min(beta, evalNode.score);
-                    node.neededEvalCount = moveIdx;
                 }
             }
 
@@ -92,19 +87,13 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
             if (beta <= alpha)
             {
-                node.evaluatedMoves = moveIdx;
                 break;
             }
-            moveIdx++;
         }
         catch (std::exception &e)
         {
-            move_count--;
         }
     }
-    move_count += moves.size();
-    move_evaluated_count += node.evaluatedMoves;
-    evaluation_needed_count += node.neededEvalCount;
     return node;
 }
 
@@ -137,20 +126,12 @@ int GomokuAI::heuristic_evaluation()
     return score;
 }
 
-int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
-{
-    return 0;
-}
-
 MoveEvaluation GomokuAI::suggest_move()
 {
     TIMER
 #ifdef NOTIMER
     Timer timer("suggest_move");
 #endif
-    move_count = 0;
-    move_evaluated_count = 0;
-    evaluation_needed_count = 0;
     MoveEvaluation result = minimax(depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
     return result;
 }

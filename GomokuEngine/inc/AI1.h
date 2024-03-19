@@ -28,11 +28,7 @@ private:
     int pseudo_heuristic_evaluation(std::pair<int, int> move);
 
 public:
-    void sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth);
-
-    int move_count;
-    int move_evaluated_count;
-    int evaluation_needed_count;
+    void sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer);
     GomokuAI(GomokuGame game, Player ai_player, int depth);
     MoveEvaluation suggest_move();
     int heuristic_evaluation();
