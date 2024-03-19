@@ -99,9 +99,9 @@ class GomokuPatternReconizer
 
 public:
     GomokuPatternReconizer(Player player);
-    GomokuPatternReconizer(const GomokuPatternReconizer& copy);
+    GomokuPatternReconizer(const GomokuPatternReconizer &copy);
 
-    GomokuPatternReconizer& operator=(const GomokuPatternReconizer& copy);
+    GomokuPatternReconizer &operator=(const GomokuPatternReconizer &copy);
 
     ~GomokuPatternReconizer();
 
@@ -112,6 +112,8 @@ public:
     void print_patterns();
 
     const std::vector<int> &get_pattern_count();
+
+    bool five_or_more_cant_be_captured(GomokuGame &game) const;
 
 private:
     /** Return the state of a cell for our gomoku player */
@@ -142,6 +144,7 @@ private:
      */
     void update_cell_direction(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
 
+    std::pair<int, int> get_dir_coordinates(PatternDirection direction) const;
     PatternCellIndex get_previous_index(PatternCellIndex index, PatternDirection direction) const;
     PatternCellIndex get_next_index(PatternCellIndex index, PatternDirection direction) const;
 
