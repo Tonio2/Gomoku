@@ -7,7 +7,7 @@ ifeq ($(UNAME_S),Darwin)
 	LIBNAME:=pygomoku.cpython-312-darwin.so
 endif
 
-PYTHON=python3
+PYTHON=python
 
 all:
 	git submodule update --init --recursive
