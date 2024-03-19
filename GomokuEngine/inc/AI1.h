@@ -24,11 +24,12 @@ private:
     Player ai_player;
     Player human_player;
 
-    std::vector<std::pair<std::pair<int, int>, int>> sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth);
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
     int pseudo_heuristic_evaluation(std::pair<int, int> move);
 
 public:
+    void sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth);
+
     int move_count;
     int move_evaluated_count;
     int evaluation_needed_count;

@@ -10,8 +10,6 @@ SRCDIR = src
 INCDIR = inc
 OBJDIR = obj
 
-
-
 # Mode configuration: Default is performance (PERF)
 MODE ?= PERF
 ifeq ($(MODE),DEBUG)
@@ -35,7 +33,7 @@ OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 MAIN = main
 
 all: $(MAIN)
-	echo "Successfully compiled $(MAIN) executable in $(MODE) mode."
+	echo "Successfully compiled $(MAIN) executable in $(MODE) mode with timer $(TIMER)."
 
 $(MAIN): $(OBJDIR) $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(MAIN) $(OBJS)

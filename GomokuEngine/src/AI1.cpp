@@ -6,46 +6,42 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), d
     human_player = (ai_player == X) ? O : X;
 }
 
-std::vector<std::pair<std::pair<int, int>, int>> GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
+void sortMovesUtil(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
 {
     TIMER
-    std::vector<std::pair<std::pair<int, int>, int>> sortedMoves;
+    auto compare = [maximizingPlayer](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
+    {
+        return maximizingPlayer ? a.second > b.second : a.second < b.second;
+    };
+    std::sort(moves.begin(), moves.end(), compare);
+}
+
+void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
+{
+    TIMER
     for (std::pair<std::pair<int, int>, int> &move : moves)
     {
-        if (depth > 1)
+        try
         {
-            try
-            {
-                MoveResult game_move = game.make_move(move.first.first, move.first.second);
-                move.second = heuristic_evaluation();
-                game.reverse_move(game_move);
-                sortedMoves.push_back(move);
-            }
-            catch (std::exception &e)
-            {
-            }
+            MoveResult game_move = game.make_move(move.first.first, move.first.second);
+            move.second = heuristic_evaluation();
+            game.reverse_move(game_move);
         }
-        else
+        catch (std::exception &e)
         {
-            // move.second = pseudo_heuristic_evaluation(move.first);
-            sortedMoves.push_back(move);
+            move.second = maximizingPlayer ? std::numeric_limits<int>::min() + 1 : std::numeric_limits<int>::max() - 1;
         }
     }
-    if (maximizingPlayer)
-        std::sort(sortedMoves.begin(), sortedMoves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
-                  { return a.second > b.second; });
-    else
-        std::sort(sortedMoves.begin(), sortedMoves.end(), [](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
-                  { return a.second < b.second; });
-    return sortedMoves;
+
+    sortMovesUtil(moves, maximizingPlayer, depth);
 }
 
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
 {
     TIMER
-    // If the depth is 0 or the game is over, return the heuristic evaluation of the current board.
-    MoveEvaluation node;
-    node.move = {row, col}; // Initialize with an invalid move.
+
+    MoveEvaluation node = {{row, col}, 0, 0, 0, {}};
+
     if (depth == 0 || game.is_game_over())
     {
         node.score = game.is_game_over() ? (maximizingPlayer ? std::numeric_limits<int>::min() + 1 : std::numeric_limits<int>::max() - 1) : heuristic_evaluation();
@@ -54,19 +50,15 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
     // Else find all the relevant moves and sort them by their heuristic evaluation if the depth is not 1.
     std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves();
+    if (depth > 1)
+        sortMoves(moves, maximizingPlayer, depth);
     int moveIdx = 1;
-    std::vector<std::pair<std::pair<int, int>, int>> sortedMoves = sortMoves(moves, maximizingPlayer, depth);
-    node.totalEvalCount = sortedMoves.size();
-    node.evaluatedMoves = sortedMoves.size();
-
-    // if (depth == 2)
-    // {
-    //     std::cout << row << " " << col << std::endl;
-    // }
+    node.totalEvalCount = moves.size();
+    node.evaluatedMoves = moves.size();
 
     // For each move, make the move, call minimax recursively and reverse the move.
     int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
-    for (auto moveWithScore : sortedMoves)
+    for (auto moveWithScore : moves)
     {
         std::pair<int, int> move = moveWithScore.first;
         try
@@ -110,7 +102,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
             move_count--;
         }
     }
-    move_count += sortedMoves.size();
+    move_count += moves.size();
     move_evaluated_count += node.evaluatedMoves;
     evaluation_needed_count += node.neededEvalCount;
     return node;
