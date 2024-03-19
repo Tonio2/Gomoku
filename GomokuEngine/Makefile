@@ -15,7 +15,7 @@ MODE ?= PERF
 ifeq ($(MODE),DEBUG)
 	CXXFLAGS += -pg -g # Debug flags
 else
-	CXXFLAGS += -O3 # Optimize for performance
+	CXXFLAGS += -O3 -DNDEBUG # Optimize for performance
 endif
 
 # Timer configuration: Disabled by default
