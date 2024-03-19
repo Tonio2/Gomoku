@@ -309,7 +309,7 @@ void test_eval(std::string moves_string)
     // game.print_patterns();
     Player player = moves.size() % 2 ? X : O;
     GomokuAI AI(game, player, DEPTH);
-    int evaluation = AI.heuristic_evaluation();
+    int evaluation = AI.heuristic_evaluation(game);
     std::cout << "Board evaluation for " << player << ": " << evaluation << std::endl;
 }
 
