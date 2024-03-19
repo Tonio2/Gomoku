@@ -172,12 +172,8 @@ void print_list(std::vector<double> list)
 
 void test_problems()
 {
-    std::vector<double> times;
-    std::vector<double> move_counts;
-    std::vector<double> move_evaluated_counts;
-    std::vector<double> evaluation_needed_counts;
-    std::vector<double> percentage_moves_evaluated;
-    std::vector<double> percentage_evaluations_needed;
+    double totalTime = 0;
+    int problemCount = 0;
     // Read problems.txt
     std::ifstream in("problems.txt");
     if (!in.is_open())
@@ -247,26 +243,13 @@ void test_problems()
         std::cout << "Total evaluation needed count: " << AI.evaluation_needed_count << std::endl;
         std::cout << "Percentage of moves evaluated: " << (AI.move_evaluated_count * 100) / AI.move_count << "%" << std::endl;
         std::cout << "Percentage of evaluations needed: " << (AI.evaluation_needed_count * 100) / AI.move_evaluated_count << "%" << std::endl;
-        // double time = Timer::getAccumulatedTime("suggest_move");
-        // std::cout << "Ration time / move count: " << time / AI.move_count << std::endl;
-        // std::cout << "Ration time / move evaluated: " << time / AI.move_evaluated_count << std::endl;
-        // std::cout << "Ration time / evaluation needed: " << time / AI.evaluation_needed_count << std::endl;
-
-        // times.push_back(time);
-        // move_counts.push_back(AI.move_count);
-        // move_evaluated_counts.push_back(AI.move_evaluated_count);
-        // evaluation_needed_counts.push_back(AI.evaluation_needed_count);
-        // percentage_moves_evaluated.push_back((AI.move_evaluated_count * 100) / AI.move_count);
-        // percentage_evaluations_needed.push_back((AI.evaluation_needed_count * 100) / AI.move_evaluated_count);
+        totalTime += Timer::getAccumulatedTime("suggest_move");
+        problemCount++;
         Timer::printAccumulatedTimes();
         Timer::reset();
     }
-    // print_list(times);
-    // print_list(move_counts);
-    // print_list(move_evaluated_counts);
-    // print_list(evaluation_needed_counts);
-    // print_list(percentage_moves_evaluated);
-    // print_list(percentage_evaluations_needed);
+    std::cout << "Total time: " << totalTime << " ms" << std::endl;
+    std::cout << "Average time: " << totalTime / problemCount << " ms" << std::endl;
 }
 
 void test_problem(int problem_idx)
