@@ -45,7 +45,7 @@ GomokuGame::GomokuGame(uint width, uint height)
     players_reconizers[O].find_patterns_in_board(*this);
 }
 
-GomokuGame::GomokuGame(const GomokuGame& copy)
+GomokuGame::GomokuGame(const GomokuGame &copy)
     : board(copy.board),
       current_player(copy.current_player),
       players_scores(copy.players_scores),
@@ -54,7 +54,7 @@ GomokuGame::GomokuGame(const GomokuGame& copy)
 {
 }
 
-GomokuGame& GomokuGame::operator=(const GomokuGame& copy)
+GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
 {
     if (this != &copy)
     {
@@ -272,15 +272,17 @@ std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves()
 bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
     Player otherPlayer = other_player(player);
-    std::vector<Player> expected_value = {otherPlayer, otherPlayer, player};
 
-    for (uint i = 1; i < 4; i++)
-    {
-        int x = row + i * row_dir;
-        int y = col + i * col_dir;
-        if (!coordinates_are_valid(x, y) or get_board_value(x, y) != expected_value[i - 1])
-            return false;
-    }
+    int x1 = row + row_dir;
+    int y1 = col + col_dir;
+    int x2 = row + 2 * row_dir;
+    int y2 = col + 2 * col_dir;
+    int x3 = row + 3 * row_dir;
+    int y3 = col + 3 * col_dir;
+
+    if (!coordinates_are_valid(x1, y1) || get_board_value(x1, y1) != otherPlayer || !coordinates_are_valid(x2, y2) || get_board_value(x2, y2) != otherPlayer || !coordinates_are_valid(x3, y3) || get_board_value(x3, y3) != player)
+        return false;
+
     move_result.cell_changes.push_back(
         set_board_value(row + row_dir, col + col_dir, E));
 
