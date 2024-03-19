@@ -96,13 +96,10 @@ void GomokuGame::display_board() const
     }
 }
 
-std::vector<std::vector<int>> GomokuGame::get_patterns_count()
+const std::vector<int> &GomokuGame::get_patterns_count(Player player)
 {
     TIMER
-    std::vector<std::vector<int>> patterns_count(3, std::vector<int>(8, 0));
-    patterns_count[1] = players_reconizers[X].get_pattern_count();
-    patterns_count[2] = players_reconizers[O].get_pattern_count();
-    return patterns_count;
+    return players_reconizers[player].get_pattern_count();
 }
 
 void GomokuGame::print_patterns()

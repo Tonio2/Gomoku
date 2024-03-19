@@ -310,15 +310,20 @@ void test_problem(int problem_idx)
     logMoveEvaluation(moveEvalutation);
     logTooManyEvaluationsList(moveEvalutation);
     Timer::printAccumulatedTimes();
-    std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
-    for (size_t i = 0; i < patterns_count.size(); i++)
+    std::vector<int> X_patterns = game.get_patterns_count(X);
+    std::vector<int> O_patterns = game.get_patterns_count(O);
+    std::cout << "X patterns: ";
+    for (int pattern : X_patterns)
     {
-        for (size_t j = 0; j < patterns_count[i].size(); j++)
-        {
-            std::cout << patterns_count[i][j] << " ";
-        }
-        std::cout << std::endl;
+        std::cout << pattern << " ";
     }
+    std::cout << std::endl;
+    std::cout << "O patterns: ";
+    for (int pattern : O_patterns)
+    {
+        std::cout << pattern << " ";
+    }
+    std::cout << std::endl;
 }
 
 void test_eval(std::string moves_string)
@@ -328,18 +333,8 @@ void test_eval(std::string moves_string)
     display_moves(moves);
     apply_moves(game, moves);
 
-    game.display_board();
-    game.print_patterns();
-    std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
-    for (size_t i = 1; i < patterns_count.size(); i++)
-    {
-        std::cout << "Patterns count for player " << (i == 1 ? "X: " : "O: ");
-        for (size_t j = 0; j < patterns_count[i].size(); j++)
-        {
-            std::cout << patterns_count[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
+    // game.display_board();
+    // game.print_patterns();
     Player player = moves.size() % 2 ? X : O;
     GomokuAI AI(game, player, DEPTH);
     int evaluation = AI.heuristic_evaluation();

@@ -112,14 +112,13 @@ int GomokuAI::heuristic_evaluation()
 {
     TIMER
     Player player = ai_player;
-    std::vector<std::vector<int>> patterns_count = game.get_patterns_count();
     int multiplier = 1;
     int score = 0;
     std::vector<int> capture_scores = {0, 100, 200, 300, 1000};
 
     for (int i = 0; i < 2; i++)
     {
-        std::vector<int> player_patterns_count = patterns_count[player];
+        const std::vector<int> &player_patterns_count = game.get_patterns_count(player);
         score += player_patterns_count[OPEN_FOUR] * 10000 * multiplier;
         score += (player_patterns_count[OPEN_THREE] >= 2 or player_patterns_count[FOUR] >= 2 or (player_patterns_count[OPEN_THREE] >= 1 and player_patterns_count[FOUR] >= 1)) * 9000 * multiplier;
         score += player_patterns_count[FOUR] * 1000 * multiplier;

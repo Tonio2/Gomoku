@@ -47,6 +47,6 @@ public:
     std::vector<std::pair<std::pair<int, int>, int>> findRelevantMoves() const;
     CellChange set_board_value(int row, int col, Player value);
     void display_board() const;
-    std::vector<std::vector<int>> get_patterns_count();
+    const std::vector<int> &get_patterns_count(Player player);
     void print_patterns();
 };
