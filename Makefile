@@ -1,22 +1,33 @@
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	LIBNAME:=pygomoku.cpython-310-x86_64-linux-gnu.so
+endif
+ifeq ($(UNAME_S),Darwin)
+	LIBNAME:=pygomoku.cpython-312-darwin.so
+endif
+
+PYTHON=python3
+
 all:
 	git submodule update --init --recursive
 	mkdir -p lib GomokuEngine/build
 	cd GomokuEngine/build && cmake .. && make
-	mv GomokuEngine/build/pygomoku.cpython-310-x86_64-linux-gnu.so lib/pygomoku.so
-	cd GomokuKivy && python gomoku.py
+	mv GomokuEngine/build/${LIBNAME} lib/pygomoku.so
+	cd GomokuKivy && ${PYTHON} gomoku.py
 
 re:
 	cd GomokuEngine/build && make
-	mv GomokuEngine/build/pygomoku.cpython-310-x86_64-linux-gnu.so lib/pygomoku.so
-	cd GomokuKivy && python gomoku.py
+	mv GomokuEngine/build/${LIBNAME} lib/pygomoku.so
+	cd GomokuKivy && ${PYTHON} gomoku.py
 
 reTerm:
 	cd GomokuEngine/build && make
-	mv GomokuEngine/build/pygomoku.cpython-310-x86_64-linux-gnu.so lib/pygomoku.so
-	cd GomokuKivy && python gomokuTerminal.py
+	mv GomokuEngine/build/${LIBNAME} lib/pygomoku.so
+	cd GomokuKivy && ${PYTHON} gomokuTerminal.py
 
 startTerm:
-	cd GomokuKivy && python gomokuTerminal.py
+	cd GomokuKivy && ${PYTHON} gomokuTerminal.py
 
 start:
-	cd GomokuKivy && python gomoku.py
+	cd GomokuKivy && ${PYTHON} gomoku.py

@@ -167,6 +167,26 @@ GomokuPatternReconizer::GomokuPatternReconizer(Player player)
 {
 }
 
+GomokuPatternReconizer::GomokuPatternReconizer(const GomokuPatternReconizer& copy)
+    : _gomoku_player(copy._gomoku_player),
+      _pattern_direction_cell_matrices(copy._pattern_direction_cell_matrices),
+      _pattern_direction_structure_maps(copy._pattern_direction_structure_maps),
+      _cached_pattern_count(copy._cached_pattern_count)
+{
+}
+
+GomokuPatternReconizer& GomokuPatternReconizer::operator=(const GomokuPatternReconizer& copy)
+{
+    if (this != &copy)
+    {
+        _gomoku_player = copy._gomoku_player;
+        _pattern_direction_cell_matrices = copy._pattern_direction_cell_matrices;
+        _pattern_direction_structure_maps = copy._pattern_direction_structure_maps;
+        _cached_pattern_count = copy._cached_pattern_count;
+    }
+    return *this;
+}
+
 void GomokuPatternReconizer::find_patterns_in_board(const GomokuGame &board)
 {
     adjust_matrices_size(board);
