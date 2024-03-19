@@ -267,6 +267,35 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(GomokuGame &game) con
     return true;
 }
 
+bool GomokuPatternReconizer::can_capture(GomokuGame &game)
+{
+    for (int dir = 0; dir < PatternDirection::Count_PatternDirection; ++dir)
+    {
+        const auto &structure_map = _pattern_direction_structure_maps[dir];
+        for (auto structure_set_row : structure_map)
+        {
+            int row = structure_set_row.first;
+            for (int col : structure_set_row.second)
+            {
+
+                PatternCellIndex index(row, col);
+                PatternCellData data = _pattern_direction_cell_matrices[dir][index];
+                std::cout << data << std::endl;
+
+                if (data.structure_length == 2 && data.is_structure_closed)
+                {
+                    std::pair<int, int> dir_coordinates = get_dir_coordinates(PatternDirection(dir));
+                    int dirx = dir_coordinates.first;
+                    int diry = dir_coordinates.second;
+                    if (game.try_direction_for_capture_without_capturing(row + dirx, col + diry, -dirx, -diry, game.other_player(_gomoku_player)))
+                        return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 PatternCellState GomokuPatternReconizer::cell_state_at(const GomokuGame &board, PatternCellIndex index) const
 {
 

@@ -114,6 +114,7 @@ public:
     const std::vector<int> &get_pattern_count();
 
     bool five_or_more_cant_be_captured(GomokuGame &game) const;
+    bool can_capture(GomokuGame &game);
 
 private:
     /** Return the state of a cell for our gomoku player */
