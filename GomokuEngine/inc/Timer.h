@@ -51,6 +51,8 @@ public:
 
     ~Timer();
 
+    static double getAccumulatedTime(const std::string &name);
+
     static void printAccumulatedTimes();
 
     static void reset();

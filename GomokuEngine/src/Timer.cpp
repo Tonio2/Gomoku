@@ -22,6 +22,11 @@ Timer::~Timer()
   }
 }
 
+double Timer::getAccumulatedTime(const std::string &name)
+{
+  return accumulatedFunctions[{name}].totalTime;
+}
+
 void Timer::updateParentSelfTime(double elapsedTime)
 {
   if (currentCallStack.size() > 1)
