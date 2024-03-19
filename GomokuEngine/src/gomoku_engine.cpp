@@ -181,8 +181,7 @@ MoveResult GomokuGame::make_move(int row, int col)
         }
     }
 
-    if (check_win(current_player))
-        winner = current_player;
+    check_win(current_player);
 
     current_player = other_player(current_player);
 
@@ -221,8 +220,7 @@ void GomokuGame::reapply_move(const MoveResult &move)
     players_reconizers[X].update_patterns_with_move(*this, move);
     players_reconizers[O].update_patterns_with_move(*this, move);
 
-    if (check_win(current_player))
-        winner = current_player;
+    check_win(current_player);
 
     current_player = other_player(current_player);
 }
@@ -338,19 +336,27 @@ int GomokuGame::get_board_height() const
     return board.get_height();
 }
 
-bool GomokuGame::check_win(Player player)
+void GomokuGame::check_win(Player player)
 {
     if (get_player_score(player) >= 10)
     {
-        return true;
+        winner = current_player;
+        return;
+    }
+    else if (get_player_score(other_player(player)) == 8)
+    {
+        if (players_reconizers[player].can_capture(*this))
+        {
+            winner = other_player(player);
+            return;
+        }
     }
     else if (players_reconizers[player].get_pattern_count()
                  [StructureType::FIVE_OR_MORE])
     {
         if (players_reconizers[player].five_or_more_cant_be_captured(*this))
-            return true;
+            winner = current_player;
     }
-    return false;
 }
 
 Player GomokuGame::get_winner() const
