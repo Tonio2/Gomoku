@@ -167,7 +167,7 @@ GomokuPatternReconizer::GomokuPatternReconizer(Player player)
 {
 }
 
-GomokuPatternReconizer::GomokuPatternReconizer(const GomokuPatternReconizer& copy)
+GomokuPatternReconizer::GomokuPatternReconizer(const GomokuPatternReconizer &copy)
     : _gomoku_player(copy._gomoku_player),
       _pattern_direction_cell_matrices(copy._pattern_direction_cell_matrices),
       _pattern_direction_structure_maps(copy._pattern_direction_structure_maps),
@@ -175,7 +175,7 @@ GomokuPatternReconizer::GomokuPatternReconizer(const GomokuPatternReconizer& cop
 {
 }
 
-GomokuPatternReconizer& GomokuPatternReconizer::operator=(const GomokuPatternReconizer& copy)
+GomokuPatternReconizer &GomokuPatternReconizer::operator=(const GomokuPatternReconizer &copy)
 {
     if (this != &copy)
     {
@@ -185,6 +185,10 @@ GomokuPatternReconizer& GomokuPatternReconizer::operator=(const GomokuPatternRec
         _cached_pattern_count = copy._cached_pattern_count;
     }
     return *this;
+}
+
+GomokuPatternReconizer::~GomokuPatternReconizer()
+{
 }
 
 void GomokuPatternReconizer::find_patterns_in_board(const GomokuGame &board)
