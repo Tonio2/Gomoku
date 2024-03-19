@@ -293,6 +293,23 @@ bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int 
     return true;
 }
 
+bool GomokuGame::try_direction_for_capture_without_capturing(uint row, uint col, int row_dir, int col_dir, Player player)
+{
+    Player otherPlayer = other_player(player);
+
+    int x1 = row + row_dir;
+    int y1 = col + col_dir;
+    int x2 = row + 2 * row_dir;
+    int y2 = col + 2 * col_dir;
+    int x3 = row + 3 * row_dir;
+    int y3 = col + 3 * col_dir;
+
+    if (!coordinates_are_valid(x1, y1) || get_board_value(x1, y1) != otherPlayer || !coordinates_are_valid(x2, y2) || get_board_value(x2, y2) != otherPlayer || !coordinates_are_valid(x3, y3) || get_board_value(x3, y3) != player)
+        return false;
+
+    return true;
+}
+
 bool GomokuGame::try_cardinal_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
     bool ret = try_direction_for_capture(row, col, row_dir, col_dir, player, move_result);
@@ -330,7 +347,8 @@ bool GomokuGame::check_win(Player player)
     else if (players_reconizers[player].get_pattern_count()
                  [StructureType::FIVE_OR_MORE])
     {
-        return true;
+        if (players_reconizers[player].five_or_more_cant_be_captured(*this))
+            return true;
     }
     return false;
 }
