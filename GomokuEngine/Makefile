@@ -13,7 +13,7 @@ OBJDIR = obj
 # Mode configuration: Default is performance (PERF)
 MODE ?= PERF
 ifeq ($(MODE),DEBUG)
-	CXXFLAGS += -g -p # Debug flags
+	CXXFLAGS += -pg -g # Debug flags
 else
 	CXXFLAGS += -O3 # Optimize for performance
 endif
