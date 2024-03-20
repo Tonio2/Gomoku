@@ -2,47 +2,125 @@
 
 <MenuScreen>:
     size_hint: 1, 1
-    
     MenuRootWidget:
         id: root_widget
-
         size: self.parent.size
-        
+
         AnchorLayout:
             anchor_x: 'center'
             anchor_y: 'center'
 
             size: self.parent.size
-
+        
             BoxLayout:
                 orientation: 'vertical'
+                padding: 10
+                spacing: 10
 
+                 # Board Size Controls
                 BoxLayout:
-                    orientation: 'horizontal'
-
+                    orientation: 'vertical'
                     Label:
-                        text: f'Board Width: {str(int(width_slider.value))}'
+                        text: 'Board Size Settings:'
+                        font_size: '16sp'
 
-                    Slider:
-                        id: width_slider
-                        min: 7
-                        max: 36
-                        value: 19
-                        on_value: root_widget.set_board_width(self.value)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        
+                        BoxLayout:
+                            Label:
+                                text: f'Board Width: {str(int(width_slider.value))}'
+                            Slider:
+                                id: width_slider
+                                min: 10
+                                max: 25
+                                value: 19
+                                on_value: root_widget.set_board_width(self.value)
 
+                        BoxLayout:
+                            Label:
+                                text: f'Board Height: {str(int(height_slider.value))}'
+                            Slider:
+                                id: height_slider
+                                min: 10
+                                max: 25
+                                value: 19
+                                on_value: root_widget.set_board_height(self.value)
+
+                # Game Mode Controls
                 BoxLayout:
-                    orientation: 'horizontal'
-
+                    orientation: 'vertical'
                     Label:
-                        text: f'Board Height: {str(int(height_slider.value))}'
+                        text: 'Game Mode:'
+                        font_size: '16sp'
+                    
+                    BoxLayout:
+                        ToggleButton:
+                            text: 'Human vs AI'
+                            group: 'mode'
+                            state: 'down'
+                        ToggleButton:
+                            text: 'Human vs Human'
+                            group: 'mode'
+                            state: 'normal'
 
-                    Slider:
-                        id: height_slider
-                        min: 7
-                        max: 36
-                        value: 19
-                        on_value: root_widget.set_board_height(self.value)
+                # Rules Selection
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Game Rules:'
+                        font_size: '16sp'
+                    BoxLayout:
+                        ToggleButton:
+                            text: 'Standard'
+                            group: 'rules'
+                            state: 'down'
+                        ToggleButton:
+                            text: 'Pro'
+                            group: 'rules'
+                        ToggleButton:
+                            text: 'Swap'
+                            group: 'rules'
+                        ToggleButton:
+                            text: 'Swap2'
+                            group: 'rules'
 
+                # First Player Selection
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'First Player:'
+                        font_size: '16sp'
+                    BoxLayout:
+                        ToggleButton:
+                            text: 'Black'
+                            group: 'first_player'
+                            state: 'down'
+                        ToggleButton:
+                            text: 'White'
+                            group: 'first_player'
+
+                # Total Time Allowed Selection
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Total Time per Player:'
+                        font_size: '16sp'
+                    Spinner:
+                        text: 'No limit'
+                        values: ('2 min', '3 min', '4 min', '5 min', 'No limit')
+
+                # Time Per Turn Selection
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Time Per Turn:'
+                        font_size: '16sp'
+                    Spinner:
+                        text: 'No limit'
+                        values: ('10 s', '20 s', '30 s', '40 s', 'No limit')
+
+                # Start Game Button
                 Button:
                     text: 'Start Game'
                     on_press: root.switch_to_game()
