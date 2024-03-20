@@ -232,21 +232,19 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(GomokuGame &game) con
 {
     for (int dir = 0; dir < PatternDirection::Count_PatternDirection; ++dir)
     {
-        const auto &structure_map = _pattern_direction_structure_maps[dir];
-        for (auto structure_set_row : structure_map)
+        for (int row = 1; row < game.get_board_height() + 1; ++row)
         {
-            int row = structure_set_row.first;
-            for (int col : structure_set_row.second)
+            for (int col = 1; col < game.get_board_width() + 1; ++col)
             {
-
                 PatternCellIndex index(row, col);
                 PatternCellData data = _pattern_direction_cell_matrices[dir][index];
 
                 if (data.structure_length >= 5)
                 {
-                    for (int i = 1; i <= data.structure_length; ++i)
+                    for (int i = 1; i <= data.structure_length + 1; ++i)
                     {
-                        PatternCellIndex index2 = get_previous_index(index, PatternDirection(dir));
+                        PatternCellIndex index2 = get_previous_index(index, PatternDirection(dir), i);
+                        GomokuCellIndex gameIndex2 = index2.to_game_index();
                         for (int dir2 = 0; dir2 < PatternDirection::Count_PatternDirection; ++dir2)
                         {
                             if (dir2 == dir)
@@ -254,9 +252,10 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(GomokuGame &game) con
                             std::pair<int, int> dir_coordinates = get_dir_coordinates(PatternDirection(dir2));
                             int dir2x = dir_coordinates.first;
                             int dir2y = dir_coordinates.second;
-                            if (game.try_direction_for_capture_without_capturing(index2.row + dir2x, index2.col + dir2y, -dir2x, -dir2y, game.other_player(_gomoku_player)))
+
+                            if (game.try_direction_for_capture_without_capturing(gameIndex2.row + 2 * dir2x, gameIndex2.col + 2 * dir2y, -dir2x, -dir2y, game.other_player(_gomoku_player)))
                                 return false;
-                            if (game.try_direction_for_capture_without_capturing(index2.row - dir2x, index2.col - dir2y, dir2x, dir2y, game.other_player(_gomoku_player)))
+                            if (game.try_direction_for_capture_without_capturing(gameIndex2.row - 2 * dir2x, gameIndex2.col - 2 * dir2y, dir2x, dir2y, game.other_player(_gomoku_player)))
                                 return false;
                         }
                     }
