@@ -8,9 +8,11 @@ class GomokuGame
 {
 private:
     Matrix<Player> board;
+    int empty_cells;
 
     Player current_player;
     std::vector<int> players_scores;
+    bool is_game_over_flag;
     Player winner;
     std::vector<GomokuPatternReconizer> players_reconizers;
 
