@@ -93,6 +93,35 @@ void test_5_in_a_row()
     test_is_game_over(move_str, false, "Testing 5 in a row with potential capture blocked by a wall");
 }
 
+void test_move_is_possible(std::string move_str, bool expected_result, std::string description)
+{
+    GomokuGame game(19, 19);
+    std::vector<std::string> moves = split(move_str, ',');
+    bool failed = false;
+    try
+    {
+        apply_moves(game, moves);
+    }
+    catch (std::invalid_argument &e)
+    {
+        failed = true;
+    }
+    test_condition(failed == !expected_result, description);
+    std::cout << move_str << std::endl;
+}
+
+void test_double_3()
+{
+    std::string move_str = "44,A4,45,A5,56,CA,66,CB,46";
+    test_move_is_possible(move_str, false, "Making a double 3 should fail");
+
+    move_str = "43,93,44,94,45,C7,56,C8,66,C6,46";
+    test_move_is_possible(move_str, true, "Making a fork with an open 4 and an open 3 should suceed");
+
+    move_str = "43,35,44,25,55,B7,15,B8,65,FC,45";
+    test_move_is_possible(move_str, true, "Making a double 3 with capture should suceed");
+}
+
 void test_engine()
 {
     std::cout << "Testing engine..." << std::endl;
@@ -100,4 +129,6 @@ void test_engine()
     test_capture();
     std::cout << "Testing win by 5 in a row..." << std::endl;
     test_5_in_a_row();
+    std::cout << "Testing double 3..." << std::endl;
+    test_double_3();
 }
