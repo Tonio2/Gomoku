@@ -17,6 +17,23 @@ void test_is_game_over(std::string move_str, bool expected_result, std::string d
     std::cout << move_str << std::endl;
 }
 
+void test_move_is_possible(std::string move_str, bool expected_result, std::string description)
+{
+    GomokuGame game(19, 19);
+    std::vector<std::string> moves = split(move_str, ',');
+    bool failed = false;
+    try
+    {
+        apply_moves(game, moves);
+    }
+    catch (std::invalid_argument &e)
+    {
+        failed = true;
+    }
+    test_condition(failed == !expected_result, description);
+    std::cout << move_str << std::endl;
+}
+
 void test_capture()
 {
     std::string move_str = "25,34,16,07,66,75,57,48,97,A6,88,79,E4,F3,D5,C6,EA,F9,DB";
@@ -86,28 +103,17 @@ void test_5_in_a_row()
     move_str = "34,84,35,85,36,86,37,87,26,46,38";
     test_is_game_over(move_str, false, "Testing 5 in a row with potential capture");
 
+    move_str = "34,84,35,85,36,86,37,45,23,87,38";
+    test_is_game_over(move_str, false, "Testing 5 in a row with potential capture on extreme left");
+
+    move_str = "34,84,35,85,36,86,37,46,28,83,33";
+    test_is_game_over(move_str, false, "Testing 5 in a row with potential capture on extreme right");
+
     move_str = "34,84,35,85,36,86,37,87,39,46,26,9B,38";
     test_is_game_over(move_str, false, "Testing 6 in a row with potential capture");
 
     move_str = "13,63,14,64,15,65,16,66,05,25,17";
     test_is_game_over(move_str, false, "Testing 5 in a row with potential capture blocked by a wall");
-}
-
-void test_move_is_possible(std::string move_str, bool expected_result, std::string description)
-{
-    GomokuGame game(19, 19);
-    std::vector<std::string> moves = split(move_str, ',');
-    bool failed = false;
-    try
-    {
-        apply_moves(game, moves);
-    }
-    catch (std::invalid_argument &e)
-    {
-        failed = true;
-    }
-    test_condition(failed == !expected_result, description);
-    std::cout << move_str << std::endl;
 }
 
 void test_double_3()
