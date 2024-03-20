@@ -91,6 +91,9 @@ void test_5_in_a_row()
     std::string move_str = "35,85,36,86,37,87,38,88,39";
     test_is_game_over(move_str, true, "Testing 5 in a row");
 
+    move_str = "77,55,78,76,79,54,56,65,53,54,87,67,97,43,32,7A,58,68,85,A7,57,67,59,5A,55";
+    test_is_game_over(move_str, true, "Should detect 5 in a row");
+
     move_str = "35,75,36,76,37,77,38,78,3A,7A,39";
     test_is_game_over(move_str, true, "Testing 6 in a row");
 
