@@ -2,9 +2,7 @@ from kivy.uix.widget import Widget
 from core.callback_center import CallbackCenter
 from core.gomoku_game import GomokuGame, GomokuPlayer, GomokuMove
 from app.shared_object import SharedObject
-from kivy.properties import (
-    NumericProperty, ReferenceListProperty, ObjectProperty
-)
+from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
 from kivy.clock import Clock
 
 
@@ -23,17 +21,21 @@ class GameInfosWidget(Widget):
 
     def __init__(self, **kwargs):
         super(GameInfosWidget, self).__init__(**kwargs)
-        CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_game_modified)
-        CallbackCenter.shared().add_callback("GomokuGame.time", self.on_game_time_modified)
-        Clock.schedule_interval(self.tick_game_time, 1/30)
+        CallbackCenter.shared().add_callback(
+            "GomokuGame.modified", self.on_game_modified
+        )
+        CallbackCenter.shared().add_callback(
+            "GomokuGame.time", self.on_game_time_modified
+        )
+        Clock.schedule_interval(self.tick_game_time, 1 / 20)
 
     def tick_game_time(self, dt):
         game = self.get_game()
-        
+
         if game is None:
             return
-        
-        game.increase_time(dt)
+
+        game.update_time()
 
     def on_game_modified(self, message, game: GomokuGame):
         self.current_player = game.get_current_player()
@@ -47,13 +49,19 @@ class GameInfosWidget(Widget):
             self.time_marker_black.text = ""
             self.time_marker_white.text = ""
             return
-        
+
         def time_to_string(time: float) -> str:
             return "{:.1f}".format(time)
 
-        black_time = game.players_time[GomokuPlayer.BLACK]
+        black_time = (
+            game.players_time[GomokuPlayer.BLACK]
+            - game.players_time_since_start_turn[GomokuPlayer.BLACK]
+        )
         self.time_marker_black.text = time_to_string(black_time)
-        white_time = game.players_time[GomokuPlayer.WHITE]
+        white_time = (
+            game.players_time[GomokuPlayer.WHITE]
+            - game.players_time_since_start_turn[GomokuPlayer.WHITE]
+        )
         self.time_marker_white.text = time_to_string(white_time)
 
     def get_game(self) -> GomokuGame:
@@ -64,7 +72,7 @@ class GameInfosWidget(Widget):
 
         if game is None:
             return
-        
+
         game.reverse_last_move()
 
     def reapply_move(self):
@@ -72,7 +80,7 @@ class GameInfosWidget(Widget):
 
         if game is None:
             return
-        
+
         game.reverse_last_move()
 
     def reapply_move(self):
@@ -80,5 +88,5 @@ class GameInfosWidget(Widget):
 
         if game is None:
             return
-        
+
         game.reapply_last_move()

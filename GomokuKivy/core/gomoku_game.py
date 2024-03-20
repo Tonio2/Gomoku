@@ -1,11 +1,14 @@
 from typing import Tuple, List, Dict
 from enum import Enum
+from datetime import datetime
 
 import sys
+
 sys.path.append("../lib")
 import pygomoku
 
 from core.callback_center import CallbackCenter
+
 
 class GomokuPlayer(Enum):
     EMPTY = 0
@@ -22,12 +25,14 @@ class GomokuPlayer(Enum):
                 return "White"
         return "None"
 
+
 class GomokuMove:
     player: GomokuPlayer
     row: int
     column: int
     timestamp: float
     move_result: pygomoku.MoveResult
+
 
 class GomokuGame:
 
@@ -37,8 +42,10 @@ class GomokuGame:
     move_list: List[GomokuMove]
     last_move_index: int
 
-    game_time: float
     players_time: Dict[GomokuPlayer, float]
+
+    start_turn: datetime
+    start_game: datetime
 
     def __init__(self, width: int, height: int, player_time: float, mode: int):
         self.game = pygomoku.GomokuGame(width, height)
@@ -47,15 +54,22 @@ class GomokuGame:
         self.move_list = []
         self.last_move_index = -1
 
-        self.game_time = 0
         self.players_time = {
             GomokuPlayer.WHITE: player_time,
             GomokuPlayer.BLACK: player_time,
         }
-        
+
+        self.players_time_since_start_turn = {
+            GomokuPlayer.WHITE: 0,
+            GomokuPlayer.BLACK: 0,
+        }
+
+        self.start_turn = datetime.now()
+        self.start_game = datetime.now()
+
         # if mode == 1:
-        #     move_str = "78,56,79,77,7A,55,57,66,54,55,88,68,98,44,33,7B,67,95,86,6A,59,97,77"
-        #     moves = move_str.split(',')
+        #     move_str = "77,55,78,76,79,54,56,65,53,54,87,67,97,43,32,7A,58,68,85,A7,57,67,59,5A,55"
+        #     moves = move_str.split(",")
         #     for i in range(len(moves)):
         #         row = int(moves[i][0], 16)
         #         col = int(moves[i][1], 16)
@@ -98,21 +112,13 @@ class GomokuGame:
         moveEvaluations = AI.suggest_move()
         bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
         return bestMove
-    
+
     def handle_click(self, row: int, col: int):
         if self.mode == 1:
             self.play_at(row, col)
         else:
             if self.get_current_player() == GomokuPlayer.BLACK:
                 self.play_at(row, col)
-                
-    def handle_click(self, row: int, col: int):
-        if self.mode == 1:
-            self.play_at(row, col)
-        else:
-            if self.get_current_player() == GomokuPlayer.BLACK:
-                self.play_at(row, col)
-                    
 
     def play_at(self, row: int, col: int):
         modified = False
@@ -121,8 +127,8 @@ class GomokuGame:
             new_move.player = self.get_current_player()
             new_move.row = row
             new_move.column = col
-            new_move.timestamp = self.game_time
-            
+            new_move.timestamp = (datetime.now() - self.start_game).total_seconds()
+
             new_move.move_result = self.game.make_move(row, col)
             modified = True
 
@@ -132,9 +138,14 @@ class GomokuGame:
             self.move_list[self.last_move_index] = new_move
 
         except:
-            print(f'Failed to play at {row}:{col}')
-        
+            print(f"Failed to play at {row}:{col}")
+
         if modified:
+            self.players_time[new_move.player] -= self.players_time_since_start_turn[
+                new_move.player
+            ]
+            self.players_time_since_start_turn[new_move.player] = 0
+            self.start_turn = datetime.now()
             CallbackCenter.shared().send_message("GomokuGame.modified", self)
 
             if self.game.is_game_over():
@@ -148,9 +159,10 @@ class GomokuGame:
         elif current_size > new_size:
             self.move_list = self.move_list[:new_size]
 
-    def increase_time(self, delta_time: float):
-        self.game_time += delta_time
-        self.players_time[self.get_current_player()] -= delta_time
+    def update_time(self):
+        self.players_time_since_start_turn[self.get_current_player()] = (
+            datetime.now() - self.start_turn
+        ).total_seconds()
         CallbackCenter.shared().send_message("GomokuGame.time", self)
 
     def can_reverse_move(self):
