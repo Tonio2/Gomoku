@@ -114,7 +114,7 @@ public:
     const std::vector<int> &get_pattern_count();
 
     bool five_or_more_cant_be_captured(GomokuGame &game) const;
-    bool can_capture(GomokuGame &game);
+    bool can_be_captured(GomokuGame &game);
 
 private:
     /** Return the state of a cell for our gomoku player */
@@ -146,8 +146,8 @@ private:
     void update_cell_direction(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
 
     std::pair<int, int> get_dir_coordinates(PatternDirection direction) const;
-    PatternCellIndex get_previous_index(PatternCellIndex index, PatternDirection direction) const;
-    PatternCellIndex get_next_index(PatternCellIndex index, PatternDirection direction) const;
+    PatternCellIndex get_previous_index(PatternCellIndex index, PatternDirection direction, int count = 1) const;
+    PatternCellIndex get_next_index(PatternCellIndex index, PatternDirection direction, int count = 1) const;
 
     void untag_celldata_structure(PatternCellIndex index, PatternDirection direction);
     void tag_celldata_structure(PatternCellIndex index, PatternDirection direction);

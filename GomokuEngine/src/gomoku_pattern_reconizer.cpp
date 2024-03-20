@@ -267,28 +267,39 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(GomokuGame &game) con
     return true;
 }
 
-bool GomokuPatternReconizer::can_capture(GomokuGame &game)
+bool GomokuPatternReconizer::can_be_captured(GomokuGame &game)
 {
     for (int dir = 0; dir < PatternDirection::Count_PatternDirection; ++dir)
     {
-        const auto &structure_map = _pattern_direction_structure_maps[dir];
-        for (auto structure_set_row : structure_map)
+        for (int row = 1; row < game.get_board_height() + 1; ++row)
         {
-            int row = structure_set_row.first;
-            for (int col : structure_set_row.second)
+            for (int col = 1; col < game.get_board_width() + 1; ++col)
             {
-
                 PatternCellIndex index(row, col);
                 PatternCellData data = _pattern_direction_cell_matrices[dir][index];
-                std::cout << data << std::endl;
 
                 if (data.structure_length == 2 && data.is_structure_closed)
                 {
                     std::pair<int, int> dir_coordinates = get_dir_coordinates(PatternDirection(dir));
                     int dirx = dir_coordinates.first;
                     int diry = dir_coordinates.second;
-                    if (game.try_direction_for_capture_without_capturing(row + dirx, col + diry, -dirx, -diry, game.other_player(_gomoku_player)))
-                        return true;
+                    GomokuCellIndex gameIndex = index.to_game_index();
+                    Player cellValue = game.get_board_value(gameIndex.row, gameIndex.col);
+                    if (cellValue == E)
+                    {
+                        if (game.try_direction_for_capture_without_capturing(gameIndex.row, gameIndex.col, -dirx, -diry, game.other_player(_gomoku_player)))
+                            return true;
+                    }
+                    else
+                    {
+                        PatternCellIndex otherSideIndex = get_previous_index(index, PatternDirection(dir), 3);
+                        GomokuCellIndex otherSideGameIndex = otherSideIndex.to_game_index();
+                        if (game.coordinates_are_valid(otherSideGameIndex.row, otherSideGameIndex.col))
+                        {
+                            if (game.try_direction_for_capture_without_capturing(otherSideGameIndex.row, otherSideGameIndex.col, dirx, diry, game.other_player(_gomoku_player)))
+                                return true;
+                        }
+                    }
                 }
             }
         }
@@ -580,35 +591,35 @@ std::pair<int, int> GomokuPatternReconizer::get_dir_coordinates(PatternDirection
     }
 }
 
-PatternCellIndex GomokuPatternReconizer::get_previous_index(PatternCellIndex index, PatternDirection direction) const
+PatternCellIndex GomokuPatternReconizer::get_previous_index(PatternCellIndex index, PatternDirection direction, int count) const
 {
     switch (direction)
     {
     case PatternDirection::LeftToRight:
-        return PatternCellIndex(index.row, index.col - 1);
+        return PatternCellIndex(index.row, index.col - count);
     case PatternDirection::UpToDown:
-        return PatternCellIndex(index.row - 1, index.col);
+        return PatternCellIndex(index.row - count, index.col);
     case PatternDirection::UpleftToDownright:
-        return PatternCellIndex(index.row - 1, index.col - 1);
+        return PatternCellIndex(index.row - count, index.col - count);
     case PatternDirection::UprightToDownleft:
-        return PatternCellIndex(index.row - 1, index.col + 1);
+        return PatternCellIndex(index.row - count, index.col + count);
     default:
         return index;
     }
 }
 
-PatternCellIndex GomokuPatternReconizer::get_next_index(PatternCellIndex index, PatternDirection direction) const
+PatternCellIndex GomokuPatternReconizer::get_next_index(PatternCellIndex index, PatternDirection direction, int count) const
 {
     switch (direction)
     {
     case PatternDirection::LeftToRight:
-        return PatternCellIndex(index.row, index.col + 1);
+        return PatternCellIndex(index.row, index.col + count);
     case PatternDirection::UpToDown:
-        return PatternCellIndex(index.row + 1, index.col);
+        return PatternCellIndex(index.row + count, index.col);
     case PatternDirection::UpleftToDownright:
-        return PatternCellIndex(index.row + 1, index.col + 1);
+        return PatternCellIndex(index.row + count, index.col + count);
     case PatternDirection::UprightToDownleft:
-        return PatternCellIndex(index.row + 1, index.col - 1);
+        return PatternCellIndex(index.row + count, index.col - count);
     default:
         return index;
     }

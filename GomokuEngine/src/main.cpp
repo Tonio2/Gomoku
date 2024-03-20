@@ -316,7 +316,8 @@ void test_eval(std::string moves_string)
     display_moves(moves);
     apply_moves(game, moves);
 
-    // game.display_board();
+    std::cout << "Is game over: " << game.is_game_over() << "\n";
+    game.display_board();
     // game.print_patterns();
     Player player = moves.size() % 2 ? X : O;
     GomokuAI AI(game, player, DEPTH);
@@ -330,9 +331,10 @@ int main(int argc, char *argv[])
     // If an argument is given, run the test_problem function with the given argument
     if (argc == 1)
         test_problems();
-    else if (std::string(argv[1]).compare("eval") == 0)
+    else if (std::string(argv[1]) == "eval")
     {
-        std::string moves_string = "44,55,45,00,35,40,46,53,47,25";
+        std::string moves_string = "25,34,16,07,66,75,57,48,97,A6,88,79,E4,F3,D5,C6,EA,F9,DB";
+        // std::string moves_string = "24,25,23,22,54,55,53,52,84,85,83,82,B4,B5,B3,B2,E4,E5,E3";
         test_eval(moves_string);
     }
     else
