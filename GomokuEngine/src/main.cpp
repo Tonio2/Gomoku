@@ -144,16 +144,28 @@ void test_eval(std::string moves_string)
 {
     GomokuGame game(19, 19);
     std::vector<std::string> moves = split(moves_string, ',');
-    display_moves(moves);
     apply_moves(game, moves);
-
-    std::cout << "Is game over: " << game.is_game_over() << "\n";
-    game.display_board();
-    // game.print_patterns();
-    Player player = moves.size() % 2 ? X : O;
-    GomokuAI AI(game, player, DEPTH);
+    Player last_player = moves.size() % 2 ? X : O;
+    GomokuAI AI(game, last_player, DEPTH);
     int evaluation = AI.heuristic_evaluation();
-    std::cout << "Board evaluation for " << player << ": " << evaluation << std::endl;
+
+    // Display moves
+    display_moves(moves);
+
+    // Display the board
+    game.display_board();
+
+    // Display if game is over
+    std::cout << "Is game over: " << game.is_game_over() << "\n";
+
+    // Display patterns
+    game.print_patterns();
+
+    // Display player's to play next move
+    std::cout << "Next move to: " << game.other_player(last_player) << std::endl;
+
+    // Display the evaluation
+    std::cout << "Board evaluation for " << last_player << ": " << evaluation << std::endl;
 }
 
 int main(int argc, char *argv[])
