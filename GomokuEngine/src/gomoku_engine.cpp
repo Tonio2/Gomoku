@@ -32,8 +32,10 @@ std::ostream &operator<<(std::ostream &stream, StructureType structure_type)
 // Definitions of GomokuGame methods
 GomokuGame::GomokuGame(uint width, uint height)
     : board(width, height),
+      empty_cells(width * height),
       current_player(X),
       players_scores({0, 0, 0}),
+      is_game_over_flag(false),
       winner(E),
       players_reconizers({
           GomokuPatternReconizer(E),
@@ -47,8 +49,10 @@ GomokuGame::GomokuGame(uint width, uint height)
 
 GomokuGame::GomokuGame(const GomokuGame &copy)
     : board(copy.board),
+      empty_cells(copy.empty_cells),
       current_player(copy.current_player),
       players_scores(copy.players_scores),
+      is_game_over_flag(copy.is_game_over_flag),
       winner(copy.winner),
       players_reconizers(copy.players_reconizers)
 {
@@ -59,8 +63,10 @@ GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
     if (this != &copy)
     {
         board = copy.board;
+        empty_cells = copy.empty_cells;
         current_player = copy.current_player;
         players_scores = copy.players_scores;
+        is_game_over_flag = copy.is_game_over_flag;
         winner = copy.winner;
         players_reconizers = copy.players_reconizers;
     }
@@ -84,6 +90,10 @@ CellChange GomokuGame::set_board_value(int row, int col, Player value)
     cell_change.old_value = board(row, col);
     board(row, col) = value;
     cell_change.new_value = value;
+
+    // Assume that if the value is E, then the cell was occupied before because there is no situation in which you would empty an empty cell
+    // and if the value is not E, then the cell was not occupied because you cannot turn a stone into another stone in Gomoku.
+    empty_cells += (value == E) ? 1 : -1;
 
     return cell_change;
 }
@@ -132,7 +142,7 @@ void GomokuGame::print_patterns()
 
 bool GomokuGame::is_game_over() const
 {
-    return winner != E;
+    return is_game_over_flag;
 }
 
 bool GomokuGame::coordinates_are_valid(int row, int col) const
@@ -340,6 +350,7 @@ void GomokuGame::check_win(Player player)
 {
     if (get_player_score(player) >= 10)
     {
+        is_game_over_flag = true;
         winner = current_player;
         return;
     }
@@ -347,6 +358,7 @@ void GomokuGame::check_win(Player player)
     {
         if (players_reconizers[player].can_be_captured(*this))
         {
+            is_game_over_flag = true;
             winner = other_player(player);
             return;
         }
@@ -355,7 +367,15 @@ void GomokuGame::check_win(Player player)
                  [StructureType::FIVE_OR_MORE])
     {
         if (players_reconizers[player].five_or_more_cant_be_captured(*this))
+        {
+            is_game_over_flag = true;
             winner = current_player;
+        }
+    }
+
+    if (empty_cells == 0)
+    {
+        is_game_over_flag = true;
     }
 }
 
