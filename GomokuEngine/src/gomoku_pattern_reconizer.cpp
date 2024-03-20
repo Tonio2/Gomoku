@@ -253,10 +253,19 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(GomokuGame &game) con
                             int dir2x = dir_coordinates.first;
                             int dir2y = dir_coordinates.second;
 
-                            if (game.try_direction_for_capture_without_capturing(gameIndex2.row + 2 * dir2x, gameIndex2.col + 2 * dir2y, -dir2x, -dir2y, game.other_player(_gomoku_player)))
-                                return false;
-                            if (game.try_direction_for_capture_without_capturing(gameIndex2.row - 2 * dir2x, gameIndex2.col - 2 * dir2y, dir2x, dir2y, game.other_player(_gomoku_player)))
-                                return false;
+                            if (game.coordinates_are_valid(gameIndex2.row + 2 * dir2x, gameIndex2.col + 2 * dir2y))
+                            {
+                                Player cellValue1 = game.get_board_value(gameIndex2.row + 2 * dir2x, gameIndex2.col + 2 * dir2y);
+                                if (cellValue1 == E && game.try_direction_for_capture_without_capturing(gameIndex2.row + 2 * dir2x, gameIndex2.col + 2 * dir2y, -dir2x, -dir2y, game.other_player(_gomoku_player)))
+                                    return false;
+                            }
+
+                            if (game.coordinates_are_valid(gameIndex2.row - 2 * dir2x, gameIndex2.col - 2 * dir2y))
+                            {
+                                Player cellValue2 = game.get_board_value(gameIndex2.row - 2 * dir2x, gameIndex2.col - 2 * dir2y);
+                                if (cellValue2 == E && game.try_direction_for_capture_without_capturing(gameIndex2.row - 2 * dir2x, gameIndex2.col - 2 * dir2y, dir2x, dir2y, game.other_player(_gomoku_player)))
+                                    return false;
+                            }
                         }
                     }
                 }

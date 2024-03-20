@@ -113,7 +113,10 @@ void test_5_in_a_row()
     test_is_game_over(move_str, false, "Testing 6 in a row with potential capture");
 
     move_str = "13,63,14,64,15,65,16,66,05,25,17";
-    test_is_game_over(move_str, false, "Testing 5 in a row with potential capture blocked by a wall");
+    test_is_game_over(move_str, true, "Testing 5 in a row with potential capture blocked by a wall");
+
+    move_str = "77,55,78,76,79,66,44,69,66,7A,55,88,33";
+    test_is_game_over(move_str, true, "Testing 5 in a row with potential capture blocked by a stone");
 }
 
 void test_double_3()
