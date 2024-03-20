@@ -128,6 +128,25 @@ void test_double_3()
     test_move_is_possible(move_str, true, "Making a double 3 with capture should suceed");
 }
 
+void test_draw()
+{
+    std::string move_str;
+    for (int i = 0; i < 19; i++)
+    {
+        for (int j = 0; j < 19; j++)
+        {
+            char row = boardCoordinates[i];
+            char col = boardCoordinates[j];
+            move_str += row;
+            move_str += col;
+            move_str += ",";
+        }
+    }
+    move_str.pop_back();
+
+    test_is_game_over(move_str, true, "Should draw");
+}
+
 void test_engine()
 {
     std::cout << "Testing engine..." << std::endl;
@@ -137,4 +156,6 @@ void test_engine()
     test_5_in_a_row();
     std::cout << "Testing double 3..." << std::endl;
     test_double_3();
+    std::cout << "Testing draw..." << std::endl;
+    test_draw();
 }
