@@ -155,8 +155,9 @@ void test_eval(std::string moves_string)
     // Display the board
     game.display_board();
 
-    // Display if game is over
+    // Display if game is over and winner
     std::cout << "Is game over: " << game.is_game_over() << "\n";
+    std::cout << "Winner: " << game.get_winner() << "\n";
 
     // Display patterns
     game.print_patterns();
