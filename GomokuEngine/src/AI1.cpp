@@ -44,7 +44,17 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
     if (depth == 0 || game.is_game_over())
     {
-        node.score = game.is_game_over() ? (maximizingPlayer ? std::numeric_limits<int>::min() + 1 : std::numeric_limits<int>::max() - 1) : heuristic_evaluation();
+        if (game.is_game_over())
+        {
+            if (game.get_winner() == ai_player)
+                node.score = std::numeric_limits<int>::max() - 1;
+            else if (game.get_winner() == human_player)
+                node.score = std::numeric_limits<int>::min() + 1;
+            else
+                node.score = 0;
+        }
+        else
+            node.score = heuristic_evaluation();
         return node;
     }
 

@@ -215,6 +215,7 @@ void GomokuGame::reverse_move(const MoveResult &move)
     players_reconizers[O].update_patterns_with_move(*this, move);
 
     winner = E;
+    is_game_over_flag = false;
 }
 
 void GomokuGame::reapply_move(const MoveResult &move)
