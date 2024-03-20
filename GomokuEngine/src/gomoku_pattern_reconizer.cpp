@@ -388,7 +388,6 @@ const PatternCellData &GomokuPatternReconizer::cell_data_following_memoized(cons
         prev.is_structure_closed = false;
         prev.is_gap_open_three = false;
         prev.is_gap_open_three_closed = false;
-        std::cout << sizeof(cell_values) << " octets allocated for memoization" << std::endl;
         for (int s = 0; s < 3; ++s)
         {
             for (int seq_len = 0; seq_len < max_seq_len; ++seq_len)
