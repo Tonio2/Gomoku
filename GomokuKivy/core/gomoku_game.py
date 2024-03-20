@@ -32,6 +32,7 @@ class GomokuMove:
 class GomokuGame:
 
     game: pygomoku.GomokuGame
+    mode: int
 
     move_list: List[GomokuMove]
     last_move_index: int
@@ -39,8 +40,9 @@ class GomokuGame:
     game_time: float
     players_time: Dict[GomokuPlayer, float]
 
-    def __init__(self, width: int, height: int, player_time: float):
+    def __init__(self, width: int, height: int, player_time: float, mode: int):
         self.game = pygomoku.GomokuGame(width, height)
+        self.mode = mode
 
         self.move_list = []
         self.last_move_index = -1
@@ -50,6 +52,14 @@ class GomokuGame:
             GomokuPlayer.WHITE: player_time,
             GomokuPlayer.BLACK: player_time,
         }
+        
+        # if mode == 1:
+        #     move_str = "78,56,79,77,7A,55,57,66,54,55,88,68,98,44,33,7B,67,95,86,6A,59,97,77"
+        #     moves = move_str.split(',')
+        #     for i in range(len(moves)):
+        #         row = int(moves[i][0], 16)
+        #         col = int(moves[i][1], 16)
+        #         self.play_at(row, col)
 
     def get_board_width(self) -> int:
         return self.game.get_board_width()
@@ -83,6 +93,27 @@ class GomokuGame:
             return GomokuPlayer(winning_player)
         return GomokuPlayer.EMPTY
 
+    def get_AI_suggestion(self):
+        AI = pygomoku.GomokuAI(self.game, self.game.get_current_player(), 4)
+        moveEvaluations = AI.suggest_move()
+        bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
+        return bestMove
+    
+    def handle_click(self, row: int, col: int):
+        if self.mode == 1:
+            self.play_at(row, col)
+        else:
+            if self.get_current_player() == GomokuPlayer.BLACK:
+                self.play_at(row, col)
+                
+    def handle_click(self, row: int, col: int):
+        if self.mode == 1:
+            self.play_at(row, col)
+        else:
+            if self.get_current_player() == GomokuPlayer.BLACK:
+                self.play_at(row, col)
+                    
+
     def play_at(self, row: int, col: int):
         modified = False
         try:
@@ -108,6 +139,7 @@ class GomokuGame:
 
             if self.game.is_game_over():
                 CallbackCenter.shared().send_message("GomokuGame.gameover", self)
+            CallbackCenter.shared().send_message("GomokuGame.endturn", self)
 
     def resize_move_list(self, new_size: int):
         current_size = len(self.move_list)

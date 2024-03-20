@@ -93,4 +93,4 @@ class GameBoardWidget(Widget):
             col = int((touch.pos[0] - self.x) / cell_size_x)
             row = int((touch.pos[1] - self.y) / cell_size_y)
 
-            gomoku_game.play_at(board_size_y - 1 - row, col)
+            gomoku_game.handle_click(board_size_y - 1 - row, col)

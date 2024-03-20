@@ -20,3 +20,7 @@ class MenuRootWidget(Widget):
     def set_board_height(self, value):
         shared_object = SharedObject.get_instance()
         shared_object.set_size(shared_object._width, int(value))
+    
+    def set_mode(self, value):
+        shared_object = SharedObject.get_instance()
+        shared_object.set_mode(value)
