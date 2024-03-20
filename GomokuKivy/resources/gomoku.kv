@@ -59,10 +59,12 @@
                             text: 'Human vs AI'
                             group: 'mode'
                             state: 'down'
+                            on_press: root_widget.set_mode(0)
                         ToggleButton:
                             text: 'Human vs Human'
                             group: 'mode'
                             state: 'normal'
+                            on_press: root_widget.set_mode(1)
 
                 # Rules Selection
                 BoxLayout:
