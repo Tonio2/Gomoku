@@ -345,7 +345,7 @@ void GomokuGame::check_win(Player player)
     }
     else if (get_player_score(other_player(player)) == 8)
     {
-        if (players_reconizers[player].can_capture(*this))
+        if (players_reconizers[player].can_be_captured(*this))
         {
             winner = other_player(player);
             return;
