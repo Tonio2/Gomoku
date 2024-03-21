@@ -140,6 +140,21 @@ void GomokuGame::print_patterns()
     players_reconizers[O].print_patterns();
 }
 
+std::vector<std::vector<int>> GomokuGame::get_board() const
+{
+    std::vector<std::vector<int>> board_values(get_board_height(), std::vector<int>(get_board_width()));
+
+    for (int row = 0; row < get_board_height(); ++row)
+    {
+        for (int col = 0; col < get_board_width(); ++col)
+        {
+            board_values[row][col] = get_board_value(row, col);
+        }
+    }
+
+    return board_values;
+}
+
 bool GomokuGame::is_game_over() const
 {
     return is_game_over_flag;

@@ -6,6 +6,7 @@
 #include <map>
 #include <iostream>
 #include <cstddef>
+#include <cstdint>
 #include "Timer.h"
 #include "matrix.hpp"
 

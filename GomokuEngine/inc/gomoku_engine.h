@@ -54,4 +54,5 @@ public:
     void display_board() const;
     const std::vector<int> &get_patterns_count(Player player);
     void print_patterns();
+    std::vector<std::vector<int>> get_board() const;
 };
