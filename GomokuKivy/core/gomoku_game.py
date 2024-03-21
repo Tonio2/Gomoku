@@ -1,6 +1,8 @@
+import asyncio
 from typing import Tuple, List, Dict
 from enum import Enum
 from datetime import datetime
+from kivy.clock import Clock
 
 import sys
 
@@ -46,6 +48,8 @@ class GomokuGame:
 
     start_turn: datetime
     start_game: datetime
+    
+    AI_time: float
 
     def __init__(self, width: int, height: int, player_time: float, mode: int):
         self.game = pygomoku.GomokuGame(width, height)
@@ -55,8 +59,8 @@ class GomokuGame:
         self.last_move_index = -1
 
         self.players_time = {
-            GomokuPlayer.WHITE: player_time,
-            GomokuPlayer.BLACK: player_time,
+            GomokuPlayer.WHITE: 0,
+            GomokuPlayer.BLACK: 0,
         }
 
         self.players_time_since_start_turn = {
@@ -74,6 +78,7 @@ class GomokuGame:
         #         row = int(moves[i][0], 16)
         #         col = int(moves[i][1], 16)
         #         self.play_at(row, col)
+        Clock.schedule_interval(self.update_time, 1 / 20)
 
     def get_board_width(self) -> int:
         return self.game.get_board_width()
@@ -107,11 +112,17 @@ class GomokuGame:
             return GomokuPlayer(winning_player)
         return GomokuPlayer.EMPTY
 
-    def get_AI_suggestion(self):
-        AI = pygomoku.GomokuAI(self.game, self.game.get_current_player(), 4)
-        moveEvaluations = AI.suggest_move()
-        bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
-        return bestMove
+    async def get_AI_suggestion(self):
+        AI = pygomoku.GomokuAI(self.game, self.game.get_current_player(), 5)
+        loop = asyncio.get_running_loop()
+        moveEvaluations = await loop.run_in_executor(None, AI.suggest_move)
+        bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move    
+
+        self.play_at(bestMove[0], bestMove[1])
+
+    def handle_end_turn(self):
+        if self.get_current_player() == GomokuPlayer.WHITE and self.mode == 0:
+            asyncio.create_task(self.get_AI_suggestion())
 
     def handle_click(self, row: int, col: int):
         if self.mode == 1:
@@ -141,7 +152,7 @@ class GomokuGame:
             print(f"Failed to play at {row}:{col}")
 
         if modified:
-            self.players_time[new_move.player] -= self.players_time_since_start_turn[
+            self.players_time[new_move.player] += self.players_time_since_start_turn[
                 new_move.player
             ]
             self.players_time_since_start_turn[new_move.player] = 0
@@ -150,7 +161,7 @@ class GomokuGame:
 
             if self.game.is_game_over():
                 CallbackCenter.shared().send_message("GomokuGame.gameover", self)
-            CallbackCenter.shared().send_message("GomokuGame.endturn", self)
+            self.handle_end_turn()
 
     def resize_move_list(self, new_size: int):
         current_size = len(self.move_list)
@@ -159,7 +170,7 @@ class GomokuGame:
         elif current_size > new_size:
             self.move_list = self.move_list[:new_size]
 
-    def update_time(self):
+    def update_time(self, dt: float):
         self.players_time_since_start_turn[self.get_current_player()] = (
             datetime.now() - self.start_turn
         ).total_seconds()

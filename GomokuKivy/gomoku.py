@@ -1,15 +1,10 @@
 from app.gomoku_app import GomokuApp
-from app.shared_object import SharedObject
 
 from core.callback_center import CallbackCenter
-from core.gomoku_game import GomokuGame, GomokuPlayer
+from core.gomoku_game import GomokuGame
 
 
 import asyncio
-
-
-def get_game() -> GomokuGame:
-    return SharedObject.get_instance().get_game()
 
 
 def display_moves(message, game: GomokuGame):
@@ -19,32 +14,12 @@ def display_moves(message, game: GomokuGame):
     print(move_string[:-1])
 
 
-async def get_AI_suggestion():
-    gomoku_game = get_game()
-    if gomoku_game is None:
-        return
-
-    loop = asyncio.get_running_loop()
-    moveEvaluation = await loop.run_in_executor(None, gomoku_game.get_AI_suggestion)
-
-    gomoku_game.play_at(moveEvaluation[0], moveEvaluation[1])
-
-
-def handle_end_turn(message, game: GomokuGame):
-    gomoku_game = get_game()
-    if gomoku_game is None:
-        return
-
-    if gomoku_game.get_current_player() == GomokuPlayer.WHITE:
-        asyncio.create_task(get_AI_suggestion())
-
-
 async def main():
 
     CallbackCenter.shared().add_callback("GomokuGame.modified", display_moves)
-    CallbackCenter.shared().add_callback("GomokuGame.endturn", handle_end_turn)
     app = GomokuApp()
     app_task = asyncio.ensure_future(app.async_run(async_lib="asyncio"))
+    
 
     # Wait for the Kivy app to finish running
     await app_task

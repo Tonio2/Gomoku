@@ -27,15 +27,6 @@ class GameInfosWidget(Widget):
         CallbackCenter.shared().add_callback(
             "GomokuGame.time", self.on_game_time_modified
         )
-        Clock.schedule_interval(self.tick_game_time, 1 / 20)
-
-    def tick_game_time(self, dt):
-        game = self.get_game()
-
-        if game is None:
-            return
-
-        game.update_time()
 
     def on_game_modified(self, message, game: GomokuGame):
         self.current_player = game.get_current_player()
@@ -55,12 +46,12 @@ class GameInfosWidget(Widget):
 
         black_time = (
             game.players_time[GomokuPlayer.BLACK]
-            - game.players_time_since_start_turn[GomokuPlayer.BLACK]
+            + game.players_time_since_start_turn[GomokuPlayer.BLACK]
         )
         self.time_marker_black.text = time_to_string(black_time)
         white_time = (
             game.players_time[GomokuPlayer.WHITE]
-            - game.players_time_since_start_turn[GomokuPlayer.WHITE]
+            + game.players_time_since_start_turn[GomokuPlayer.WHITE]
         )
         self.time_marker_white.text = time_to_string(white_time)
 
