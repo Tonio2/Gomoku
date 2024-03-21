@@ -363,7 +363,7 @@ PatternCellData GomokuPatternReconizer::cell_data_following(const PatternCellDat
     case Blocked:
         result.sequence_length = 0;
         result.is_sequence_closed = true;
-        const bool structure_present = !cell.is_sequence_closed && cell.sequence_length > 0;
+        const bool structure_present = (!cell.is_sequence_closed && cell.sequence_length > 0) || cell.sequence_length >= 5;
         result.structure_length = structure_present ? cell.sequence_length : 0;
         result.is_structure_closed = structure_present;
         result.previous_structure_length = 0;
