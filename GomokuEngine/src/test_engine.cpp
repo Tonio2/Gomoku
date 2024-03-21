@@ -8,12 +8,13 @@ void test_condition(bool condition, const std::string &message)
     std::cout << color << message << (condition ? "...OK" : "...NOK") << reset << std::endl;
 }
 
-void test_is_game_over(std::string move_str, bool expected_result, std::string description)
+void test_is_game_over(std::string move_str, bool expected_result, std::string description, Player winner = Player::EMPTY)
 {
     GomokuGame game(19, 19);
     std::vector<std::string> moves = split(move_str, ',');
     apply_moves(game, moves);
-    test_condition(game.is_game_over() == expected_result, description);
+    bool condition = winner == Player::EMPTY ? true : game.get_winner() == winner;
+    test_condition(game.is_game_over() == expected_result && condition, description);
     std::cout << move_str << std::endl;
 }
 
@@ -120,6 +121,9 @@ void test_5_in_a_row()
 
     move_str = "77,55,78,76,79,66,44,69,66,7A,55,88,33";
     test_is_game_over(move_str, true, "Testing 5 in a row with potential capture blocked by a stone");
+
+    move_str = "88,66,89,87,8A,65,67,76,64,65,98,78,A8,54,43,8B,69,79,96,B8,A9,78,7A,77,75,58,7A,6B,95,97,94,AA,B7,7B,5B,9B,AB,A6,B5,97,C6,A7,93,92,A4,D5,D7,A8,C6";
+    test_is_game_over(move_str, true, "Should win if 5 in a row and opponent win by capture next turn", Player::BLACK);
 }
 
 void test_double_3()
