@@ -68,6 +68,8 @@ struct PatternCellData
 
     bool contains_structure() const;
 
+    StructureType get_relevant_structure() const;
+    
     void get_structures_type_count(std::vector<int> &array, int factor = 1) const;
 };
 
@@ -115,6 +117,10 @@ public:
 
     bool five_or_more_cant_be_captured(GomokuGame &game) const;
     bool can_be_captured(GomokuGame &game);
+
+    StructureType get_structure_at(GomokuCellIndex index, PatternDirection direction) const;
+
+    const Matrix<PatternCellData>& get_pattern_cell_matrix(PatternDirection direction) const;
 
 private:
     /** Return the state of a cell for our gomoku player */
