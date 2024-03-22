@@ -169,6 +169,67 @@ void test_eval(std::string moves_string)
     std::cout << "Board evaluation for " << last_player << ": " << evaluation << std::endl;
 }
 
+std::ostream &operator<<(std::ostream &stream, std::vector<int> array)
+{
+    stream << '[';
+    for (int value : array)
+    {
+        stream << (value > 0 ? "+" : value == 0 ? " "
+                                                : "")
+               << value << ' ';
+    }
+    stream << ']';
+    return stream;
+}
+
+void test_line(const std::string& line)
+{
+    GomokuGame game(line.size(), 1);
+
+    for (size_t i = 0; i < line.size(); i++)
+    {
+        Player cell_player;
+        switch (line[i])
+        {
+            case 'x':
+            case 'X':
+                cell_player = X;
+                break;
+            case 'o':
+            case 'O':
+                cell_player = O;
+                break;
+            case '_':
+            case ' ':
+            default:
+                cell_player = E;
+        }
+
+        game.set_board_value(0, i, cell_player);
+    }
+
+    GomokuPatternReconizer reconizer(O);
+
+    reconizer.find_patterns_in_board(game);
+
+    const Matrix<PatternCellData>& line_mat = reconizer.get_pattern_cell_matrix(PatternDirection::LeftToRight);
+
+    for (int col = 0; col < line_mat.get_width(); ++col)
+    {
+        PatternCellData cell_data = line_mat(1, col);
+
+        std::vector<int> all_structures(StructureType::COUNT_STRUCTURE_TYPE, 0);
+        cell_data.get_structures_type_count(all_structures);
+
+        char cell_state = (col > 0 && col <= line.size()) ? line[col - 1] : 'X';
+
+        StructureType cell_pattern = reconizer.get_structure_at(GomokuCellIndex(0, col - 1), PatternDirection::LeftToRight);
+
+        std::cout << cell_state << " -> " << cell_data << " " << all_structures << " " << cell_pattern << std::endl;
+    }
+
+}
+
 int main(int argc, char *argv[])
 {
     // If no arguments are given, run the test_problems function
@@ -184,72 +245,13 @@ int main(int argc, char *argv[])
     {
         test_engine();
     }
+    else if (std::string(argv[1]) == "line")
+    {
+        test_line(std::string(argv[2]));
+    }
     else
     {
         test_problem(atoi(argv[1]));
     }
     return 0;
 }
-
-// PatternCellState random_state()
-// {
-//     return PatternCellState(random() % 3);
-// }
-
-// std::ostream &operator<<(std::ostream &stream, std::vector<int> array)
-// {
-//     stream << '[';
-//     for (int value : array)
-//     {
-//         stream << (value > 0 ? "+" : value == 0 ? " "
-//                                                 : "")
-//                << value << ' ';
-//     }
-//     stream << ']';
-//     return stream;
-// }
-
-// int main()
-// {
-//     srandom(time(nullptr));
-//     GomokuPatternReconizer reconizer(X);
-
-//     PatternCellData cell_data = PatternCellData::pre_bound_element();
-//     std::cout << cell_data << std::endl;
-
-//     PatternCellState states[20]{
-//         PatternCellState::Empty,
-//         PatternCellState::Stoned,
-//         PatternCellState::Empty,
-//         PatternCellState::Blocked,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Empty,
-//         PatternCellState::Stoned,
-//         PatternCellState::Empty,
-//         PatternCellState::Empty,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Stoned,
-//         PatternCellState::Empty,
-//     };
-//     for (int i = 0; i < 20; i++)
-//     {
-//         // PatternCellState new_state = random_state();
-//         PatternCellState new_state = states[i];
-
-//         cell_data = reconizer.cell_data_following_memoized(cell_data, new_state);
-
-//         std::vector<int> all_structures(StructureType::COUNT_STRUCTURE_TYPE, 0);
-
-//         cell_data.get_structures_type_count(all_structures);
-
-//         std::cout << new_state << " -> " << cell_data << " " << all_structures << std::endl;
-//     }
-// }

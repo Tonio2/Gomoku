@@ -39,6 +39,26 @@ bool PatternCellData::contains_structure() const
     return structure_length > 0 || is_gap_open_three;
 }
 
+StructureType PatternCellData::get_relevant_structure() const
+{
+    if (is_gap_open_three)
+    {
+        return is_gap_open_three_closed ? StructureType::THREE : StructureType::OPEN_THREE;
+    }
+
+    if (structure_length >= 5)
+        return StructureType::FIVE_OR_MORE;
+
+    if (structure_length > 0)
+    {
+        int type_index = structure_length * 2;
+        type_index += is_structure_closed ? 1 : 0;
+        return StructureType(type_index);
+    }
+
+    return StructureType::NONE;
+}
+
 void PatternCellData::get_structures_type_count(std::vector<int> &array, int factor) const
 {
     if (structure_length > 0 && structure_length < 5)
@@ -327,6 +347,51 @@ bool GomokuPatternReconizer::can_be_captured(GomokuGame &game)
         }
     }
     return false;
+}
+
+StructureType GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, PatternDirection direction) const
+{
+    const Matrix<PatternCellData>& cell_matrix(_pattern_direction_cell_matrices[direction]);
+
+    std::function<StructureType(PatternCellIndex, bool, bool)> find_structure;
+
+    find_structure = [cell_matrix, &find_structure, direction](PatternCellIndex i, bool try_next, bool met_gap) -> StructureType {
+        const PatternCellData& cell_data(cell_matrix[i]);
+        const PatternCellIndex next = get_index_offset(i, direction, 1);
+
+        /** In case of stone, search the next cell */
+        if (cell_data.sequence_length > 0)
+            return find_structure(next, false, met_gap);
+
+        /** In case of hole or block, look for the length of the current structure */
+        if (cell_data.structure_length > 0)
+        {
+            /** case of possible three */
+            if (!met_gap
+                && (cell_data.structure_length == 1 || cell_data.structure_length == 2)
+                && (!cell_data.is_gap_open_three)
+                )
+            {
+                const StructureType next_structure = find_structure(next, false, true);
+
+                return next_structure != StructureType::NONE ? next_structure : cell_data.get_relevant_structure();
+            }
+
+            return cell_data.get_relevant_structure();
+        }
+
+        if (try_next)
+            return find_structure(next, false, met_gap);
+
+        return StructureType::NONE;
+    };
+
+    return find_structure(PatternCellIndex(index), true, false);
+}
+
+const Matrix<PatternCellData>& GomokuPatternReconizer::get_pattern_cell_matrix(PatternDirection direction) const
+{
+    return _pattern_direction_cell_matrices[direction];
 }
 
 PatternCellState GomokuPatternReconizer::cell_state_at(const GomokuGame &board, PatternCellIndex index) const
