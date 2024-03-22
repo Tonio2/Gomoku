@@ -145,9 +145,8 @@ private:
      */
     void update_cell_direction(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
 
-    std::pair<int, int> get_dir_coordinates(PatternDirection direction) const;
-    PatternCellIndex get_previous_index(PatternCellIndex index, PatternDirection direction, int count = 1) const;
-    PatternCellIndex get_next_index(PatternCellIndex index, PatternDirection direction, int count = 1) const;
+    static std::pair<int, int> get_direction_offset(PatternDirection direction);
+    static PatternCellIndex get_index_offset(PatternCellIndex index, PatternDirection direction, int distance = 1);
 
     void untag_celldata_structure(PatternCellIndex index, PatternDirection direction);
     void tag_celldata_structure(PatternCellIndex index, PatternDirection direction);

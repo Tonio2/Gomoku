@@ -243,13 +243,13 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(GomokuGame &game) con
                 {
                     for (int i = 1; i <= data.structure_length + 1; ++i)
                     {
-                        PatternCellIndex index2 = get_previous_index(index, PatternDirection(dir), i);
+                        PatternCellIndex index2 = get_index_offset(index, PatternDirection(dir), -i);
                         GomokuCellIndex gameIndex2 = index2.to_game_index();
                         for (int dir2 = 0; dir2 < PatternDirection::Count_PatternDirection; ++dir2)
                         {
                             if (dir2 == dir)
                                 continue;
-                            std::pair<int, int> dir_coordinates = get_dir_coordinates(PatternDirection(dir2));
+                            std::pair<int, int> dir_coordinates = get_direction_offset(PatternDirection(dir2));
                             int dir2x = dir_coordinates.first;
                             int dir2y = dir_coordinates.second;
 
@@ -302,7 +302,7 @@ bool GomokuPatternReconizer::can_be_captured(GomokuGame &game)
 
                 if (data.structure_length == 2 && data.is_structure_closed)
                 {
-                    std::pair<int, int> dir_coordinates = get_dir_coordinates(PatternDirection(dir));
+                    std::pair<int, int> dir_coordinates = get_direction_offset(PatternDirection(dir));
                     int dirx = dir_coordinates.first;
                     int diry = dir_coordinates.second;
                     GomokuCellIndex gameIndex = index.to_game_index();
@@ -314,7 +314,7 @@ bool GomokuPatternReconizer::can_be_captured(GomokuGame &game)
                     }
                     else
                     {
-                        PatternCellIndex otherSideIndex = get_previous_index(index, PatternDirection(dir), 3);
+                        PatternCellIndex otherSideIndex = get_index_offset(index, PatternDirection(dir), -3);
                         GomokuCellIndex otherSideGameIndex = otherSideIndex.to_game_index();
                         if (game.coordinates_are_valid(otherSideGameIndex.row, otherSideGameIndex.col))
                         {
@@ -564,12 +564,12 @@ void GomokuPatternReconizer::update_cell_direction(const GomokuGame &board, Patt
     Matrix<PatternCellData> &cell_matrix(_pattern_direction_cell_matrices[direction]);
 
     assert(index.is_valid(cell_matrix));
-    assert(get_previous_index(index, direction).is_valid(cell_matrix));
+    assert(get_index_offset(index, direction, -1).is_valid(cell_matrix));
 
     const PatternCellData old_data = cell_matrix[index];
 
     const PatternCellData new_data = cell_data_following_memoized(
-        cell_matrix[get_previous_index(index, direction)],
+        cell_matrix[get_index_offset(index, direction, -1)],
         cell_state_at(board, index));
 
     old_data.get_structures_type_count(_cached_pattern_count, -1);
@@ -587,7 +587,7 @@ void GomokuPatternReconizer::update_cell_direction(const GomokuGame &board, Patt
 
     if (should_continue)
     {
-        const PatternCellIndex next = get_next_index(index, direction);
+        const PatternCellIndex next = get_index_offset(index, direction, 1);
         if (next.is_valid(cell_matrix))
         {
             update_cell_direction(board, next, direction, up_to_bound);
@@ -595,7 +595,7 @@ void GomokuPatternReconizer::update_cell_direction(const GomokuGame &board, Patt
     }
 }
 
-std::pair<int, int> GomokuPatternReconizer::get_dir_coordinates(PatternDirection direction) const
+std::pair<int, int> GomokuPatternReconizer::get_direction_offset(PatternDirection direction)
 {
     switch (direction)
     {
@@ -612,35 +612,18 @@ std::pair<int, int> GomokuPatternReconizer::get_dir_coordinates(PatternDirection
     }
 }
 
-PatternCellIndex GomokuPatternReconizer::get_previous_index(PatternCellIndex index, PatternDirection direction, int count) const
+PatternCellIndex GomokuPatternReconizer::get_index_offset(PatternCellIndex index, PatternDirection direction, int distance)
 {
     switch (direction)
     {
     case PatternDirection::LeftToRight:
-        return PatternCellIndex(index.row, index.col - count);
+        return PatternCellIndex(index.row, index.col + distance);
     case PatternDirection::UpToDown:
-        return PatternCellIndex(index.row - count, index.col);
+        return PatternCellIndex(index.row + distance, index.col);
     case PatternDirection::UpleftToDownright:
-        return PatternCellIndex(index.row - count, index.col - count);
+        return PatternCellIndex(index.row + distance, index.col + distance);
     case PatternDirection::UprightToDownleft:
-        return PatternCellIndex(index.row - count, index.col + count);
-    default:
-        return index;
-    }
-}
-
-PatternCellIndex GomokuPatternReconizer::get_next_index(PatternCellIndex index, PatternDirection direction, int count) const
-{
-    switch (direction)
-    {
-    case PatternDirection::LeftToRight:
-        return PatternCellIndex(index.row, index.col + count);
-    case PatternDirection::UpToDown:
-        return PatternCellIndex(index.row + count, index.col);
-    case PatternDirection::UpleftToDownright:
-        return PatternCellIndex(index.row + count, index.col + count);
-    case PatternDirection::UprightToDownleft:
-        return PatternCellIndex(index.row + count, index.col - count);
+        return PatternCellIndex(index.row + distance, index.col - distance);
     default:
         return index;
     }
