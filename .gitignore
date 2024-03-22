@@ -32,3 +32,6 @@ GomokuEngine/main
 # Performance evaluation
 GomokuEngine/analysis.txt
 GomokuEngine/gmon.out
+
+# node_modules
+node_modules/
