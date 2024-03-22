@@ -349,13 +349,13 @@ bool GomokuPatternReconizer::can_be_captured(GomokuGame &game)
     return false;
 }
 
-StructureType GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, PatternDirection direction) const
+std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, PatternDirection direction) const
 {
     const Matrix<PatternCellData>& cell_matrix(_cell_matrices[direction]);
 
-    std::function<StructureType(PatternCellIndex, bool, bool)> find_structure;
+    std::function<std::pair<StructureType, GomokuCellIndex>(PatternCellIndex, bool, bool)> find_structure;
 
-    find_structure = [cell_matrix, &find_structure, direction](PatternCellIndex i, bool try_next, bool met_gap) -> StructureType {
+    find_structure = [cell_matrix, &find_structure, direction](PatternCellIndex i, bool try_next, bool met_gap) -> std::pair<StructureType, GomokuCellIndex> {
         const PatternCellData& cell_data(cell_matrix[i]);
         const PatternCellIndex next = get_index_offset(i, direction, 1);
 
@@ -372,18 +372,18 @@ StructureType GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, Pa
                 && (!cell_data.is_gap_open_three)
                 )
             {
-                const StructureType next_structure = find_structure(next, false, true);
+                const std::pair<StructureType, GomokuCellIndex> next_structure = find_structure(next, false, true);
 
-                return next_structure != StructureType::NONE ? next_structure : cell_data.get_relevant_structure();
+                return next_structure.first != StructureType::NONE ? next_structure : std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());
             }
 
-            return cell_data.get_relevant_structure();
+            return std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());
         }
 
         if (try_next)
             return find_structure(next, false, met_gap);
 
-        return StructureType::NONE;
+        return std::make_pair(StructureType::NONE, i.to_game_index());
     };
 
     return find_structure(PatternCellIndex(index), true, false);
