@@ -69,7 +69,7 @@ struct PatternCellData
     bool contains_structure() const;
 
     StructureType get_relevant_structure() const;
-    
+
     void get_structures_type_count(std::vector<int> &array, int factor = 1) const;
 };
 
@@ -111,16 +111,16 @@ public:
 
     void update_patterns_with_move(const GomokuGame &board, const MoveResult &Count_move);
 
-    void print_patterns();
+    void print_patterns() const;
 
-    const std::vector<int> &get_pattern_count();
+    const std::vector<int> &get_pattern_count() const;
 
     bool five_or_more_cant_be_captured(GomokuGame &game) const;
-    bool can_be_captured(GomokuGame &game);
+    bool can_be_captured(const GomokuGame &game) const;
 
     std::pair<StructureType, GomokuCellIndex> get_structure_at(GomokuCellIndex index, PatternDirection direction) const;
 
-    const Matrix<PatternCellData>& get_pattern_cell_matrix(PatternDirection direction) const;
+    const Matrix<PatternCellData> &get_pattern_cell_matrix(PatternDirection direction) const;
 
 private:
     /** Return the state of a cell for our gomoku player */
@@ -154,10 +154,11 @@ private:
     static std::pair<int, int> get_direction_offset(PatternDirection direction);
     static PatternCellIndex get_index_offset(PatternCellIndex index, PatternDirection direction, int distance = 1);
 
+    bool is_relevant_to_tag(const PatternCellData &data) const;
     void untag_celldata_structure(PatternCellIndex index, PatternDirection direction);
     void tag_celldata_structure(PatternCellIndex index, PatternDirection direction);
 
-    void for_each_structures(std::function<void(PatternCellIndex, PatternCellData, PatternDirection)> lambda);
+    void for_each_tagged_structures(std::function<void(PatternCellIndex index, const PatternCellData &cell_data, PatternDirection direction, bool &should_continue)> lambda) const;
 
     Player _gomoku_player;
     std::vector<Matrix<PatternCellData>> _cell_matrices;
