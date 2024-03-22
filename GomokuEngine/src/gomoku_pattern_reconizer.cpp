@@ -183,7 +183,8 @@ GomokuPatternReconizer::GomokuPatternReconizer(Player player)
     : _gomoku_player(player),
       _cell_matrices(static_cast<int>(PatternDirection::Count_PatternDirection)),
       _structure_maps(static_cast<int>(PatternDirection::Count_PatternDirection)),
-      _cached_pattern_count(static_cast<int>(StructureType::COUNT_STRUCTURE_TYPE), 0)
+      _cached_pattern_count(static_cast<int>(StructureType::COUNT_STRUCTURE_TYPE), 0),
+      _tagging_mode(false)
 {
 }
 
@@ -191,7 +192,8 @@ GomokuPatternReconizer::GomokuPatternReconizer(const GomokuPatternReconizer &cop
     : _gomoku_player(copy._gomoku_player),
       _cell_matrices(copy._cell_matrices),
       _structure_maps(copy._structure_maps),
-      _cached_pattern_count(copy._cached_pattern_count)
+      _cached_pattern_count(copy._cached_pattern_count),
+      _tagging_mode(copy._tagging_mode)
 {
 }
 
@@ -203,6 +205,7 @@ GomokuPatternReconizer &GomokuPatternReconizer::operator=(const GomokuPatternRec
         _cell_matrices = copy._cell_matrices;
         _structure_maps = copy._structure_maps;
         _cached_pattern_count = copy._cached_pattern_count;
+        _tagging_mode = copy._tagging_mode;
     }
     return *this;
 }
@@ -227,7 +230,7 @@ void GomokuPatternReconizer::update_patterns_with_move(const GomokuGame &board, 
     }
 }
 
-void GomokuPatternReconizer::print_patterns() const
+void GomokuPatternReconizer::print_patterns()
 {
     std::cout << "Pattern(" << _gomoku_player << "):" << std::endl;
     for_each_tagged_structures(
@@ -248,12 +251,12 @@ const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const
     return _cached_pattern_count;
 }
 
-bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &game) const
+bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &board)
 {
     bool capturable = false;
 
     for_each_tagged_structures(
-        [this, &capturable, game](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
+        [this, &capturable, board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
             if (data.structure_length >= 5)
             {
@@ -269,7 +272,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &gam
                         auto structure = get_structure_at(struct_index.to_game_index(), PatternDirection(dir));
 
                         const PatternCellData &cell_data = _cell_matrices[dir][PatternCellIndex(structure.second)];
-                        if (is_structure_capturable(game, structure.second, cell_data, PatternDirection(dir)))
+                        if (is_structure_capturable(board, structure.second, cell_data, PatternDirection(dir)))
                         {
                             capturable = true;
                             should_continue = false;
@@ -283,7 +286,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &gam
     return !capturable;
 }
 
-bool GomokuPatternReconizer::can_be_captured(const GomokuGame &game) const
+bool GomokuPatternReconizer::can_be_captured(const GomokuGame &board)
 {
     if (get_pattern_count()[StructureType::TWO] <= 0)
         return false;
@@ -291,9 +294,9 @@ bool GomokuPatternReconizer::can_be_captured(const GomokuGame &game) const
     bool capturable = false;
 
     for_each_tagged_structures(
-        [this, &capturable, game](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
+        [this, &capturable, board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
-            if (is_structure_capturable(game, index, data, direction))
+            if (is_structure_capturable(board, index, data, direction))
             {
                 capturable = true;
                 should_continue = false;
@@ -650,6 +653,31 @@ PatternCellIndex GomokuPatternReconizer::get_index_offset(PatternCellIndex index
     }
 }
 
+void GomokuPatternReconizer::activate_tagging_mode()
+{
+    if (_tagging_mode)
+        return;
+
+    _tagging_mode = true;
+
+    for (int dir = 0; dir < PatternDirection::Count_PatternDirection; ++dir)
+    {
+        PatternCellIndex index(0, 0);
+        for (index.row = 0; index.row < _cell_matrices[dir].get_height(); ++index.row)
+        {
+            for (index.col = 0; index.col < _cell_matrices[dir].get_width(); ++index.col)
+            {
+                const PatternCellData &cell_data = _cell_matrices[dir][index];
+
+                if (is_relevant_to_tag(cell_data))
+                {
+                    tag_celldata_structure(index, PatternDirection(dir));
+                }
+            }
+        }
+    }
+}
+
 bool GomokuPatternReconizer::is_relevant_to_tag(const PatternCellData &data) const
 {
     if (data.structure_length >= 5)
@@ -663,16 +691,19 @@ bool GomokuPatternReconizer::is_relevant_to_tag(const PatternCellData &data) con
 
 void GomokuPatternReconizer::untag_celldata_structure(PatternCellIndex index, PatternDirection direction)
 {
-    _structure_maps[direction][index.row].erase(index.col);
+    if (_tagging_mode)
+        _structure_maps[direction][index.row].erase(index.col);
 }
 
 void GomokuPatternReconizer::tag_celldata_structure(PatternCellIndex index, PatternDirection direction)
 {
-    _structure_maps[direction][index.row].insert(index.col);
+    if (_tagging_mode)
+        _structure_maps[direction][index.row].insert(index.col);
 }
 
-void GomokuPatternReconizer::for_each_tagged_structures(std::function<void(PatternCellIndex, const PatternCellData &, PatternDirection, bool &should_continue)> lambda) const
+void GomokuPatternReconizer::for_each_tagged_structures(std::function<void(PatternCellIndex, const PatternCellData &, PatternDirection, bool &should_continue)> lambda)
 {
+    activate_tagging_mode();
     bool should_continue = true;
     for (int direction = 0; direction < PatternDirection::Count_PatternDirection; ++direction)
     {
