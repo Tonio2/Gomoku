@@ -18,7 +18,6 @@ private:
 
     /** Capture */
     bool try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result);
-    bool try_cardinal_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result);
     bool capture(uint row, uint col, Player player, MoveResult &move_result);
 
     /** Board state */
