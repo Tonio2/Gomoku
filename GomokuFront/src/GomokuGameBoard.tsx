@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { socket } from "./socket";
 
 const Square: React.FC<{ value: string; onSquareClick: () => void }> = ({
@@ -16,14 +16,15 @@ type BoardProps = {
   xIsNext: boolean;
   board: number[][];
   winner: string | null;
-  onPlay: (row: number, col: number) => void;
+  handleClick: (row: number, col: number) => void;
 };
 
-const Board: React.FC<BoardProps> = ({ xIsNext, board, winner, onPlay }) => {
-  const handleClick = (i: number, j: number) => {
-    onPlay(i, j);
-  };
-
+const Board: React.FC<BoardProps> = ({
+  xIsNext,
+  board,
+  winner,
+  handleClick,
+}) => {
   let status: string;
   if (winner) {
     status = "Winner: " + winner;
@@ -55,85 +56,98 @@ type MoveHistory = {
   moveResult: any;
 };
 
+type MoveEvaluation = {
+  move: number[]; // [row, col]
+  score: number;
+  listMoves?: MoveEvaluation[];
+};
+
 export default function Game() {
   const [listMoves, setListMoves] = useState<MoveHistory[]>([]);
   const [currentMove, setCurrentMove] = useState<number>(0);
   const [winner, setWinner] = useState<string | null>(null);
-  const xIsNext: boolean = currentMove % 2 === 0;
-  const [board, setBoard] = useState<number[][]>(
-    Array(19).fill(Array(19).fill(0))
+  const [board, setBoard] = useState<number[][]>(() =>
+    Array.from({ length: 19 }, () => Array(19).fill(0))
   );
+  const xIsNext = currentMove % 2 === 0;
+  const mode = Number(new URLSearchParams(window.location.search).get("mode"));
 
-  function handlePlay(row: number, col: number) {
-    console.log("Move: " + row + ", " + col);
-    const startTime = new Date().getTime();
-    socket.emit("makeMove", row, col, (response: any) => {
-      if (response.success) {
-        setBoard(response.board);
-        const nextListMoves: MoveHistory[] = [
-          ...listMoves.slice(0, currentMove),
-          {
-            row: row,
-            col: col,
-            moveResult: response.moveResult,
-          },
-        ];
-        setListMoves(nextListMoves);
-        setWinner(response.winner);
-        setCurrentMove(nextListMoves.length);
-      } else {
-        console.error("Invalid move");
-      }
-
-      const endTime = new Date().getTime();
-      console.log("Time taken: " + (endTime - startTime) + "ms");
-    });
-  }
-
-  const moves: JSX.Element[] = listMoves.map(
-    (move: MoveHistory, index: number) => {
-      return (
-        <li key={index}>
-          <button>
-            {(index % 2 === 0 ? "X" : "O") +
-              ": (" +
-              move.row +
-              ", " +
-              move.col +
-              ")"}
-          </button>
-        </li>
-      );
+  useEffect(() => {
+    if (mode === 0 && !xIsNext) {
+      get_AI_suggestion();
     }
+
+    const handleSuggestion = (response: any) => {
+      if (mode === 0 && !xIsNext) {
+        const bestMove: number[] = getBestMove(response.moveEvaluation);
+        play(bestMove[0], bestMove[1]);
+      }
+    };
+
+    socket.on("suggestion", handleSuggestion);
+
+    // Cleanup on unmount
+    return () => {
+      socket.off("suggestion", handleSuggestion);
+    };
+  }, [currentMove, mode, xIsNext]);
+
+  const getBestMove = useCallback(
+    (moveEvaluation: MoveEvaluation): number[] => {
+      let bestScore = -Infinity;
+      let bestMove = moveEvaluation.move;
+      moveEvaluation.listMoves?.forEach((move) => {
+        if (move.score > bestScore) {
+          bestScore = move.score;
+          bestMove = move.move;
+        }
+      });
+      return bestMove;
+    },
+    []
   );
 
-  function reverseMove() {
-    socket.emit(
-      "reverseMove",
-      listMoves[currentMove - 1].moveResult,
-      (response: any) => {
-        if (response.success) {
-          setBoard(response.board);
-          setWinner(null);
-          setCurrentMove(currentMove - 1);
-        }
-      }
-    );
+  function get_AI_suggestion() {
+    socket.emit("getSuggestion");
   }
 
-  function reapplyMove() {
-    socket.emit(
-      "reapplyMove",
-      listMoves[currentMove].moveResult,
-      (response: any) => {
+  const play = useCallback(
+    (row: number, col: number) => {
+      socket.emit("makeMove", row, col, (response: any) => {
         if (response.success) {
           setBoard(response.board);
+          setListMoves((prevListMoves) => [
+            ...prevListMoves.slice(0, currentMove),
+            { row, col, moveResult: response.moveResult },
+          ]);
           setWinner(response.winner);
-          setCurrentMove(currentMove + 1);
+          setCurrentMove((prevMove) => prevMove + 1);
+        } else {
+          console.error("Invalid move");
         }
-      }
-    );
+      });
+    },
+    [currentMove, xIsNext]
+  );
+
+  function onClick(row: number, col: number) {
+    if (mode === 1 || (mode === 0 && xIsNext)) {
+      play(row, col);
+    }
   }
+
+  const moves = listMoves.map((move, index) => (
+    <li key={index}>
+      <button>
+        {(index % 2 === 0 ? "X" : "O") +
+          ": (" +
+          move.row +
+          ", " +
+          move.col +
+          ")"}
+      </button>
+    </li>
+  ));
 
   return (
     <div className="game">
@@ -142,20 +156,11 @@ export default function Game() {
           xIsNext={xIsNext}
           board={board}
           winner={winner}
-          onPlay={handlePlay}
+          handleClick={onClick}
         />
       </div>
       <div className="game-info">
         <ol>{moves}</ol>
-        <button onClick={() => reverseMove()} disabled={currentMove === 0}>
-          Back
-        </button>
-        <button
-          onClick={() => reapplyMove()}
-          disabled={currentMove === listMoves.length}
-        >
-          Next
-        </button>
       </div>
     </div>
   );

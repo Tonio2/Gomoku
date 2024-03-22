@@ -58,6 +58,22 @@ def serialize_move_result(moveResult):
     }
 
 
+def serialize_moveEvaluation(moveEvaluation):
+    if moveEvaluation.listMoves is None:
+        return {
+            "move": (moveEvaluation.move[0], moveEvaluation.move[1]),
+            "score": moveEvaluation.score,
+        }
+    listMoves = []
+    for move in moveEvaluation.listMoves:
+        listMoves.append(serialize_moveEvaluation(move))
+    return {
+        "move": (moveEvaluation.move[0], moveEvaluation.move[1]),
+        "score": moveEvaluation.score,
+        "listMoves": listMoves,
+    }
+
+
 # Create a python class that will handle the game logic
 class GomokuGame:
     def __init__(self, mode):
@@ -91,6 +107,17 @@ class GomokuGame:
     def get_current_player(self):
         return self.current_player
 
+    def get_game(self):
+        return self.game
+
+
+class AI:
+    def __init__(self, game, player, depth):
+        self.ai = pygomoku.GomokuAI(game, pygomoku.Player(player), depth)
+
+    def get_suggestion(self):
+        return serialize_moveEvaluation(self.ai.suggest_move())
+
 
 @socketio.on("connect")
 def handle_connection():
@@ -104,7 +131,6 @@ def handle_connection():
     @socketio.on("makeMove")
     def handle_make_move(row, col):
         success, moveResult = game.make_move(row, col)
-        print("Move result: ", moveResult)
         if not success:
             return {"success": False}
         return {
@@ -124,3 +150,9 @@ def handle_connection():
     def handle_reapply_move(moveResult):
         game.reapply_move(moveResult)
         return {"success": True, "board": game.get_board()}
+
+    @socketio.on("getSuggestion")
+    def handle_get_suggestion():
+        ai = AI(game.get_game(), game.get_current_player(), 3)
+        moveEvaluation = ai.get_suggestion()
+        emit("suggestion", {"success": True, "moveEvaluation": moveEvaluation})
