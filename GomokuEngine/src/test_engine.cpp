@@ -107,6 +107,9 @@ void test_5_in_a_row()
     move_str = "34,84,35,85,36,86,37,87,26,46,38";
     test_is_game_over(move_str, false, "Testing 5 in a row with potential capture");
 
+    move_str = "99,88,98,9A,79,A9,AB,8B,7C,97,A6,7A,8A,9C,69,59,6B,99,B9,BE,AD,9B,7B,9B,8D,98";
+    test_is_game_over(move_str, false, "Should not detect 5 in a row when a capture is possible");
+
     move_str = "34,84,35,85,36,86,37,45,23,87,38";
     test_is_game_over(move_str, false, "Testing 5 in a row with potential capture on extreme left");
 
