@@ -295,16 +295,16 @@ std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves()
 
 bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
-    Player otherPlayer = other_player(player);
+    const Player otherPlayer = other_player(player);
 
-    int x1 = row + row_dir;
-    int y1 = col + col_dir;
-    int x2 = row + 2 * row_dir;
-    int y2 = col + 2 * col_dir;
-    int x3 = row + 3 * row_dir;
-    int y3 = col + 3 * col_dir;
+    const int x1 = row + row_dir;
+    const int y1 = col + col_dir;
+    const int x2 = row + 2 * row_dir;
+    const int y2 = col + 2 * col_dir;
+    const int x3 = row + 3 * row_dir;
+    const int y3 = col + 3 * col_dir;
 
-    if (!coordinates_are_valid(x1, y1) || get_board_value(x1, y1) != otherPlayer || !coordinates_are_valid(x2, y2) || get_board_value(x2, y2) != otherPlayer || !coordinates_are_valid(x3, y3) || get_board_value(x3, y3) != player)
+    if (get_board_value(x1, y1) != otherPlayer || get_board_value(x2, y2) != otherPlayer || get_board_value(x3, y3) != player)
         return false;
 
     move_result.cell_changes.push_back(
@@ -317,21 +317,33 @@ bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int 
     return true;
 }
 
-bool GomokuGame::try_cardinal_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
-{
-    bool ret = try_direction_for_capture(row, col, row_dir, col_dir, player, move_result);
-    ret |= try_direction_for_capture(row, col, -row_dir, -col_dir, player, move_result);
-
-    return ret;
-}
-
 bool GomokuGame::capture(uint row, uint col, Player player, MoveResult &move_result)
 {
     bool ret = false;
-    ret |= try_cardinal_for_capture(row, col, 1, 0, player, move_result);
-    ret |= try_cardinal_for_capture(row, col, 0, 1, player, move_result);
-    ret |= try_cardinal_for_capture(row, col, 1, 1, player, move_result);
-    ret |= try_cardinal_for_capture(row, col, 1, -1, player, move_result);
+    if (row < board.get_width() - 2)
+    {
+        ret |= try_direction_for_capture(row, col, 1, 0, player, move_result);
+        if (col < board.get_height() - 2)
+            ret |= try_direction_for_capture(row, col, 1, 1, player, move_result);
+    }
+    if (row > 2)
+    {
+        ret |= try_direction_for_capture(row, col, -1, 0, player, move_result);
+        if (col > 2)
+            ret |= try_direction_for_capture(row, col, -1, -1, player, move_result);
+    }
+    if (col < board.get_height() - 2)
+    {
+        ret |= try_direction_for_capture(row, col, 0, 1, player, move_result);
+        if (row > 2)
+            ret |= try_direction_for_capture(row, col, -1, 1, player, move_result);
+    }
+    if (col > 2)
+    {
+        ret |= try_direction_for_capture(row, col, 0, -1, player, move_result);
+        if (row < board.get_width() - 2)
+            ret |= try_direction_for_capture(row, col, 1, -1, player, move_result);
+    }
     return ret;
 }
 
