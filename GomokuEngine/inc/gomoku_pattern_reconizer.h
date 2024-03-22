@@ -160,7 +160,7 @@ private:
     void for_each_structures(std::function<void(PatternCellIndex, PatternCellData, PatternDirection)> lambda);
 
     Player _gomoku_player;
-    std::vector<Matrix<PatternCellData>> _pattern_direction_cell_matrices;
-    std::vector<std::map<int, std::set<int>>> _pattern_direction_structure_maps;
+    std::vector<Matrix<PatternCellData>> _cell_matrices;
+    std::vector<std::map<int, std::set<int>>> _structure_maps;
     std::vector<int> _cached_pattern_count;
 };

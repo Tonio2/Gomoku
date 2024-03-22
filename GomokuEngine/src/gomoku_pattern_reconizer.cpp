@@ -181,16 +181,16 @@ std::ostream &operator<<(std::ostream &stream, PatternDirection direction)
 
 GomokuPatternReconizer::GomokuPatternReconizer(Player player)
     : _gomoku_player(player),
-      _pattern_direction_cell_matrices(static_cast<int>(PatternDirection::Count_PatternDirection)),
-      _pattern_direction_structure_maps(static_cast<int>(PatternDirection::Count_PatternDirection)),
+      _cell_matrices(static_cast<int>(PatternDirection::Count_PatternDirection)),
+      _structure_maps(static_cast<int>(PatternDirection::Count_PatternDirection)),
       _cached_pattern_count(static_cast<int>(StructureType::COUNT_STRUCTURE_TYPE), 0)
 {
 }
 
 GomokuPatternReconizer::GomokuPatternReconizer(const GomokuPatternReconizer &copy)
     : _gomoku_player(copy._gomoku_player),
-      _pattern_direction_cell_matrices(copy._pattern_direction_cell_matrices),
-      _pattern_direction_structure_maps(copy._pattern_direction_structure_maps),
+      _cell_matrices(copy._cell_matrices),
+      _structure_maps(copy._structure_maps),
       _cached_pattern_count(copy._cached_pattern_count)
 {
 }
@@ -200,8 +200,8 @@ GomokuPatternReconizer &GomokuPatternReconizer::operator=(const GomokuPatternRec
     if (this != &copy)
     {
         _gomoku_player = copy._gomoku_player;
-        _pattern_direction_cell_matrices = copy._pattern_direction_cell_matrices;
-        _pattern_direction_structure_maps = copy._pattern_direction_structure_maps;
+        _cell_matrices = copy._cell_matrices;
+        _structure_maps = copy._structure_maps;
         _cached_pattern_count = copy._cached_pattern_count;
     }
     return *this;
@@ -257,7 +257,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(GomokuGame &game) con
             for (int col = 1; col < game.get_board_width() + 1; ++col)
             {
                 PatternCellIndex index(row, col);
-                PatternCellData data = _pattern_direction_cell_matrices[dir][index];
+                PatternCellData data = _cell_matrices[dir][index];
 
                 if (data.structure_length >= 5)
                 {
@@ -318,7 +318,7 @@ bool GomokuPatternReconizer::can_be_captured(GomokuGame &game)
             for (int col = 1; col < game.get_board_width() + 1; ++col)
             {
                 PatternCellIndex index(row, col);
-                PatternCellData data = _pattern_direction_cell_matrices[dir][index];
+                PatternCellData data = _cell_matrices[dir][index];
 
                 if (data.structure_length == 2 && data.is_structure_closed)
                 {
@@ -351,7 +351,7 @@ bool GomokuPatternReconizer::can_be_captured(GomokuGame &game)
 
 StructureType GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, PatternDirection direction) const
 {
-    const Matrix<PatternCellData>& cell_matrix(_pattern_direction_cell_matrices[direction]);
+    const Matrix<PatternCellData>& cell_matrix(_cell_matrices[direction]);
 
     std::function<StructureType(PatternCellIndex, bool, bool)> find_structure;
 
@@ -391,7 +391,7 @@ StructureType GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, Pa
 
 const Matrix<PatternCellData>& GomokuPatternReconizer::get_pattern_cell_matrix(PatternDirection direction) const
 {
-    return _pattern_direction_cell_matrices[direction];
+    return _cell_matrices[direction];
 }
 
 PatternCellState GomokuPatternReconizer::cell_state_at(const GomokuGame &board, PatternCellIndex index) const
@@ -525,11 +525,11 @@ bool GomokuPatternReconizer::adjust_matrices_size(const GomokuGame &board)
         int width = board.get_board_width() + 2;
         int height = board.get_board_height() + 2;
 
-        const bool size_differ = _pattern_direction_cell_matrices[i].get_width() != width || _pattern_direction_cell_matrices[i].get_height() != height;
+        const bool size_differ = _cell_matrices[i].get_width() != width || _cell_matrices[i].get_height() != height;
 
         if (size_differ)
         {
-            _pattern_direction_cell_matrices[i] = Matrix<PatternCellData>(width, height);
+            _cell_matrices[i] = Matrix<PatternCellData>(width, height);
             modified_matrices = true;
         }
     }
@@ -545,7 +545,7 @@ void GomokuPatternReconizer::initialize_matrices_bounds()
     for (int i = 0; i < PatternDirection::Count_PatternDirection; ++i)
     {
 
-        Matrix<PatternCellData> &mat(_pattern_direction_cell_matrices[i]);
+        Matrix<PatternCellData> &mat(_cell_matrices[i]);
 
         for (int row = 0; row < mat.get_height(); ++row)
         {
@@ -565,7 +565,7 @@ void GomokuPatternReconizer::update_all_cells(const GomokuGame &board)
 
     {
         const PatternDirection direction = PatternDirection::LeftToRight;
-        const int height = _pattern_direction_cell_matrices[direction].get_height() - 1;
+        const int height = _cell_matrices[direction].get_height() - 1;
         PatternCellIndex index(1, 1);
         for (index.row = 1; index.row < height; ++index.row)
         {
@@ -575,7 +575,7 @@ void GomokuPatternReconizer::update_all_cells(const GomokuGame &board)
 
     {
         const PatternDirection direction = PatternDirection::UpToDown;
-        const int width = _pattern_direction_cell_matrices[direction].get_width() - 1;
+        const int width = _cell_matrices[direction].get_width() - 1;
         PatternCellIndex index(1, 1);
         for (index.col = 1; index.col < width; ++index.col)
         {
@@ -586,12 +586,12 @@ void GomokuPatternReconizer::update_all_cells(const GomokuGame &board)
     {
         const PatternDirection direction = PatternDirection::UpleftToDownright;
         PatternCellIndex index(1, 1);
-        const int height = _pattern_direction_cell_matrices[direction].get_height() - 1;
+        const int height = _cell_matrices[direction].get_height() - 1;
         for (index.row = 1; index.row < height; ++index.row)
         {
             update_cell_direction(board, index, direction, true);
         }
-        const int width = _pattern_direction_cell_matrices[direction].get_width() - 1;
+        const int width = _cell_matrices[direction].get_width() - 1;
         index.row = 1;
         for (index.col = 2; index.col < width; ++index.col)
         {
@@ -602,12 +602,12 @@ void GomokuPatternReconizer::update_all_cells(const GomokuGame &board)
     {
         const PatternDirection direction = PatternDirection::UprightToDownleft;
         PatternCellIndex index(1, 1);
-        const int width = _pattern_direction_cell_matrices[direction].get_width() - 1;
+        const int width = _cell_matrices[direction].get_width() - 1;
         for (index.col = 1; index.col < width; ++index.col)
         {
             update_cell_direction(board, index, direction, true);
         }
-        const int height = _pattern_direction_cell_matrices[direction].get_height() - 1;
+        const int height = _cell_matrices[direction].get_height() - 1;
         index.col = width - 1;
         for (index.row = 2; index.row < height; ++index.row)
         {
@@ -626,7 +626,7 @@ void GomokuPatternReconizer::update_cell(const GomokuGame &board, PatternCellInd
 
 void GomokuPatternReconizer::update_cell_direction(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound)
 {
-    Matrix<PatternCellData> &cell_matrix(_pattern_direction_cell_matrices[direction]);
+    Matrix<PatternCellData> &cell_matrix(_cell_matrices[direction]);
 
     assert(index.is_valid(cell_matrix));
     assert(get_index_offset(index, direction, -1).is_valid(cell_matrix));
@@ -696,19 +696,19 @@ PatternCellIndex GomokuPatternReconizer::get_index_offset(PatternCellIndex index
 
 void GomokuPatternReconizer::untag_celldata_structure(PatternCellIndex index, PatternDirection direction)
 {
-    _pattern_direction_structure_maps[direction][index.row].erase(index.col);
+    _structure_maps[direction][index.row].erase(index.col);
 }
 
 void GomokuPatternReconizer::tag_celldata_structure(PatternCellIndex index, PatternDirection direction)
 {
-    _pattern_direction_structure_maps[direction][index.row].insert(index.col);
+    _structure_maps[direction][index.row].insert(index.col);
 }
 
 void GomokuPatternReconizer::for_each_structures(std::function<void(PatternCellIndex, PatternCellData, PatternDirection)> lambda)
 {
     for (int direction = 0; direction < PatternDirection::Count_PatternDirection; ++direction)
     {
-        const auto &structure_map = _pattern_direction_structure_maps[direction];
+        const auto &structure_map = _structure_maps[direction];
         for (auto structure_set_row : structure_map)
         {
             int row = structure_set_row.first;
@@ -716,7 +716,7 @@ void GomokuPatternReconizer::for_each_structures(std::function<void(PatternCellI
             {
 
                 PatternCellIndex index(row, col);
-                PatternCellData data = _pattern_direction_cell_matrices[direction](row, col);
+                PatternCellData data = _cell_matrices[direction](row, col);
 
                 lambda(index, data, PatternDirection(direction));
             }
