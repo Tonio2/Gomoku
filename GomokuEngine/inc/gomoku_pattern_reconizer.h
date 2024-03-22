@@ -118,7 +118,7 @@ public:
     bool five_or_more_cant_be_captured(GomokuGame &game) const;
     bool can_be_captured(GomokuGame &game);
 
-    StructureType get_structure_at(GomokuCellIndex index, PatternDirection direction) const;
+    std::pair<StructureType, GomokuCellIndex> get_structure_at(GomokuCellIndex index, PatternDirection direction) const;
 
     const Matrix<PatternCellData>& get_pattern_cell_matrix(PatternDirection direction) const;
 
