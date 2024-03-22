@@ -353,22 +353,25 @@ void GomokuGame::check_win(Player player)
         winner = current_player;
         return;
     }
-    else if (get_player_score(other_player(player)) == 8)
+
+    if (players_reconizers[player].get_pattern_count()
+            [StructureType::FIVE_OR_MORE] > 0)
+    {
+        if (players_reconizers[player].five_or_more_cant_be_captured(*this))
+        {
+            is_game_over_flag = true;
+            winner = current_player;
+            return;
+        }
+    }
+
+    if (get_player_score(other_player(player)) == 8)
     {
         if (players_reconizers[player].can_be_captured(*this))
         {
             is_game_over_flag = true;
             winner = other_player(player);
             return;
-        }
-    }
-    else if (players_reconizers[player].get_pattern_count()
-                 [StructureType::FIVE_OR_MORE] > 0)
-    {
-        if (players_reconizers[player].five_or_more_cant_be_captured(*this))
-        {
-            is_game_over_flag = true;
-            winner = current_player;
         }
     }
 

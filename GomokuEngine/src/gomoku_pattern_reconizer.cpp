@@ -248,39 +248,60 @@ const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const
     return _cached_pattern_count;
 }
 
-bool GomokuPatternReconizer::five_or_more_cant_be_captured(GomokuGame &game) const
+bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &game) const
 {
-    bool can_be_captured = false;
+    bool capturable = false;
 
     for_each_tagged_structures(
-        [this, &can_be_captured](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
+        [this, &capturable, game](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
-        if (data.structure_length >= 5)
-        {
-            for (uint8_t i = 1; i <= data.structure_length; ++i)
+            if (data.structure_length >= 5)
             {
-                PatternCellIndex struct_index = get_index_offset(index, direction, -i);
-
-                for (int dir = 0; dir < PatternDirection::Count_PatternDirection; ++dir)
+                for (uint8_t i = 1; i <= data.structure_length; ++i)
                 {
-                    if (dir == direction) continue;
+                    PatternCellIndex struct_index = get_index_offset(index, direction, -i);
 
-                    if (get_structure_at(struct_index.to_game_index(), PatternDirection(dir)).first == StructureType::TWO)
+                    for (int dir = 0; dir < PatternDirection::Count_PatternDirection; ++dir)
                     {
-                        can_be_captured = true;
-                        should_continue = false;
-                        return;
+                        if (dir == direction)
+                            continue;
+
+                        auto structure = get_structure_at(struct_index.to_game_index(), PatternDirection(dir));
+
+                        const PatternCellData &cell_data = _cell_matrices[dir][PatternCellIndex(structure.second)];
+                        if (is_structure_capturable(game, structure.second, cell_data, PatternDirection(dir)))
+                        {
+                            capturable = true;
+                            should_continue = false;
+                            return;
+                        }
                     }
                 }
             }
-        } });
+        });
 
-    return !can_be_captured;
+    return !capturable;
 }
 
 bool GomokuPatternReconizer::can_be_captured(const GomokuGame &game) const
 {
-    return get_pattern_count()[StructureType::TWO] > 0;
+    if (get_pattern_count()[StructureType::TWO] <= 0)
+        return false;
+
+    bool capturable = false;
+
+    for_each_tagged_structures(
+        [this, &capturable, game](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
+        {
+            if (is_structure_capturable(game, index, data, direction))
+            {
+                capturable = true;
+                should_continue = false;
+                return;
+            }
+        });
+
+    return capturable;
 }
 
 std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, PatternDirection direction) const
@@ -634,8 +655,8 @@ bool GomokuPatternReconizer::is_relevant_to_tag(const PatternCellData &data) con
     if (data.structure_length >= 5)
         return true;
 
-    // if (data.structure_length == 2 && data.is_structure_closed)
-    //     return true;
+    if (data.structure_length == 2 && data.is_structure_closed)
+        return true;
 
     return false;
 }
@@ -672,4 +693,21 @@ void GomokuPatternReconizer::for_each_tagged_structures(std::function<void(Patte
             }
         }
     }
+}
+
+bool GomokuPatternReconizer::is_structure_capturable(const GomokuGame &board, PatternCellIndex index, const PatternCellData &data, PatternDirection direction) const
+{
+    if (data.structure_length == 2 && data.is_structure_closed)
+    {
+        const GomokuCellIndex game_index = index.to_game_index();
+        const bool index_is_valid = board.coordinates_are_valid(game_index.row, game_index.col);
+        if (index_is_valid)
+        {
+            const GomokuCellIndex opposite_side_index = get_index_offset(index, direction, -3).to_game_index();
+            const bool opposite_side_is_valid = board.coordinates_are_valid(opposite_side_index.row, opposite_side_index.col);
+
+            return opposite_side_is_valid;
+        }
+    }
+    return false;
 }
