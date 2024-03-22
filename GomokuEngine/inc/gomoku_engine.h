@@ -45,7 +45,6 @@ public:
     int get_board_height() const;
     bool coordinates_are_valid(int row, int col) const;
 
-    bool try_direction_for_capture_without_capturing(uint row, uint col, int row_dir, int col_dir, Player player);
     Player other_player(Player player) const;
     Player get_current_player() const;
     int get_player_score(Player player) const;

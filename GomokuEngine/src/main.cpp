@@ -85,6 +85,9 @@ void test_problems()
 
 void test_problem(int problem_idx)
 {
+    if (problem_idx <= 0)
+        return;
+
     std::ifstream in("problems.txt");
     if (!in.is_open())
     {
@@ -105,6 +108,8 @@ void test_problem(int problem_idx)
             problem_idx--;
         }
     }
+    if (problem_idx != 1)
+        return;
     std::vector<std::string> problem = split(line, ':');
     std::vector<std::string> moves = split(problem[0], ',');
     display_moves(moves);
@@ -158,6 +163,7 @@ void test_eval(std::string moves_string)
     // Display if game is over and winner
     std::cout << "Is game over: " << game.is_game_over() << "\n";
     std::cout << "Winner: " << game.get_winner() << "\n";
+    std::cout << "Scores: X:" << game.get_player_score(X) << " O:" << game.get_player_score(O) << std::endl;
 
     // Display patterns
     game.print_patterns();
@@ -182,7 +188,7 @@ std::ostream &operator<<(std::ostream &stream, std::vector<int> array)
     return stream;
 }
 
-void test_line(const std::string& line)
+void test_line(const std::string &line)
 {
     GomokuGame game(line.size(), 1);
 
@@ -191,18 +197,18 @@ void test_line(const std::string& line)
         Player cell_player;
         switch (line[i])
         {
-            case 'x':
-            case 'X':
-                cell_player = X;
-                break;
-            case 'o':
-            case 'O':
-                cell_player = O;
-                break;
-            case '_':
-            case ' ':
-            default:
-                cell_player = E;
+        case 'x':
+        case 'X':
+            cell_player = X;
+            break;
+        case 'o':
+        case 'O':
+            cell_player = O;
+            break;
+        case '_':
+        case ' ':
+        default:
+            cell_player = E;
         }
 
         game.set_board_value(0, i, cell_player);
@@ -212,7 +218,7 @@ void test_line(const std::string& line)
 
     reconizer.find_patterns_in_board(game);
 
-    const Matrix<PatternCellData>& line_mat = reconizer.get_pattern_cell_matrix(PatternDirection::LeftToRight);
+    const Matrix<PatternCellData> &line_mat = reconizer.get_pattern_cell_matrix(PatternDirection::LeftToRight);
 
     for (int col = 0; col < line_mat.get_width(); ++col)
     {
@@ -226,9 +232,8 @@ void test_line(const std::string& line)
         auto cell_pattern = reconizer.get_structure_at(GomokuCellIndex(0, col - 1), PatternDirection::LeftToRight);
 
         std::cout << cell_state << " -> " << cell_data << " " << all_structures << " "
-            << cell_pattern.first << "[" << int(cell_pattern.second.col) << "]" << std::endl;
+                  << cell_pattern.first << "[" << int(cell_pattern.second.col) << "]" << std::endl;
     }
-
 }
 
 int main(int argc, char *argv[])
