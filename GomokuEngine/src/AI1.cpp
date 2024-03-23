@@ -6,30 +6,43 @@ GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), d
     human_player = (ai_player == X) ? O : X;
 }
 
-void sortMovesUtil(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
+void sortMovesUtil(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int depth)
 {
     TIMER
-    auto compare = [maximizingPlayer](const std::pair<std::pair<int, int>, int> &a, const std::pair<std::pair<int, int>, int> &b)
+
+    std::function<bool(const MoveHeuristic &, const MoveHeuristic &)> compare;
+
+    if (maximizingPlayer)
     {
-        return maximizingPlayer ? a.second > b.second : a.second < b.second;
-    };
+        compare = [](const MoveHeuristic &a, const MoveHeuristic &b)
+        {
+            return a.score > b.score;
+        };
+    }
+    else
+    {
+        compare = [](const MoveHeuristic &a, const MoveHeuristic &b)
+        {
+            return a.score < b.score;
+        };
+    }
     std::sort(moves.begin(), moves.end(), compare);
 }
 
-void GomokuAI::sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth)
+void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int depth)
 {
     TIMER
-    for (std::pair<std::pair<int, int>, int> &move : moves)
+    for (MoveHeuristic &move : moves)
     {
         try
         {
-            MoveResult game_move = game.make_move(move.first.first, move.first.second);
-            move.second = heuristic_evaluation();
+            MoveResult game_move = game.make_move(move.row, move.col);
+            move.score = heuristic_evaluation();
             game.reverse_move(game_move);
         }
         catch (std::exception &e)
         {
-            move.second = maximizingPlayer ? std::numeric_limits<int>::min() + 1 : std::numeric_limits<int>::max() - 1;
+            move.score = maximizingPlayer ? std::numeric_limits<int>::min() + 1 : std::numeric_limits<int>::max() - 1;
         }
     }
 
@@ -59,7 +72,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     }
 
     // Else find all the relevant moves and sort them by their heuristic evaluation if the depth is not 1.
-    std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves();
+    std::vector<MoveHeuristic> moves = find_relevant_moves();
     if (depth > 1)
         sortMoves(moves, maximizingPlayer, depth);
     int moveIdx = 1;
@@ -68,13 +81,12 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
     // For each move, make the move, call minimax recursively and reverse the move.
     int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
-    for (auto moveWithScore : moves)
+    for (const MoveHeuristic &move : moves)
     {
-        std::pair<int, int> move = moveWithScore.first;
         try
         {
-            MoveResult game_move = game.make_move(move.first, move.second);
-            MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, !maximizingPlayer, move.first, move.second);
+            MoveResult game_move = game.make_move(move.row, move.col);
+            MoveEvaluation evalNode = minimax(depth - 1, alpha, beta, !maximizingPlayer, move.row, move.col);
             game.reverse_move(game_move);
 
             if (maximizingPlayer)
@@ -164,4 +176,47 @@ MoveEvaluation GomokuAI::suggest_move()
     evaluation_needed_count = 0;
     MoveEvaluation result = minimax(depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
     return result;
+}
+
+std::vector<MoveHeuristic> GomokuAI::find_relevant_moves() const
+{
+    TIMER
+    std::vector<MoveHeuristic> relevantMoves;
+
+    // Directions to check around each cell (8 directions).
+    const std::vector<std::pair<int, int>> directions = {
+        {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+
+    for (int row = 0; row < game.get_board_height(); ++row)
+    {
+        for (int col = 0; col < game.get_board_width(); ++col)
+        {
+            if (game.get_board_value(row, col) == E)
+            { // Empty cell
+                bool foundStone = false;
+                for (const auto &dir : directions)
+                {
+                    for (int step = 1; step <= 2; ++step)
+                    {
+                        int newRow = row + step * dir.first;
+                        int newCol = col + step * dir.second;
+
+                        if (game.coordinates_are_valid(newRow, newCol) && game.get_board_value(newRow, newCol) != E)
+                        {
+                            relevantMoves.push_back(
+                                MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+                            foundStone = true;
+                            break; // No need to check further if one stone is found near this cell.
+                        }
+                    }
+                    if (foundStone)
+                    {
+                        break; // No need to check further if one stone is found near this cell.
+                    }
+                }
+            }
+        }
+    }
+
+    return relevantMoves;
 }

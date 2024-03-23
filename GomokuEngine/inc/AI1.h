@@ -16,6 +16,14 @@ struct MoveEvaluation
     std::vector<MoveEvaluation> listMoves;
 };
 
+struct MoveHeuristic
+{
+    uint8_t row;
+    uint8_t col;
+
+    int score;
+};
+
 class GomokuAI
 {
 private:
@@ -27,8 +35,10 @@ private:
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
     int pseudo_heuristic_evaluation(std::pair<int, int> move);
 
+    std::vector<MoveHeuristic> find_relevant_moves() const;
+
 public:
-    void sortMoves(std::vector<std::pair<std::pair<int, int>, int>> &moves, bool maximizingPlayer, int depth);
+    void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int depth);
 
     int move_count;
     int move_evaluated_count;
