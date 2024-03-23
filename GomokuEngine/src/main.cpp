@@ -1,5 +1,6 @@
 
 #include "test_engine.h"
+#include "arena.h"
 
 void test_problems()
 {
@@ -260,6 +261,10 @@ int main(int argc, char *argv[])
     else if (arg1 == "line")
     {
         test_line(std::string(argv[2]));
+    }
+    else if (arg1 == "arena")
+    {
+        Arena().play();
     }
     else
     {
