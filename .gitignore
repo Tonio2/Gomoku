@@ -35,3 +35,6 @@ GomokuEngine/gmon.out
 
 # node_modules
 node_modules/
+
+# AI data
+*.gkd

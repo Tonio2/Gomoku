@@ -2,18 +2,27 @@
 #include "gomoku_ai_data.h"
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <iomanip>
 #include <stdexcept>
 
 GomokuAIData::GomokuAIData()
 {
-    for (int i = 0; i < VALUES_COUNT; i++)
-    {
-        values[i] = 1000;
-    }
-    values[STC + 2] = 1;
-    values[STC + 3] = 1;
-    values[STC + 4] = 1;
+    values[0] = 0;
+    values[1] = 100000;
+    values[2] = 10;
+    values[3] = 5;
+    values[4] = 100;
+    values[5] = 50;
+    values[6] = 1000;
+    values[7] = 500;
+    values[8] = 10000;
+    values[9] = 1000;
+    values[10] = 9000;
+    values[11] = 9000;
+    values[12] = 10;
+    values[13] = 0;
+    values[14] = 0;
 }
 
 GomokuAIData::GomokuAIData(const GomokuAIData &copy)
@@ -38,6 +47,18 @@ GomokuAIData::~GomokuAIData()
 
 void GomokuAIData::save_to_file(std::string filename) const
 {
+    namespace fs = std::filesystem;
+    fs::path filepath(filename);
+    std::string directory = filepath.parent_path().string();
+
+    if (!directory.empty() && !fs::exists(directory))
+    {
+        if (!fs::create_directories(directory))
+        {
+            throw std::runtime_error("Error: Unable to create directory: " + directory);
+        }
+    }
+
     std::ofstream file(filename);
     if (!file.is_open())
     {

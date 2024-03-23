@@ -44,7 +44,9 @@ public:
     int move_count;
     int move_evaluated_count;
     int evaluation_needed_count;
-    GomokuAI(GomokuGame game, Player ai_player, int depth);
-    MoveEvaluation suggest_move();
-    int heuristic_evaluation();
+    GomokuAI(int depth, GomokuAIData data = GomokuAIData());
+    MoveEvaluation suggest_move(const GomokuGame &board, Player player);
+    int heuristic_evaluation(const GomokuGame &board, Player heuristic_player);
+
+    const GomokuAIData &get_evaluation_data() const;
 };
