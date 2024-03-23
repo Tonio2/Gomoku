@@ -27,7 +27,7 @@ class Arena
 public:
     Arena();
 
-    void play();
+    void play(int argc, char *argv[]);
 
     /** Play one game and return the winner */
     int play_game(const GomokuAIData &p1, const GomokuAIData &p2);

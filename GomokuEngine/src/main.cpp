@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     }
     else if (arg1 == "arena")
     {
-        Arena().play();
+        Arena().play(argc, argv);
     }
     else
     {
