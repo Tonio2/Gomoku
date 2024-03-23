@@ -1,7 +1,11 @@
 
 #include "gomoku_ai_data.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <stdexcept>
 
-void GomokuAIData::initialize()
+GomokuAIData::GomokuAIData()
 {
     for (int i = 0; i < VALUES_COUNT; i++)
     {
@@ -10,11 +14,6 @@ void GomokuAIData::initialize()
     values[STC + 2] = 1;
     values[STC + 3] = 1;
     values[STC + 4] = 1;
-}
-
-GomokuAIData::GomokuAIData()
-{
-    initialize();
 }
 
 GomokuAIData::GomokuAIData(const GomokuAIData &copy)
@@ -35,6 +34,52 @@ GomokuAIData &GomokuAIData::operator=(const GomokuAIData &copy)
 
 GomokuAIData::~GomokuAIData()
 {
+}
+
+void GomokuAIData::save_to_file(std::string filename) const
+{
+    std::ofstream file(filename);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Error: Unable to open file for writing: " + filename);
+    }
+
+    for (int i = 0; i < VALUES_COUNT; ++i)
+    {
+        file << std::fixed << std::setprecision(6) << values[i];
+        if (i < VALUES_COUNT - 1)
+            file << ",";
+    }
+    file << std::endl;
+
+    file.close();
+}
+
+void GomokuAIData::load_from_file(std::string filename)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Error: Unable to open file for reading: " + filename);
+    }
+
+    std::string line;
+    if (std::getline(file, line))
+    {
+        std::stringstream ss(line);
+        std::string cell;
+        int i = 0;
+        while (std::getline(ss, cell, ',') && i < VALUES_COUNT)
+        {
+            values[i++] = std::stof(cell);
+        }
+    }
+    else
+    {
+        throw std::runtime_error("Error: File is empty: " + filename);
+    }
+
+    file.close();
 }
 
 float GomokuAIData::value_of_structure(int structure_type) const
