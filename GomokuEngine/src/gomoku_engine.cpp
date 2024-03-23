@@ -251,7 +251,7 @@ void GomokuGame::reapply_move(const MoveResult &move)
     current_player = other_player(current_player);
 }
 
-bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
+bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
     const Player otherPlayer = other_player(player);
 
@@ -275,7 +275,7 @@ bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int 
     return true;
 }
 
-bool GomokuGame::capture(uint row, uint col, Player player, MoveResult &move_result)
+bool GomokuGame::capture(int row, int col, Player player, MoveResult &move_result)
 {
     bool ret = false;
     if (row < board.get_width() - 2)

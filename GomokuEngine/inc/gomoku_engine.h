@@ -17,8 +17,8 @@ private:
     std::vector<GomokuPatternReconizer> players_reconizers;
 
     /** Capture */
-    bool try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result);
-    bool capture(uint row, uint col, Player player, MoveResult &move_result);
+    bool try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result);
+    bool capture(int row, int col, Player player, MoveResult &move_result);
 
     /** Board state */
 
