@@ -227,7 +227,7 @@ void test_line(const std::string &line)
         std::vector<int> all_structures(StructureType::COUNT_STRUCTURE_TYPE, 0);
         cell_data.get_structures_type_count(all_structures);
 
-        char cell_state = (col > 0 && col <= line.size()) ? line[col - 1] : 'X';
+        char cell_state = (col > 0 && col <= int(line.size())) ? line[col - 1] : 'X';
 
         auto cell_pattern = reconizer.get_structure_at(GomokuCellIndex(0, col - 1), PatternDirection::LeftToRight);
 
