@@ -1,6 +1,8 @@
 
 #include "arena.h"
 #include <random>
+#include <algorithm>
+#include <filesystem>
 
 static float random_float(float min, float max)
 {
@@ -12,7 +14,7 @@ static float random_float(float min, float max)
 }
 
 GomokuAIDataMutator::GomokuAIDataMutator()
-    : _change_proba(0.1), _proportion(1.1)
+    : _change_proba(0.9), _proportion(1.1)
 {
 }
 
@@ -43,4 +45,118 @@ void GomokuAIDataMutator::increase_impact()
 void GomokuAIDataMutator::decrease_impact()
 {
     _proportion /= 1.01;
+}
+
+Arena::Arena() : _game_width(19), _game_height(19)
+{
+}
+
+void Arena::play()
+{
+    GomokuAIData p1;
+    GomokuAIData p2;
+
+    GomokuAIDataMutator mutator;
+
+    int win_streak_p1 = 0;
+    int win_streak_p2 = 0;
+
+    int streaker_index = 0;
+
+    std::string last_file = "";
+
+    while (true)
+    {
+        int first_winner = play_game(p1, p2);
+        int second_winner = play_game(p2, p1);
+        second_winner = second_winner == 0 ? 0 : 3 - second_winner;
+
+        int p1_wins = (first_winner == 1) + (second_winner == 1);
+        int p2_wins = (first_winner == 2) + (second_winner == 2);
+
+        auto player_win = [&mutator, &streaker_index, &last_file](std::string winner_name, GomokuAIData &winner_data, int &winner_streak, GomokuAIData &loser_data, int &loser_streak)
+        {
+            // mutator.decrease_impact();
+
+            ++winner_streak;
+            if (loser_streak >= 10)
+            {
+                streaker_index++;
+                last_file = "";
+            }
+            loser_streak = 0;
+
+            if (winner_streak >= 10)
+            {
+                if (last_file != "")
+                {
+                    try
+                    {
+                        std::filesystem::remove(last_file);
+                    }
+                    catch (const std::exception &e)
+                    {
+                        std::cerr << "Error: Unable to delete file: " << e.what() << std::endl;
+                    }
+                }
+                std::ostringstream filename;
+                filename << "ai_data/streaker-" << streaker_index << "-" << winner_name << "-" << winner_streak << ".gkd";
+                last_file = filename.str();
+                winner_data.save_to_file(last_file);
+                loser_data = winner_data;
+            }
+            else
+            {
+                mutator.mutate_data(loser_data);
+            }
+        };
+
+        if (p1_wins > p2_wins)
+        {
+            player_win("p1", p1, win_streak_p1, p2, win_streak_p2);
+        }
+        else if (p2_wins > p1_wins)
+        {
+            player_win("p2", p2, win_streak_p2, p1, win_streak_p1);
+        }
+        else
+        {
+            // mutator.increase_impact();
+            // mutator.mutate_data(p1);
+            mutator.mutate_data(p2);
+        }
+    }
+}
+
+int Arena::play_game(const GomokuAIData &p1, const GomokuAIData &p2)
+{
+    GomokuGame game(_game_width, _game_height);
+
+    GomokuAI ai1(DEPTH, p1);
+    GomokuAI ai2(DEPTH, p2);
+
+    game.make_move(9, 9);
+
+    while (!game.is_game_over())
+    {
+        GomokuAI *current_ai = game.get_current_player() == X ? &ai1 : &ai2;
+
+        MoveEvaluation moves = current_ai->suggest_move(game, game.get_current_player());
+
+        auto best_move = std::max_element(moves.listMoves.begin(), moves.listMoves.end(), [](const MoveEvaluation &a, const MoveEvaluation &b)
+                                          { return a.score < b.score; });
+
+        game.make_move(best_move->move.first, best_move->move.second);
+    }
+
+    if (game.get_winner() == X)
+    {
+        return 1;
+    }
+    else if (game.get_winner() == O)
+    {
+        return 2;
+    }
+
+    return 0;
 }

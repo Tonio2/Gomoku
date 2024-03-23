@@ -21,3 +21,18 @@ private:
     /** Proportion of data modification range */
     float _proportion;
 };
+
+class Arena
+{
+public:
+    Arena();
+
+    void play();
+
+    /** Play one game and return the winner */
+    int play_game(const GomokuAIData &p1, const GomokuAIData &p2);
+
+private:
+    int _game_width;
+    int _game_height;
+};
