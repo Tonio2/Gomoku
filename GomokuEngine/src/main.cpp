@@ -28,9 +28,9 @@ void test_problems()
         std::vector<std::string> problem = split(line, ':');
         std::vector<std::string> moves = split(problem[0], ',');
         apply_moves(game, moves);
-        GomokuAI AI(game, moves.size() % 2 == 0 ? X : O, DEPTH);
+        GomokuAI AI(DEPTH);
         // Suggest a move
-        MoveEvaluation moveEvalutation = AI.suggest_move();
+        MoveEvaluation moveEvalutation = AI.suggest_move(game, moves.size() % 2 == 0 ? X : O);
         // Get the best move
         std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
 
@@ -118,9 +118,9 @@ void test_problem(int problem_idx)
     GomokuGame game(19, 19);
     apply_moves(game, moves);
 
-    GomokuAI AI(game, player, DEPTH);
+    GomokuAI AI(DEPTH);
     // Suggest a move
-    MoveEvaluation moveEvalutation = AI.suggest_move();
+    MoveEvaluation moveEvalutation = AI.suggest_move(game, player);
     // Get the best move
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     // Print the best move
@@ -151,8 +151,8 @@ void test_eval(std::string moves_string)
     std::vector<std::string> moves = split(moves_string, ',');
     apply_moves(game, moves);
     Player last_player = moves.size() % 2 ? X : O;
-    GomokuAI AI(game, last_player, DEPTH);
-    int evaluation = AI.heuristic_evaluation();
+    GomokuAI AI(DEPTH);
+    int evaluation = AI.heuristic_evaluation(game, last_player);
 
     // Display moves
     display_moves(moves);
@@ -241,17 +241,23 @@ int main(int argc, char *argv[])
     // If no arguments are given, run the test_problems function
     // If an argument is given, run the test_problem function with the given argument
     if (argc == 1)
+    {
         test_problems();
-    else if (std::string(argv[1]) == "eval")
+        return 0;
+    }
+
+    std::string arg1(argv[1]);
+
+    if (arg1 == "eval")
     {
         std::string moves_string = std::string(argv[2]);
         test_eval(moves_string);
     }
-    else if (std::string(argv[1]) == "engine")
+    else if (arg1 == "engine")
     {
         test_engine();
     }
-    else if (std::string(argv[1]) == "line")
+    else if (arg1 == "line")
     {
         test_line(std::string(argv[2]));
     }

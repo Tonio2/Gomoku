@@ -1,9 +1,9 @@
 #include "gomoku_ai.h"
 #include <algorithm>
 
-GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), depth(depth), ai_player(ai_player), move_count(0), move_evaluated_count(0)
+GomokuAI::GomokuAI(int depth, GomokuAIData data)
+    : game(0, 0), depth(depth), evaluation_data(data), move_count(0), move_evaluated_count(0)
 {
-    human_player = (ai_player == X) ? O : X;
 }
 
 void sortMovesUtil(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int depth)
@@ -37,7 +37,7 @@ void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlaye
         try
         {
             MoveResult game_move = game.make_move(move.row, move.col);
-            move.score = heuristic_evaluation();
+            move.score = heuristic_evaluation(game, ai_player);
             game.reverse_move(game_move);
         }
         catch (std::exception &e)
@@ -67,7 +67,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                 node.score = 0;
         }
         else
-            node.score = heuristic_evaluation();
+            node.score = heuristic_evaluation(game, ai_player);
         return node;
     }
 
@@ -130,15 +130,15 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     return node;
 }
 
-int GomokuAI::heuristic_evaluation()
+int GomokuAI::heuristic_evaluation(const GomokuGame &board, Player heuristic_player)
 {
     TIMER
-    Player player = ai_player;
+    Player player = heuristic_player;
     int total_score = 0;
 
-    for (int multiplier = -1; multiplier <= 1; multiplier += 2)
+    for (int multiplier = 1; multiplier >= -1; multiplier -= 2)
     {
-        int score;
+        int score = 0;
         const std::vector<int> &patterns_count = game.get_patterns_count(player);
 
         for (int i = 0; i < StructureType::COUNT_STRUCTURE_TYPE; i++)
@@ -151,7 +151,7 @@ int GomokuAI::heuristic_evaluation()
 
         total_score += score * multiplier;
 
-        player = human_player;
+        player = board.other_player(player);
     }
     return total_score;
 }
@@ -161,12 +161,16 @@ int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
     return 0;
 }
 
-MoveEvaluation GomokuAI::suggest_move()
+MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board, Player player)
 {
     TIMER
 #ifdef NOTIMER
     Timer timer("suggest_move");
 #endif
+
+    game = board;
+    ai_player = player;
+    human_player = board.other_player(player);
     move_count = 0;
     move_evaluated_count = 0;
     evaluation_needed_count = 0;
@@ -215,4 +219,9 @@ std::vector<MoveHeuristic> GomokuAI::find_relevant_moves() const
     }
 
     return relevantMoves;
+}
+
+const GomokuAIData &GomokuAI::get_evaluation_data() const
+{
+    return evaluation_data;
 }
