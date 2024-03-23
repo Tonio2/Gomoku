@@ -134,30 +134,26 @@ int GomokuAI::heuristic_evaluation()
 {
     TIMER
     Player player = ai_player;
-    int multiplier = 1;
-    int score = 0;
-    std::vector<int> capture_scores = {0, 100, 200, 300, 1000};
+    int total_score = 0;
 
-    for (int i = 0; i < 2; i++)
+    for (int multiplier = -1; multiplier <= 1; multiplier += 2)
     {
-        const std::vector<int> &player_patterns_count = game.get_patterns_count(player);
-        score += player_patterns_count[FIVE_OR_MORE] * 100000 * multiplier;
-        score += player_patterns_count[OPEN_FOUR] * 10000 * multiplier;
-        score += (player_patterns_count[OPEN_THREE] >= 2 or player_patterns_count[FOUR] >= 2 or (player_patterns_count[OPEN_THREE] >= 1 and player_patterns_count[FOUR] >= 1)) * 9000 * multiplier;
-        score += player_patterns_count[FOUR] * 1000 * multiplier;
-        score += player_patterns_count[OPEN_THREE] * 1000 * multiplier;
-        score += player_patterns_count[THREE] * 500 * multiplier;
-        score += player_patterns_count[OPEN_TWO] * 100 * multiplier;
-        score += player_patterns_count[TWO] * 50 * multiplier;
-        score += player_patterns_count[OPEN_ONE] * 10 * multiplier;
-        score += player_patterns_count[ONE] * 5 * multiplier;
+        int score;
+        const std::vector<int> &patterns_count = game.get_patterns_count(player);
 
-        int score_capture = game.get_player_score(player);
-        score += capture_scores[score_capture / 2] * multiplier;
+        for (int i = 0; i < StructureType::COUNT_STRUCTURE_TYPE; i++)
+        {
+            score += patterns_count[i] * evaluation_data.value_of_structure(i);
+        }
+        score += (patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
+        score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
+        score += evaluation_data.value_of_captures(game.get_player_score(player));
+
+        total_score += score * multiplier;
+
         player = human_player;
-        multiplier = -1;
     }
-    return score;
+    return total_score;
 }
 
 int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
