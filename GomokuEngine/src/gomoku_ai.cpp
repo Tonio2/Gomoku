@@ -1,4 +1,4 @@
-#include "AI1.h"
+#include "gomoku_ai.h"
 #include <algorithm>
 
 GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), depth(depth), ai_player(ai_player), move_count(0), move_evaluated_count(0)

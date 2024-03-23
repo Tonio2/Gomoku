@@ -2,7 +2,7 @@
 #include <pybind11/stl.h>
 #include "gomoku_engine.h"
 #include "gomoku_pattern_reconizer.h"
-#include "AI1.h"
+#include "gomoku_ai.h"
 
 namespace py = pybind11;
 

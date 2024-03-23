@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "AI1.h"
+#include "gomoku_ai.h"
 
 #ifndef DEPTH
 #define DEPTH 3 // Default depth value
