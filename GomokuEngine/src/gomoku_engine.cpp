@@ -251,48 +251,6 @@ void GomokuGame::reapply_move(const MoveResult &move)
     current_player = other_player(current_player);
 }
 
-std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves() const
-{
-    TIMER
-    std::vector<std::pair<std::pair<int, int>, int>> relevantMoves;
-
-    // Directions to check around each cell (8 directions).
-    const std::vector<std::pair<int, int>> directions = {
-        {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
-
-    for (int row = 0; row < board.get_height(); ++row)
-    {
-        for (int col = 0; col < board.get_width(); ++col)
-        {
-            if (get_board_value(row, col) == E)
-            { // Empty cell
-                bool foundStone = false;
-                for (const auto &dir : directions)
-                {
-                    for (int step = 1; step <= 2; ++step)
-                    {
-                        int newRow = row + step * dir.first;
-                        int newCol = col + step * dir.second;
-
-                        if (coordinates_are_valid(newRow, newCol) && get_board_value(newRow, newCol) != E)
-                        {
-                            relevantMoves.push_back({{row, col}, 0});
-                            foundStone = true;
-                            break; // No need to check further if one stone is found near this cell.
-                        }
-                    }
-                    if (foundStone)
-                    {
-                        break; // No need to check further if one stone is found near this cell.
-                    }
-                }
-            }
-        }
-    }
-
-    return relevantMoves;
-}
-
 bool GomokuGame::try_direction_for_capture(uint row, uint col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
     const Player otherPlayer = other_player(player);
