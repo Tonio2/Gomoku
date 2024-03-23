@@ -51,10 +51,16 @@ Arena::Arena() : _game_width(19), _game_height(19)
 {
 }
 
-void Arena::play()
+void Arena::play(int argc, char *argv[])
 {
     GomokuAIData p1;
     GomokuAIData p2;
+
+    if (argc > 2)
+        p1.load_from_file(argv[2]);
+
+    if (argc > 3)
+        p2.load_from_file(argv[3]);
 
     GomokuAIDataMutator mutator;
 
@@ -77,6 +83,7 @@ void Arena::play()
         auto player_win = [&mutator, &streaker_index, &last_file](std::string winner_name, GomokuAIData &winner_data, int &winner_streak, GomokuAIData &loser_data, int &loser_streak)
         {
             // mutator.decrease_impact();
+            std::cout << winner_name << " win" << std::endl;
 
             ++winner_streak;
             if (loser_streak >= 10)
@@ -105,10 +112,8 @@ void Arena::play()
                 winner_data.save_to_file(last_file);
                 loser_data = winner_data;
             }
-            else
-            {
-                mutator.mutate_data(loser_data);
-            }
+
+            mutator.mutate_data(loser_data);
         };
 
         if (p1_wins > p2_wins)
@@ -123,6 +128,8 @@ void Arena::play()
         {
             // mutator.increase_impact();
             // mutator.mutate_data(p1);
+            std::cout << "draw" << std::endl;
+
             mutator.mutate_data(p2);
         }
     }
