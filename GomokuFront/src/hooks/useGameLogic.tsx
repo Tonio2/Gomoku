@@ -14,15 +14,14 @@ type GameLogic = {
   handleClick: (row: number, col: number) => void;
   handleReverse: () => void;
   handleReapply: () => void;
+  handleReset: () => void;
 };
 
 const useGameLogic = (): GameLogic => {
-  const [board, setBoard] = useState<number[][]>(emptyBoard());
-  const [listMoves, setListMoves] = useState<MoveHistory[]>([]);
-  const [currentMove, setCurrentMove] = useState<number>(0);
-  const xIsNext = currentMove % 2 === 0;
-  const [winner, setWinner] = useState<string | null>(null);
-
+  const size = useMemo(
+    () => Number(new URLSearchParams(window.location.search).get("size")),
+    []
+  );
   const userId = useMemo(() => uniqueUserID(), []);
 
   const mode = useMemo(
@@ -30,12 +29,30 @@ const useGameLogic = (): GameLogic => {
     []
   );
 
+  const starter = useMemo(
+    () => Number(new URLSearchParams(window.location.search).get("starter")),
+    []
+  );
+  const [board, setBoard] = useState<number[][]>(emptyBoard(size));
+  const [listMoves, setListMoves] = useState<MoveHistory[]>([]);
+  const [currentMove, setCurrentMove] = useState<number>(0);
+  const xIsNext = currentMove % 2 === 0;
+  const [winner, setWinner] = useState<string | null>(null);
+
+  const [isGameCreated, setIsGameCreated] = useState(false);
+
   useEffect(() => {
     const createGame = async () => {
       try {
-        await api.createGame(userId);
+        const { success, message } = await api.createGame(userId, mode, size);
+        if (success) {
+          console.log("Game created");
+          setIsGameCreated(true);
+        } else {
+          console.error(message);
+        }
       } catch (error) {
-        console.error("Error creating the game:", error);
+        console.error("Server error");
       }
     };
 
@@ -59,7 +76,7 @@ const useGameLogic = (): GameLogic => {
           console.error(message);
         }
       } catch (error: any) {
-        console.error("Error making a move:", error.response.data);
+        console.error("Server error");
       }
     },
     [currentMove, userId]
@@ -68,21 +85,44 @@ const useGameLogic = (): GameLogic => {
   useEffect(() => {
     const get_AI_suggestion = async () => {
       try {
-        const { moveEvaluation } = await api.getSuggestion(userId);
-        const bestMove = getBestMove(moveEvaluation);
-        play(bestMove[0], bestMove[1]);
+        const { success, message, moveEvaluation } = await api.getSuggestion(
+          userId
+        );
+        if (success) {
+          const bestMove = getBestMove(moveEvaluation);
+          play(bestMove[0], bestMove[1]);
+        } else {
+          console.error(message);
+        }
       } catch (error) {
-        console.error("Error getting AI suggestion:", error);
+        console.error("Server error");
       }
     };
 
-    if (mode === 0 && !xIsNext && currentMove === listMoves.length) {
-      get_AI_suggestion();
+    if (
+      mode === 0 &&
+      Number(xIsNext) === starter &&
+      currentMove === listMoves.length &&
+      isGameCreated
+    ) {
+      if (currentMove === 0) {
+        play(Math.floor(size / 2), Math.floor(size / 2));
+      } else {
+        get_AI_suggestion();
+      }
     }
-  }, [currentMove, mode, xIsNext, play, listMoves.length, userId]);
+  }, [
+    currentMove,
+    mode,
+    xIsNext,
+    play,
+    listMoves.length,
+    userId,
+    isGameCreated,
+  ]);
 
   const handleClick = (row: number, col: number) => {
-    if (mode === 1 || (mode === 0 && xIsNext)) {
+    if (mode === 1 || (mode === 0 && Number(xIsNext) !== starter)) {
       play(row, col);
     }
   };
@@ -98,7 +138,7 @@ const useGameLogic = (): GameLogic => {
         setCurrentMove((prevMove) => prevMove - 1);
       }
     } catch (error: any) {
-      console.error("Error reversing the move:", error.response.data);
+      console.error("Server error");
     }
   };
 
@@ -113,7 +153,23 @@ const useGameLogic = (): GameLogic => {
         setCurrentMove((prevMove) => prevMove + 1);
       }
     } catch (error) {
-      console.error("Error reapplying the move:", error);
+      console.error("Server error");
+    }
+  };
+
+  const reset = async () => {
+    try {
+      const { success, message } = await api.resetGame(userId);
+      if (success) {
+        setBoard(emptyBoard(size));
+        setListMoves([]);
+        setCurrentMove(0);
+        setWinner(null);
+      } else {
+        console.error(message);
+      }
+    } catch (error) {
+      console.error("Server error");
     }
   };
 
@@ -126,6 +182,7 @@ const useGameLogic = (): GameLogic => {
     handleClick: handleClick,
     handleReverse: reverse,
     handleReapply: reapply,
+    handleReset: reset,
   };
 };
 

@@ -74,10 +74,11 @@ def serialize_moveEvaluation(moveEvaluation):
 
 # Create a python class that will handle the game logic
 class GomokuGame:
-    def __init__(self, mode):
-        self.game = pygomoku.GomokuGame(19, 19)
+    def __init__(self, mode, size=19):
+        self.game = pygomoku.GomokuGame(size, size)
         self.current_player = 1
         self.mode = mode
+        self.size = size
 
     def make_move(self, row, col):
         moveResult = self.game.make_move(row, col)
@@ -85,10 +86,12 @@ class GomokuGame:
         return serialize_move_result(moveResult)
 
     def reverse_move(self, moveResult):
-        return self.game.reverse_move(deserialize_move_result(moveResult))
+        self.game.reverse_move(deserialize_move_result(moveResult))
+        self.current_player = 1 if self.current_player == 2 else 2
 
     def reapply_move(self, moveResult):
-        return self.game.reapply_move(deserialize_move_result(moveResult))
+        self.game.reapply_move(deserialize_move_result(moveResult))
+        self.current_player = 1 if self.current_player == 2 else 2
 
     def get_board(self):
         return self.game.get_board()
@@ -105,6 +108,10 @@ class GomokuGame:
     def get_game(self):
         return self.game
 
+    def reset(self):
+        self.game = pygomoku.GomokuGame(self.size, self.size)
+        self.current_player = 1
+
 
 class AI:
     def __init__(self, game, player, depth):
@@ -120,20 +127,41 @@ games = {}  # Dictionary to store game instances
 @app.route("/create_game", methods=["POST"])
 def create_game():
     user_id = request.json["userId"]  # Unique identifier for the user/session
-    game = GomokuGame(1)
-    games[user_id] = game
+    size = request.json.get("size", 19)
+    mode = request.json.get("mode", 0)
+    game = games.get(user_id)
+    if not game:
+        game = GomokuGame(mode, size)
+        games[user_id] = game
     return jsonify({"success": True, "message": "Game created", "user_id": user_id})
+
+
+@app.route("/reset_game", methods=["POST"])
+def reset_game():
+    user_id = request.json["userId"]
+    game = games.get(user_id)
+    if not game:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    try:
+        game.reset()
+        return jsonify({"success": True, "message": "Game reset"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
 
 @app.route("/make_move", methods=["POST"])
 def make_move():
     user_id = request.json["user_id"]
-    row = request.json["row"]
-    col = request.json["col"]
     game = games.get(user_id)
     if not game:
-        # Throw a 404 error if the game is not found instead of returning a message
-        return "Game not found", 400
+        return jsonify({"success": False, "message": "Game not found"})
+
+    if game.is_game_over():
+        return jsonify({"success": False, "message": "Game is over"})
+
+    row = request.json["row"]
+    col = request.json["col"]
 
     try:
         moveResult = game.make_move(row, col)
@@ -156,10 +184,20 @@ def reverse_move():
     moveResult = request.json["moveResult"]
     game = games.get(user_id)
     if not game:
-        return "Game not found", 400
+        return jsonify({"success": False, "message": "Game not found"})
 
-    game.reverse_move(moveResult)
-    return jsonify({"success": True, "newBoard": game.get_board()})
+    try:
+        game.reverse_move(moveResult)
+        return jsonify(
+            {
+                "success": True,
+                "newBoard": game.get_board(),
+                "is_game_over": game.is_game_over(),
+                "newWinner": game.get_winner(),
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
 
 @app.route("/reapply_move", methods=["POST"])
@@ -168,10 +206,20 @@ def reapply_move():
     moveResult = request.json["moveResult"]
     game = games.get(user_id)
     if not game:
-        return "Game not found", 400
+        return jsonify({"success": False, "message": "Game not found"})
 
-    game.reapply_move(moveResult)
-    return jsonify({"success": True, "newBoard": game.get_board()})
+    try:
+        game.reapply_move(moveResult)
+        return jsonify(
+            {
+                "success": True,
+                "newBoard": game.get_board(),
+                "is_game_over": game.is_game_over(),
+                "newWinner": game.get_winner(),
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
 
 @app.route("/get_suggestion", methods=["GET"])
@@ -179,8 +227,11 @@ def get_suggestion():
     user_id = request.args.get("user_id")
     game = games.get(user_id)
     if not game:
-        return "Game not found", 400
+        return jsonify({"success": False, "message": "Game not found"})
 
-    ai = AI(game.get_game(), game.get_current_player(), 3)
-    moveEvaluation = ai.get_suggestion()
-    return jsonify({"success": True, "moveEvaluation": moveEvaluation})
+    try:
+        ai = AI(game.get_game(), game.get_current_player(), 3)
+        moveEvaluation = ai.get_suggestion()
+        return jsonify({"success": True, "moveEvaluation": moveEvaluation})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})

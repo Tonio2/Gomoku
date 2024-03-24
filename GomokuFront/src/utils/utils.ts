@@ -16,8 +16,8 @@ export const uniqueUserID = () => {
   return Math.random().toString(36).substring(2, 15);
 };
 
-export const emptyBoard = () => {
-  return Array(19)
+export const emptyBoard = (size: number) => {
+  return Array(size)
     .fill(null)
-    .map(() => Array(19).fill(null));
+    .map(() => Array(size).fill(null));
 };

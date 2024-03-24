@@ -15,6 +15,7 @@ export default function Game() {
     handleClick,
     handleReverse,
     handleReapply,
+    handleReset,
   } = useGameLogic();
 
   return (
@@ -26,6 +27,7 @@ export default function Game() {
           winner={winner}
           handleClick={handleClick}
         />
+        <button onClick={() => handleReset()}>Reset</button>
       </div>
       <div className="game-info">
         <ListMoves moves={listMoves} currentMove={currentMove} />
