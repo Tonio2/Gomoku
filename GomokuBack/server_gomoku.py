@@ -1,5 +1,4 @@
-from flask import Flask, request
-from flask_socketio import SocketIO, emit
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sys
 
@@ -8,7 +7,6 @@ import pygomoku
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
 
 
 def deserialize_cell_change(cell_change):
@@ -119,40 +117,72 @@ class AI:
         return serialize_moveEvaluation(self.ai.suggest_move())
 
 
-@socketio.on("connect")
-def handle_connection():
-    print("A user connected")
+games = {}  # Dictionary to store game instances
+
+
+@app.route("/create_game", methods=["POST"])
+def create_game():
+    user_id = request.json["userId"]  # Unique identifier for the user/session
     game = GomokuGame(1)
+    games[user_id] = game
+    return jsonify({"success": True, "message": "Game created", "user_id": user_id})
 
-    @socketio.on("board")
-    def handle_board():
-        emit("board", game.get_board(), broadcast=True)
 
-    @socketio.on("makeMove")
-    def handle_make_move(row, col):
-        success, moveResult = game.make_move(row, col)
-        if not success:
-            return {"success": False}
-        return {
+@app.route("/make_move", methods=["POST"])
+def make_move():
+    user_id = request.json["user_id"]
+    row = request.json["row"]
+    col = request.json["col"]
+    game = games.get(user_id)
+    if not game:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    success, moveResult = game.make_move(row, col)
+    if not success:
+        return jsonify({"success": False})
+
+    return jsonify(
+        {
             "success": True,
             "board": game.get_board(),
             "is_game_over": game.is_game_over(),
             "winner": game.get_winner(),
             "moveResult": moveResult,
         }
+    )
 
-    @socketio.on("reverseMove")
-    def handle_reverse_move(moveResult):
-        game.reverse_move(moveResult)
-        return {"success": True, "board": game.get_board()}
 
-    @socketio.on("reapplyMove")
-    def handle_reapply_move(moveResult):
-        game.reapply_move(moveResult)
-        return {"success": True, "board": game.get_board()}
+@app.route("/reverse_move", methods=["POST"])
+def reverse_move():
+    user_id = request.json["user_id"]
+    moveResult = request.json["moveResult"]
+    game = games.get(user_id)
+    if not game:
+        return jsonify({"success": False, "message": "Game not found"})
 
-    @socketio.on("getSuggestion")
-    def handle_get_suggestion():
-        ai = AI(game.get_game(), game.get_current_player(), 3)
-        moveEvaluation = ai.get_suggestion()
-        emit("suggestion", {"success": True, "moveEvaluation": moveEvaluation})
+    game.reverse_move(moveResult)
+    return jsonify({"success": True, "board": game.get_board()})
+
+
+@app.route("/reapply_move", methods=["POST"])
+def reapply_move():
+    user_id = request.json["user_id"]
+    moveResult = request.json["moveResult"]
+    game = games.get(user_id)
+    if not game:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    game.reapply_move(moveResult)
+    return jsonify({"success": True, "board": game.get_board()})
+
+
+@app.route("/get_suggestion", methods=["GET"])
+def get_suggestion():
+    user_id = request.args.get("user_id")
+    game = games.get(user_id)
+    if not game:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    ai = AI(game.get_game(), game.get_current_player(), 3)
+    moveEvaluation = ai.get_suggestion()
+    return jsonify({"success": True, "moveEvaluation": moveEvaluation})
