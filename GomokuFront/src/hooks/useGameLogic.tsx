@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getBestMove, uniqueUserID, emptyBoard } from "../utils/utils";
 import api from "../utils/api";
 
-import { MoveHistory } from "../interface";
+import { MoveHistory, Mode, Rule } from "../interface";
 
 type GameLogic = {
   board: number[][];
@@ -41,7 +41,10 @@ const useGameLogic = (): GameLogic => {
 
   const [isGameCreated, setIsGameCreated] = useState(false);
   const [xIsAI, setXIsAI] = useState<boolean>(
-    Boolean(new URLSearchParams(window.location.search).get("starter") === "1")
+    Boolean(
+      new URLSearchParams(window.location.search).get("starter") ===
+        Mode.PVP.toString()
+    )
   );
   useEffect(() => {
     const createGame = async () => {
@@ -133,27 +136,21 @@ const useGameLogic = (): GameLogic => {
     };
 
     const playAI = async () => {
-      if (ruleStyle === 0) {
+      if (ruleStyle === Rule.Standard) {
         if (xIsNext === xIsAI) {
-          // Next Player is AI
           if (currentMove === 0) {
-            // First move
             play(Math.floor(size / 2), Math.floor(size / 2)); // Play around the center
           } else {
             await play_AI_suggestion();
           }
         }
-      } else if (ruleStyle === 1) {
-        // Pro
+      } else if (ruleStyle === Rule.Pro) {
         if (xIsNext === xIsAI) {
-          // Next Player is AI
           if (currentMove === 0) {
-            // First move
             play(Math.floor(size / 2), Math.floor(size / 2));
           } else {
             let predicate = (move: number[]) => true;
             if (currentMove === 2)
-              // Check that the second move is at least 3 cells away from the first move
               predicate = (move: number[]) =>
                 isThreecellsAwayFrom(move, [
                   listMoves[0].row,
@@ -162,8 +159,7 @@ const useGameLogic = (): GameLogic => {
             await play_AI_suggestion(predicate);
           }
         }
-      } else if (ruleStyle === 2) {
-        // Swap
+      } else if (ruleStyle === Rule.Swap) {
         if (currentMove === 3 && !xIsAI) {
           await swap_AI_suggestion();
         }
@@ -171,7 +167,6 @@ const useGameLogic = (): GameLogic => {
           (currentMove <= 2 && xIsAI) ||
           (xIsNext === xIsAI && currentMove >= 3)
         ) {
-          console.log("AI's choosing the three first pieces");
           if (currentMove === 0) {
             play(Math.floor(size / 2), Math.floor(size / 2));
           } else {
@@ -183,7 +178,7 @@ const useGameLogic = (): GameLogic => {
 
     const askUserForChoice = async () => {
       let success = false;
-      if (ruleStyle === 2 && currentMove === 3 && xIsAI) {
+      if (ruleStyle === Rule.Swap && currentMove === 3 && xIsAI) {
         while (!success) {
           const choice = prompt("Do you want to take X or O?");
           if (choice === "X") {
@@ -200,7 +195,11 @@ const useGameLogic = (): GameLogic => {
       }
     };
 
-    if (isGameCreated && mode === 0 && currentMove === listMoves.length) {
+    if (
+      isGameCreated &&
+      mode === Mode.PVAI &&
+      currentMove === listMoves.length
+    ) {
       playAI();
       askUserForChoice();
     }
@@ -218,13 +217,13 @@ const useGameLogic = (): GameLogic => {
   ]);
 
   const handleClick = (row: number, col: number) => {
-    if (mode === 1) {
+    if (mode === Mode.PVP) {
       play(row, col);
-    } else if (mode === 0) {
-      if (ruleStyle === 0 && xIsNext !== xIsAI) {
+    } else if (mode === Mode.PVAI) {
+      if (ruleStyle === Rule.Standard && xIsNext !== xIsAI) {
         play(row, col);
       }
-      if (ruleStyle === 1 && xIsNext !== xIsAI) {
+      if (ruleStyle === Rule.Pro && xIsNext !== xIsAI) {
         if (
           currentMove === 0 &&
           (row !== Math.floor(size / 2) || col !== Math.floor(size / 2))
@@ -246,7 +245,7 @@ const useGameLogic = (): GameLogic => {
         }
         play(row, col);
       }
-      if (ruleStyle === 2) {
+      if (ruleStyle === Rule.Swap) {
         if (
           (currentMove <= 2 && !xIsAI) ||
           (xIsNext !== xIsAI && currentMove >= 3)

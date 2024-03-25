@@ -20,3 +20,14 @@ export interface MoveEvaluation {
   score: number;
   listMoves?: MoveEvaluation[];
 }
+
+export enum Mode {
+  PVAI,
+  PVP,
+}
+
+export enum Rule {
+  Standard,
+  Pro,
+  Swap,
+}
