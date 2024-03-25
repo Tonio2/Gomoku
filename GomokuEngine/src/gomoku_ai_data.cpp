@@ -21,8 +21,8 @@ GomokuAIData::GomokuAIData()
     values[10] = 9000;
     values[11] = 9000;
     values[12] = 10;
-    values[13] = 0;
-    values[14] = 0;
+    values[13] = 1;
+    values[14] = 1;
 }
 
 GomokuAIData::GomokuAIData(const GomokuAIData &copy)
@@ -65,13 +65,7 @@ void GomokuAIData::save_to_file(std::string filename) const
         throw std::runtime_error("Error: Unable to open file for writing: " + filename);
     }
 
-    for (int i = 0; i < VALUES_COUNT; ++i)
-    {
-        file << std::fixed << std::setprecision(6) << values[i];
-        if (i < VALUES_COUNT - 1)
-            file << ",";
-    }
-    file << std::endl;
+    file << *this << std::endl;
 
     file.close();
 }
@@ -125,4 +119,15 @@ float GomokuAIData::value_of_captures(int capture_count) const
     const float c = values[STC + 4];
 
     return a * (capture_count * capture_count) + b * (capture_count) + c;
+}
+
+std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data)
+{
+    for (int i = 0; i < GomokuAIData::VALUES_COUNT; ++i)
+    {
+        stream << ai_data.values[i];
+        if (i < GomokuAIData::VALUES_COUNT - 1)
+            stream << ",";
+    }
+    return stream;
 }
