@@ -25,4 +25,8 @@ private:
     float values[VALUES_COUNT];
 
     friend class GomokuAIDataMutator;
+
+    friend std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data);
 };
+
+std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data);

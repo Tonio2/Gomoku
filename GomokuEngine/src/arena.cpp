@@ -58,9 +58,32 @@ void Arena::play(int argc, char *argv[])
 
     if (argc > 2)
         p1.load_from_file(argv[2]);
+    else
+    {
+        try
+        {
+            p1.load_from_file("ai_data/p1_last.gkd");
+        }
+        catch (std::exception &e)
+        {
+        }
+    }
 
     if (argc > 3)
         p2.load_from_file(argv[3]);
+    else
+    {
+        try
+        {
+            p2.load_from_file("ai_data/p2_last.gkd");
+        }
+        catch (std::exception &e)
+        {
+        }
+    }
+
+    std::cout << "p1 => " << p1 << std::endl;
+    std::cout << "p2 => " << p2 << std::endl;
 
     GomokuAIDataMutator mutator;
 
@@ -80,10 +103,10 @@ void Arena::play(int argc, char *argv[])
         int p1_wins = (first_winner == 1) + (second_winner == 1);
         int p2_wins = (first_winner == 2) + (second_winner == 2);
 
-        auto player_win = [&mutator, &streaker_index, &last_file](std::string winner_name, GomokuAIData &winner_data, int &winner_streak, GomokuAIData &loser_data, int &loser_streak)
+        auto player_win = [&mutator, &streaker_index, &last_file](std::string winner_name, GomokuAIData &winner_data, int &winner_streak, std::string loser_name, GomokuAIData &loser_data, int &loser_streak)
         {
             // mutator.decrease_impact();
-            std::cout << winner_name << " win" << std::endl;
+            std::cout << winner_name << " win ~" << loser_name << std::endl;
 
             ++winner_streak;
             if (loser_streak >= 10)
@@ -93,7 +116,7 @@ void Arena::play(int argc, char *argv[])
             }
             loser_streak = 0;
 
-            if (winner_streak >= 10)
+            if (winner_streak >= 20)
             {
                 if (last_file != "")
                 {
@@ -118,20 +141,40 @@ void Arena::play(int argc, char *argv[])
 
         if (p1_wins > p2_wins)
         {
-            player_win("p1", p1, win_streak_p1, p2, win_streak_p2);
+            player_win("p1", p1, win_streak_p1, "p2", p2, win_streak_p2);
         }
         else if (p2_wins > p1_wins)
         {
-            player_win("p2", p2, win_streak_p2, p1, win_streak_p1);
+            player_win("p2", p2, win_streak_p2, "p1", p1, win_streak_p1);
         }
         else
         {
             // mutator.increase_impact();
             // mutator.mutate_data(p1);
-            std::cout << "draw" << std::endl;
 
-            mutator.mutate_data(p2);
+            std::cout << "draw " << p1_wins << ' ' << p2_wins;
+            if (win_streak_p1 > 0)
+            {
+                win_streak_p1 = 1;
+                mutator.mutate_data(p2);
+                std::cout << " ~p2";
+            }
+            else if (win_streak_p2 > 0)
+            {
+                win_streak_p2 = 1;
+                mutator.mutate_data(p1);
+                std::cout << " ~p1";
+            }
+            else
+            {
+                mutator.mutate_data(p2);
+                std::cout << " ~p2";
+            }
+            std::cout << std::endl;
         }
+
+        p1.save_to_file("ai_data/p1_last.gkd");
+        p2.save_to_file("ai_data/p2_last.gkd");
     }
 }
 
