@@ -30,15 +30,15 @@ export default function Game() {
   }
 
   return (
-    <div className="flex flex-row justify-evenly p-10">
-      <div className="flex flex-col">
+    <div className="grid grid-cols-[auto,1fr] gap-10 h-screen">
+      <div className="flex flex-col pt-20 pl-10">
         <h1 className="font-bold text-2xl mb-5">{status}</h1>
         <div className="game-board">
           <Board xIsNext={xIsNext} board={board} handleClick={handleClick} />
         </div>
         <Button onClick={() => handleReset()} text="Reset" />
       </div>
-      <div className="game-info min-w-[287px]">
+      <div className="game-info flex flex-col py-20 pr-10 max-h-screen">
         <ScoreBoard playerX={playerX} playerO={playerO} />
         <ListMoves moves={listMoves} currentMove={currentMove} />
         <div className="grid grid-cols-2 gap-4">

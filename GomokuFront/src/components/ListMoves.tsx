@@ -30,15 +30,17 @@ const ListMoves: React.FC<IListMoves> = ({ moves, currentMove }) => {
   }
 
   return (
-    <table className="border-separate border-spacing-0 w-full bg-[rgba(10,23,38,0.8)] shadow-blur">
-      <thead>
-        <tr>
-          <th>X</th>
-          <th>O</th>
-        </tr>
-      </thead>
-      <tbody>{formattedMoves}</tbody>
-    </table>
+    <div className="flex-grow overflow-y-auto shadow-blur custom-scrollbar">
+      <table className="border-separate border-spacing-0 w-full bg-[rgba(10,23,38,0.8)]">
+        <thead>
+          <tr>
+            <th>X</th>
+            <th>O</th>
+          </tr>
+        </thead>
+        <tbody>{formattedMoves}</tbody>
+      </table>
+    </div>
   );
 };
 
