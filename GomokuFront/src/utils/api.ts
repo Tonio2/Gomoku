@@ -55,7 +55,7 @@ const reapplyMove = async (userId: string, moveResult: MoveResult) => {
   return response.data;
 };
 
-export default {
+const api = {
   createGame,
   resetGame,
   makeMove,
@@ -63,3 +63,5 @@ export default {
   reverseMove,
   reapplyMove,
 };
+
+export default api;

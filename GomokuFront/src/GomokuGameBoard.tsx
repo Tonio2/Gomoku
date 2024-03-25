@@ -4,6 +4,7 @@ import useGameLogic from "./hooks/useGameLogic";
 
 import Board from "./components/Board";
 import ListMoves from "./components/ListMoves";
+import Button from "./components/Button";
 
 export default function Game() {
   const {
@@ -18,28 +19,36 @@ export default function Game() {
     handleReset,
   } = useGameLogic();
 
+  let status: string;
+  if (winner) {
+    status = (winner === "1" ? "Black" : "White") + " wins!";
+  } else {
+    status = "Next player: " + (xIsNext ? "X" : "O");
+  }
+
   return (
-    <div className="game">
-      <div className="game-board">
-        <Board
-          xIsNext={xIsNext}
-          board={board}
-          winner={winner}
-          handleClick={handleClick}
-        />
-        <button onClick={() => handleReset()}>Reset</button>
+    <div className="flex flex-row justify-evenly p-10">
+      <div className="flex flex-col">
+        <h1 className="font-bold text-2xl mb-5">{status}</h1>
+        <div className="game-board">
+          <Board xIsNext={xIsNext} board={board} handleClick={handleClick} />
+        </div>
+        <Button onClick={() => handleReset()} text="Reset" />
       </div>
-      <div className="game-info">
+      <div className="game-info min-w-[287px]">
         <ListMoves moves={listMoves} currentMove={currentMove} />
-        <button onClick={() => handleReverse()} disabled={currentMove === 0}>
-          Reverse
-        </button>
-        <button
-          onClick={() => handleReapply()}
-          disabled={currentMove === listMoves.length}
-        >
-          Reapply
-        </button>
+        <div className="flex justify-between">
+          <Button
+            onClick={() => handleReverse()}
+            text="Reverse"
+            disabled={currentMove === 0}
+          />
+          <Button
+            onClick={() => handleReapply()}
+            text="Reapply"
+            disabled={currentMove === 0}
+          />
+        </div>
       </div>
     </div>
   );
