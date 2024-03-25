@@ -6,8 +6,9 @@ import Board from "./components/Board";
 import ListMoves from "./components/ListMoves";
 import Button from "./components/Button";
 import ScoreBoard from "./components/ScoreBoard";
+import { useNavigate } from "react-router-dom";
 
-export default function Game() {
+const Game: React.FC = () => {
   const {
     board,
     listMoves,
@@ -21,6 +22,7 @@ export default function Game() {
     handleReapply,
     handleReset,
   } = useGameLogic();
+  const navigate = useNavigate();
 
   let status: string;
   if (winner) {
@@ -29,10 +31,20 @@ export default function Game() {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
 
+  function handleMenu(): void {
+    navigate("/");
+  }
+
   return (
-    <div className="flex flex-row justify-items-center justify-center gap-10 h-screen px-10 items-center">
-      <div className="game-board flex-none">
-        <Board xIsNext={xIsNext} board={board} handleClick={handleClick} />
+    <div className="flex flex-row justify-items-center justify-center gap-10 h-screen px-10 items-start pt-20">
+      <div className="flex flex-col">
+        <div className="game-board flex-none">
+          <Board xIsNext={xIsNext} board={board} handleClick={handleClick} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Button onClick={() => handleMenu()} text="Menu" />
+          <Button onClick={() => handleReset()} text="Reset game" />
+        </div>
       </div>
       <div className="game-info flex flex-col max-h-[80vh] w-[325px]">
         <h1 className="font-bold text-2xl mb-5">{status}</h1>
@@ -50,8 +62,9 @@ export default function Game() {
             disabled={currentMove === 0}
           />
         </div>
-        <Button onClick={() => handleReset()} text="Reset" />
       </div>
     </div>
   );
-}
+};
+
+export default Game;
