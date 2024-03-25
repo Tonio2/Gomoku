@@ -315,6 +315,18 @@ const useGameLogic = (): GameLogic => {
       if (success) {
         setBoard(newBoard);
         setCurrentMove((prevMove) => prevMove - 1);
+        setPlayerX((prevPlayer) => ({
+          ...prevPlayer,
+          score:
+            prevPlayer.score -
+            listMoves[currentMove - 1].moveResult.black_score_change,
+        }));
+        setPlayerO((prevPlayer) => ({
+          ...prevPlayer,
+          score:
+            prevPlayer.score -
+            listMoves[currentMove - 1].moveResult.white_score_change,
+        }));
       }
     } catch (error: any) {
       console.error("Server error");
@@ -330,6 +342,18 @@ const useGameLogic = (): GameLogic => {
       if (success) {
         setBoard(newBoard);
         setCurrentMove((prevMove) => prevMove + 1);
+        setPlayerX((prevPlayer) => ({
+          ...prevPlayer,
+          score:
+            prevPlayer.score +
+            listMoves[currentMove].moveResult.black_score_change,
+        }));
+        setPlayerO((prevPlayer) => ({
+          ...prevPlayer,
+          score:
+            prevPlayer.score +
+            listMoves[currentMove].moveResult.white_score_change,
+        }));
       }
     } catch (error) {
       console.error("Server error");
