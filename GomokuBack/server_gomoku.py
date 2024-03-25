@@ -169,7 +169,7 @@ def make_move():
             {
                 "success": True,
                 "newBoard": game.get_board(),
-                "is_game_over": game.is_game_over(),
+                "newIsGameOver": game.is_game_over(),
                 "newWinner": game.get_winner(),
                 "moveResult": moveResult,
             }

@@ -1,4 +1,4 @@
-import { MoveEvaluation } from "../interface";
+import { MoveEvaluation, MoveHistory } from "../interface";
 
 export const getBestMove = (
   moveEvaluation: MoveEvaluation,
@@ -23,4 +23,18 @@ export const emptyBoard = (size: number) => {
   return Array(size)
     .fill(null)
     .map(() => Array(size).fill(null));
+};
+
+export const formatMove = (row: number, col: number) => {
+  const coordinates = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  return coordinates[row] + coordinates[col];
+};
+
+export const logMoveHistory = (listMoves: MoveHistory[]) => {
+  let str = "";
+  for (const move of listMoves) {
+    str += formatMove(move.row, move.col) + ",";
+  }
+
+  console.log(str.slice(0, -1));
 };

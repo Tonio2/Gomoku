@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MoveResult } from "../interface";
+import { MoveEvaluation, MoveResult } from "../interface";
 
 const API_URL = "http://localhost:5000";
 const CREATE_GAME_URL = `${API_URL}/create_game`;
@@ -9,7 +9,11 @@ const GET_SUGGESTION_URL = `${API_URL}/get_suggestion`;
 const REVERSE_MOVE_URL = `${API_URL}/reverse_move`;
 const REAPPLY_MOVE_URL = `${API_URL}/reapply_move`;
 
-const createGame = async (userId: string, mode: number, size: number) => {
+const createGame = async (
+  userId: string,
+  mode: number,
+  size: number
+): Promise<{ success: boolean; message: string }> => {
   const response = await axios.post(CREATE_GAME_URL, {
     userId: userId,
     mode: mode,
@@ -18,28 +22,51 @@ const createGame = async (userId: string, mode: number, size: number) => {
   return response.data;
 };
 
-const resetGame = async (userId: string) => {
+const resetGame = async (
+  userId: string
+): Promise<{ success: boolean; message: string }> => {
   const response = await axios.post(RESET_GAME_URL, {
     userId: userId,
   });
   return response.data;
 };
 
-const makeMove = async (userId: string, row: number, col: number) => {
+const makeMove = async (
+  userId: string,
+  row: number,
+  col: number
+): Promise<{
+  success: boolean;
+  message: string;
+  moveResult: MoveResult;
+  newBoard: number[][];
+  newWinner: number;
+  newIsGameOver: boolean;
+}> => {
   const response = await axios.post(MAKE_MOVE_URL, {
     user_id: userId,
     row,
     col,
   });
+  console.log(response.data);
   return response.data;
 };
 
-const getSuggestion = async (userId: string) => {
+const getSuggestion = async (
+  userId: string
+): Promise<{
+  success: boolean;
+  message: string;
+  moveEvaluation: MoveEvaluation;
+}> => {
   const response = await axios.get(GET_SUGGESTION_URL + `?user_id=${userId}`);
   return response.data;
 };
 
-const reverseMove = async (userId: string, moveResult: MoveResult) => {
+const reverseMove = async (
+  userId: string,
+  moveResult: MoveResult
+): Promise<{ success: boolean; newBoard: number[][] }> => {
   const response = await axios.post(REVERSE_MOVE_URL, {
     user_id: userId,
     moveResult: moveResult,
@@ -47,7 +74,10 @@ const reverseMove = async (userId: string, moveResult: MoveResult) => {
   return response.data;
 };
 
-const reapplyMove = async (userId: string, moveResult: MoveResult) => {
+const reapplyMove = async (
+  userId: string,
+  moveResult: MoveResult
+): Promise<{ success: boolean; newBoard: number[][] }> => {
   const response = await axios.post(REAPPLY_MOVE_URL, {
     user_id: userId,
     moveResult: moveResult,

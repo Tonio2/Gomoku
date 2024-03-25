@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getBestMove, uniqueUserID, emptyBoard } from "../utils/utils";
+import {
+  getBestMove,
+  uniqueUserID,
+  emptyBoard,
+  logMoveHistory,
+} from "../utils/utils";
 import api from "../utils/api";
 
 import { MoveHistory, Mode, Rule } from "../interface";
@@ -10,7 +15,9 @@ type GameLogic = {
   listMoves: MoveHistory[];
   currentMove: number;
   xIsNext: boolean;
-  winner: string | null;
+  winner: number;
+  playerX: { score: number; time: number };
+  playerO: { score: number; time: number };
   handleClick: (row: number, col: number) => void;
   handleReverse: () => void;
   handleReapply: () => void;
@@ -37,7 +44,10 @@ const useGameLogic = (): GameLogic => {
   const [listMoves, setListMoves] = useState<MoveHistory[]>([]);
   const [currentMove, setCurrentMove] = useState<number>(0);
   const xIsNext = currentMove % 2 === 0;
-  const [winner, setWinner] = useState<string | null>(null);
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [winner, setWinner] = useState<number>(0);
+  const [playerX, setPlayerX] = useState({ score: 0, time: 0 });
+  const [playerO, setPlayerO] = useState({ score: 0, time: 0 });
 
   const [isGameCreated, setIsGameCreated] = useState(false);
   const [xIsAI, setXIsAI] = useState<boolean>(
@@ -46,6 +56,30 @@ const useGameLogic = (): GameLogic => {
         Mode.PVP.toString()
     )
   );
+  const [timerStarted, setTimerStarted] = useState(
+    ruleStyle === Rule.Standard || ruleStyle === Rule.Pro
+  );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (timerStarted && !isGameOver) {
+        if (xIsNext) {
+          setPlayerX((prevPlayer) => ({
+            ...prevPlayer,
+            time: prevPlayer.time + 0.1,
+          }));
+        } else {
+          setPlayerO((prevPlayer) => ({
+            ...prevPlayer,
+            time: prevPlayer.time + 0.1,
+          }));
+        }
+      }
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, [timerStarted, xIsNext, isGameOver]);
+
   useEffect(() => {
     const createGame = async () => {
       try {
@@ -67,8 +101,14 @@ const useGameLogic = (): GameLogic => {
   const play = useCallback(
     async (row: number, col: number) => {
       try {
-        const { success, message, moveResult, newBoard, newWinner } =
-          await api.makeMove(userId, row, col);
+        const {
+          success,
+          message,
+          moveResult,
+          newBoard,
+          newWinner,
+          newIsGameOver,
+        } = await api.makeMove(userId, row, col);
         if (success) {
           setBoard(newBoard);
           setListMoves((prevListMoves) => [
@@ -76,7 +116,16 @@ const useGameLogic = (): GameLogic => {
             { row, col, moveResult: moveResult },
           ]);
           setWinner(newWinner);
+          setIsGameOver(newIsGameOver);
           setCurrentMove((prevMove) => prevMove + 1);
+          setPlayerX((prevPlayer) => ({
+            ...prevPlayer,
+            score: prevPlayer.score + moveResult.black_score_change,
+          }));
+          setPlayerO((prevPlayer) => ({
+            ...prevPlayer,
+            score: prevPlayer.score + moveResult.white_score_change,
+          }));
         } else {
           console.error(message);
         }
@@ -203,6 +252,7 @@ const useGameLogic = (): GameLogic => {
       playAI();
       askUserForChoice();
     }
+    logMoveHistory(listMoves);
   }, [
     currentMove,
     mode,
@@ -293,7 +343,12 @@ const useGameLogic = (): GameLogic => {
         setBoard(emptyBoard(size));
         setListMoves([]);
         setCurrentMove(0);
-        setWinner(null);
+        setWinner(0);
+        setPlayerX({ score: 0, time: 0 });
+        setPlayerO({ score: 0, time: 0 });
+        setTimerStarted(ruleStyle === Rule.Standard || ruleStyle === Rule.Pro);
+        setIsGameOver(false);
+
         setXIsAI(
           Boolean(
             new URLSearchParams(window.location.search).get("starter") === "1"
@@ -313,6 +368,8 @@ const useGameLogic = (): GameLogic => {
     currentMove,
     xIsNext,
     winner,
+    playerX,
+    playerO,
     handleClick: handleClick,
     handleReverse: reverse,
     handleReapply: reapply,
