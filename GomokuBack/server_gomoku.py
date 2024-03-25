@@ -114,8 +114,8 @@ class GomokuGame:
 
 
 class AI:
-    def __init__(self, game, player, depth):
-        self.ai = pygomoku.GomokuAI(game, pygomoku.Player(player), depth)
+    def __init__(self, game, player, depth, length):
+        self.ai = pygomoku.GomokuAI(game, pygomoku.Player(player), depth, length)
 
     def get_suggestion(self):
         return serialize_moveEvaluation(self.ai.suggest_move())
@@ -230,7 +230,7 @@ def get_suggestion():
         return jsonify({"success": False, "message": "Game not found"})
 
     try:
-        ai = AI(game.get_game(), game.get_current_player(), 3)
+        ai = AI(game.get_game(), game.get_current_player(), 3, 3)
         moveEvaluation = ai.get_suggestion()
         return jsonify({"success": True, "moveEvaluation": moveEvaluation})
     except Exception as e:

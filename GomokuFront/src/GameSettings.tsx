@@ -54,10 +54,10 @@ const GameSetting: React.FC = () => {
         value={ruleStyle}
         onChange={(e) => setRuleStyle(parseInt(e.target.value))}
       >
-        <option value="standard">Standard</option>
-        <option value="pro">Pro</option>
-        <option value="swap">Swap</option>
-        <option value="swap2">Swap2</option>
+        <option value="0">Standard</option>
+        <option value="1">Pro</option>
+        <option value="2">Swap</option>
+        <option value="3">Swap2</option>
       </select>
       <button onClick={startGame}>Play</button>
     </div>

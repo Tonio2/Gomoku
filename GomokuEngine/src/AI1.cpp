@@ -1,7 +1,7 @@
 #include "AI1.h"
 #include <algorithm>
 
-GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth) : game(game), depth(depth), ai_player(ai_player), move_count(0), move_evaluated_count(0)
+GomokuAI::GomokuAI(GomokuGame game, Player ai_player, int depth, int length) : game(game), depth(depth), length(length), ai_player(ai_player), move_count(0), move_evaluated_count(0)
 {
     human_player = (ai_player == X) ? O : X;
 }
@@ -59,7 +59,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     }
 
     // Else find all the relevant moves and sort them by their heuristic evaluation if the depth is not 1.
-    std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves();
+    std::vector<std::pair<std::pair<int, int>, int>> moves = game.findRelevantMoves(length);
     if (depth > 1)
         sortMoves(moves, maximizingPlayer, depth);
     int moveIdx = 1;

@@ -1,10 +1,13 @@
 import { MoveEvaluation } from "../interface";
 
-export const getBestMove = (moveEvaluation: MoveEvaluation) => {
+export const getBestMove = (
+  moveEvaluation: MoveEvaluation,
+  predicate: (move: number[]) => boolean
+) => {
   let bestScore = -Infinity;
   let bestMove = moveEvaluation.move;
   moveEvaluation.listMoves?.forEach((move) => {
-    if (move.score > bestScore) {
+    if (move.score > bestScore && predicate(move.move)) {
       bestScore = move.score;
       bestMove = move.move;
     }

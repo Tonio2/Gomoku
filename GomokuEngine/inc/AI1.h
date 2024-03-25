@@ -21,6 +21,7 @@ class GomokuAI
 private:
     GomokuGame game;
     int depth;
+    int length;
     Player ai_player;
     Player human_player;
 
@@ -33,7 +34,7 @@ public:
     int move_count;
     int move_evaluated_count;
     int evaluation_needed_count;
-    GomokuAI(GomokuGame game, Player ai_player, int depth);
+    GomokuAI(GomokuGame game, Player ai_player, int depth, int length = 2);
     MoveEvaluation suggest_move();
     int heuristic_evaluation();
 };

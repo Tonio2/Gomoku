@@ -251,7 +251,7 @@ void GomokuGame::reapply_move(const MoveResult &move)
     current_player = other_player(current_player);
 }
 
-std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves() const
+std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves(int length) const
 {
     TIMER
     std::vector<std::pair<std::pair<int, int>, int>> relevantMoves;
@@ -269,7 +269,7 @@ std::vector<std::pair<std::pair<int, int>, int>> GomokuGame::findRelevantMoves()
                 bool foundStone = false;
                 for (const auto &dir : directions)
                 {
-                    for (int step = 1; step <= 2; ++step)
+                    for (int step = 1; step <= length; ++step)
                     {
                         int newRow = row + step * dir.first;
                         int newCol = col + step * dir.second;
