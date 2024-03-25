@@ -16,7 +16,7 @@ const GameSetting: React.FC = () => {
   };
 
   return (
-    <div className="bg-black min-h-screen flex flex-col items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center">
       <h1 className="text-4xl font-bold text-[#4affef] mb-8">Game Menu</h1>
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-[#4affef]">
         <div className="mb-6">

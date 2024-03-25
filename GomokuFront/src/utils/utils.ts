@@ -25,15 +25,15 @@ export const emptyBoard = (size: number) => {
     .map(() => Array(size).fill(null));
 };
 
-export const formatMove = (row: number, col: number) => {
+export const formatCoordinate = (index: number): string => {
   const coordinates = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  return coordinates[row] + coordinates[col];
+  return coordinates[index];
 };
 
 export const logMoveHistory = (listMoves: MoveHistory[]) => {
   let str = "";
   for (const move of listMoves) {
-    str += formatMove(move.row, move.col) + ",";
+    str += formatCoordinate(move.row) + formatCoordinate(move.col) + ",";
   }
 
   console.log(str.slice(0, -1));

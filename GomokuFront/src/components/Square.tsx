@@ -16,13 +16,40 @@ interface ISquare {
   value: string;
   onSquareClick: () => void;
   xIsNext: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  horizontalHighlight: boolean;
+  verticalHighlight: boolean;
 }
 
-const Square: React.FC<ISquare> = ({ value, onSquareClick, xIsNext }) => {
+const Square: React.FC<ISquare> = ({
+  value,
+  onSquareClick,
+  xIsNext,
+  onMouseEnter,
+  onMouseLeave,
+  horizontalHighlight,
+  verticalHighlight,
+}) => {
   return (
-    <div className="group relative w-[40px] h-[40px]" onClick={onSquareClick}>
-      <div className="absolute top-[50%] left-0 w-full h-[1px] bg-[#00ffff80] shadow-blurLine group-hover:bg-[#0ff] group-hover:shadow-strongBlur"></div>
-      <div className="absolute left-[50%] top-0 h-full w-[1px] bg-[#00ffff80] shadow-blurLine group-hover:bg-[#0ff] group-hover:shadow-strongBlur"></div>
+    <div
+      className="group relative w-[40px] h-[40px]"
+      onClick={onSquareClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div
+        className={
+          "absolute top-[50%] left-0 w-full h-[1px] bg-[#00ffff80] shadow-blurLine " +
+          (horizontalHighlight ? "bg-[#0ff] shadow-strongBlur" : "")
+        }
+      ></div>
+      <div
+        className={
+          "absolute left-[50%] top-0 h-full w-[1px] bg-[#00ffff80] shadow-blurLine " +
+          (verticalHighlight ? "bg-[#0ff] shadow-strongBlur" : "")
+        }
+      ></div>
       <div className={stoneStyle(value)}></div>
       {value === "" && (
         <div
