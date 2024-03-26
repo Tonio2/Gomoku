@@ -127,6 +127,9 @@ void test_5_in_a_row()
 
     move_str = "88,66,89,87,8A,65,67,76,64,65,98,78,A8,54,43,8B,69,79,96,B8,A9,78,7A,77,75,58,7A,6B,95,97,94,AA,B7,7B,5B,9B,AB,A6,B5,97,C6,A7,93,92,A4,D5,D7,A8,C6";
     test_is_game_over(move_str, true, "Should win if 5 in a row and opponent win by capture next turn", Player::BLACK);
+
+    move_str = "99,9A,89,A9,8B,79,B8,88,6A,A9,97,A8,A7,B7,AA,87,A7,96,A5,C9,78,C8,C7,CA,B8,A6,D9,A9,D6,CB,CC,95,84,D7,93,E6,F5,E8,B6,C6,D8,E4,E9,F9,E9,B5";
+    test_is_game_over(move_str, true, "WTF ?");
 }
 
 void test_double_3()
