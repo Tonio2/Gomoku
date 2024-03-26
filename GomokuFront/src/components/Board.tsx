@@ -8,9 +8,15 @@ interface IBoard {
   xIsNext: boolean;
   board: number[][];
   handleClick: (row: number, col: number) => void;
+  suggestionBoard: number[][][];
 }
 
-const Board: React.FC<IBoard> = ({ xIsNext, board, handleClick }) => {
+const Board: React.FC<IBoard> = ({
+  xIsNext,
+  board,
+  handleClick,
+  suggestionBoard,
+}) => {
   const [hoveredCell, setHoveredCell] = React.useState<[number, number]>([
     -1, -1,
   ]);
@@ -45,6 +51,7 @@ const Board: React.FC<IBoard> = ({ xIsNext, board, handleClick }) => {
             <Square
               key={j}
               value={value === 1 ? "X" : value === 2 ? "O" : ""}
+              suggestion={suggestionBoard[i][j]}
               onSquareClick={() => handleClick(i, j)}
               xIsNext={xIsNext}
               onMouseEnter={() => setHoveredCell([i, j])}

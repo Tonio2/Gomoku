@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import useGameLogic from "./hooks/useGameLogic";
 
@@ -17,6 +17,7 @@ const Game: React.FC = () => {
     winner,
     playerX,
     playerO,
+    suggestionBoard,
     handleClick,
     handleReverse,
     handleReapply,
@@ -35,12 +36,21 @@ const Game: React.FC = () => {
     navigate("/");
   }
 
+  const boardJSX = useMemo(() => {
+    return (
+      <Board
+        xIsNext={xIsNext}
+        board={board}
+        handleClick={handleClick}
+        suggestionBoard={suggestionBoard}
+      />
+    );
+  }, [xIsNext, board, handleClick, suggestionBoard]);
+
   return (
     <div className="flex flex-row justify-items-center justify-center gap-10 h-screen px-10 items-start pt-20">
       <div className="flex flex-col">
-        <div className="game-board flex-none">
-          <Board xIsNext={xIsNext} board={board} handleClick={handleClick} />
-        </div>
+        <div className="game-board flex-none">{boardJSX}</div>
         <div className="grid grid-cols-2 gap-4">
           <Button onClick={() => handleMenu()} text="Menu" />
           <Button onClick={() => handleReset()} text="Reset game" />

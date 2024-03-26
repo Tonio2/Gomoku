@@ -48,7 +48,6 @@ const makeMove = async (
     row,
     col,
   });
-  console.log(response.data);
   return response.data;
 };
 
