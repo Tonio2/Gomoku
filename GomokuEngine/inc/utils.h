@@ -38,4 +38,6 @@ void apply_moves(GomokuGame &game, std::vector<std::string> moves);
 
 void print_list(std::vector<double> list);
 
+void test_condition(bool condition, const std::string &message);
+
 #endif
