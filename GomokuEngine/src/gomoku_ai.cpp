@@ -130,30 +130,26 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     return node;
 }
 
+int GomokuAI::score_player(Player player)
+{
+    TIMER
+    int score = 0;
+    const std::vector<int> &patterns_count = game.get_patterns_count(player);
+
+    for (int i = 0; i < StructureType::COUNT_STRUCTURE_TYPE; i++)
+    {
+        score += patterns_count[i] * evaluation_data.value_of_structure(i);
+    }
+    score += (game.get_patterns_count(player)[OPEN_THREE] + game.get_patterns_count(player)[FOUR] + game.get_patterns_count(player)[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
+    score += (game.get_patterns_count(player)[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
+    score += evaluation_data.value_of_captures(game.get_player_score(player));
+    return score;
+}
+
 int GomokuAI::heuristic_evaluation(const GomokuGame &board, Player heuristic_player)
 {
     TIMER
-    Player player = heuristic_player;
-    int total_score = 0;
-
-    for (int multiplier = 1; multiplier >= -1; multiplier -= 2)
-    {
-        int score = 0;
-        const std::vector<int> &patterns_count = game.get_patterns_count(player);
-
-        for (int i = 0; i < StructureType::COUNT_STRUCTURE_TYPE; i++)
-        {
-            score += patterns_count[i] * evaluation_data.value_of_structure(i);
-        }
-        score += (patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
-        score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
-        score += evaluation_data.value_of_captures(game.get_player_score(player));
-
-        total_score += score * multiplier;
-
-        player = board.other_player(player);
-    }
-    return total_score;
+    return score_player(heuristic_player) - score_player(board.other_player(heuristic_player));
 }
 
 int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)

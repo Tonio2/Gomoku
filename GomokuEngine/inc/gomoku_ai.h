@@ -35,6 +35,7 @@ private:
 
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
     int pseudo_heuristic_evaluation(std::pair<int, int> move);
+    int score_player(Player player);
 
     std::vector<MoveHeuristic> find_relevant_moves() const;
 
