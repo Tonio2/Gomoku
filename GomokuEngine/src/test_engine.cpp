@@ -1,13 +1,5 @@
 #include "utils.h"
 
-void test_condition(bool condition, const std::string &message)
-{
-    // Print the description then print "...NOK" to std::cout in red color or "...OK" in green color if true
-    std::string color = condition ? "\033[1;32m" : "\033[1;31m";
-    std::string reset = "\033[0m";
-    std::cout << color << message << (condition ? "...OK" : "...NOK") << reset << std::endl;
-}
-
 void test_is_game_over(std::string move_str, bool expected_result, std::string description, Player winner = Player::EMPTY)
 {
     GomokuGame game(19, 19);

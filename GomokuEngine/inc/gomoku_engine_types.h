@@ -61,3 +61,42 @@ struct MoveResult
     int8_t white_score_change = 0;
     int8_t black_score_change = 0;
 };
+
+enum Mode
+{
+    HUMAN_VS_HUMAN,
+    HUMAN_VS_AI,
+};
+
+enum RuleStyle
+{
+    STANDARD,
+    PRO,
+    SWAP,
+};
+
+enum Action
+{
+    PLAY,
+    SWAP_CHOICE,
+};
+
+enum Player
+{
+    PLAYER1,
+    PLAYER2,
+};
+
+enum Team
+{
+    BLACK,
+    WHITE
+};
+
+struct ActionResult
+{
+    bool success;
+    std::string message;
+    MoveResult move_result;
+    std::pair<Player, Action> next_action;
+};
