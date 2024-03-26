@@ -17,7 +17,7 @@ pybind11_add_module(pygomoku src/Timer.cpp src/py_gomoku.cpp src/gomoku_engine.c
 # -O3 for full optimization 
 # -march=native to generate code optimized for the local machine 
 # -DNOTIMER to deactivate timers
-target_compile_options(pygomoku PRIVATE -O3 -DNOTIMER -march=native)
+target_compile_options(pygomoku PRIVATE -O3 -DNOTIMER -march=native -std=c++17)
 
 # Optionally, add -flto for link-time optimization if supported
 # include(CheckIPOSupported)

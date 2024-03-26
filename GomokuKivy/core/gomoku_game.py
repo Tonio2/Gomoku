@@ -48,8 +48,8 @@ class GomokuGame:
 
     start_turn: datetime
     start_game: datetime
-    
-    AI_time: float
+
+    ai: pygomoku.GomokuAI
 
     def __init__(self, width: int, height: int, player_time: float, mode: int):
         self.game = pygomoku.GomokuGame(width, height)
@@ -71,6 +71,7 @@ class GomokuGame:
         self.start_turn = datetime.now()
         self.start_game = datetime.now()
 
+        self.ai = pygomoku.GomokuAI(5)
         # if mode == 1:
         #     move_str = "77,55,78,76,79,54,56,65,53,54,87,67,97,43,32,7A,58,68,85,A7,57,67,59,5A,55"
         #     moves = move_str.split(",")
@@ -113,9 +114,10 @@ class GomokuGame:
         return GomokuPlayer.EMPTY
 
     async def get_AI_suggestion(self):
-        AI = pygomoku.GomokuAI(self.game, self.game.get_current_player(), 5)
         loop = asyncio.get_running_loop()
-        moveEvaluations = await loop.run_in_executor(None, AI.suggest_move)
+
+        moveEvaluations = await loop.run_in_executor(None, self.ai.suggest_move, self.game, self.game.get_current_player())
+
         bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move    
 
         self.play_at(bestMove[0], bestMove[1])
