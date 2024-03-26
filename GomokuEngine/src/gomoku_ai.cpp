@@ -132,7 +132,6 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
 int GomokuAI::score_player(Player player)
 {
-    TIMER
     int score = 0;
     const std::vector<int> &patterns_count = game.get_patterns_count(player);
 
