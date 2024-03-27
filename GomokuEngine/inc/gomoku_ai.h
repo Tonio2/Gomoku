@@ -46,7 +46,7 @@ public:
     int move_evaluated_count;
     int evaluation_needed_count;
     GomokuAI(int depth, GomokuAIData data = GomokuAIData());
-    MoveEvaluation suggest_move(const GomokuGame &board, Player player);
+    MoveEvaluation suggest_move(const GomokuGame &board, Player player); // TODO: SHould't we make a copy ? What if suggest_move is interrupted or something?
     int heuristic_evaluation(const GomokuGame &board, Player heuristic_player);
 
     const GomokuAIData &get_evaluation_data() const;
