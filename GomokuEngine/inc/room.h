@@ -21,7 +21,7 @@ private:
     GomokuGame game;
     GomokuAI ai;
     std::vector<MoveHistory> list_moves;
-    int currentMove;
+    int current_move;
     std::vector<bool> arePlayersHuman;
     RuleStyle rule_style;
     std::pair<Entity, Action> next_action;

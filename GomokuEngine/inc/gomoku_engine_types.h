@@ -67,6 +67,7 @@ struct MoveHistory
     int row;
     int col;
     MoveResult move_result;
+    std::pair<Entity, Action> action;
 };
 
 enum Mode
