@@ -62,6 +62,13 @@ struct MoveResult
     int8_t black_score_change = 0;
 };
 
+struct MoveHistory
+{
+    int row;
+    int col;
+    MoveResult move_result;
+};
+
 enum Mode
 {
     HUMAN_VS_HUMAN,
@@ -81,7 +88,7 @@ enum Action
     SWAP_CHOICE,
 };
 
-enum Player
+enum Entity
 {
     PLAYER1,
     PLAYER2,
@@ -89,14 +96,20 @@ enum Player
 
 enum Team
 {
-    BLACK,
-    WHITE
+    BLACKS,
+    WHITES
 };
 
 struct ActionResult
 {
     bool success;
     std::string message;
-    MoveResult move_result;
-    std::pair<Player, Action> next_action;
+    std::pair<Entity, Action> next_action;
+};
+
+struct ActionParameters
+{
+    int row;
+    int col;
+    Player team;
 };
