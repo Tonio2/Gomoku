@@ -1,4 +1,6 @@
-from flask import Flask, request
+import random
+import string
+from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import sys
@@ -58,44 +60,64 @@ def serialize_move_result(moveResult):
     }
 
 
-# Create a python class that will handle the game logic
-class GomokuGame:
-    def __init__(self, mode):
-        self.game = pygomoku.GomokuGame(19, 19)
-        self.current_player = 1
+class Mode:
+    PVP_OFFLINE = 1
+    PVP_ONLINE = 2
+    PVIA = 3
+
+
+class GomokuRoom:
+    def __init__(self, size, mode, ruleStyle, roomCreatorIsFirstPlayer=True):
+        if mode not in [Mode.PVP_OFFLINE, Mode.PVP_ONLINE, Mode.PVIA]:
+            raise Exception("Invalid mode")
+        arePlayersHuman = [True, True]
+        if mode == Mode.PVIA:
+            arePlayersHuman[int(roomCreatorIsFirstPlayer)] = False
+
+        self.room = pygomoku.Room(size, size, arePlayersHuman, ruleStyle)
         self.mode = mode
+        self.ruleStyle = ruleStyle
+        self.playersIp = ["", ""]
 
-    def make_move(self, row, col):
-        try:
-            moveResult = self.game.make_move(row, col)
-            self.current_player = 1 if self.current_player == 2 else 2
-            return True, serialize_move_result(moveResult)
-        except Exception as e:
-            return False, None
 
-    def reverse_move(self, moveResult):
-        return self.game.reverse_move(deserialize_move_result(moveResult))
+rooms = {}
 
-    def reapply_move(self, moveResult):
-        return self.game.reapply_move(deserialize_move_result(moveResult))
 
-    def get_board(self):
-        return self.game.get_board()
+def uniqueID():
+    isUnique = False
+    while not isUnique:
+        roomID = "".join(
+            random.choices(
+                string.ascii_uppercase + string.digits + string.ascii_lowercase, k=3
+            )
+        )
+        if roomID not in rooms:
+            isUnique = True
+    return roomID
 
-    def get_winner(self):
-        return serialize_player(self.game.get_winner())
 
-    def is_game_over(self):
-        return self.game.is_game_over()
-
-    def get_current_player(self):
-        return self.current_player
+@app.route("/create_game", methods=["POST"])
+def create_game():
+    # Generate a string of 4 characters which will be the unique ID for the game
+    roomID = uniqueID()
+    size = request.json.get("size", 19)
+    mode = request.json.get("mode", 0)
+    ruleStyle = request.json.get("ruleStyle", 0)
+    roomCreatorIsFirstPlayer = request.json.get("roomCreatorIsFirstPlayer", True)
+    room = GomokuRoom(size, mode, ruleStyle, roomCreatorIsFirstPlayer)
+    rooms[roomID] = room
+    return jsonify({"success": True, "message": "Game created", "roomID": roomID})
 
 
 @socketio.on("connect")
 def handle_connection():
     print("A user connected")
-    game = GomokuGame(1)
+
+    @socketio.on("joinRoom")
+    def handle_join_room(roomID):
+        if roomID not in rooms:
+            return {"success": False, "message": "Room not found"}
+        return {"success": True, "message": "Room found"}
 
     @socketio.on("board")
     def handle_board():
