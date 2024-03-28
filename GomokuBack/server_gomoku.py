@@ -66,15 +66,21 @@ class Mode:
     PVIA = 3
 
 
+class GomokuPlayer:
+    def __init__(self, isHuman, ip=""):
+        self.isHuman = isHuman
+        self.ip = ip
+
+
 class GomokuRoom:
     def __init__(self, size, mode, ruleStyle, roomCreatorIsFirstPlayer=True):
         if mode not in [Mode.PVP_OFFLINE, Mode.PVP_ONLINE, Mode.PVIA]:
             raise Exception("Invalid mode")
-        arePlayersHuman = [True, True]
+        self.players = [GomokuPlayer(True), GomokuPlayer(True)]
         if mode == Mode.PVIA:
-            arePlayersHuman[int(roomCreatorIsFirstPlayer)] = False
+            self.players[int(roomCreatorIsFirstPlayer)].isHuman = False
 
-        self.room = pygomoku.Room(size, size, arePlayersHuman, ruleStyle)
+        self.room = pygomoku.Room(size, size, ruleStyle)
         self.mode = mode
         self.ruleStyle = ruleStyle
         self.playersIp = ["", ""]

@@ -5,7 +5,7 @@
 class Room
 {
 public:
-    Room(int rows, int cols, std::vector<bool> arePlayersHuman, RuleStyle rule_style);
+    Room(int rows, int cols, RuleStyle rule_style);
     ActionResult action(Entity player, Action action, ActionParameters params);
     ActionResult reverse_move();
     ActionResult reapply_move();
@@ -19,11 +19,11 @@ public:
 
 private:
     GomokuGame game;
-    GomokuAI ai;
     std::vector<MoveHistory> list_moves;
     int current_move;
-    std::vector<bool> arePlayersHuman;
     RuleStyle rule_style;
     std::pair<Entity, Action> next_action;
     bool is_player1_black;
+
+    Entity get_other_player(Entity player);
 };
