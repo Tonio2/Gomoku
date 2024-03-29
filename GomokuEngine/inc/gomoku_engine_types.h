@@ -20,11 +20,11 @@
 #define TIMER
 #endif
 
-enum Player : unsigned char
+enum Player : uint8_t
 {
-    EMPTY,
-    BLACK,
-    WHITE,
+    EMPTY = 0,
+    BLACK = 1,
+    WHITE = 2,
 };
 
 std::ostream &operator<<(std::ostream &stream, Player player);
@@ -60,57 +60,4 @@ struct MoveResult
 
     int8_t white_score_change = 0;
     int8_t black_score_change = 0;
-};
-
-struct MoveHistory
-{
-    int row;
-    int col;
-    MoveResult move_result;
-    std::pair<Entity, Action> action;
-};
-
-enum Mode
-{
-    HUMAN_VS_HUMAN,
-    HUMAN_VS_AI,
-};
-
-enum RuleStyle
-{
-    STANDARD,
-    PRO,
-    SWAP,
-};
-
-enum Action
-{
-    PLAY,
-    SWAP_CHOICE,
-};
-
-enum Entity
-{
-    PLAYER1,
-    PLAYER2,
-};
-
-enum Team
-{
-    BLACKS,
-    WHITES
-};
-
-struct ActionResult
-{
-    bool success;
-    std::string message;
-    std::pair<Entity, Action> next_action;
-};
-
-struct ActionParameters
-{
-    int row;
-    int col;
-    Player team;
 };

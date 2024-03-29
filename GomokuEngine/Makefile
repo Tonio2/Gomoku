@@ -25,7 +25,7 @@ ifeq ($(TIMER),OFF)
 endif
 
 # Source and object files
-SRCFILES = Timer.cpp gomoku_ai.cpp gomoku_ai_data.cpp gomoku_engine.cpp gomoku_pattern_reconizer.cpp main.cpp utils.cpp test_engine.cpp arena.cpp
+SRCFILES = Timer.cpp gomoku_ai.cpp gomoku_ai_data.cpp gomoku_engine.cpp gomoku_pattern_reconizer.cpp main.cpp utils.cpp arena.cpp test_engine.cpp test_room.cpp
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
