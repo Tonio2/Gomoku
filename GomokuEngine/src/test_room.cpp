@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "room.h"
 
 void test_room1()
 {
