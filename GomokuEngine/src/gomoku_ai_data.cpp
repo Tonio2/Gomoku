@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <iomanip>
 #include <stdexcept>
+#include <sstream>
 
 GomokuAIData::GomokuAIData()
 {
