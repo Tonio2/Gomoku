@@ -1,5 +1,5 @@
 
-#include "gomoku_ai_data.h"
+#include "ai/gomoku_ai_data.h"
 #include <iostream>
 #include <fstream>
 #include <filesystem>

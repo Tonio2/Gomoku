@@ -1,3 +1,6 @@
+
+#pragma once
+
 #include <iostream>
 #include <chrono>
 #include <map>
@@ -6,6 +9,12 @@
 #include <stack>
 #include <algorithm>
 #include <iomanip>
+
+#ifndef NOTIMER
+#define TIMER Timer timer(__FUNCTION__);
+#else
+#define TIMER
+#endif
 
 std::string getColor(int depth);
 std::string getIndent(int depth);
@@ -49,7 +58,7 @@ private:
 public:
     Timer(const std::string &name);
 
-    ~Timer();
+    virtual ~Timer();
 
     static double getAccumulatedTime(const std::string &name);
 

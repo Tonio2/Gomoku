@@ -1,6 +1,6 @@
 
-#include "gomoku_pattern_reconizer.h"
-#include "gomoku_engine.h"
+#include "engine/gomoku_engine.h"
+#include "engine/gomoku_pattern_reconizer.h"
 #include <cassert>
 
 /** PatternCellState */

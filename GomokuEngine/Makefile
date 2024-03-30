@@ -1,50 +1,68 @@
 -include .env
 export
 
-# Compiler settings
-CXX = g++
-CXXFLAGS = -Wall -I$(INCDIR) -DDEPTH=$(DEPTH) -std=c++17
+EXECUTABLE_FILE=gktool
+PY_LIBRARY_FILE=pygomoku.so
 
-# Directories
-SRCDIR = src
-INCDIR = inc
-OBJDIR = obj
-
-# Mode configuration: Default is performance (PERF)
-MODE ?= PERF
-ifeq ($(MODE),DEBUG)
-	CXXFLAGS += -pg -g # Debug flags
+ifeq ($(BUILD_TYPE),DEBUG)
+	BUILT_EXEC_FILE := $(EXECUTABLE_FILE)-debug
 else
-	CXXFLAGS += -O3 -DNDEBUG # Optimize for performance
+	BUILT_EXEC_FILE := $(EXECUTABLE_FILE)
 endif
 
-# Timer configuration: Disabled by default
-TIMER ?= OFF
 ifeq ($(TIMER),OFF)
-	CXXFLAGS += -DNOTIMER # Define NOTIMER to disable timing functionality
+	CXXFLAGS += -DNOTIMER
 endif
 
-# Source and object files
-SRCFILES = Timer.cpp gomoku_ai.cpp gomoku_ai_data.cpp gomoku_engine.cpp gomoku_pattern_reconizer.cpp main.cpp utils.cpp arena.cpp game_room.cpp test_engine.cpp test_room.cpp
-SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
-OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	BUILT_PYLIB_FILE := PyGomoku.cpython-310-x86_64-linux-gnu.so
+endif
+ifeq ($(UNAME_S),Darwin)
+	BUILT_PYLIB_FILE := PyGomoku.cpython-312-darwin.so
+endif
 
-# Define the executable file 
-MAIN = main
+all: $(EXECUTABLE_FILE) $(PY_LIBRARY_FILE)
 
-all: $(MAIN)
-	echo "Successfully compiled $(MAIN) executable in $(MODE) mode with timer $(TIMER)."
+$(EXECUTABLE_FILE): cmake
+	cp -f ./build/$(BUILT_EXEC_FILE) $(EXECUTABLE_FILE)
 
-$(MAIN): $(OBJDIR) $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(MAIN) $(OBJS)
+$(PY_LIBRARY_FILE): cmake
+	cp -f ./build/$(BUILT_PYLIB_FILE) $(PY_LIBRARY_FILE)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+build:
+	mkdir -p build
 
-$(OBJDIR):
-	mkdir -p $(OBJDIR)
+submodule:
+	git submodule update --init --recursive
+
+cmake: build submodule
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make
+
+install:
+	# brew install gtest
+	# apt-get install libgtest-dev
+
+	# brew install python@3.12
+	# apt-get install python3-dev
+
+run: $(EXECUTABLE_FILE)
+	./$(EXECUTABLE_FILE)
+
+test: cmake
+	./build/tests/matrix_tests
+	./build/tests/timer_tests
+	./build/tests/engine_tests
+	./build/tests/ai_tests
+	./build/tests/room_tests
 
 clean:
-	$(RM) $(OBJS) $(MAIN)
+	rm -rf build
 
-re: clean all
+fclean: clean
+	rm -rf $(EXECUTABLE_FILE)
+	rm -rf $(PY_LIBRARY_FILE)
+
+re: fclean all
+
+.PHONY: all submodule cmake install run test clean

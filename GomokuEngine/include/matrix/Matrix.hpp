@@ -1,7 +1,7 @@
-#include <vector>
-#include <iostream>
 
 #pragma once
+
+#include <vector>
 
 template <typename Element>
 class Matrix
@@ -102,21 +102,6 @@ public:
     int get_height() const
     {
         return _height;
-    }
-
-    /** Print */
-
-    void print() const
-    {
-        std::cout << "[" << _width << ";" << _height << "]" << std::endl;
-        for (int row = 0; row < _height; ++row)
-        {
-            for (int col = 0; col < _width; ++col)
-            {
-                std::cout << (*this)(row, col) << ' ';
-            }
-            std::cout << std::endl;
-        }
     }
 
 private:
