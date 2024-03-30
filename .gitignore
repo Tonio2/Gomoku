@@ -27,7 +27,7 @@ GomokuEngine/surplusEval.txt
 *.o
 
 # c++ executables
-GomokuEngine/main
+GomokuEngine/gktool
 
 # Performance evaluation
 GomokuEngine/analysis.txt

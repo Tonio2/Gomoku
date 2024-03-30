@@ -3,22 +3,15 @@
 
 #include <string>
 #include <vector>
-#include <map>
 #include <iostream>
 #include <cstddef>
 #include <cstdint>
-#include "Timer.h"
-#include "matrix.hpp"
+#include "timer/Timer.h"
+#include "matrix/Matrix.hpp"
 
 #define X Player::BLACK
 #define O Player::WHITE
 #define E Player::EMPTY
-
-#ifndef NOTIMER
-#define TIMER Timer timer(__FUNCTION__);
-#else
-#define TIMER
-#endif
 
 enum Player : uint8_t
 {

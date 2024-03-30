@@ -1,4 +1,5 @@
-#include "game_room.h"
+
+#include "room/game_room.h"
 
 GameRoom::GameRoom(const GameRoomSettings &settings)
     : _room_id(new_room_id()),

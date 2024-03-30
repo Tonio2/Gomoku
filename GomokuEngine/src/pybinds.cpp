@@ -1,8 +1,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include "gomoku_engine.h"
-#include "gomoku_pattern_reconizer.h"
-#include "gomoku_ai.h"
+#include "engine/gomoku_pattern_reconizer.h"
+#include "engine/gomoku_engine.h"
+#include "ai/gomoku_ai.h"
+#include "room/game_room.h"
 
 namespace py = pybind11;
 
@@ -46,4 +47,8 @@ PYBIND11_MODULE(pygomoku, m)
     py::class_<GomokuAI>(m, "GomokuAI")
         .def(py::init<int>())
         .def("suggest_move", &GomokuAI::suggest_move);
+    py::class_<GameRoomSettings>(m, "GameRoomSettings")
+        .def(py::init());
+    py::class_<GameRoom>(m, "GameRoom")
+        .def(py::init<GameRoomSettings>());
 }

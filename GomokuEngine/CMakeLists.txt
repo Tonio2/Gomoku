@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.4)
-project(pygomoku)
+cmake_minimum_required(VERSION 3.10)
+project(Gomoku)
 
 # Set the default build type to Release if not specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -7,21 +7,48 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-include_directories(inc)
+# Compiler flags
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Include directories
+include_directories(include)
+
+# Add source files
+file(GLOB_RECURSE MATRIX_SOURCES "src/matrix/*.cpp")
+file(GLOB_RECURSE TIMER_SOURCES "src/timer/*.cpp")
+file(GLOB_RECURSE ENGINE_SOURCES "src/engine/*.cpp")
+file(GLOB_RECURSE AI_SOURCES "src/ai/*.cpp")
+file(GLOB_RECURSE ROOM_SOURCES "src/room/*.cpp")
+file(GLOB_RECURSE ARENA_SOURCES "src/arena/*.cpp")
+
+set(GOMOKU_SOURCES ${MATRIX_SOURCES}  ${TIMER_SOURCES} ${ENGINE_SOURCES} ${AI_SOURCES} ${ROOM_SOURCES})
+
+set(GKTOOLFILE src/gktool.cpp)
+
+set(PYBINDFILE src/pybinds.cpp)
 
 add_subdirectory(external/pybind11)
-pybind11_add_module(pygomoku src/Timer.cpp src/py_gomoku.cpp src/gomoku_engine.cpp src/gomoku_pattern_reconizer.cpp src/gomoku_ai.cpp src/gomoku_ai_data.cpp)
+pybind11_add_module(PyGomoku ${PYBINDFILE} ${GOMOKU_SOURCES})
 
-# Set compiler options for performance optimization
-# Assuming GCC or Clang
-# -O3 for full optimization 
-# -march=native to generate code optimized for the local machine 
-# -DNOTIMER to deactivate timers
-target_compile_options(pygomoku PRIVATE -O3 -DNOTIMER -march=native -std=c++17)
-
-# Optionally, add -flto for link-time optimization if supported
-# include(CheckIPOSupported)
-# check_ipo_supported(RESULT result)
 # if(result)
 #   set_property(TARGET pygomoku PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 # endif()
+
+add_executable(gktool ${GKTOOLFILE} ${GOMOKU_SOURCES} ${ARENA_SOURCES})
+
+# Toggle between release and debug mode
+if(CMAKE_BUILD_TYPE MATCHES "DEBUG")
+    # Add debug flags
+    message("Building in Debug mode")
+    target_compile_options(gktool PRIVATE -pg -g)
+    set_property(TARGET gktool PROPERTY DEBUG_POSTFIX "-debug")
+else()
+    # Add release flags
+    message("Building in Release mode")
+    target_compile_options(gktool PRIVATE -O3 -DNDEBUG -march=native)
+endif()
+
+# Add tests
+enable_testing()
+add_subdirectory(tests)

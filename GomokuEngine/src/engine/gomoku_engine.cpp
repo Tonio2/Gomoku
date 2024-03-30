@@ -1,6 +1,6 @@
-#include "gomoku_engine.h"
 
-#include "gomoku_pattern_reconizer.h"
+#include "engine/gomoku_engine.h"
+#include "engine/gomoku_pattern_reconizer.h"
 
 std::vector<std::string> structure_names = {
     "NONE",

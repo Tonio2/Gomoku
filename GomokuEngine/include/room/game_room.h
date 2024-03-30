@@ -1,6 +1,8 @@
+
 #pragma once
 
-#include "gomoku_ai.h"
+#include "engine/gomoku_engine.h"
+#include "ai/gomoku_ai.h"
 
 /** Identifier attributed to each players. The player id will never change.
  * The case of swap will only change the player's corresponding gomoku player */

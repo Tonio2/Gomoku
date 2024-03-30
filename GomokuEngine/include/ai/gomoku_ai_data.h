@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "gomoku_engine_types.h"
+#include "engine/gomoku_engine_types.h"
 
 class GomokuAIData
 {

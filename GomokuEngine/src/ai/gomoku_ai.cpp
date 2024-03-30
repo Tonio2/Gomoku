@@ -1,5 +1,8 @@
-#include "gomoku_ai.h"
+#include "ai/gomoku_ai.h"
 #include <algorithm>
+#include <limits>
+#include <utility>
+#include <random>
 
 GomokuAI::GomokuAI(int depth, GomokuAIData data)
     : game(0, 0), depth(depth), evaluation_data(data), move_count(0), move_evaluated_count(0)

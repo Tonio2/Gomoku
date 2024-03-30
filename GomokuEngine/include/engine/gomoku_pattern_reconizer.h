@@ -2,7 +2,7 @@
 #pragma once
 
 #include "gomoku_engine_types.h"
-#include "matrix.hpp"
+#include "matrix/Matrix.hpp"
 #include <map>
 #include <set>
 #include <functional>

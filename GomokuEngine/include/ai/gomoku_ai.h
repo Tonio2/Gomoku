@@ -1,10 +1,8 @@
+
 #pragma once
 
-#include "gomoku_engine.h"
+#include "engine/gomoku_engine.h"
 #include "gomoku_ai_data.h"
-#include <limits>
-#include <utility>
-#include <random>
 
 struct MoveEvaluation
 {
