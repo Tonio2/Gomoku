@@ -2,6 +2,8 @@
 
 #include "gomoku_ai.h"
 
+/** Identifier attributed to each players. The player id will never change.
+ * The case of swap will only change the player's corresponding gomoku player */
 typedef uint8_t PlayerId;
 
 /** Values of an action of type Move */
@@ -19,7 +21,7 @@ struct GameActionValue_Swap
 };
 
 /** Value of an action. The action goes along a GameActionType to determine wich value of the union is relevant. */
-union GameActionValue
+struct GameActionValue
 {
     GameActionValue_Move move;
     GameActionValue_Swap swap;
@@ -88,6 +90,8 @@ public:
     GameRoom(const GameRoomSettings &settings);
     virtual ~GameRoom();
 
+    std::string get_id() const { return _room_id; }
+
     /** Make the room perform an action that will return a result */
     GameActionResult perform_action_move(PlayerId player, int row, int col);
     GameActionResult perform_action_swap(PlayerId player, bool do_the_swap);
@@ -97,19 +101,25 @@ public:
     /** Ask the room to perform the next pending action and return if there are other pending actions left. We should use this */
     void perform_pending_action();
 
-    const std::vector<GameAction> &get_actions_history();
-    const GameRoomSettings &get_settings() const;
-    const GomokuGame &get_game() const;
+    const std::vector<GameAction> &get_actions_history() { return _actions; }
+    const GameRoomSettings &get_settings() const { return _settings; }
+    const GomokuGame &get_game() const { return _game; }
 
 private:
+    std::string _room_id;
     GameRoomSettings _settings;
     GomokuGame _game;
     /** History of actions performed during the game */
     std::vector<GameAction> _actions;
+    bool _players_swapped;
 
     GomokuAI *_ai1 = nullptr;
     GomokuAI *_ai2 = nullptr;
 
-    PlayerId get_next_player(PlayerId player);
-    Player gomoku_player(PlayerId player);
+    static std::string new_room_id();
+
+    Player gomoku_player_from_id(PlayerId id) const;
+    PlayerId id_from_gomoku_player(Player player) const;
+
+    GomokuAI *get_player_ai(PlayerId id) const;
 };

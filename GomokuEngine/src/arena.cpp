@@ -3,6 +3,7 @@
 #include <random>
 #include <algorithm>
 #include <filesystem>
+#include <sstream>
 
 static float random_float(float min, float max)
 {

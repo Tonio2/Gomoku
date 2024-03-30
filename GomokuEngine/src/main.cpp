@@ -1,6 +1,7 @@
 
 #include "test_engine.h"
 #include "arena.h"
+#include "test_room.h"
 
 void test_problems()
 {
@@ -265,6 +266,10 @@ int main(int argc, char *argv[])
     else if (arg1 == "arena")
     {
         Arena().play(argc, argv);
+    }
+    else if (arg1 == "room")
+    {
+        test_rooms();
     }
     else
     {
