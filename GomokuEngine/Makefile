@@ -22,6 +22,10 @@ ifeq ($(UNAME_S),Darwin)
 	BUILT_PYLIB_FILE := PyGomoku.cpython-312-darwin.so
 endif
 
+TEST_BINS = $(wildcard ./build/tests/*_tests)
+
+
+
 all: $(EXECUTABLE_FILE) $(PY_LIBRARY_FILE)
 
 $(EXECUTABLE_FILE): cmake
@@ -49,12 +53,10 @@ install:
 run: $(EXECUTABLE_FILE)
 	./$(EXECUTABLE_FILE)
 
-test: cmake
-	./build/tests/matrix_tests
-	./build/tests/timer_tests
-	./build/tests/engine_tests
-	./build/tests/ai_tests
-	./build/tests/room_tests
+test: cmake $(TEST_BINS)
+
+$(TEST_BINS):
+	./$@
 
 clean:
 	rm -rf build
@@ -65,4 +67,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all submodule cmake install run test clean
+.PHONY: all submodule cmake install run test $(TEST_BINS) clean
