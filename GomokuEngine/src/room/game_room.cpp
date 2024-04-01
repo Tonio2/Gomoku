@@ -56,7 +56,7 @@ GameActionResult GameRoom::perform_action_move(PlayerId player, int row, int col
                 return result;
             }
         }
-        else if (_actions.size() == 1)
+        else if (_actions.size() == 1 || _actions.size() == 2)
         {
             bool stone_too_far = abs(row - midh) > 3 || abs(col - midw) > 3;
             if (stone_too_far)
