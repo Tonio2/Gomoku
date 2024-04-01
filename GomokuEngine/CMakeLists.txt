@@ -22,7 +22,9 @@ file(GLOB_RECURSE AI_SOURCES "src/ai/*.cpp")
 file(GLOB_RECURSE ROOM_SOURCES "src/room/*.cpp")
 file(GLOB_RECURSE ARENA_SOURCES "src/arena/*.cpp")
 
-set(GOMOKU_SOURCES ${MATRIX_SOURCES}  ${TIMER_SOURCES} ${ENGINE_SOURCES} ${AI_SOURCES} ${ROOM_SOURCES})
+file(GLOB_RECURSE UTILITIES_SOURCES "../src/utils/*.cpp")
+
+set(GOMOKU_SOURCES ${MATRIX_SOURCES}  ${TIMER_SOURCES} ${ENGINE_SOURCES} ${AI_SOURCES} ${ROOM_SOURCES} ${UTILITIES_SOURCES})
 
 set(GKTOOLFILE src/gktool.cpp)
 
@@ -35,7 +37,7 @@ pybind11_add_module(PyGomoku ${PYBINDFILE} ${GOMOKU_SOURCES})
 #   set_property(TARGET pygomoku PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 # endif()
 
-add_executable(gktool ${GKTOOLFILE} ${GOMOKU_SOURCES} ${ARENA_SOURCES})
+add_executable(gktool ${GKTOOLFILE} ${GOMOKU_SOURCES} ${ARENA_SOURCES} ${UTILITIES_SOURCES})
 
 # Toggle between release and debug mode
 if(CMAKE_BUILD_TYPE MATCHES "DEBUG")

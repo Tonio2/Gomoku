@@ -315,6 +315,9 @@ std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_
 
     find_structure = [cell_matrix, &find_structure, direction](PatternCellIndex i, bool try_next, bool met_gap) -> std::pair<StructureType, GomokuCellIndex>
     {
+        if (!i.is_valid(cell_matrix))
+            return std::make_pair(StructureType::NONE, i.to_game_index());
+
         const PatternCellData &cell_data(cell_matrix[i]);
         const PatternCellIndex next = get_index_offset(i, direction, 1);
 
