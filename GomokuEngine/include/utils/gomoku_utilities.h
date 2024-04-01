@@ -12,6 +12,8 @@ char coordinate_to_char(int coordinate);
 void apply_moves(GomokuGame &game, std::vector<std::string> moves);
 void apply_moves(GomokuGame &game, std::string move_str);
 
+int get_depth_from_env(int default_depth = 3);
+
 void writeMoveEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth = 0);
 
 void logMoveEvaluation(const MoveEvaluation &eval);
@@ -21,3 +23,5 @@ void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int 
 void logTooManyEvaluationsList(const MoveEvaluation &eval);
 
 std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlayer = true);
+
+std::ostream& operator<<(std::ostream& stream, std::vector<std::string> moves);

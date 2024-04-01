@@ -3,13 +3,10 @@
 #include "arena/ai_data_mutator.h"
 #include "engine/gomoku_engine.h"
 #include "ai/gomoku_ai.h"
+#include "utils/gomoku_utilities.h"
 #include <filesystem>
 #include <iostream>
 #include <sstream>
-
-#ifndef DEPTH
-#define DEPTH 3
-#endif
 
 Arena::Arena() : _game_width(19), _game_height(19)
 {
@@ -146,8 +143,8 @@ int Arena::play_game(const GomokuAIData &p1, const GomokuAIData &p2)
 {
     GomokuGame game(_game_width, _game_height);
 
-    GomokuAI ai1(DEPTH, p1);
-    GomokuAI ai2(DEPTH, p2);
+    GomokuAI ai1(get_depth_from_env(), p1);
+    GomokuAI ai2(get_depth_from_env(), p2);
 
     game.make_move(9, 9);
 
