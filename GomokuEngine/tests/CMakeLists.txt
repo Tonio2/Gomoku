@@ -5,6 +5,8 @@ project(GomokuTests)
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
+file(GLOB_RECURSE UTILITIES_SOURCES "../src/utils/*.cpp")
+
 ############ MATRIX TESTS ############
 
 file(GLOB_RECURSE MATRIX_SOURCES "../src/matrix/*.cpp")
@@ -27,7 +29,7 @@ add_test(test timer_tests)
 
 ############ ENGINE TESTS ############
 
-file(GLOB_RECURSE ENGINE_SOURCES "../src/engine/*.cpp")
+file(GLOB_RECURSE ENGINE_SOURCES "../src/engine/*.cpp" ${UTILITIES_SOURCES})
 
 add_executable(engine_tests engine_test.cpp ${ENGINE_SOURCES} ${TIMER_SOURCES} ${MATRIX_SOURCES})
 
@@ -37,7 +39,7 @@ add_test(test engine_tests)
 
 ############ AI TESTS ############
 
-file(GLOB_RECURSE AI_SOURCES "../src/ai/*.cpp")
+file(GLOB_RECURSE AI_SOURCES "../src/ai/*.cpp" ${UTILITIES_SOURCES})
 
 add_executable(ai_tests ai_test.cpp ${AI_SOURCES} ${ENGINE_SOURCES} ${TIMER_SOURCES} ${MATRIX_SOURCES})
 
@@ -47,7 +49,7 @@ add_test(test ai_tests)
 
 ############ ROOM TESTS ############
 
-file(GLOB_RECURSE ROOM_SOURCES "../src/room/*.cpp")
+file(GLOB_RECURSE ROOM_SOURCES "../src/room/*.cpp" ${UTILITIES_SOURCES})
 
 add_executable(room_tests room_test.cpp ${ROOM_SOURCES} ${AI_SOURCES} ${ENGINE_SOURCES} ${TIMER_SOURCES} ${MATRIX_SOURCES})
 

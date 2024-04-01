@@ -2,6 +2,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 
 template <typename Element>
 class Matrix
@@ -107,6 +108,7 @@ public:
 private:
     inline int index_at(int row, int col) const
     {
+        assert(is_in_bound(row, col));
         return row * _width + col;
     }
 

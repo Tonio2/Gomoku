@@ -278,10 +278,10 @@ bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int co
 bool GomokuGame::capture(int row, int col, Player player, MoveResult &move_result)
 {
     bool ret = false;
-    if (row < board.get_width() - 2)
+    if (row < board.get_height() - 3)
     {
         ret |= try_direction_for_capture(row, col, 1, 0, player, move_result);
-        if (col < board.get_height() - 2)
+        if (col < board.get_width() - 3)
             ret |= try_direction_for_capture(row, col, 1, 1, player, move_result);
     }
     if (row > 2)
@@ -290,7 +290,7 @@ bool GomokuGame::capture(int row, int col, Player player, MoveResult &move_resul
         if (col > 2)
             ret |= try_direction_for_capture(row, col, -1, -1, player, move_result);
     }
-    if (col < board.get_height() - 2)
+    if (col < board.get_width() - 3)
     {
         ret |= try_direction_for_capture(row, col, 0, 1, player, move_result);
         if (row > 2)
@@ -299,7 +299,7 @@ bool GomokuGame::capture(int row, int col, Player player, MoveResult &move_resul
     if (col > 2)
     {
         ret |= try_direction_for_capture(row, col, 0, -1, player, move_result);
-        if (row < board.get_width() - 2)
+        if (row < board.get_height() - 3)
             ret |= try_direction_for_capture(row, col, 1, -1, player, move_result);
     }
     return ret;
