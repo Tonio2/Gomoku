@@ -21,19 +21,19 @@ TEST_BINS = $(wildcard ./build/tests/*_tests)
 
 all: $(EXECUTABLE_FILE) $(PY_LIBRARY_FILE)
 
-$(EXECUTABLE_FILE): cmake
+$(EXECUTABLE_FILE): submodule cmake
 	cp -f ./build/$(BUILT_EXEC_FILE) $(EXECUTABLE_FILE)
 
-$(PY_LIBRARY_FILE): cmake
+$(PY_LIBRARY_FILE): submodule cmake
 	cp -f $(shell find ./build/ -name "PyGomoku.*.so" -type f | xargs ls -t1 | head -n 1) $(PY_LIBRARY_FILE)
 
 build:
 	mkdir -p build
 
 submodule:
-	git submodule update --init --recursive || :
+	git submodule update --init --recursive
 
-cmake: build submodule
+cmake: build
 	(cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make) || docker compose up
 
 install:
