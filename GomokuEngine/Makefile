@@ -14,13 +14,6 @@ ifeq ($(TIMER),OFF)
 	CXXFLAGS += -DNOTIMER
 endif
 
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-	BUILT_PYLIB_FILE := PyGomoku.cpython-310-x86_64-linux-gnu.so
-endif
-ifeq ($(UNAME_S),Darwin)
-	BUILT_PYLIB_FILE := PyGomoku.cpython-312-darwin.so
-endif
 
 TEST_BINS = $(wildcard ./build/tests/*_tests)
 
@@ -32,16 +25,16 @@ $(EXECUTABLE_FILE): cmake
 	cp -f ./build/$(BUILT_EXEC_FILE) $(EXECUTABLE_FILE)
 
 $(PY_LIBRARY_FILE): cmake
-	cp -f ./build/$(BUILT_PYLIB_FILE) $(PY_LIBRARY_FILE)
+	cp -f $(shell find ./build/ -name "PyGomoku.*.so" -type f | xargs ls -t1 | head -n 1) $(PY_LIBRARY_FILE)
 
 build:
 	mkdir -p build
 
 submodule:
-	git submodule update --init --recursive
+	git submodule update --init --recursive || :
 
 cmake: build submodule
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make
+	(cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make) || docker compose up
 
 install:
 	# brew install gtest

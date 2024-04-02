@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  builder:
+    image: gomoku-engine-builder
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - $PWD:$PWD
+    working_dir: $PWD
+    command: "make cmake"
