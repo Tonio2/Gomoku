@@ -26,6 +26,44 @@ char coordinate_to_char(int coordinate)
     return '?';
 }
 
+std::string to_string(const GomokuGame& game, bool with_coordinates)
+{
+    std::stringstream ss;
+
+    if (with_coordinates)
+    {
+        ss << " ";
+        for (int i = 0; i < game.get_board_width(); i++)
+            ss << " " << coordinate_to_char(i);
+        ss << std::endl;
+
+        for (int row = 0; row < game.get_board_height(); ++row)
+        {
+            ss << coordinate_to_char(row) << " ";
+            for (int col = 0; col < game.get_board_width(); ++col)
+            {
+                ss << game.get_board_value(row, col);
+                if (col < game.get_board_width() - 1)
+                    ss << ' ';
+            }
+            ss << std::endl;
+        }
+    }
+    else
+    {
+        for (int row = 0; row < game.get_board_height(); row++)
+        {
+            for (int col = 0; col < game.get_board_width(); col++)
+            {
+                ss << game.get_board_value(row, col);
+            }
+            ss << std::endl;
+        }
+    }
+
+    return ss.str();
+}
+
 void apply_moves(GomokuGame& game, std::vector<std::string> moves)
 {
     for (std::string move : moves)
