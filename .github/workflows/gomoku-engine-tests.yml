@@ -1,0 +1,39 @@
+name: GomokuEngine tests
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup CMake
+      uses: cmake/setup-cmake@v1
+
+    - name: Build and test
+      working-directory: GomokuEngine
+      run: |
+        make test
+
+    - name: Check test results
+      if: ${{ failure() }}
+      run: echo "Tests failed"
+
+    - name: Mark commit status
+      if: ${{ success() }}
+      uses: actions/github-script@0.9.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          github.git.createCommitStatus({
+            context: 'GomokuEngine',
+            state: 'success',
+            description: 'All tests passed successfully'
+          })
