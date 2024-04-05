@@ -37,11 +37,8 @@ cmake: build
 	(cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make) || docker compose up
 
 install:
-	# brew install gtest
-	# apt-get install libgtest-dev
-
-	# brew install python@3.12
-	# apt-get install python3-dev
+	# brew install gtest python@3.12
+	# apt-get install libgtest-dev python3-dev
 
 run: $(EXECUTABLE_FILE)
 	./$(EXECUTABLE_FILE)
