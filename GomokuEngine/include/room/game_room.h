@@ -50,7 +50,9 @@ enum GameRoomRuleStyle
 {
     STANDARD,
     PRO,
+    // TODO: LONG_PRO,
     SWAP,
+    // TODO: SWAP2,
 };
 
 /** Result after performing an action. If it's not a success, the action is not added to the history. */
@@ -78,7 +80,7 @@ struct GameRoomSettings
 
     /** Is the first player an AI ? */
     GameEntitySetting p1;
-    /** Is the second play an AI ? */
+    /** Is the second player an AI ? */
     GameEntitySetting p2;
 
     GameRoomSettings() : width(19), height(19), rule_style(GameRoomRuleStyle::STANDARD), p1({false, 0}), p2({true, 4})

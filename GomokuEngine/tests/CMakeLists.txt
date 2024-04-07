@@ -7,6 +7,14 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 file(GLOB_RECURSE UTILITIES_SOURCES "../src/utils/*.cpp")
 
+############ UTILS TESTS ############
+
+add_executable(utils_tests utils_test.cpp ${UTILITIES_SOURCES} ${AI_SOURCES} ${ENGINE_SOURCES} ${TIMER_SOURCES} ${MATRIX_SOURCES})
+
+target_link_libraries(utils_tests ${GTEST_LIBRARIES} pthread)
+
+add_test(test utils_tests)
+
 ############ MATRIX TESTS ############
 
 file(GLOB_RECURSE MATRIX_SOURCES "../src/matrix/*.cpp")
@@ -57,12 +65,3 @@ target_link_libraries(room_tests ${GTEST_LIBRARIES} pthread)
 
 add_test(test room_tests)
 
-############ UTILS TESTS ############
-
-file(GLOB_RECURSE UTILS_SOURCES "../src/utils/*.cpp" ${UTILITIES_SOURCES})
-
-add_executable(utils_tests utils_test.cpp ${UTILS_SOURCES} ${AI_SOURCES} ${ENGINE_SOURCES} ${TIMER_SOURCES} ${MATRIX_SOURCES})
-
-target_link_libraries(utils_tests ${GTEST_LIBRARIES} pthread)
-
-add_test(test utils_tests)

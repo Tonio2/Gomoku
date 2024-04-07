@@ -10,3 +10,12 @@ services:
       - $PWD:$PWD
     working_dir: $PWD
     command: "make cmake"
+  tester:
+    image: gomoku-engine-builder
+    depends_on:
+      builder:
+        condition: service_completed_successfully
+    volumes:
+      - $PWD:$PWD
+    working_dir: $PWD
+    command: "make test"

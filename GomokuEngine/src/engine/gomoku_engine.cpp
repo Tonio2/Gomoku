@@ -108,26 +108,6 @@ void GomokuGame::modify_player_score(Player player, int score)
     players_scores[player] += score;
 }
 
-void GomokuGame::display_board() const
-{
-    std::vector<char> boardCoordinates = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
-    std::cout << " ";
-    for (char coordinate : boardCoordinates)
-    {
-        std::cout << " " << coordinate;
-    }
-    std::cout << std::endl;
-    for (int row = 0; row < get_board_height(); ++row)
-    {
-        std::cout << boardCoordinates[row] << " ";
-        for (int col = 0; col < get_board_width(); ++col)
-        {
-            std::cout << get_board_value(row, col) << ' ';
-        }
-        std::cout << std::endl;
-    }
-}
-
 const std::vector<int> &GomokuGame::get_patterns_count(Player player)
 {
     TIMER

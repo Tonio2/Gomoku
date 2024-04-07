@@ -48,7 +48,6 @@ public:
     Player get_current_player() const;
     int get_player_score(Player player) const;
     CellChange set_board_value(int row, int col, Player value);
-    void display_board() const;
     const std::vector<int> &get_patterns_count(Player player);
     void print_patterns();
     std::vector<std::vector<int>> get_board() const;

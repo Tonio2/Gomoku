@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "room/game_room.h"
+#include "utils/gomoku_utilities.h"
 
 TEST(RoomTest, Creation)
 {
@@ -110,22 +111,87 @@ TEST(RoomRuleStyleSwapTest, PerformActions)
     room.perform_action_move(2, 5, 6);
 
 }
-// void test_room4()
-// {
-//     Room room = Room(19, 19, arePlayersHuman = [ true, false ], RuleStyle.SWAP);
 
-//     ActionResult result = room.action(Player.PLAYER1, Action.Play, {4, 5}); // result.success = false / result.message = "" / result.moveResult = {...} / next_action = {Player.PLAYER1, Action.PLAY}
-//     result = room.action(Player.PLAYER1, Action.PLAY, {9, 9});              // result.success = true / result.message = "" / result.moveResult = {...} / next_action = {Player.PLAYER1, Action.PLAY}
-//     result = room.action(Player.PLAYER1, Action.PLAY, {9, 8});              // result.success = true / result.message = "" / result.moveResult = {...} / next_action = {Player.PLAYER2, Action.SWAP_CHOICE}
-//     if (!arePlayersHuman[result.next_action.first])
-//     {
-//         result = room.action(result.next_action.first, result.next_action.second, {}); // result.success = true / result.message = "" / result.moveResult = {} / next_action = {Player.PLAYER2, Action.PLAY}
-//         if (!arePlayersHuman[result.next_action.first])
-//         {
-//             result = room.action(result.next_action.first, result.next_action.second, {}); // result.success = true / result.message = "" / result.moveResult = {...} / next_action = {Player.PLAYER1, Action.PLAY}
-//         }
-//     }
-// }
+TEST(RoomRuleStyleSwapTest, FullGameTry)
+{
+    GameRoomSettings settings;
+    settings.rule_style = ::SWAP;
+    settings.p2.is_ai = false;
+    GameRoom room(settings);
+
+    GameActionResult act;
+    EXPECT_EQ(to_string(room.get_game(), true),
+    "  0 1 2 3 4 5 6 7 8 9 A B C D E F G H I\n"
+    "0 . . . . . . . . . . . . . . . . . . .\n"
+    "1 . . . . . . . . . . . . . . . . . . .\n"
+    "2 . . . . . . . . . . . . . . . . . . .\n"
+    "3 . . . . . . . . . . . . . . . . . . .\n"
+    "4 . . . . . . . . . . . . . . . . . . .\n"
+    "5 . . . . . . . . . . . . . . . . . . .\n"
+    "6 . . . . . . . . . . . . . . . . . . .\n"
+    "7 . . . . . . . . . . . . . . . . . . .\n"
+    "8 . . . . . . . . . . . . . . . . . . .\n"
+    "9 . . . . . . . . . . . . . . . . . . .\n"
+    "A . . . . . . . . . . . . . . . . . . .\n"
+    "B . . . . . . . . . . . . . . . . . . .\n"
+    "C . . . . . . . . . . . . . . . . . . .\n"
+    "D . . . . . . . . . . . . . . . . . . .\n"
+    "E . . . . . . . . . . . . . . . . . . .\n"
+    "F . . . . . . . . . . . . . . . . . . .\n"
+    "G . . . . . . . . . . . . . . . . . . .\n"
+    "H . . . . . . . . . . . . . . . . . . .\n"
+    "I . . . . . . . . . . . . . . . . . . .\n"
+    );
+
+    // Not player2 turn
+    act = room.perform_action_move(2, 4, 5);
+    ASSERT_FALSE(act.success);
+
+    act = room.perform_action_move(1, 4, 5);
+    ASSERT_TRUE(act.success);
+
+    // Not player2 turn
+    act = room.perform_action_move(2, 9, 9);
+    ASSERT_FALSE(act.success);
+
+    act = room.perform_action_move(1, 9, 9);
+    ASSERT_TRUE(act.success);
+
+    // Not player2 turn
+    act = room.perform_action_move(2, 9, 8);
+    ASSERT_FALSE(act.success);
+
+    act = room.perform_action_move(1, 9, 8);
+    ASSERT_TRUE(act.success);
+
+    // Not player1 turn and a swap is expected
+    act = room.perform_action_move(1, 12, 12);
+    ASSERT_FALSE(act.success);
+
+    // a swap is expected
+    act = room.perform_action_move(2, 12, 12);
+    ASSERT_FALSE(act.success);
+
+    // Not up to player 1 to choose
+    act = room.perform_action_swap(1, false);
+    ASSERT_FALSE(act.success);
+
+    act = room.perform_action_swap(2, true);
+    ASSERT_TRUE(act.success);
+
+    // Not player1 turn
+    act = room.perform_action_move(1, 0, 0);
+    ASSERT_FALSE(act.success);
+
+    act = room.perform_action_move(2, 7, 6);
+    ASSERT_TRUE(act.success);
+
+    // Not player2 turn
+    act = room.perform_action_move(2, 6, 5);
+    ASSERT_FALSE(act.success);
+
+
+}
 
 // void test_room5()
 // {
