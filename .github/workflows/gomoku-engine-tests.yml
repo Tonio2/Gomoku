@@ -19,23 +19,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y cmake build-essential libgtest-dev python3-dev
 
-    - name: Build and test
+    - name: Build
       working-directory: GomokuEngine
-      run: |
-        make test
+      run: make
 
-    - name: Check test results
-      if: ${{ failure() }}
-      run: echo "Tests failed"
-
-    - name: Mark commit status
-      if: ${{ success() }}
-      uses: actions/github-script@0.9.0
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          github.git.createCommitStatus({
-            context: 'GomokuEngine',
-            state: 'success',
-            description: 'All tests passed successfully'
-          })
+    - name: Test
+      working-directory: GomokuEngine
+      run: make test
