@@ -104,7 +104,7 @@ public:
     /** Check if the room need to perform pending actions */
     bool has_pending_action() const;
     /** Ask the room to perform the next pending action and return if there are other pending actions left. We should use this */
-    void perform_pending_action();
+    bool perform_pending_action();
 
     const std::vector<GameAction> &get_actions_history() { return _actions; }
     const GameRoomSettings &get_settings() const { return _settings; }

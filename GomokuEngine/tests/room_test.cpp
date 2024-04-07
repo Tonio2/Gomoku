@@ -80,36 +80,46 @@ TEST(RoomRuleStyleProTest, PerformActions)
     EXPECT_TRUE(action_result.success);
     EXPECT_EQ(room.get_actions_history().size(), 1);
 
-    // Player 2 plays incorrectly
-    action_result = room.perform_action_move(2, 13, 13);
-
-    EXPECT_FALSE(action_result.success);
-    EXPECT_EQ(room.get_actions_history().size(), 1);
-
     // Player 2 plays correctly
-    action_result = room.perform_action_move(2, 10, 9);
+    action_result = room.perform_action_move(2, 10, 10);
 
     EXPECT_TRUE(action_result.success);
     EXPECT_EQ(room.get_actions_history().size(), 2);
 
-    // Player 1 plays too far from first stones
-    action_result = room.perform_action_move(1, 15, 15);
+    // Player 1 plays inccorectly in inner circle
+    action_result = room.perform_action_move(1, 9, 10);
 
     EXPECT_FALSE(action_result.success);
+    EXPECT_EQ(room.get_actions_history().size(), 2);
 
-}
+    // Player 1 plays correctly
+    action_result = room.perform_action_move(1, 5, 8);
 
-TEST(RoomRuleStyleSwapTest, PerformActions)
-{
-    GameRoomSettings settings;
-    settings.rule_style = ::SWAP;
-    settings.p2.is_ai = false;
-    GameRoom room(settings);
+    EXPECT_TRUE(action_result.success);
+    EXPECT_EQ(room.get_actions_history().size(), 3);
 
-    room.perform_action_move(1, 4, 5);
-
-    room.perform_action_move(2, 5, 6);
-
+    EXPECT_EQ(to_string(room.get_game(), true),
+    "  0 1 2 3 4 5 6 7 8 9 A B C D E F G H I\n"
+    "0 . . . . . . . . . . . . . . . . . . .\n"
+    "1 . . . . . . . . . . . . . . . . . . .\n"
+    "2 . . . . . . . . . . . . . . . . . . .\n"
+    "3 . . . . . . . . . . . . . . . . . . .\n"
+    "4 . . . . . . . . . . . . . . . . . . .\n"
+    "5 . . . . . . . . X . . . . . . . . . .\n"
+    "6 . . . . . . . . . . . . . . . . . . .\n"
+    "7 . . . . . . . . . . . . . . . . . . .\n"
+    "8 . . . . . . . . . . . . . . . . . . .\n"
+    "9 . . . . . . . . . X . . . . . . . . .\n"
+    "A . . . . . . . . . . O . . . . . . . .\n"
+    "B . . . . . . . . . . . . . . . . . . .\n"
+    "C . . . . . . . . . . . . . . . . . . .\n"
+    "D . . . . . . . . . . . . . . . . . . .\n"
+    "E . . . . . . . . . . . . . . . . . . .\n"
+    "F . . . . . . . . . . . . . . . . . . .\n"
+    "G . . . . . . . . . . . . . . . . . . .\n"
+    "H . . . . . . . . . . . . . . . . . . .\n"
+    "I . . . . . . . . . . . . . . . . . . .\n"
+    );
 }
 
 TEST(RoomRuleStyleSwapTest, FullGameTry)
@@ -120,28 +130,6 @@ TEST(RoomRuleStyleSwapTest, FullGameTry)
     GameRoom room(settings);
 
     GameActionResult act;
-    EXPECT_EQ(to_string(room.get_game(), true),
-    "  0 1 2 3 4 5 6 7 8 9 A B C D E F G H I\n"
-    "0 . . . . . . . . . . . . . . . . . . .\n"
-    "1 . . . . . . . . . . . . . . . . . . .\n"
-    "2 . . . . . . . . . . . . . . . . . . .\n"
-    "3 . . . . . . . . . . . . . . . . . . .\n"
-    "4 . . . . . . . . . . . . . . . . . . .\n"
-    "5 . . . . . . . . . . . . . . . . . . .\n"
-    "6 . . . . . . . . . . . . . . . . . . .\n"
-    "7 . . . . . . . . . . . . . . . . . . .\n"
-    "8 . . . . . . . . . . . . . . . . . . .\n"
-    "9 . . . . . . . . . . . . . . . . . . .\n"
-    "A . . . . . . . . . . . . . . . . . . .\n"
-    "B . . . . . . . . . . . . . . . . . . .\n"
-    "C . . . . . . . . . . . . . . . . . . .\n"
-    "D . . . . . . . . . . . . . . . . . . .\n"
-    "E . . . . . . . . . . . . . . . . . . .\n"
-    "F . . . . . . . . . . . . . . . . . . .\n"
-    "G . . . . . . . . . . . . . . . . . . .\n"
-    "H . . . . . . . . . . . . . . . . . . .\n"
-    "I . . . . . . . . . . . . . . . . . . .\n"
-    );
 
     // Not player2 turn
     act = room.perform_action_move(2, 4, 5);
@@ -179,36 +167,83 @@ TEST(RoomRuleStyleSwapTest, FullGameTry)
     act = room.perform_action_swap(2, true);
     ASSERT_TRUE(act.success);
 
-    // Not player1 turn
-    act = room.perform_action_move(1, 0, 0);
+    // Not player2 turn
+    act = room.perform_action_move(2, 7, 6);
     ASSERT_FALSE(act.success);
 
-    act = room.perform_action_move(2, 7, 6);
+    act = room.perform_action_move(1, 0, 0);
     ASSERT_TRUE(act.success);
 
-    // Not player2 turn
-    act = room.perform_action_move(2, 6, 5);
+    // Not player1 turn
+    act = room.perform_action_move(1, 1, 1);
     ASSERT_FALSE(act.success);
 
+    act = room.perform_action_move(2, 6, 5);
+    ASSERT_TRUE(act.success);
+
+    EXPECT_EQ(to_string(room.get_game(), true),
+    "  0 1 2 3 4 5 6 7 8 9 A B C D E F G H I\n"
+    "0 O . . . . . . . . . . . . . . . . . .\n"
+    "1 . . . . . . . . . . . . . . . . . . .\n"
+    "2 . . . . . . . . . . . . . . . . . . .\n"
+    "3 . . . . . . . . . . . . . . . . . . .\n"
+    "4 . . . . . X . . . . . . . . . . . . .\n"
+    "5 . . . . . . . . . . . . . . . . . . .\n"
+    "6 . . . . . X . . . . . . . . . . . . .\n"
+    "7 . . . . . . . . . . . . . . . . . . .\n"
+    "8 . . . . . . . . . . . . . . . . . . .\n"
+    "9 . . . . . . . . X O . . . . . . . . .\n"
+    "A . . . . . . . . . . . . . . . . . . .\n"
+    "B . . . . . . . . . . . . . . . . . . .\n"
+    "C . . . . . . . . . . . . . . . . . . .\n"
+    "D . . . . . . . . . . . . . . . . . . .\n"
+    "E . . . . . . . . . . . . . . . . . . .\n"
+    "F . . . . . . . . . . . . . . . . . . .\n"
+    "G . . . . . . . . . . . . . . . . . . .\n"
+    "H . . . . . . . . . . . . . . . . . . .\n"
+    "I . . . . . . . . . . . . . . . . . . .\n"
+    );
 
 }
 
-// void test_room5()
-// {
-//     Room room = Room(19, 19, arePlayersHuman = [ false, true ], RuleStyle.SWAP);
+TEST(RoomRuleStyleSwapTest, TryNotSwaping)
+{
+    GameRoomSettings settings;
+    settings.rule_style = ::SWAP;
+    settings.width = 7;
+    settings.height = 7;
+    GameRoom room(settings);
 
-//     ActionResult result = room.action(Player.PLAYER1, Action.Play, {}); // result.success = true / result.message = "" / result.moveResult = {...} / next_action = {Player.PLAYER1, Action.PLAY}
-//     if (!arePlayersHuman[result.next_action.first])
-//     {
-//         result = room.action(result.next_action.first, result.next_action.second, {}); // result.success = true / result.message = "" / result.moveResult = {} / next_action = {Player.PLAYER2, Action.PLAY}
-//         if (!arePlayersHuman[result.next_action.first])
-//         {
-//             result = room.action(result.next_action.first, result.next_action.second, {}); // result.success = true / result.message = "" / result.moveResult = {...} / next_action = {Player.PLAYER2, Action.SWAP_CHOICE}
-//         }
-//     }
-//     result = room.action(Player.PLAYER2, Action.SWAP_CHOICE, {Team.Black}); // result.success = true / result.message = "" / result.moveResult = {} / next_action = {Player.PLAYER2, Action.PLAY}
-//     result = room.action(Player.PLAYER2, Action.Play, {7, 9});              // result.success = true / result.message = "" / result.moveResult = {...} / next_action = {Player.PLAYER1, Action.PLAY}
-// }
+    GameActionResult r;
+
+    r = room.perform_action_move(1, 0, 0);
+    ASSERT_TRUE(r.success);
+
+    r = room.perform_action_move(1, 2, 3);
+    ASSERT_TRUE(r.success);
+
+    r = room.perform_action_move(1, 3, 3);
+    ASSERT_TRUE(r.success);
+
+    r = room.perform_action_swap(2, false);
+    ASSERT_TRUE(r.success);
+
+    r = room.perform_action_move(2, 3, 4);
+    ASSERT_TRUE(r.success);
+
+    r = room.perform_action_move(1, 4, 4);
+    ASSERT_TRUE(r.success);
+
+    ASSERT_EQ(to_string(room.get_game()),
+    "X......\n"
+    ".......\n"
+    "...O...\n"
+    "...XO..\n"
+    "....X..\n"
+    ".......\n"
+    ".......\n"
+    );
+}
 
 int main(int argc, char **argv)
 {
