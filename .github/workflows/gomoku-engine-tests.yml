@@ -1,0 +1,28 @@
+name: GomokuEngine tests
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential libgtest-dev python3-dev
+
+    - name: Build
+      working-directory: GomokuEngine
+      run: make
+
+    - name: Test
+      working-directory: GomokuEngine
+      run: make test

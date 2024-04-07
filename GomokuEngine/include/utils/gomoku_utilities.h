@@ -27,4 +27,3 @@ void logTooManyEvaluationsList(const MoveEvaluation &eval);
 std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlayer = true);
 
 std::ostream& operator<<(std::ostream& stream, std::vector<std::string> moves);
-
