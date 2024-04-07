@@ -129,7 +129,7 @@ void test_problem(int problem_idx)
     // Get the best move
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     // Print the best move
-    game.display_board();
+    std::cout << to_string(game, true);
     std::cout << "Best move for player " << player << ": " << coordinate_to_char(bestMove.first) << coordinate_to_char(bestMove.second) << std::endl;
     logMoveEvaluation(moveEvalutation);
     logTooManyEvaluationsList(moveEvalutation);
@@ -166,7 +166,7 @@ void test_eval(std::string moves_string)
     std::cout << moves << std::endl;
 
     // Display the board
-    game.display_board();
+    std::cout << to_string(game, true);
 
     // Display if game is over and winner
     std::cout << "Is game over: " << game.is_game_over() << "\n";

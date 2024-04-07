@@ -24,7 +24,7 @@ file(GLOB_RECURSE ARENA_SOURCES "src/arena/*.cpp")
 
 file(GLOB_RECURSE UTILITIES_SOURCES "src/utils/*.cpp")
 
-set(GOMOKU_SOURCES ${MATRIX_SOURCES}  ${TIMER_SOURCES} ${ENGINE_SOURCES} ${AI_SOURCES} ${ROOM_SOURCES} ${UTILITIES_SOURCES})
+set(GOMOKU_SOURCES ${MATRIX_SOURCES} ${TIMER_SOURCES} ${ENGINE_SOURCES} ${AI_SOURCES} ${ROOM_SOURCES} ${UTILITIES_SOURCES})
 
 set(GKTOOLFILE src/gktool.cpp)
 
@@ -51,6 +51,12 @@ else()
     target_compile_options(gktool PRIVATE -O3 -DNDEBUG -march=native)
 endif()
 
-# Add tests
-enable_testing()
-add_subdirectory(tests)
+find_package(GTest)
+
+# Add tests if GTest is found
+if(GTEST_FOUND)
+    enable_testing()
+    add_subdirectory(tests)
+else()
+    message("GTest not installed. Tests will not be compiled")
+endif()

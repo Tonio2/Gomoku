@@ -34,11 +34,14 @@ submodule:
 	git submodule update --init --recursive
 
 cmake: build
-	(cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make) || docker compose up
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make
 
 install:
-	# brew install gtest python@3.12
-	# apt-get install libgtest-dev python3-dev
+	# brew install googletest
+	# apt-get install libgtest-dev
+
+	# brew install python@3.12
+	# apt-get install python3-dev
 
 run: $(EXECUTABLE_FILE)
 	./$(EXECUTABLE_FILE)
