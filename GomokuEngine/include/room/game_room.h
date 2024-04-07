@@ -96,8 +96,9 @@ public:
 
     std::string get_id() const { return _room_id; }
 
-    /** Make the room perform an action that will return a result */
+    /** Try to make the room perform a move action */
     GameActionResult perform_action_move(PlayerId player, int row, int col);
+    /** Try to make the room perform a swap action */
     GameActionResult perform_action_swap(PlayerId player, bool do_the_swap);
 
     /** Check if the room need to perform pending actions */
@@ -126,4 +127,12 @@ private:
     PlayerId id_from_gomoku_player(Player player) const;
 
     GomokuAI *get_player_ai(PlayerId id) const;
+
+    bool is_swap_expected() const;
+    PlayerId player_expected_to_swap() const;
+
+    GameActionResult perform_action_move_rs_standard(PlayerId player, int row, int col);
+    GameActionResult perform_action_move_rs_pro(PlayerId player, int row, int col);
+    GameActionResult perform_action_move_rs_swap(PlayerId player, int row, int col);
+
 };

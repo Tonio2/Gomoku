@@ -1,5 +1,14 @@
 
 #include "room/game_room.h"
+#include "utils/gomoku_utilities.h"
+
+static GameActionResult make_action_result(bool success, const std::string& message)
+{
+    GameActionResult r;
+    r.success = success;
+    r.message = message;
+    return r;
+}
 
 GameRoom::GameRoom(const GameRoomSettings &settings)
     : _room_id(new_room_id()),
@@ -24,83 +33,38 @@ GameRoom::~GameRoom()
 
 GameActionResult GameRoom::perform_action_move(PlayerId player, int row, int col)
 {
-    // TODO: Check if not expecting a swap action
-    GameActionResult result;
-
-    if (_game.is_game_over())
+    switch (_settings.rule_style)
     {
-        result.success = false;
-        result.message = "The game is over, why are you even still here ?";
-        return result;
+    case ::PRO:
+        return perform_action_move_rs_pro(player, row, col);
+    case ::SWAP:
+        return perform_action_move_rs_swap(player, row, col);
+    default:
+        return perform_action_move_rs_standard(player, row, col);
     }
-
-    if (gomoku_player_from_id(player) != _game.get_current_player())
-    {
-        result.success = false;
-        result.message = "That's not your turn bro...";
-        return result;
-    }
-
-    if (_settings.rule_style == GameRoomRuleStyle::PRO)
-    {
-        int midw = _game.get_board_width() / 2;
-        int midh = _game.get_board_height() / 2;
-
-        // If it's first turn
-        if (_actions.empty())
-        {
-            if (row != midh || col != midw)
-            {
-                result.success = false;
-                result.message = "Stone should be in the middle";
-                return result;
-            }
-        }
-        else if (_actions.size() == 1 || _actions.size() == 2)
-        {
-            bool stone_too_far = abs(row - midh) > 3 || abs(col - midw) > 3;
-            if (stone_too_far)
-            {
-                result.success = false;
-                result.message = "Stone too far";
-                return result;
-            }
-        }
-    }
-
-    GameAction new_action;
-    new_action.player = player;
-    new_action.action_type = GameActionType::GAMEACTION_MOVE;
-    new_action.action_value.move.row = row;
-    new_action.action_value.move.col = col;
-
-    try
-    {
-        new_action.action_value.move.result = _game.make_move(row, col);
-    }
-    catch (std::exception &e)
-    {
-        result.success = false;
-        result.message = std::string(e.what());
-        return result;
-    }
-
-    _actions.push_back(new_action);
-
-    result.success = true;
-    result.message = "Player " + std::to_string(player) + " played at " + std::to_string(row) + ";" + std::to_string(col);
-
-    return result;
 }
 
 GameActionResult GameRoom::perform_action_swap(PlayerId player, bool do_the_swap)
 {
-    // TODO: implement it
-    GameActionResult result;
+    if (!is_swap_expected())
+    {
+        return make_action_result(false, "Did not expect a swap action");
+    }
 
-    result.success = false;
-    result.message = "I don't feel like it sorry...";
-    return result;
+    if (player_expected_to_swap() != player)
+    {
+        return make_action_result(false, "Wrong player");
+    }
+
+    GameAction new_action;
+    new_action.player = player;
+    new_action.action_type = GameActionType::GAMEACTION_SWAP;
+    new_action.action_value.swap.did_swap = do_the_swap;
+    _actions.push_back(new_action);
+
+    _players_swapped = do_the_swap;
+
+    return make_action_result(true, "Swap successful");
 }
 
 bool GameRoom::has_pending_action() const
@@ -128,10 +92,9 @@ void GameRoom::perform_pending_action()
     {
         MoveEvaluation evaluation = playing_ai->suggest_move(_game, _game.get_current_player());
 
-        auto best_move = std::max_element(evaluation.listMoves.begin(), evaluation.listMoves.end(), [](const MoveEvaluation &a, const MoveEvaluation &b)
-                                          { return a.score < b.score; });
+        auto best_move = getBestMove(evaluation);
 
-        perform_action_move(current_player, best_move->move.first, best_move->move.second);
+        perform_action_move(current_player, best_move.first, best_move.second);
     }
 }
 
@@ -182,4 +145,93 @@ GomokuAI *GameRoom::get_player_ai(PlayerId id) const
         return _ai2;
     }
     return nullptr;
+}
+
+
+bool GameRoom::is_swap_expected() const
+{
+    if (_settings.rule_style == ::SWAP && _actions.size() == 3)
+        return true;
+
+    return false;
+}
+
+PlayerId GameRoom::player_expected_to_swap() const
+{
+    return PlayerId(2);
+}
+
+GameActionResult GameRoom::perform_action_move_rs_standard(PlayerId player, int row, int col)
+{
+    if (_game.is_game_over())
+    {
+        return make_action_result(false, "The game is over, why are you even still here ?");
+    }
+
+    if (gomoku_player_from_id(player) != _game.get_current_player())
+    {
+        return make_action_result(false, "That's not your turn bro...");
+    }
+
+    GameAction new_action;
+    new_action.player = player;
+    new_action.action_type = GameActionType::GAMEACTION_MOVE;
+    new_action.action_value.move.row = row;
+    new_action.action_value.move.col = col;
+
+    try
+    {
+        new_action.action_value.move.result = _game.make_move(row, col);
+    }
+    catch (std::exception &e)
+    {
+        return make_action_result(false, e.what());
+    }
+
+    _actions.push_back(new_action);
+
+    return make_action_result(true, "Player " + std::to_string(player) + " played at " + std::to_string(row) + ";" + std::to_string(col));
+}
+
+GameActionResult GameRoom::perform_action_move_rs_pro(PlayerId player, int row, int col)
+{
+    int midw = _game.get_board_width() / 2;
+    int midh = _game.get_board_height() / 2;
+
+    // If it's first turn
+    if (_actions.empty())
+    {
+        if (row != midh || col != midw)
+        {
+            return make_action_result(false, "Stone should be in the middle");
+        }
+    }
+    else if (_actions.size() == 1 || _actions.size() == 2)
+    {
+        bool stone_too_far = abs(row - midh) > 3 || abs(col - midw) > 3;
+        if (stone_too_far)
+        {
+            return make_action_result(false, "Stone too far");
+        }
+    }
+
+    return perform_action_move_rs_standard(player, row, col);
+}
+
+GameActionResult GameRoom::perform_action_move_rs_swap(PlayerId player, int row, int col)
+{
+    if (is_swap_expected())
+    {
+        return make_action_result(false, "Expected a swap action");
+    }
+
+    if (_actions.size() < 3)
+    {
+        if (player == 2)
+        {
+            return make_action_result(false, "Expected a swap action");
+        }
+    }
+
+    return perform_action_move_rs_standard(player, row, col);
 }
