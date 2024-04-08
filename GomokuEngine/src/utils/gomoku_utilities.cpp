@@ -26,7 +26,7 @@ char coordinate_to_char(int coordinate)
     return '?';
 }
 
-std::string to_string(const GomokuGame& game, bool with_coordinates)
+std::string to_string(const GomokuGame &game, bool with_coordinates)
 {
     std::stringstream ss;
 
@@ -64,7 +64,7 @@ std::string to_string(const GomokuGame& game, bool with_coordinates)
     return ss.str();
 }
 
-void apply_moves(GomokuGame& game, std::vector<std::string> moves)
+void apply_moves(GomokuGame &game, std::vector<std::string> moves)
 {
     for (std::string move : moves)
     {
@@ -97,7 +97,7 @@ void apply_moves(GomokuGame &game, std::string move_str)
 
 int get_depth_from_env(int default_depth)
 {
-    char* env_depth = getenv("DEPTH");
+    char *env_depth = getenv("DEPTH");
 
     if (env_depth)
     {
@@ -207,9 +207,9 @@ std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlaye
     return bestMove;
 }
 
-std::ostream& operator<<(std::ostream& stream, std::vector<std::string> moves)
+std::ostream &operator<<(std::ostream &stream, std::vector<std::string> moves)
 {
-    for (const std::string& move : moves)
+    for (const std::string &move : moves)
     {
         stream << move << ' ';
     }

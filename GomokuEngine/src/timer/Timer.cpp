@@ -67,12 +67,12 @@ void Timer::stopTimer()
 std::string getColor(int depth)
 {
   std::vector<std::string> colors = {
-    "\033[1;31m", // Red
-    "\033[1;34m", // Blue
-    "\033[1;32m", // Green
-    "\033[1;33m", // Yellow
-    "\033[1;35m", // Magenta
-    "\033[1;36m"  // Cyan
+      "\033[1;31m", // Red
+      "\033[1;34m", // Blue
+      "\033[1;32m", // Green
+      "\033[1;33m", // Yellow
+      "\033[1;35m", // Magenta
+      "\033[1;36m"  // Cyan
   };
   return colors[depth % colors.size()];
 }
@@ -105,14 +105,14 @@ void Timer::printAccumulatedTimes()
 
     // Print the current function with its color and time, but skip printing "other" here
     std::cout << indent << color << accumulation.callCount << " " << callStack.back() << ": "
-          << static_cast<int>(accumulation.totalTime) << " ms\033[0m" << std::endl;
+              << static_cast<int>(accumulation.totalTime) << " ms\033[0m" << std::endl;
 
     if (accumulation.otherTime < accumulation.totalTime)
     {
       indent = getIndent(callStack.size() + 1);
       color = getColor(callStack.size() + 1);
       std::cout << indent << color << "other: "
-            << static_cast<int>(accumulation.otherTime) << " ms\033[0m" << std::endl;
+                << static_cast<int>(accumulation.otherTime) << " ms\033[0m" << std::endl;
     }
   }
 }

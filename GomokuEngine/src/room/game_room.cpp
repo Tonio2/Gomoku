@@ -2,7 +2,7 @@
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
 
-static GameActionResult make_action_result(bool success, const std::string& message)
+static GameActionResult make_action_result(bool success, const std::string &message)
 {
     GameActionResult r;
     r.success = success;
@@ -88,7 +88,7 @@ bool GameRoom::perform_pending_action()
     if (is_swap_expected())
     {
         PlayerId p = player_expected_to_swap();
-        GomokuAI* ai = get_player_ai(p);
+        GomokuAI *ai = get_player_ai(p);
 
         if (ai == nullptr)
             return false;

@@ -134,5 +134,4 @@ private:
     GameActionResult perform_action_move_rs_standard(PlayerId player, int row, int col);
     GameActionResult perform_action_move_rs_pro(PlayerId player, int row, int col);
     GameActionResult perform_action_move_rs_swap(PlayerId player, int row, int col);
-
 };

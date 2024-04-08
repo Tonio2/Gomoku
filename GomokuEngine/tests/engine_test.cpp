@@ -41,11 +41,12 @@ TEST(EngineTest, ValidCoordinatesTest)
     EXPECT_TRUE(game.coordinates_are_valid(9, 9));
 }
 
-TEST(GomokuGameTest, MakeMoveTest) {
+TEST(GomokuGameTest, MakeMoveTest)
+{
     GomokuGame game(10, 10);
-    
+
     MoveResult result = game.make_move(5, 5);
-    
+
     ASSERT_EQ(result.cell_changes.size(), 1);
     ASSERT_EQ(result.cell_changes[0].row, 5);
     ASSERT_EQ(result.cell_changes[0].col, 5);
@@ -54,13 +55,15 @@ TEST(GomokuGameTest, MakeMoveTest) {
     ASSERT_EQ(game.get_current_player(), Player::WHITE);
 }
 
-TEST(GomokuGameTest, MakeMoveInvalidCoordinatesTest) {
+TEST(GomokuGameTest, MakeMoveInvalidCoordinatesTest)
+{
     GomokuGame game(10, 10);
 
     ASSERT_THROW(game.make_move(-1, 5), std::invalid_argument);
 }
 
-TEST(GomokuGameTest, MakeMoveOccupiedCellTest) {
+TEST(GomokuGameTest, MakeMoveOccupiedCellTest)
+{
     GomokuGame game(10, 10);
     game.make_move(5, 5);
 
