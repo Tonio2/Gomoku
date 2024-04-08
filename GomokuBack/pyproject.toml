@@ -1,0 +1,11 @@
+[project]
+name = "gkserver"
+version = "0.1.0"
+authors = [
+    { name="Arthur Masson" },
+    { name="Antoine Labelet" },
+]
+description = "Gomoku game service"
+dependencies = [
+    "flask",
+]
