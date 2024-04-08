@@ -35,9 +35,9 @@ GameActionResult GameRoom::perform_action_move(PlayerId player, int row, int col
 {
     switch (_settings.rule_style)
     {
-    case ::PRO:
+    case GameRoomRuleStyle::PRO:
         return perform_action_move_rs_pro(player, row, col);
-    case ::SWAP:
+    case GameRoomRuleStyle::SWAP:
         return perform_action_move_rs_swap(player, row, col);
     default:
         return perform_action_move_rs_standard(player, row, col);
@@ -58,7 +58,7 @@ GameActionResult GameRoom::perform_action_swap(PlayerId player, bool do_the_swap
 
     GameAction new_action;
     new_action.player = player;
-    new_action.action_type = GameActionType::GAMEACTION_SWAP;
+    new_action.action_type = GameActionType::SWAP;
     new_action.action_value.swap.did_swap = do_the_swap;
     _actions.push_back(new_action);
 
@@ -75,7 +75,7 @@ bool GameRoom::has_pending_action() const
     if (is_swap_expected() && get_player_ai(player_expected_to_swap()) != nullptr)
         return true;
 
-    if (_actions.empty() && _settings.rule_style == ::PRO)
+    if (_actions.empty() && _settings.rule_style == GameRoomRuleStyle::PRO)
         return true;
 
     PlayerId current_player = id_from_gomoku_player(_game.get_current_player());
@@ -98,7 +98,7 @@ bool GameRoom::perform_pending_action()
         return true;
     }
 
-    if (_settings.rule_style == ::PRO && _actions.empty())
+    if (_settings.rule_style == GameRoomRuleStyle::PRO && _actions.empty())
     {
         perform_action_move(1, _game.get_board_height() / 2, _game.get_board_width() / 2);
         return true;
@@ -169,7 +169,7 @@ GomokuAI *GameRoom::get_player_ai(PlayerId id) const
 
 bool GameRoom::is_swap_expected() const
 {
-    if (_settings.rule_style == ::SWAP && _actions.size() == 3)
+    if (_settings.rule_style == GameRoomRuleStyle::SWAP && _actions.size() == 3)
         return true;
 
     return false;
@@ -194,7 +194,7 @@ GameActionResult GameRoom::perform_action_move_rs_standard(PlayerId player, int 
 
     GameAction new_action;
     new_action.player = player;
-    new_action.action_type = GameActionType::GAMEACTION_MOVE;
+    new_action.action_type = GameActionType::MOVE;
     new_action.action_value.move.row = row;
     new_action.action_value.move.col = col;
 

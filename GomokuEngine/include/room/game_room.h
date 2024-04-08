@@ -8,6 +8,13 @@
  * The case of swap will only change the player's corresponding gomoku player */
 typedef uint8_t PlayerId;
 
+/** All possible types of GameActions */
+enum class GameActionType
+{
+    MOVE,
+    SWAP,
+};
+
 /** Values of an action of type Move */
 struct GameActionValue_Move
 {
@@ -29,13 +36,6 @@ struct GameActionValue
     GameActionValue_Swap swap;
 };
 
-/** All possible types of GameActions */
-enum GameActionType
-{
-    GAMEACTION_MOVE,
-    GAMEACTION_SWAP,
-};
-
 /** An action performed on a room. The room keeps a list of those as history */
 struct GameAction
 {
@@ -46,7 +46,7 @@ struct GameAction
 };
 
 /** Different rule style sets */
-enum GameRoomRuleStyle
+enum class GameRoomRuleStyle
 {
     STANDARD,
     PRO,
