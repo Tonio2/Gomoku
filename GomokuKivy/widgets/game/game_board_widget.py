@@ -8,7 +8,7 @@ from core.gomoku_game import GomokuGame, GomokuPlayer
 
 from core.callback_center import CallbackCenter
 
-GRID_COLOR = (0, 0, 0)
+GRID_COLOR = (0.5, 0.3, 0.1)
 LIGHT_COLOR = (0.7, 0.7, 0.7)
 DARK_COLOR = (0.5, 0.5, 0.5)
 
@@ -20,6 +20,7 @@ class GameBoardWidget(Widget):
     def __init__(self, **kwargs):
         super(GameBoardWidget, self).__init__(**kwargs)
         CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_gomokugame_modified)
+        Window.bind(mouse_pos=self.on_mouse_pos)
 
     def get_game(self) -> GomokuGame:
         return SharedObject.get_instance().get_game()
@@ -27,7 +28,6 @@ class GameBoardWidget(Widget):
     def on_gomokugame_modified(self, message, game):
         if game == self.get_game():
             self.draw_board()
-
 
     def draw_board(self):
         self.canvas.clear()
@@ -42,20 +42,12 @@ class GameBoardWidget(Widget):
         cell_size_y = self.height / board_size_y
 
         with self.canvas:
-            # Draw the squares
-            for x in range(board_size_x):
-                for y in range(board_size_y):
-                    square_color = LIGHT_COLOR if (x + y) % 2 == 0 else DARK_COLOR
-                    Color(*square_color)
-                    Rectangle(pos=(self.x + x * cell_size_x, self.y + y * cell_size_y),
-                            size=(cell_size_x, cell_size_y))
-
-            # # Draw board grid
+            # Draw board grid lines
             Color(*GRID_COLOR)
             for x in range(board_size_x):
-                Rectangle(pos=(self.x + x * cell_size_x, self.y), size=(1, self.height))
+                Rectangle(pos=(self.x + (x + 0.5) * cell_size_x, self.y), size=(1.5, self.height))
             for y in range(board_size_y):
-                Rectangle(pos=(self.x, self.y + y * cell_size_y), size=(self.width, 1))
+                Rectangle(pos=(self.x, self.y + (y + 0.5) * cell_size_y), size=(self.width, 1.5))
 
             # Draw the pieces
             for x in range(board_size_x):
@@ -87,3 +79,31 @@ class GameBoardWidget(Widget):
             row = int((touch.pos[1] - self.y) / cell_size_y)
 
             gomoku_game.handle_click(board_size_y - 1 - row, col)
+
+    def on_mouse_pos(self, window, pos):
+
+        cell = BoardCellHovering()
+
+        cell.game = self.get_game()
+
+        if self.collide_point(*pos):
+            board_size_x, board_size_y = self.get_game().get_board_width(), self.get_game().get_board_height()
+
+            cell_size_x = self.width / board_size_x
+            cell_size_y = self.height / board_size_y
+
+            cell.col = int((pos[0] - self.x) / cell_size_x)
+            cell.row = int((pos[1] - self.y) / cell_size_y)
+
+        CallbackCenter.shared().send_message("Board.mouse", cell)
+
+class BoardCellHovering:
+
+    row: int
+    col: int
+    game: GomokuGame
+
+    def __init__(self) -> None:
+        self.row = -1
+        self.col = -1
+        self.game = None

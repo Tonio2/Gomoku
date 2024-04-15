@@ -14,6 +14,7 @@ class SharedObject:
         self._mode = 0
         self._width = 19
         self._height = 19
+        self._game = None
 
     def set_size(self, width, height):
         self._width = width

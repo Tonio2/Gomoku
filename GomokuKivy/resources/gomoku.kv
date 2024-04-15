@@ -144,7 +144,7 @@
 
                 canvas.before:
                     Color:
-                        rgba: 1, 0, 0, 1
+                        rgba: 0.25, 0.15, 0.05, 1
                     Rectangle:
                         pos: self.pos
                         size: self.size
@@ -152,18 +152,11 @@
                 GameFrameWidget:
                     id: game_frame_widget
 
-                    margin: 60
+                    margin: 20
                     board_widget: game_board_widget
 
-                    canvas.before:
-                        Color:
-                            rgba: 1, 1, 0, 1
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-
-                    GameBoardWidget:
-                        id: game_board_widget
+                GameBoardWidget:
+                    id: game_board_widget
 
             BoxLayout:
                 size_hint: (0.25, 1) if root_box_layout.orientation == 'horizontal' else (1, 0.25)

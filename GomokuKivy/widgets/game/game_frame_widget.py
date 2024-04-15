@@ -1,4 +1,5 @@
 from kivy.uix.widget import Widget
+from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle, Ellipse
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -10,12 +11,7 @@ from core.gomoku_game import GomokuGame, GomokuPlayer
 
 from core.callback_center import CallbackCenter
 
-GRID_COLOR = (0, 0, 0)
-LIGHT_COLOR = (0.7, 0.7, 0.7)
-DARK_COLOR = (0.5, 0.5, 0.5)
-
-WHITE_COLOR = (0.9, 0.9, 0.9)
-BLACK_COLOR = (0.1, 0.1, 0.1)
+BOARD_FRAME_COLOR = (0.5, 0.3, 0.1)
 
 class GameFrameWidget(Widget):
 
@@ -27,30 +23,90 @@ class GameFrameWidget(Widget):
         Window.bind(size=self._on_window_resized)
         CallbackCenter.shared().add_callback("Application.draw", self.on_application_draw)
 
+    def __del__(self):
+        Window.unbind(size=self._on_window_resized)
+        CallbackCenter.shared().remove_callback("Application.draw", self.on_application_draw)
+
     def _on_window_resized(self, window, size):
-        Clock.schedule_once(lambda _ : self.draw_frame(), 0.1)
+        Clock.schedule_once(lambda _ : self.draw_board_frame(), 0.1)
 
     def get_game(self) -> GomokuGame:
         return SharedObject.get_instance().get_game()
 
     def on_application_draw(self, message, _):
-        self.draw_frame()
+        self.draw_board_frame()
 
     def get_game(self) -> GomokuGame:
         return SharedObject.get_instance().get_game()
 
-    def draw_frame(self):
-        self.size = min(self.parent.width, self.parent.height), min(self.parent.width, self.parent.height)
-        self.pos = self.parent.pos[0] + (self.parent.width - self.width) / 2, self.parent.pos[1] + (self.parent.height - self.height) / 2
+    def update_widget_layouts(self):
 
-        self.board_widget.size = self.width - self.margin, self.height - self.margin
-        game = self.get_game()
-        if game is not None:
-            if game.get_board_width() > game.get_board_height():
-                self.board_widget.height *= game.get_board_height() / game.get_board_width()
-            else:
-                self.board_widget.width *= game.get_board_width() / game.get_board_height()
+        game_ratio = self.get_game().get_board_width() / self.get_game().get_board_height()
+        frame_ratio = self.parent.width / self.parent.height
 
-        self.board_widget.pos[0] = self.pos[0] + (self.width - self.board_widget.width) / 2
-        self.board_widget.pos[1] = self.pos[1] + (self.height - self.board_widget.height) / 2
+        if game_ratio > frame_ratio:
+            self.size = self.parent.width, self.parent.width / game_ratio
+        else:
+            self.size = self.parent.height * game_ratio, self.parent.height
+
+        self.pos[0] = self.parent.pos[0] + (self.parent.width - self.width) / 2
+        self.pos[1] = self.parent.pos[1] + (self.parent.height - self.height) / 2
+
+        self.board_widget.size = self.width - 2 * self.margin, self.height - 2 * self.margin
+        self.board_widget.pos = self.pos[0] + self.margin, self.pos[1] + self.margin
+
+    def draw_board_frame(self):
+        self.update_widget_layouts()
+
         self.board_widget.draw_board()
+
+        game = self.get_game()
+        board_size_y, board_size_x = game.get_board_height(), game.get_board_width()
+        cell_size_x = self.board_widget.width / board_size_x
+        cell_size_y = self.board_widget.height / board_size_y
+
+        self.clear_widgets()
+        for x in range(board_size_x):
+            coordinate_label = BoardCoordinateLabel(text=game.coordinate_index_name(x))
+            coordinate_label.index = x
+            coordinate_label.horizontal = True
+            coordinate_label.pos = self.board_widget.pos[0] + x * cell_size_x, self.board_widget.pos[1] + self.board_widget.size[1]
+            coordinate_label.size = cell_size_x, 20
+            self.add_widget(coordinate_label)
+
+        for y in range(board_size_y):
+            coordinate_label = BoardCoordinateLabel(text=game.coordinate_index_name(board_size_y - y - 1))
+            coordinate_label.index = y
+            coordinate_label.horizontal = False
+            coordinate_label.pos = self.board_widget.pos[0] - 20, self.board_widget.pos[1] + y * cell_size_y
+            coordinate_label.size = 20, cell_size_y
+            self.add_widget(coordinate_label)
+
+
+HOVERED_COLOR = (0.3, 0.3, 0.3)
+UNHOVERED_COLOR = (0.1, 0.1, 0.1)
+class BoardCoordinateLabel(Label):
+
+    index: int
+    horizontal: bool
+
+    def __init__(self, **kwargs):
+        super(BoardCoordinateLabel, self).__init__(**kwargs)
+        self.font_size = 14
+        self.color = UNHOVERED_COLOR
+        CallbackCenter.shared().add_callback("Board.mouse", self.on_mouse_board)
+
+    def __del__(self):
+        CallbackCenter.shared().remove_callback("Board.mouse", self.on_mouse_board)
+
+    def on_mouse_board(self, message, cell):
+        if self.horizontal:
+            if cell.col == self.index:
+                self.color = HOVERED_COLOR
+            else:
+                self.color = UNHOVERED_COLOR
+        else:
+            if cell.row == self.index:
+                self.color = HOVERED_COLOR
+            else:
+                self.color = UNHOVERED_COLOR
