@@ -31,4 +31,8 @@ class GameMoveListWidget(Widget):
         self.grid_widget.height = 22 * ((len(self.grid_widget.children) + 1) // 2)
 
     def move_to_str(self, move: GomokuMove) -> str:
-        return f'{move.row}:{move.column}'
+        game = self.get_game()
+        if game is None:
+            return f'{move.row}:{move.column}'
+        
+        return game.coordinates_name(move.row, move.column)
