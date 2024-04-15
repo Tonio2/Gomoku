@@ -152,9 +152,7 @@
                 GameFrameWidget:
                     id: game_frame_widget
 
-                    size: min(self.parent.width, self.parent.height), min(self.parent.width, self.parent.height)
-                    pos: self.parent.pos[0] + (self.parent.width - self.width) / 2, self.parent.pos[1] + (self.parent.height - self.height) / 2
-
+                    margin: 60
                     board_widget: game_board_widget
 
                     canvas.before:
@@ -166,9 +164,6 @@
 
                     GameBoardWidget:
                         id: game_board_widget
-
-                        size: self.parent.width - 30, self.parent.height - 30
-                        pos: self.parent.pos[0] + (self.parent.width - self.width) / 2, self.parent.pos[1] + (self.parent.height - self.height) / 2
 
             BoxLayout:
                 size_hint: (0.25, 1) if root_box_layout.orientation == 'horizontal' else (1, 0.25)

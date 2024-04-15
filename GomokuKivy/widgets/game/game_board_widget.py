@@ -19,12 +19,7 @@ class GameBoardWidget(Widget):
 
     def __init__(self, **kwargs):
         super(GameBoardWidget, self).__init__(**kwargs)
-        Window.bind(size=self._on_window_resized)
         CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_gomokugame_modified)
-        CallbackCenter.shared().add_callback("Application.draw", self.on_application_draw)
-
-    def _on_window_resized(self, window, size):
-        Clock.schedule_once(lambda _ : self.draw_board(), 0.1)
 
     def get_game(self) -> GomokuGame:
         return SharedObject.get_instance().get_game()
@@ -33,8 +28,6 @@ class GameBoardWidget(Widget):
         if game == self.get_game():
             self.draw_board()
 
-    def on_application_draw(self, message, _):
-        self.draw_board()
 
     def draw_board(self):
         self.canvas.clear()
