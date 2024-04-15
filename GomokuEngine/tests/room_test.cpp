@@ -121,7 +121,7 @@ TEST(RoomRuleStyleProTest, PerformActions)
 TEST(RoomRuleStyleSwapTest, FullGameTry)
 {
     GameRoomSettings settings;
-    settings.rule_style = ::SWAP;
+    settings.rule_style = GameRoomRuleStyle::SWAP;
     settings.p2.is_ai = false;
     GameRoom room(settings);
 
@@ -203,7 +203,7 @@ TEST(RoomRuleStyleSwapTest, FullGameTry)
 TEST(RoomRuleStyleSwapTest, TryNotSwaping)
 {
     GameRoomSettings settings;
-    settings.rule_style = ::SWAP;
+    settings.rule_style = GameRoomRuleStyle::SWAP;
     settings.width = 7;
     settings.height = 7;
     GameRoom room(settings);
