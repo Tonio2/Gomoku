@@ -15,12 +15,12 @@ class MenuRootWidget(Widget):
 
     def set_board_width(self, value):
         shared_object = SharedObject.get_instance()
-        shared_object.set_size(int(value), shared_object._height)
+        shared_object.room_settings.set_width(int(value))
 
     def set_board_height(self, value):
         shared_object = SharedObject.get_instance()
-        shared_object.set_size(shared_object._width, int(value))
-    
+        shared_object.room_settings.set_height(int(value))
+
     def set_mode(self, value):
         shared_object = SharedObject.get_instance()
-        shared_object.set_mode(value)
+        # shared_object.set_mode(value)

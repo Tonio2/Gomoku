@@ -4,6 +4,7 @@
 #include "engine/gomoku_engine.h"
 #include "ai/gomoku_ai.h"
 #include "room/game_room.h"
+#include "utils/gomoku_utilities.h"
 
 namespace py = pybind11;
 
@@ -41,6 +42,10 @@ PYBIND11_MODULE(pygomoku, m)
         .value("WHITE", Player::WHITE)
         .export_values();
 
+    /** Utils */
+    m.def("char_to_coordinate", &char_to_coordinate);
+    m.def("coordinate_to_char", &coordinate_to_char);
+
     /** Ai */
     py::class_<MoveEvaluation>(m, "MoveEvaluation")
         .def(py::init<>())
@@ -59,7 +64,9 @@ PYBIND11_MODULE(pygomoku, m)
     py::enum_<GameRoomRuleStyle>(m, "GameRoomRuleStyle")
         .value("STANDARD", GameRoomRuleStyle::STANDARD)
         .value("PRO", GameRoomRuleStyle::PRO)
+        .value("LONG_PRO", GameRoomRuleStyle::LONG_PRO)
         .value("SWAP", GameRoomRuleStyle::SWAP)
+        .value("SWAP2", GameRoomRuleStyle::SWAP2)
         .export_values();
     py::class_<GameActionValue_Move>(m, "GameActionValue_Move")
         .def_readwrite("row", &GameActionValue_Move::row)
@@ -97,5 +104,7 @@ PYBIND11_MODULE(pygomoku, m)
         .def("perform_pending_action", &GameRoom::perform_pending_action)
         .def("get_actions_history", &GameRoom::get_actions_history)
         .def("get_settings", &GameRoom::get_settings)
-        .def("get_game", &GameRoom::get_game);
+        .def("get_game", &GameRoom::get_game)
+        .def("gomoku_player_from_id", &GameRoom::gomoku_player_from_id)
+        .def("id_from_gomoku_player", &GameRoom::id_from_gomoku_player);
 }

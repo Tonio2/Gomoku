@@ -10,7 +10,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 
 from core.callback_center import CallbackCenter
-from core.gomoku_game import GomokuGame, GomokuPlayer
+from core.gomoku_room import GameRoom, GomokuPlayer
 
 class GameScreen(Screen):
 
@@ -25,10 +25,10 @@ class GameScreen(Screen):
     def on_enter(self):
         CallbackCenter.shared().send_message("Application.draw", None)
 
-    def on_game_over(self, message, game: GomokuGame):
+    def on_game_over(self, _, room: GameRoom):
         self.end_game_popup = ModalView(size_hint=(None, None), size=(300, 100))
         text = "Draw"
-        winner = game.get_winner()
+        winner = room.get_winner()
         if winner != GomokuPlayer.EMPTY:
             text = f'{winner.to_str()} wins !'
 
@@ -42,4 +42,4 @@ class GameScreen(Screen):
         for widget in self.children:
             widget.disabled = False
         self.back_to_menu()
-        SharedObject.get_instance().reset_game()
+        SharedObject.get_instance().clear_room()
