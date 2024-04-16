@@ -83,6 +83,9 @@ class GameBoardWidget(Widget):
     def on_mouse_pos(self, window, pos):
 
         room = self.get_room()
+        if room is None:
+            return
+
         cell = BoardCellHovering()
 
         if self.collide_point(*pos):

@@ -143,7 +143,8 @@ class GameRoom:
         return self.coordinate_index_name(row) + self.coordinate_index_name(col)
 
     def get_player_score(self, player: GomokuPlayer) -> int:
-        return self.room.get_game().get_player_score(player.value)
+        player = pygomoku.Player.BLACK if player == GomokuPlayer.BLACK else pygomoku.Player.WHITE
+        return self.room.get_color_score(player)
 
     def get_winner(self) -> GomokuPlayer:
         if self.room.get_game().is_game_over():
@@ -191,12 +192,11 @@ class GameRoom:
 
         last_index = len(self.room.get_actions_history()) - 1
         result = self.room.perform_action_move(current_playerid, row, col)
-        print("result=", result.success, result.message)
         if self.update_actions_list_since_index(last_index):
-            CallbackCenter.shared().send_message("GameRoom.modified", self)
+            CallbackCenter.shared().send_message("GomokuGame.modified", self)
 
         if self.room.get_game().is_game_over():
-            CallbackCenter.shared().send_message("GameRoom.gameover", self)
+            CallbackCenter.shared().send_message("GomokuGame.gameover", self)
 
         asyncio.create_task(self.perform_pending_actions())
 

@@ -105,6 +105,7 @@ PYBIND11_MODULE(pygomoku, m)
         .def("get_actions_history", &GameRoom::get_actions_history)
         .def("get_settings", &GameRoom::get_settings)
         .def("get_game", &GameRoom::get_game)
+        .def("get_color_score", &GameRoom::get_color_score)
         .def("gomoku_player_from_id", &GameRoom::gomoku_player_from_id)
         .def("id_from_gomoku_player", &GameRoom::id_from_gomoku_player);
 }

@@ -109,6 +109,7 @@ public:
     const std::vector<GameAction> &get_actions_history() { return _actions; }
     const GameRoomSettings &get_settings() const { return _settings; }
     const GomokuGame &get_game() const { return _game; }
+    int get_color_score(Player color) const { return _game.get_player_score(color); }
 
     Player gomoku_player_from_id(PlayerId id) const;
     PlayerId id_from_gomoku_player(Player player) const;
