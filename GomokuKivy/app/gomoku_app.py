@@ -12,7 +12,7 @@ from widgets.game.game_infos_widget import GameInfosWidget
 from widgets.game.game_frame_widget import GameFrameWidget
 from widgets.game.game_infos_player_indicator_widget import GameInfosPlayerIndicatorWidget
 from widgets.game.game_move_list_widget import GameMoveListWidget
-from core.gomoku_game import GomokuPlayer
+from core.gomoku_room import GomokuPlayer
 
 class GomokuApp(App):
 

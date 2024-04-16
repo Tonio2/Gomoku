@@ -1,33 +1,26 @@
 
-from core.gomoku_game import GomokuGame
+from core.gomoku_room import GameRoom, GameRoomSettings
 
 class SharedObject:
 
-    _width: int
-    _height: int
-    _mode: int
-    _game: GomokuGame
-    _player_time: float
+    room_settings: GameRoomSettings
+    room: GameRoom
 
     def __init__(self):
-        self._player_time = 300
-        self._mode = 0
-        self._width = 19
-        self._height = 19
-        self._game = None
+        self.room = None
+        self.room_settings = GameRoomSettings()
 
-    def set_size(self, width, height):
-        self._width = width
-        self._height = height
-    
-    def set_mode(self, mode):
-        self._mode = mode
+    def create_room(self):
+        self.room = GameRoom(self.room_settings)
 
-    def reset_game(self):
-        self._game = GomokuGame(self._width, self._height, self._player_time, self._mode)
+    def clear_room(self):
+        self.room = None
+
+    def get_room(self):
+        return self.room
 
     def get_game(self):
-        return self._game
+        return self.room.get_game()
 
     # Singleton Pattern
 

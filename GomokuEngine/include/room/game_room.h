@@ -48,11 +48,11 @@ struct GameAction
 /** Different rule style sets */
 enum class GameRoomRuleStyle
 {
-    STANDARD,
-    PRO,
-    // TODO: LONG_PRO,
-    SWAP,
-    // TODO: SWAP2,
+    STANDARD = 0,
+    PRO = 1,
+    LONG_PRO = 2,
+    SWAP = 3,
+    SWAP2 = 4,
 };
 
 /** Result after performing an action. If it's not a success, the action is not added to the history. */
@@ -110,6 +110,9 @@ public:
     const GameRoomSettings &get_settings() const { return _settings; }
     const GomokuGame &get_game() const { return _game; }
 
+    Player gomoku_player_from_id(PlayerId id) const;
+    PlayerId id_from_gomoku_player(Player player) const;
+
 private:
     std::string _room_id;
     GameRoomSettings _settings;
@@ -122,9 +125,6 @@ private:
     GomokuAI *_ai2 = nullptr;
 
     static std::string new_room_id();
-
-    Player gomoku_player_from_id(PlayerId id) const;
-    PlayerId id_from_gomoku_player(Player player) const;
 
     GomokuAI *get_player_ai(PlayerId id) const;
 

@@ -12,5 +12,5 @@ class MenuScreen(Screen):
         self.root = MenuRootWidget()
 
     def switch_to_game(self):
-        SharedObject.get_instance().reset_game()
+        SharedObject.get_instance().create_room()
         self.manager.current = 'game'

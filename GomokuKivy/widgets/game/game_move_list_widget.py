@@ -1,6 +1,6 @@
 from kivy.uix.widget import Widget
 from core.callback_center import CallbackCenter
-from core.gomoku_game import GomokuGame, GomokuPlayer, GomokuMove
+from core.gomoku_room import GameRoom, GomokuPlayer, GomokuMove
 from app.shared_object import SharedObject
 from kivy.properties import (
     NumericProperty, ReferenceListProperty, ObjectProperty
@@ -16,23 +16,23 @@ class GameMoveListWidget(Widget):
         super(GameMoveListWidget, self).__init__(**kwargs)
         CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_game_modified)
 
-    def get_game(self) -> GomokuGame:
-        return SharedObject.get_instance().get_game()
+    def get_room(self) -> GameRoom:
+        return SharedObject.get_instance().get_room()
 
-    def on_game_modified(self, message, game: GomokuGame):
+    def on_game_modified(self, _, room: GameRoom):
         self.grid_widget.clear_widgets()
 
-        for index, move in enumerate(game.move_list):
+        for index, move in enumerate(room.move_list):
             label = Label(text=self.move_to_str(move))
             label.height = 22
-            label.color = (0.9, 0.9, 0.9) if game.last_move_index == index else (0.5, 0.5, 0.5)
+            label.color = (0.9, 0.9, 0.9) if room.last_move_index == index else (0.5, 0.5, 0.5)
             self.grid_widget.add_widget(label)
-        
+
         self.grid_widget.height = 22 * ((len(self.grid_widget.children) + 1) // 2)
 
     def move_to_str(self, move: GomokuMove) -> str:
-        game = self.get_game()
-        if game is None:
+        room = self.get_room()
+        if room is None:
             return f'{move.row}:{move.column}'
         
-        return game.coordinates_name(move.row, move.column)
+        return room.coordinates_name(move.row, move.column)
