@@ -1,9 +1,22 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from enum import Enum
 import sys
 
 sys.path.append("../lib")
 import pygomoku
+
+BLACK = 0
+WHITE = 1
+
+class Action(Enum):
+    MOVE = 0
+    SWAP = 1
+    
+class RuleStyle(Enum):
+    STANDARD = 0
+    PRO = 1
+    SWAP = 2
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -74,16 +87,64 @@ def serialize_moveEvaluation(moveEvaluation):
 
 # Create a python class that will handle the game logic
 class GomokuGame:
-    def __init__(self, mode, size=19):
+    def __init__(self, mode, ruleStyle, AiIsFirst, size=19):
         self.game = pygomoku.GomokuGame(size, size)
-        self.current_player = 1
+        self.next_player = 0
+        self.next_action = Action.MOVE
         self.mode = mode
+        self.ruleStyle = ruleStyle
+        self.listMoves = []
+        self.current_move = 0
+        self.players = [
+            {
+                "color": BLACK,
+                "isAI": AiIsFirst,
+                "score": 0,
+                "time": 0,
+            },
+            {
+                "color": WHITE,
+                "isAI": not AiIsFirst,
+                "score": 0,
+                "time": 0,
+            },
+        ]
         self.size = size
+    
+    def is_move_legal(self, row, col):
+        if RuleStyle == RuleStyle.PRO:
+            if self.current_move == 0:
+                return row == self.size / 2 and col == self.size / 2
+            
 
     def make_move(self, row, col):
-        moveResult = self.game.make_move(row, col)
-        self.current_player = 1 if self.current_player == 2 else 2
-        return serialize_move_result(moveResult)
+        if not is_move_legal(row,col):
+            return False
+        try:
+            moveResult = self.game.make_move(row, col)
+            # Determine next player and next action and current move
+            if self.ruleStyle == RuleStyle.SWAP and self.current_move <= 2:
+                if self.current_move == 0 or self.current_move == 1:
+                    # player does not change
+                    self.next_action = Action.MOVE
+                if self.current_move == 2:
+                    self.next_action = Action.SWAP
+                    self.next_player = 1 - self.next_player
+            else:
+                self.next_player = 1 - self.next_player
+                self.next_action = Action.MOVE
+            
+            # Update listMoves
+            self.currentMove += 1
+            self.listMoves.append({
+                "row": row,
+                "col": col,
+                "moveResult": moveResult,
+            })
+            return True
+        except Exception as e:
+            return False
+        
 
     def reverse_move(self, moveResult):
         self.game.reverse_move(deserialize_move_result(moveResult))
@@ -121,18 +182,23 @@ class AI:
         return serialize_moveEvaluation(self.ai.suggest_move())
 
 
-games = {}  # Dictionary to store game instances
+games = {}  # Dictionary to store game instances / Store them 3 days
 
 
 @app.route("/create_game", methods=["POST"])
 def create_game():
-    user_id = request.json["userId"]  # Unique identifier for the user/session
-    size = request.json.get("size", 19)
-    mode = request.json.get("mode", 0)
-    game = games.get(user_id)
-    if not game:
-        game = GomokuGame(mode, size)
-        games[user_id] = game
+    try:
+        user_id = request.json["userId"]  # Unique identifier for the user/session
+        size = request.json.get("size", 19)
+        mode = request.json.get("mode", 0)
+        ruleStyle = request.json.get("ruleStyle", 0)
+        AiIsFirst = request.json.get("AiIsFirst", 0)
+        game = games.get(user_id)
+        if not game:
+            game = GomokuGame(mode, size, ruleStyle, AiIsFirst)
+            games[user_id] = game
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
     return jsonify({"success": True, "message": "Game created", "user_id": user_id})
 
 
@@ -230,7 +296,7 @@ def get_suggestion():
         return jsonify({"success": False, "message": "Game not found"})
 
     try:
-        ai = AI(game.get_game(), game.get_current_player(), 3, 3)
+        ai = AI(game.get_game(), game.get_current_player(), 5, 3)
         moveEvaluation = ai.get_suggestion()
         return jsonify({"success": True, "moveEvaluation": moveEvaluation})
     except Exception as e:
