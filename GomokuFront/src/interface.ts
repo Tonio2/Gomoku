@@ -31,3 +31,10 @@ export enum Rule {
   Pro,
   Swap,
 }
+
+export interface Player {
+  color: number;
+  isAI: boolean;
+  score: number;
+  time: number;
+}

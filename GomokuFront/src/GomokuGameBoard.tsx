@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 
-import useGameLogic from "./hooks/useGameLogic";
+import useGameLogic from "./hooks/useGameLogicv2";
 
 import Board from "./components/Board";
 import ListMoves from "./components/ListMoves";
@@ -15,8 +15,7 @@ const Game: React.FC = () => {
     currentMove,
     xIsNext,
     winner,
-    playerX,
-    playerO,
+    players,
     suggestionBoard,
     handleClick,
     handleReverse,
@@ -58,7 +57,7 @@ const Game: React.FC = () => {
       </div>
       <div className="game-info flex flex-col max-h-[80vh] w-[325px]">
         <h1 className="font-bold text-2xl mb-5">{status}</h1>
-        <ScoreBoard playerX={playerX} playerO={playerO} />
+        <ScoreBoard players={players} />
         <ListMoves moves={listMoves} currentMove={currentMove} />
         <div className="grid grid-cols-2 gap-4">
           <Button

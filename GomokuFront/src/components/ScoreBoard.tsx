@@ -1,11 +1,17 @@
 import React from "react";
 
 interface IScoreBoard {
-  playerX: { score: number; time: number };
-  playerO: { score: number; time: number };
+  players: {
+    color: number;
+    isAI: boolean;
+    score: number;
+    time: number;
+  }[];
 }
 
-const ScoreBoard: React.FC<IScoreBoard> = ({ playerX, playerO }) => {
+const ScoreBoard: React.FC<IScoreBoard> = ({ players }) => {
+  const playerX = players[0];
+  const playerO = players[1];
   return (
     <div className="flex flex-col mb-5">
       <div className="grid grid-cols-3 gap-2">

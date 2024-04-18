@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MoveEvaluation, MoveResult } from "../interface";
+import { MoveEvaluation, MoveHistory, MoveResult, Player } from "../interface";
 
 const API_URL = "http://localhost:5000";
 const CREATE_GAME_URL = `${API_URL}/create_game`;
@@ -13,7 +13,13 @@ const createGame = async (
   userId: string,
   mode: number,
   size: number
-): Promise<{ success: boolean; message: string }> => {
+): Promise<{
+  success: boolean;
+  message: string;
+  players: Player[];
+  newNextAction: number;
+  newNextPlayer: number;
+}> => {
   const response = await axios.post(CREATE_GAME_URL, {
     userId: userId,
     mode: mode,
@@ -37,11 +43,14 @@ const makeMove = async (
   col: number
 ): Promise<{
   success: boolean;
-  message: string;
-  moveResult: MoveResult;
   newBoard: number[][];
-  newWinner: number;
   newIsGameOver: boolean;
+  newWinner: number;
+  newNextPlayer: number;
+  newNextAction: number;
+  newListMoves: MoveHistory[];
+  newCurrentMove: number;
+  newPlayers: Player[];
 }> => {
   const response = await axios.post(MAKE_MOVE_URL, {
     user_id: userId,
