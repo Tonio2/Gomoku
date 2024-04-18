@@ -91,11 +91,14 @@ class GameRoomSettings:
     def get_p2_ai_depth(self) -> int:
         return self.settings.p2.ai_depth
 
+class ExpectedAction:
+    player: GomokuPlayer
+    player_id: int
+    action_type: pygomoku.GameActionType
+
 class GameRoom:
 
     room: pygomoku.GameRoom
-    move_list: List[GomokuMove]
-    last_move_index: int
 
     players_time: Dict[GomokuPlayer, float]
     players_time_since_start_turn: Dict[GomokuPlayer, float]
@@ -105,8 +108,6 @@ class GameRoom:
 
     def __init__(self, settings: GameRoomSettings):
         self.room = pygomoku.GameRoom(settings.settings)
-        self.move_list = []
-        self.last_move_index = -1
         self.players_time = {
             GomokuPlayer.WHITE: 0,
             GomokuPlayer.BLACK: 0,
@@ -160,21 +161,9 @@ class GameRoom:
     def get_player_time(self, player: GomokuPlayer) -> float:
         return self.players_time[player] + self.players_time_since_start_turn[player]
 
-    async def perform_pending_actions(self):
-        loop = asyncio.get_running_loop()
-
-        await loop.run_in_executor(None, self._perform_pending_actions)
-
-    def _perform_pending_actions(self):
-        last_index = len(self.room.get_actions_history()) - 1
-        while self.room.perform_pending_action():
-            self.update_actions_list_since_index(last_index)
-            last_index = len(self.room.get_actions_history()) - 1
-
-    def update_actions_list_since_index(self, index: int) -> bool:
-        modified = False
-        for i in range(index + 1, len(self.room.get_actions_history())):
-            action = self.room.get_actions_history()[i]
+    def get_move_list(self) -> List[GomokuMove]:
+        move_list = []
+        for action in self.room.get_actions_history():
             if action.action_type == pygomoku.GameActionType.MOVE:
                 move = GomokuMove()
                 move.player = GomokuPlayer(self.room.gomoku_player_from_id(action.player))
@@ -182,54 +171,57 @@ class GameRoom:
                 move.column = action.action_value.move.col
                 move.timestamp = datetime.now().timestamp()
                 move.move_result = action.action_value.move.result
-                self.move_list.append(move)
-                modified = True
-        return modified
+                move_list.append(move)
+        return move_list
 
-    def handle_click(self, row: int, col: int):
-        current_gomoku_player = self.room.get_game().get_current_player()
-        current_playerid = self.room.id_from_gomoku_player(current_gomoku_player)
+    def handle_board_click(self, row: int, col: int):
+        playerid = self.room.expected_player()
+        self.room.perform_action_move(playerid, row, col)
+        self.perform_pending_actions()
 
-        last_index = len(self.room.get_actions_history()) - 1
-        result = self.room.perform_action_move(current_playerid, row, col)
-        if self.update_actions_list_since_index(last_index):
-            CallbackCenter.shared().send_message("GomokuGame.modified", self)
+    def can_reverse_move(self):
+        return self.room.can_reverse_last_action()
+
+    def reverse_last_move(self):
+        self.room.reverse_last_action()
+        CallbackCenter.shared().send_message("GomokuGame.modified", self)
+
+    def can_reapply_move(self):
+        return self.room.can_reapply_last_action()
+
+    def reapply_last_move(self):
+        self.room.reapply_last_action()
+        CallbackCenter.shared().send_message("GomokuGame.modified", self)
+
+    def get_move_index(self) -> int:
+        return self.room.get_action_index()
+
+    def broadcast_expected_action(self):
+        expected = ExpectedAction()
+        expected.player_id = self.room.expected_player()
+        expected.player = GomokuPlayer(self.room.gomoku_player_from_id(expected.player_id))
+        expected.action_type = self.room.expected_action()
+        CallbackCenter.shared().send_message("GomokuGame.expected_action", self)
+
+    def perform_pending_actions(self):
+
+        CallbackCenter.shared().send_message("GomokuGame.modified", self)
 
         if self.room.get_game().is_game_over():
             CallbackCenter.shared().send_message("GomokuGame.gameover", self)
 
-        asyncio.create_task(self.perform_pending_actions())
+        def task_done_callback(_):
+            CallbackCenter.shared().send_message("GomokuGame.modified", self)
+            if self.room.get_game().is_game_over():
+                CallbackCenter.shared().send_message("GomokuGame.gameover", self)
 
-    def resize_move_list(self, new_size: int):
-        current_size = len(self.move_list)
-        if current_size < new_size:
-            self.move_list.extend([None] * (new_size - current_size))
-        elif current_size > new_size:
-            self.move_list = self.move_list[:new_size]
+        task = asyncio.create_task(self.perform_pending_actions_async())
+        task.add_done_callback(task_done_callback)
 
-    def can_reverse_move(self):
-        return False
-        # return self.last_move_index >= 0
+    async def perform_pending_actions_async(self):
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, self._perform_pending_actions)
 
-    def reverse_last_move(self):
-        pass
-        # if not self.can_reverse_move():
-        #     return
-
-        # self.room.reverse_move(self.move_list[self.last_move_index].move_result)
-        # self.last_move_index -= 1
-        # CallbackCenter.shared().send_message("GomokuGame.modified", self)
-
-    def can_reapply_move(self):
-        return False
-        # return self.last_move_index + 1 < len(self.move_list)
-
-    def reapply_last_move(self):
-        pass
-        # if not self.can_reapply_move():
-        #     return
-
-        # reapply_index = self.last_move_index + 1
-        # self.game.reapply_move(self.move_list[reapply_index].move_result)
-        # self.last_move_index += 1
-        # CallbackCenter.shared().send_message("GomokuGame.modified", self)
+    def _perform_pending_actions(self):
+        while self.room.perform_pending_action():
+            pass

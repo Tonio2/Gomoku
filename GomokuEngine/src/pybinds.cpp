@@ -102,10 +102,17 @@ PYBIND11_MODULE(pygomoku, m)
         .def("perform_action_swap", &GameRoom::perform_action_swap)
         .def("has_pending_action", &GameRoom::has_pending_action)
         .def("perform_pending_action", &GameRoom::perform_pending_action)
+        .def("expected_player", &GameRoom::expected_player)
+        .def("expected_action", &GameRoom::expected_action)
         .def("get_actions_history", &GameRoom::get_actions_history)
+        .def("get_action_index", &GameRoom::get_action_index)
         .def("get_settings", &GameRoom::get_settings)
         .def("get_game", &GameRoom::get_game)
         .def("get_color_score", &GameRoom::get_color_score)
         .def("gomoku_player_from_id", &GameRoom::gomoku_player_from_id)
-        .def("id_from_gomoku_player", &GameRoom::id_from_gomoku_player);
+        .def("id_from_gomoku_player", &GameRoom::id_from_gomoku_player)
+        .def("can_reverse_last_action", &GameRoom::can_reverse_last_action)
+        .def("reverse_last_action", &GameRoom::reverse_last_action)
+        .def("can_reapply_last_action", &GameRoom::can_reapply_last_action)
+        .def("reapply_last_action", &GameRoom::reapply_last_action);
 }

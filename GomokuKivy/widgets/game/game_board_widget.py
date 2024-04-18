@@ -78,7 +78,7 @@ class GameBoardWidget(Widget):
             col = int((touch.pos[0] - self.x) / cell_size_x)
             row = int((touch.pos[1] - self.y) / cell_size_y)
 
-            room.handle_click(board_size_y - 1 - row, col)
+            room.handle_board_click(board_size_y - 1 - row, col)
 
     def on_mouse_pos(self, window, pos):
 
