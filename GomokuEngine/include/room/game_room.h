@@ -140,12 +140,99 @@ private:
 
     GomokuAI *get_player_ai(PlayerId id) const;
 
-    bool is_swap_expected() const;
-    PlayerId player_expected_to_swap() const;
-
     void append_action(const GameAction &action);
 
-    GameActionResult perform_action_move_rs_standard(PlayerId player, int row, int col);
-    GameActionResult perform_action_move_rs_pro(PlayerId player, int row, int col);
-    GameActionResult perform_action_move_rs_swap(PlayerId player, int row, int col);
+    class IGameRuleLayer
+    {
+    public:
+        IGameRuleLayer(GameRoom &room) : _room(room) {}
+        virtual ~IGameRuleLayer() {}
+
+        virtual GameActionResult perform_action_move(PlayerId player, int row, int col) = 0;
+        virtual GameActionResult perform_action_swap(PlayerId player, bool do_the_swap) = 0;
+
+        virtual bool has_pending_action() const = 0;
+        virtual bool perform_pending_action() = 0;
+
+        virtual PlayerId expected_player() const = 0;
+        virtual GameActionType expected_action() const = 0;
+
+    protected:
+        GameRoom &_room;
+    };
+
+    class GameRuleLayerStandard : public IGameRuleLayer
+    {
+    public:
+        GameRuleLayerStandard(GameRoom &room) : IGameRuleLayer(room) {}
+
+        virtual GameActionResult perform_action_move(PlayerId player, int row, int col) override;
+        virtual GameActionResult perform_action_swap(PlayerId player, bool do_the_swap) override;
+
+        virtual bool has_pending_action() const override;
+        virtual bool perform_pending_action() override;
+
+        virtual PlayerId expected_player() const override;
+        virtual GameActionType expected_action() const override;
+    };
+
+    class GameRuleLayerPro : public GameRuleLayerStandard
+    {
+    public:
+        GameRuleLayerPro(GameRoom &room) : GameRuleLayerStandard(room), inner_square_radius(3) {}
+
+        virtual GameActionResult perform_action_move(PlayerId player, int row, int col) override;
+
+        virtual bool has_pending_action() const override;
+        virtual bool perform_pending_action() override;
+
+    protected:
+        int inner_square_radius;
+    };
+
+    class GameRuleLayerLongPro : public GameRuleLayerPro
+    {
+    public:
+        GameRuleLayerLongPro(GameRoom &room) : GameRuleLayerPro(room)
+        {
+            inner_square_radius = 4;
+        }
+    };
+
+    class GameRuleLayerSwap : public GameRuleLayerStandard
+    {
+    public:
+        GameRuleLayerSwap(GameRoom &room) : GameRuleLayerStandard(room) {}
+
+        virtual GameActionResult perform_action_move(PlayerId player, int row, int col) override;
+        virtual GameActionResult perform_action_swap(PlayerId player, bool do_the_swap) override;
+
+        virtual bool has_pending_action() const override;
+        virtual bool perform_pending_action() override;
+
+        virtual PlayerId expected_player() const override;
+        virtual GameActionType expected_action() const override;
+
+        virtual bool is_swap_expected() const;
+        virtual PlayerId player_expected_to_swap() const;
+    };
+
+    class GameRuleLayerSwap2 : public GameRuleLayerSwap
+    {
+    public:
+        GameRuleLayerSwap2(GameRoom &room) : GameRuleLayerSwap(room) {}
+
+        virtual PlayerId expected_player() const override;
+
+        virtual bool is_swap_expected() const override;
+        virtual PlayerId player_expected_to_swap() const override;
+    };
+
+    friend GameRuleLayerStandard;
+    friend GameRuleLayerPro;
+    friend GameRuleLayerLongPro;
+    friend GameRuleLayerSwap;
+    friend GameRuleLayerSwap2;
+
+    IGameRuleLayer *_rule_layer;
 };
