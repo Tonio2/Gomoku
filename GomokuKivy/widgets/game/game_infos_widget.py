@@ -62,5 +62,5 @@ class GameInfosWidget(Widget):
         if room is None:
             return
 
-        room.reverse_last_move()
+        room.reapply_last_move()
 

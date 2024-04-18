@@ -106,7 +106,11 @@ public:
     /** Ask the room to perform the next pending action and return if there are other pending actions left. We should use this */
     bool perform_pending_action();
 
+    PlayerId expected_player() const;
+    GameActionType expected_action() const;
+
     const std::vector<GameAction> &get_actions_history() { return _actions; }
+    int get_action_index() const { return _action_index; }
     const GameRoomSettings &get_settings() const { return _settings; }
     const GomokuGame &get_game() const { return _game; }
     int get_color_score(Player color) const { return _game.get_player_score(color); }
@@ -114,12 +118,19 @@ public:
     Player gomoku_player_from_id(PlayerId id) const;
     PlayerId id_from_gomoku_player(Player player) const;
 
+    bool can_reverse_last_action() const;
+    void reverse_last_action();
+
+    bool can_reapply_last_action() const;
+    void reapply_last_action();
+
 private:
     std::string _room_id;
     GameRoomSettings _settings;
     GomokuGame _game;
     /** History of actions performed during the game */
     std::vector<GameAction> _actions;
+    int _action_index;
     bool _players_swapped;
 
     GomokuAI *_ai1 = nullptr;
@@ -131,6 +142,8 @@ private:
 
     bool is_swap_expected() const;
     PlayerId player_expected_to_swap() const;
+
+    void append_action(const GameAction &action);
 
     GameActionResult perform_action_move_rs_standard(PlayerId player, int row, int col);
     GameActionResult perform_action_move_rs_pro(PlayerId player, int row, int col);

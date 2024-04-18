@@ -22,10 +22,10 @@ class GameMoveListWidget(Widget):
     def on_game_modified(self, _, room: GameRoom):
         self.grid_widget.clear_widgets()
 
-        for index, move in enumerate(room.move_list):
+        for index, move in enumerate(room.get_move_list()):
             label = Label(text=self.move_to_str(move))
             label.height = 22
-            label.color = (0.9, 0.9, 0.9) if room.last_move_index == index else (0.5, 0.5, 0.5)
+            label.color = (0.9, 0.9, 0.9) if room.get_move_index() == index else (0.5, 0.5, 0.5)
             self.grid_widget.add_widget(label)
 
         self.grid_widget.height = 22 * ((len(self.grid_widget.children) + 1) // 2)
