@@ -116,7 +116,7 @@ class GomokuGame:
     async def get_AI_suggestion(self):
         loop = asyncio.get_running_loop()
 
-        moveEvaluations = await loop.run_in_executor(None, self.ai.suggest_move, self.game, self.game.get_current_player())
+        moveEvaluations = await loop.run_in_executor(None, self.ai.suggest_move, self.game)
 
         bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move    
 

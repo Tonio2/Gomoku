@@ -159,16 +159,13 @@ int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
     return 0;
 }
 
-MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board, Player player)
+MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board)
 {
     TIMER
-#ifdef NOTIMER
-    Timer timer("suggest_move");
-#endif
 
     game = board;
-    ai_player = player;
-    human_player = board.other_player(player);
+    ai_player = board.get_current_player();
+    human_player = board.other_player(ai_player);
     move_count = 0;
     move_evaluated_count = 0;
     evaluation_needed_count = 0;

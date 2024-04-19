@@ -35,7 +35,7 @@ void test_problems()
         apply_moves(game, moves);
         GomokuAI AI(get_depth_from_env());
         // Suggest a move
-        MoveEvaluation moveEvalutation = AI.suggest_move(game, moves.size() % 2 == 0 ? X : O);
+        MoveEvaluation moveEvalutation = AI.suggest_move(game);
         // Get the best move
         std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
 
@@ -125,7 +125,7 @@ void test_problem(int problem_idx)
 
     GomokuAI AI(get_depth_from_env());
     // Suggest a move
-    MoveEvaluation moveEvalutation = AI.suggest_move(game, player);
+    MoveEvaluation moveEvalutation = AI.suggest_move(game);
     // Get the best move
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     // Print the best move

@@ -111,7 +111,7 @@ bool GameRoom::perform_pending_action()
     if (ai == nullptr)
         return false;
 
-    MoveEvaluation evaluation = ai->suggest_move(_game, _game.get_current_player());
+    MoveEvaluation evaluation = ai->suggest_move(_game);
     std::pair<int, int> best_move = getBestMove(evaluation);
 
     perform_action_move(current_player, best_move.first, best_move.second);
