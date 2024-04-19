@@ -156,7 +156,7 @@ MoveResult GomokuGame::make_move(int row, int col)
 
     if (!coordinates_are_valid(row, col))
     {
-        throw std::invalid_argument("Invalid coordinates");
+        throw std::invalid_argument("Invalid coordinates " + std::to_string(row) + ", " + std::to_string(col));
     }
     if (get_board_value(row, col) != E)
     {

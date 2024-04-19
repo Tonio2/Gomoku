@@ -14,6 +14,8 @@ class SharedObject:
         self.room = GameRoom(self.room_settings)
 
     def clear_room(self):
+        if self.room is not None:
+            self.room.remove_callbacks()
         self.room = None
 
     def get_room(self):

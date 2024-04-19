@@ -21,6 +21,7 @@ class GameScreen(Screen):
 
     def back_to_menu(self):
         self.manager.current = 'menu'
+        SharedObject.get_instance().clear_room()
 
     def on_enter(self):
         CallbackCenter.shared().send_message("Application.draw", None)
@@ -34,12 +35,9 @@ class GameScreen(Screen):
 
         self.end_game_popup.add_widget(Button(text=text, on_release=self.close_popup))
         self.end_game_popup.open()
-        # for widget in self.children:
-        #     widget.disabled = True
 
     def close_popup(self, instance):
         self.end_game_popup.dismiss()
         for widget in self.children:
             widget.disabled = False
         self.back_to_menu()
-        SharedObject.get_instance().clear_room()

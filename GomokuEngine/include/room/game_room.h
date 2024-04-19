@@ -77,13 +77,15 @@ struct GameRoomSettings
     int height;
     /** Rule styles */
     GameRoomRuleStyle rule_style;
+    /** Toggle capture */
+    bool capture;
 
     /** Is the first player an AI ? */
     GameEntitySetting p1;
     /** Is the second player an AI ? */
     GameEntitySetting p2;
 
-    GameRoomSettings() : width(19), height(19), rule_style(GameRoomRuleStyle::STANDARD), p1({false, 0}), p2({true, 4})
+    GameRoomSettings() : width(19), height(19), rule_style(GameRoomRuleStyle::STANDARD), capture(true), p1({false, 4}), p2({true, 4})
     {
     }
 };
@@ -104,7 +106,7 @@ public:
     /** Check if the room need to perform pending actions */
     bool has_pending_action() const;
     /** Ask the room to perform the next pending action and return if there are other pending actions left. We should use this */
-    bool perform_pending_action();
+    GameActionResult perform_pending_action();
 
     PlayerId expected_player() const;
     GameActionType expected_action() const;
@@ -152,7 +154,7 @@ private:
         virtual GameActionResult perform_action_swap(PlayerId player, bool do_the_swap) = 0;
 
         virtual bool has_pending_action() const = 0;
-        virtual bool perform_pending_action() = 0;
+        virtual GameActionResult perform_pending_action() = 0;
 
         virtual PlayerId expected_player() const = 0;
         virtual GameActionType expected_action() const = 0;
@@ -170,7 +172,7 @@ private:
         virtual GameActionResult perform_action_swap(PlayerId player, bool do_the_swap) override;
 
         virtual bool has_pending_action() const override;
-        virtual bool perform_pending_action() override;
+        virtual GameActionResult perform_pending_action() override;
 
         virtual PlayerId expected_player() const override;
         virtual GameActionType expected_action() const override;
@@ -179,12 +181,12 @@ private:
     class GameRuleLayerPro : public GameRuleLayerStandard
     {
     public:
-        GameRuleLayerPro(GameRoom &room) : GameRuleLayerStandard(room), inner_square_radius(3) {}
+        GameRuleLayerPro(GameRoom &room) : GameRuleLayerStandard(room), inner_square_radius(2) {}
 
         virtual GameActionResult perform_action_move(PlayerId player, int row, int col) override;
 
         virtual bool has_pending_action() const override;
-        virtual bool perform_pending_action() override;
+        virtual GameActionResult perform_pending_action() override;
 
     protected:
         int inner_square_radius;
@@ -195,7 +197,7 @@ private:
     public:
         GameRuleLayerLongPro(GameRoom &room) : GameRuleLayerPro(room)
         {
-            inner_square_radius = 4;
+            inner_square_radius = 3;
         }
     };
 
@@ -207,8 +209,7 @@ private:
         virtual GameActionResult perform_action_move(PlayerId player, int row, int col) override;
         virtual GameActionResult perform_action_swap(PlayerId player, bool do_the_swap) override;
 
-        virtual bool has_pending_action() const override;
-        virtual bool perform_pending_action() override;
+        virtual GameActionResult perform_pending_action() override;
 
         virtual PlayerId expected_player() const override;
         virtual GameActionType expected_action() const override;

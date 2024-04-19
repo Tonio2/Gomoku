@@ -95,6 +95,7 @@ PYBIND11_MODULE(pygomoku, m)
         .def_readwrite("width", &GameRoomSettings::width)
         .def_readwrite("height", &GameRoomSettings::height)
         .def_readwrite("rule_style", &GameRoomSettings::rule_style)
+        .def_readwrite("capture", &GameRoomSettings::capture)
         .def_readwrite("p1", &GameRoomSettings::p1)
         .def_readwrite("p2", &GameRoomSettings::p2);
     py::class_<GameRoom>(m, "GameRoom")
