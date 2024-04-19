@@ -175,8 +175,15 @@ class GameRoom:
         return move_list
 
     def handle_board_click(self, row: int, col: int):
+        if self.room.has_pending_action():
+            result = pygomoku.GameActionResult()
+            result.success = False
+            result.message = "Cannot play"
+            CallbackCenter.shared().send_message("GameRoom.action", result)
+            return
         playerid = self.room.expected_player()
-        self.room.perform_action_move(playerid, row, col)
+        result = self.room.perform_action_move(playerid, row, col)
+        CallbackCenter.shared().send_message("GameRoom.action", result)
         self.perform_pending_actions()
 
     def can_reverse_move(self):
