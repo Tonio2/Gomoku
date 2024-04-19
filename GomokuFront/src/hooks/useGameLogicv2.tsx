@@ -10,7 +10,7 @@ import {
 } from "../utils/utils";
 import api from "../utils/api";
 
-import { MoveHistory, Mode, Rule, Player } from "../interface";
+import { MoveHistory, Mode, Rule, Player, ActionResult } from "../interface";
 
 type GameLogic = {
   board: number[][];
@@ -48,7 +48,7 @@ const useGameLogic = (): GameLogic => {
   const xIsNext = currentMove % 2 === 0;
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [winner, setWinner] = useState<number>(0);
-  const [players, setPlayers] = useState<any[]>([
+  const [players, setPlayers] = useState<Player[]>([
     {
       color: 0,
       isAI: false,
@@ -97,16 +97,8 @@ const useGameLogic = (): GameLogic => {
   useEffect(() => {
     const createGame = async () => {
       try {
-        const { success, message, players, newNextAction, newNextPlayer } =
-          await api.createGame(userId, mode, size);
-        if (success) {
-          setIsGameCreated(true);
-          setPlayers(players);
-          setNextAction(newNextAction);
-          setNextPlayer(newNextPlayer);
-        } else {
-          console.error(message);
-        }
+        const res = await api.createGame(userId, mode, size);
+        handleMoveResponse(res);
       } catch (error) {
         console.error("Server error");
       }
@@ -115,33 +107,40 @@ const useGameLogic = (): GameLogic => {
     createGame();
   }, [userId, mode, size]);
 
+  const updateBoard = (res: ActionResult) => {
+    setBoard(res._board);
+    setIsGameOver(res._isGameOver);
+    setWinner(res._winner);
+    setListMoves(res._listMoves);
+    setCurrentMove(res._currentMove);
+    setPlayers(res._players);
+  };
+
+  const handleMoveResponse = useCallback(
+    async (res: ActionResult) => {
+      if (!res.success) {
+        console.error(res.message);
+        return;
+      }
+      console.log(res);
+      console.log(res._players[res._nextPlayer].isAI);
+      updateBoard(res);
+      if (!res._players[res._nextPlayer].isAI) return;
+      try {
+        const newRes = await api.aiTurn(userId);
+        handleMoveResponse(newRes);
+      } catch (error: any) {
+        console.error("Server error");
+      }
+    },
+    [userId]
+  );
+
   const play = useCallback(
     async (row: number, col: number) => {
       try {
-        const {
-          success,
-          newBoard,
-          newIsGameOver,
-          newWinner,
-          newNextPlayer,
-          newNextAction,
-          newListMoves,
-          newCurrentMove,
-          newPlayers,
-        } = await api.makeMove(userId, row, col);
-        if (success) {
-          setBoard(newBoard);
-          setListMoves(newListMoves);
-          setWinner(newWinner);
-          setIsGameOver(newIsGameOver);
-          setCurrentMove(newCurrentMove);
-          setPlayers(newPlayers);
-          setNextPlayer(newNextPlayer);
-          setNextAction(newNextAction);
-          setSuggestionsBoard(emptySuggestionBoard(size));
-        } else {
-          console.error("TODO: handle error message from server");
-        }
+        const res = await api.makeMove(userId, row, col);
+        handleMoveResponse(res);
       } catch (error: any) {
         console.error("Server error");
       }
@@ -153,8 +152,24 @@ const useGameLogic = (): GameLogic => {
     play(row, col);
   };
 
-  const reverse = () => {};
-  const reapply = () => {};
+  const reverse = async () => {
+    try {
+      const res = await api.reverseMove(userId);
+      updateBoard(res);
+    } catch (error: any) {
+      console.error("Error while reversing move");
+    }
+  };
+
+  const reapply = async () => {
+    try {
+      const res = await api.reapplyMove(userId);
+      updateBoard(res);
+    } catch (error: any) {
+      console.error("Error while reapplying  move");
+    }
+  };
+
   const reset = () => {};
 
   return {

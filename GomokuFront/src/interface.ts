@@ -38,3 +38,16 @@ export interface Player {
   score: number;
   time: number;
 }
+
+export interface ActionResult {
+  success: boolean;
+  message: string;
+  _board: number[][];
+  _isGameOver: boolean;
+  _winner: number;
+  _nextPlayer: number;
+  _nextAction: number;
+  _listMoves: MoveHistory[];
+  _currentMove: number;
+  _players: Player[];
+}

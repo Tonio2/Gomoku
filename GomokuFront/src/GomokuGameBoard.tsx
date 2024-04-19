@@ -68,7 +68,7 @@ const Game: React.FC = () => {
           <Button
             onClick={() => handleReapply()}
             text="Reapply"
-            disabled={currentMove === 0}
+            disabled={currentMove === listMoves.length}
           />
         </div>
       </div>

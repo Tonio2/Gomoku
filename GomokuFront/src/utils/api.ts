@@ -1,5 +1,11 @@
 import axios from "axios";
-import { MoveEvaluation, MoveHistory, MoveResult, Player } from "../interface";
+import {
+  MoveEvaluation,
+  MoveHistory,
+  MoveResult,
+  Player,
+  ActionResult,
+} from "../interface";
 
 const API_URL = "http://localhost:5000";
 const CREATE_GAME_URL = `${API_URL}/create_game`;
@@ -8,18 +14,13 @@ const MAKE_MOVE_URL = `${API_URL}/make_move`;
 const GET_SUGGESTION_URL = `${API_URL}/get_suggestion`;
 const REVERSE_MOVE_URL = `${API_URL}/reverse_move`;
 const REAPPLY_MOVE_URL = `${API_URL}/reapply_move`;
+const AI_TURN_URL = `${API_URL}/ai_turn`;
 
 const createGame = async (
   userId: string,
   mode: number,
   size: number
-): Promise<{
-  success: boolean;
-  message: string;
-  players: Player[];
-  newNextAction: number;
-  newNextPlayer: number;
-}> => {
+): Promise<ActionResult> => {
   const response = await axios.post(CREATE_GAME_URL, {
     userId: userId,
     mode: mode,
@@ -41,17 +42,7 @@ const makeMove = async (
   userId: string,
   row: number,
   col: number
-): Promise<{
-  success: boolean;
-  newBoard: number[][];
-  newIsGameOver: boolean;
-  newWinner: number;
-  newNextPlayer: number;
-  newNextAction: number;
-  newListMoves: MoveHistory[];
-  newCurrentMove: number;
-  newPlayers: Player[];
-}> => {
+): Promise<ActionResult> => {
   const response = await axios.post(MAKE_MOVE_URL, {
     user_id: userId,
     row,
@@ -71,24 +62,23 @@ const getSuggestion = async (
   return response.data;
 };
 
-const reverseMove = async (
-  userId: string,
-  moveResult: MoveResult
-): Promise<{ success: boolean; newBoard: number[][] }> => {
+const reverseMove = async (userId: string): Promise<ActionResult> => {
   const response = await axios.post(REVERSE_MOVE_URL, {
     user_id: userId,
-    moveResult: moveResult,
   });
   return response.data;
 };
 
-const reapplyMove = async (
-  userId: string,
-  moveResult: MoveResult
-): Promise<{ success: boolean; newBoard: number[][] }> => {
+const reapplyMove = async (userId: string): Promise<ActionResult> => {
   const response = await axios.post(REAPPLY_MOVE_URL, {
     user_id: userId,
-    moveResult: moveResult,
+  });
+  return response.data;
+};
+
+const aiTurn = async (userId: string): Promise<ActionResult> => {
+  const response = await axios.post(AI_TURN_URL, {
+    user_id: userId,
   });
   return response.data;
 };
@@ -100,6 +90,7 @@ const api = {
   getSuggestion,
   reverseMove,
   reapplyMove,
+  aiTurn,
 };
 
 export default api;
