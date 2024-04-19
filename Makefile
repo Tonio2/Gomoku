@@ -31,3 +31,7 @@ startTerm:
 
 start:
 	cd GomokuKivy && ${PYTHON} gomoku.py
+
+build:
+	cd GomokuEngine/build && make
+	mv GomokuEngine/build/${LIBNAME} lib/pygomoku.so
