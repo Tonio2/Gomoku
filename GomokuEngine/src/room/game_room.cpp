@@ -5,7 +5,7 @@
 GameRoom::GameRoom(const GameRoomSettings &settings)
     : _room_id(new_room_id()),
       _settings(settings),
-      _game(settings.width, settings.height),
+      _game(settings.width, settings.height, settings.capture),
       _actions(),
       _action_index(-1),
       _players_swapped(false),
