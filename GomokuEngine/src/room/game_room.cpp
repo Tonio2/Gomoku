@@ -61,7 +61,7 @@ bool GameRoom::has_pending_action() const
     return _rule_layer->has_pending_action();
 }
 
-bool GameRoom::perform_pending_action()
+GameActionResult GameRoom::perform_pending_action()
 {
     return _rule_layer->perform_pending_action();
 }

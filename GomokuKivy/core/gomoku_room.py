@@ -45,9 +45,13 @@ class GomokuRuleStyle(Enum):
 class GameRoomSettings:
 
     settings: pygomoku.GameRoomSettings
+    total_time: float
+    turn_time: float
 
     def __init__(self):
         self.settings = pygomoku.GameRoomSettings()
+        self.total_time = -1
+        self.turn_time = -1
 
     def set_width(self, width: int):
         self.settings.width = width
@@ -62,10 +66,17 @@ class GameRoomSettings:
         return self.settings.height
 
     def set_rule_style(self, ruleStyle: GomokuRuleStyle):
-        self.settings.ruleStyle = ruleStyle
+        # cast ruleStyle to int
+        self.settings.rule_style = pygomoku.GameRoomRuleStyle(int(ruleStyle.value))
 
     def get_rule_style(self) -> GomokuRuleStyle:
-        return GomokuRuleStyle(self.settings.ruleStyle)
+        return GomokuRuleStyle(int(self.settings.rule_style))
+
+    def set_capture(self, capture: bool):
+        self.settings.capture = capture
+
+    def get_capture(self) -> bool:
+        return self.settings.capture
 
     def set_is_p1_ai(self, isAi: bool):
         self.settings.p1.is_ai = isAi
@@ -91,6 +102,18 @@ class GameRoomSettings:
     def get_p2_ai_depth(self) -> int:
         return self.settings.p2.ai_depth
 
+    def set_total_time(self, total_time: float):
+        self.total_time = total_time
+
+    def get_total_time(self) -> float:
+        return self.total_time
+    
+    def set_turn_time(self, turn_time: float):
+        self.turn_time = turn_time
+
+    def get_turn_time(self) -> float:
+        return self.turn_time
+
 class ExpectedAction:
     player: GomokuPlayer
     player_id: int
@@ -105,6 +128,7 @@ class GameRoom:
 
     start_turn: datetime
     start_game: datetime
+    callback_removed: bool
 
     def __init__(self, settings: GameRoomSettings):
         self.room = pygomoku.GameRoom(settings.settings)
@@ -119,6 +143,19 @@ class GameRoom:
             GomokuPlayer.BLACK: 0,
         }
         Clock.schedule_interval(self.update_time, 1 / 20)
+        self.pending_action_task = None
+        CallbackCenter.shared().add_callback("GomokuGame.modified", self.broadcast_expected_action)
+        self.callback_removed = False
+
+    def __del__(self):
+        self.remove_callbacks()
+
+    def remove_callbacks(self):
+        Clock.unschedule(self.update_time)
+        CallbackCenter.shared().remove_callback("GomokuGame.modified", self.broadcast_expected_action)
+        if self.pending_action_task is not None:
+            self.pending_action_task.cancel()
+        self.callback_removed = True
 
     def get_settings(self) -> GameRoomSettings:
         settings = GameRoomSettings()
@@ -184,7 +221,12 @@ class GameRoom:
         playerid = self.room.expected_player()
         result = self.room.perform_action_move(playerid, row, col)
         CallbackCenter.shared().send_message("GameRoom.action", result)
-        self.perform_pending_actions()
+        if result.success:
+            CallbackCenter.shared().send_message("GomokuGame.modified", self)
+        if self.room.has_pending_action():
+            self.perform_pending_actions()
+        elif self.room.get_game().is_game_over():
+            CallbackCenter.shared().send_message("GomokuGame.gameover", self)
 
     def can_reverse_move(self):
         return self.room.can_reverse_last_action()
@@ -203,32 +245,34 @@ class GameRoom:
     def get_move_index(self) -> int:
         return self.room.get_action_index()
 
-    def broadcast_expected_action(self):
+    def broadcast_expected_action(self, _, __):
         expected = ExpectedAction()
         expected.player_id = self.room.expected_player()
         expected.player = GomokuPlayer(self.room.gomoku_player_from_id(expected.player_id))
         expected.action_type = self.room.expected_action()
         CallbackCenter.shared().send_message("GomokuGame.expected_action", self)
+        print("We expect ", expected.player, " to ", expected.action_type)
 
     def perform_pending_actions(self):
-
-        CallbackCenter.shared().send_message("GomokuGame.modified", self)
-
-        if self.room.get_game().is_game_over():
-            CallbackCenter.shared().send_message("GomokuGame.gameover", self)
+        
+        if (self.room.has_pending_action() == False):
+            return
 
         def task_done_callback(_):
             CallbackCenter.shared().send_message("GomokuGame.modified", self)
             if self.room.get_game().is_game_over():
                 CallbackCenter.shared().send_message("GomokuGame.gameover", self)
+            else:
+                if self.callback_removed == False:
+                    self.perform_pending_actions()
 
-        task = asyncio.create_task(self.perform_pending_actions_async())
-        task.add_done_callback(task_done_callback)
+        self.pending_action_task = asyncio.create_task(self.perform_one_pending_action_async())
+        self.pending_action_task.add_done_callback(task_done_callback)
 
-    async def perform_pending_actions_async(self):
+    async def perform_one_pending_action_async(self):
         loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, self._perform_pending_actions)
+        await loop.run_in_executor(None, self._perform_pending_action)
 
-    def _perform_pending_actions(self):
-        while self.room.perform_pending_action():
-            pass
+    def _perform_pending_action(self):
+        result = self.room.perform_pending_action()
+        print(result.message)

@@ -57,15 +57,13 @@ bool GameRoom::GameRuleLayerStandard::has_pending_action() const
     if (_room._game.is_game_over())
         return false;
 
-    PlayerId current_player = _room.id_from_gomoku_player(_room._game.get_current_player());
-
-    return _room.get_player_ai(current_player) != nullptr;
+    return _room.get_player_ai(expected_player()) != nullptr;
 }
 
-bool GameRoom::GameRuleLayerStandard::perform_pending_action()
+GameActionResult GameRoom::GameRuleLayerStandard::perform_pending_action()
 {
     if (_room._game.is_game_over())
-        return false;
+        return make_action_result(false, "No pending actions: Game is over");
 
     Player current_player = _room._game.get_current_player();
     PlayerId player_id = _room.id_from_gomoku_player(current_player);
@@ -73,13 +71,19 @@ bool GameRoom::GameRuleLayerStandard::perform_pending_action()
     GomokuAI *ai = _room.get_player_ai(player_id);
 
     if (ai == nullptr)
-        return false;
+    {
+        return make_action_result(false, "No pending actions: Player " + std::to_string(player_id) + " is not an AI");
+    }
+
+    if (_room._action_index == -1)
+    {
+        return perform_action_move(player_id, _room._game.get_board_height() / 2, _room._game.get_board_width() / 2);
+    }
 
     MoveEvaluation evaluation = ai->suggest_move(_room._game, current_player);
     std::pair<int, int> best_move = getBestMove(evaluation);
 
-    perform_action_move(player_id, best_move.first, best_move.second);
-    return true;
+    return perform_action_move(player_id, best_move.first, best_move.second);
 }
 
 PlayerId GameRoom::GameRuleLayerStandard::expected_player() const
@@ -119,7 +123,8 @@ GameActionResult GameRoom::GameRuleLayerPro::perform_action_move(PlayerId player
     case 1:
         if (!stone_outside)
         {
-            return make_action_result(false, "Stone should be outside the inner 5x5 square");
+            int diam = inner_square_radius * 2 + 1;
+            return make_action_result(false, "Stone should be outside the inner " + std::to_string(diam) + "x" + std::to_string(diam) + " square");
         }
         break;
     default:
@@ -137,12 +142,16 @@ bool GameRoom::GameRuleLayerPro::has_pending_action() const
     return GameRuleLayerStandard::has_pending_action();
 }
 
-bool GameRoom::GameRuleLayerPro::perform_pending_action()
+GameActionResult GameRoom::GameRuleLayerPro::perform_pending_action()
 {
     if (_room._action_index == -1)
     {
-        perform_action_move(1, _room._game.get_board_height() / 2, _room._game.get_board_width() / 2);
-        return true;
+        return perform_action_move(expected_player(), _room._game.get_board_height() / 2, _room._game.get_board_width() / 2);
+    }
+
+    if (_room._action_index == 1 && _room.get_player_ai(expected_player()))
+    {
+        return perform_action_move(expected_player(), _room._game.get_board_height() / 2 + 1 + inner_square_radius, _room._game.get_board_width() / 2);
     }
 
     return GameRuleLayerStandard::perform_pending_action();
@@ -202,28 +211,31 @@ GameActionResult GameRoom::GameRuleLayerSwap::perform_action_swap(PlayerId playe
     return make_action_result(true, "Swap");
 }
 
-bool GameRoom::GameRuleLayerSwap::has_pending_action() const
+GameActionResult GameRoom::GameRuleLayerSwap::perform_pending_action()
 {
-    if (is_swap_expected() && _room.get_player_ai(player_expected_to_swap()) != nullptr)
-        return true;
-
-    return GameRuleLayerStandard::has_pending_action();
-}
-
-bool GameRoom::GameRuleLayerSwap::perform_pending_action()
-{
-    if (!is_swap_expected())
-        return GameRuleLayerStandard::perform_pending_action();
-
-    PlayerId player_id = player_expected_to_swap();
+    PlayerId player_id = expected_player();
     GomokuAI *ai = _room.get_player_ai(player_id);
-    if (ai)
+
+    if (ai == nullptr)
     {
-        perform_action_swap(player_expected_to_swap(), true); // TODO: choose if AI want to swap or not
-        return true;
+        return make_action_result(false, "No pending actions: Player " + std::to_string(player_id) + " is not an AI");
     }
 
-    return false;
+    if (is_swap_expected())
+    {
+        // TODO: choose if AI want to swap or not
+        bool ai_will_swap = rand() % 2 == 0;
+        return perform_action_swap(player_expected_to_swap(), ai_will_swap);
+    }
+
+    if (player_id != GameRuleLayerStandard::expected_player())
+    {
+        MoveEvaluation evaluation = ai->suggest_move(_room._game, _room._game.get_current_player());
+        std::pair<int, int> best_move = getBestMove(evaluation);
+        return perform_action_move(player_id, best_move.first, best_move.second);
+    }
+
+    return GameRuleLayerStandard::perform_pending_action();
 }
 
 PlayerId GameRoom::GameRuleLayerSwap::expected_player() const

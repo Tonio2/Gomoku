@@ -35,6 +35,7 @@ class GameFrameWidget(Widget):
 
     def on_application_draw(self, _, __):
         self.draw_board_frame()
+        Clock.schedule_once(lambda _ : self.get_room().perform_pending_actions(), 0.1)
 
     def update_widget_layouts(self):
 
