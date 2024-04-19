@@ -167,20 +167,25 @@
                     on_press: root.back_to_menu()
                     size_hint: None, None
                     size: 60, 50
+                    pos_hint: {'center_x': 0.5}
 
                 ScrollView:
                     do_scroll_x: False
 
-                    GameMoveListWidget:
-                        id: game_move_list_widget
-                        grid_widget: grid_layout
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_y: None
 
-                        GridLayout:
-                            id: grid_layout
-                            cols: 2
-                            size_hint: None, None
-                            size: game_move_list_widget.width, 0
-                            spacing: dp(10)
+                        GameMoveListWidget:
+                            id: game_move_list_widget
+                            grid_widget: grid_layout
+
+                            GridLayout:
+                                id: grid_layout
+                                cols: 2
+                                size_hint: None, None
+                                size: game_move_list_widget.width, 0
+                                spacing: dp(10)
 
                 GameInfosWidget:
                     id: game_infos_widget
@@ -190,6 +195,17 @@
 
                     size_hint_y: None if root_box_layout.orientation == 'horizontal' else 1
                     height: 150 if root_box_layout.orientation == 'horizontal' else self.height
+
+        GameActionResultWidget:
+            id: game_action_result_widget
+            pos: (root.width - self.width) / 2, (root.height - self.height) / 2
+
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.5
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
 <GameInfosWidget>:
 
