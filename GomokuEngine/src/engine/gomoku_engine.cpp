@@ -32,6 +32,8 @@ std::ostream &operator<<(std::ostream &stream, StructureType structure_type)
 // Definitions of GomokuGame methods
 GomokuGame::GomokuGame(uint width, uint height)
     : board(width, height),
+      _min_played(width, height),
+      _max_played(0, 0),
       empty_cells(width * height),
       current_player(X),
       players_scores({0, 0, 0}),
@@ -94,6 +96,26 @@ CellChange GomokuGame::set_board_value(int row, int col, Player value)
     // Assume that if the value is E, then the cell was occupied before because there is no situation in which you would empty an empty cell
     // and if the value is not E, then the cell was not occupied because you cannot turn a stone into another stone in Gomoku.
     empty_cells += (value == E) ? 1 : -1;
+
+    if (value != E)
+    {
+        if (row < _min_played.row)
+        {
+            _min_played.row = row;
+        }
+        if (row > _max_played.row)
+        {
+            _max_played.row = row;
+        }
+        if (col < _min_played.col)
+        {
+            _min_played.col = col;
+        }
+        if (col > _max_played.col)
+        {
+            _max_played.col = col;
+        }
+    }
 
     return cell_change;
 }

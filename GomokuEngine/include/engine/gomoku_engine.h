@@ -8,6 +8,8 @@ class GomokuGame
 {
 private:
     Matrix<Player> board;
+    GomokuCellIndex _min_played;
+    GomokuCellIndex _max_played;
     int empty_cells;
 
     Player current_player;
@@ -23,6 +25,8 @@ private:
     /** Board state */
 
     void modify_player_score(Player player, int score);
+
+    friend class GomokuAI;
 
 public:
     GomokuGame(uint width, uint height);
