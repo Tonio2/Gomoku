@@ -40,7 +40,7 @@ void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlaye
         try
         {
             MoveResult game_move = game.make_move(move.row, move.col);
-            move.score = heuristic_evaluation(game, ai_player);
+            move.score = _heuristic_evaluation();
             game.reverse_move(game_move);
         }
         catch (std::exception &e)
@@ -70,7 +70,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                 node.score = 0;
         }
         else
-            node.score = heuristic_evaluation(game, ai_player);
+            node.score = _heuristic_evaluation();
         return node;
     }
 
@@ -142,21 +142,26 @@ int GomokuAI::score_player(Player player)
     {
         score += patterns_count[i] * evaluation_data.value_of_structure(i);
     }
-    score += (game.get_patterns_count(player)[OPEN_THREE] + game.get_patterns_count(player)[FOUR] + game.get_patterns_count(player)[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
-    score += (game.get_patterns_count(player)[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
+    score += (patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
+    score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
     score += evaluation_data.value_of_captures(game.get_player_score(player));
     return score;
 }
 
-int GomokuAI::heuristic_evaluation(const GomokuGame &board, Player heuristic_player)
+int GomokuAI::_heuristic_evaluation()
 {
     TIMER
-    return score_player(heuristic_player) - score_player(board.other_player(heuristic_player));
+    return score_player(ai_player) - score_player(human_player);
 }
 
-int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
+int GomokuAI::get_heuristic_evaluation(const GomokuGame &board, Player player)
 {
-    return 0;
+    TIMER
+
+    game = board;
+    ai_player = player;
+    human_player = board.other_player(player);
+    return _heuristic_evaluation();
 }
 
 MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board)

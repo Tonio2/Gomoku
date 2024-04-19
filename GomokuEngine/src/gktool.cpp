@@ -160,7 +160,7 @@ void test_eval(std::string moves_string)
 
     Player last_player = game.get_current_player();
     GomokuAI AI(get_depth_from_env());
-    int evaluation = AI.heuristic_evaluation(game, last_player);
+    int evaluation = AI.get_heuristic_evaluation(game, last_player);
 
     // Display moves
     std::cout << moves << std::endl;

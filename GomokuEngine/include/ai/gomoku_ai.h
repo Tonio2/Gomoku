@@ -32,10 +32,11 @@ private:
     GomokuAIData evaluation_data;
 
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
-    int pseudo_heuristic_evaluation(std::pair<int, int> move);
     int score_player(Player player);
 
     std::vector<MoveHeuristic> find_relevant_moves() const;
+
+    int _heuristic_evaluation();
 
 public:
     void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int depth);
@@ -45,7 +46,8 @@ public:
     int evaluation_needed_count;
     GomokuAI(int depth, GomokuAIData data = GomokuAIData());
     MoveEvaluation suggest_move(const GomokuGame &board);
-    int heuristic_evaluation(const GomokuGame &board, Player heuristic_player);
+
+    int get_heuristic_evaluation(const GomokuGame &board, Player player);
 
     const GomokuAIData &get_evaluation_data() const;
 };
