@@ -17,6 +17,7 @@ private:
     bool is_game_over_flag;
     Player winner;
     std::vector<GomokuPatternReconizer> players_reconizers;
+    bool _capture_enabled;
 
     /** Capture */
     bool try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result);
@@ -27,7 +28,7 @@ private:
     void modify_player_score(Player player, int score);
 
 public:
-    GomokuGame(uint width, uint height);
+    GomokuGame(uint width, uint height, bool capture_enabled = true);
     GomokuGame(const GomokuGame &copy);
 
     GomokuGame &operator=(const GomokuGame &copy);

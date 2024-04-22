@@ -91,7 +91,7 @@ std::string getIndent(int depth)
   return indent;
 }
 
-void Timer::printAccumulatedTimes()
+void Timer::printAccumulatedTimes(bool colored)
 {
   // Then, print each entry with proper formatting
   for (auto it = accumulatedFunctions.begin(); it != accumulatedFunctions.end(); ++it)
@@ -101,18 +101,19 @@ void Timer::printAccumulatedTimes()
     const FunctionAccumulation &accumulation = entry.second;
 
     std::string indent = getIndent(callStack.size());
-    std::string color = getColor(callStack.size());
+    std::string color = colored ? getColor(callStack.size()) : "";
+    std::string clearColor = colored ? "\033[0m" : "";
 
     // Print the current function with its color and time, but skip printing "other" here
     std::cout << indent << color << accumulation.callCount << " " << callStack.back() << ": "
-              << static_cast<int>(accumulation.totalTime) << " ms\033[0m" << std::endl;
+              << static_cast<int>(accumulation.totalTime) << " ms" << clearColor << std::endl;
 
     if (accumulation.otherTime < accumulation.totalTime)
     {
       indent = getIndent(callStack.size() + 1);
-      color = getColor(callStack.size() + 1);
+      color = colored ? getColor(callStack.size() + 1) : "";
       std::cout << indent << color << "other: "
-                << static_cast<int>(accumulation.otherTime) << " ms\033[0m" << std::endl;
+                << static_cast<int>(accumulation.otherTime) << " ms" << clearColor << std::endl;
     }
   }
 }

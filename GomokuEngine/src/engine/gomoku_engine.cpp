@@ -35,7 +35,7 @@ std::ostream &operator<<(std::ostream &stream, StructureType structure_type)
 }
 
 // Definitions of GomokuGame methods
-GomokuGame::GomokuGame(uint width, uint height)
+GomokuGame::GomokuGame(uint width, uint height, bool capture_enabled)
     : board(width, height),
       _min_played(width, height),
       _max_played(0, 0),
@@ -48,7 +48,8 @@ GomokuGame::GomokuGame(uint width, uint height)
           GomokuPatternReconizer(E),
           GomokuPatternReconizer(X),
           GomokuPatternReconizer(O),
-      })
+      }),
+      _capture_enabled(capture_enabled)
 {
     players_reconizers[X].find_patterns_in_board(*this);
     players_reconizers[O].find_patterns_in_board(*this);
@@ -63,7 +64,8 @@ GomokuGame::GomokuGame(const GomokuGame &copy)
       players_scores(copy.players_scores),
       is_game_over_flag(copy.is_game_over_flag),
       winner(copy.winner),
-      players_reconizers(copy.players_reconizers)
+      players_reconizers(copy.players_reconizers),
+      _capture_enabled(copy._capture_enabled)
 {
 }
 
@@ -80,6 +82,7 @@ GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
         is_game_over_flag = copy.is_game_over_flag;
         winner = copy.winner;
         players_reconizers = copy.players_reconizers;
+        _capture_enabled = copy._capture_enabled;
     }
     return *this;
 }
@@ -191,7 +194,7 @@ MoveResult GomokuGame::make_move(int row, int col)
 
     if (!coordinates_are_valid(row, col))
     {
-        throw std::invalid_argument("Invalid coordinates");
+        throw std::invalid_argument("Invalid coordinates " + std::to_string(row) + ", " + std::to_string(col));
     }
     if (get_board_value(row, col) != E)
     {
@@ -366,7 +369,7 @@ void GomokuGame::check_win(Player player)
     if (players_reconizers[player].get_pattern_count()
             [StructureType::FIVE_OR_MORE] > 0)
     {
-        if (players_reconizers[player].five_or_more_cant_be_captured(*this))
+        if (not _capture_enabled || players_reconizers[player].five_or_more_cant_be_captured(*this))
         {
             is_game_over_flag = true;
             winner = current_player;

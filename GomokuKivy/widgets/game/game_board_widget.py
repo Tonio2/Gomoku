@@ -4,7 +4,7 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 
 from app.shared_object import SharedObject
-from core.gomoku_game import GomokuGame, GomokuPlayer
+from core.gomoku_room import GameRoom, GomokuPlayer
 
 from core.callback_center import CallbackCenter
 
@@ -22,21 +22,21 @@ class GameBoardWidget(Widget):
         CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_gomokugame_modified)
         Window.bind(mouse_pos=self.on_mouse_pos)
 
-    def get_game(self) -> GomokuGame:
-        return SharedObject.get_instance().get_game()
+    def get_room(self) -> GameRoom:
+        return SharedObject.get_instance().get_room()
 
-    def on_gomokugame_modified(self, message, game):
-        if game == self.get_game():
+    def on_gomokugame_modified(self, _, room: GameRoom):
+        if room == self.get_room():
             self.draw_board()
 
     def draw_board(self):
         self.canvas.clear()
 
-        gomoku_game = self.get_game()
-        if gomoku_game is None:
+        room = self.get_room()
+        if room is None:
             return
 
-        board_size_y, board_size_x = gomoku_game.get_board_height(), gomoku_game.get_board_width()
+        board_size_y, board_size_x = room.get_board_height(), room.get_board_width()
 
         cell_size_x = self.width / board_size_x
         cell_size_y = self.height / board_size_y
@@ -52,7 +52,7 @@ class GameBoardWidget(Widget):
             # Draw the pieces
             for x in range(board_size_x):
                 for y in range(board_size_y):
-                    cell_value = gomoku_game.get_board_value_at(board_size_y - y - 1, x)
+                    cell_value = room.get_board_value_at(board_size_y - y - 1, x)
                     match cell_value:
                         case GomokuPlayer.WHITE:
                             Color(*WHITE_COLOR)
@@ -65,12 +65,12 @@ class GameBoardWidget(Widget):
 
     def on_touch_down(self, touch):
 
-        gomoku_game = self.get_game()
-        if gomoku_game is None:
+        room = self.get_room()
+        if room is None:
             return
 
         if self.collide_point(*touch.pos):
-            board_size_x, board_size_y = gomoku_game.get_board_width(), gomoku_game.get_board_height()
+            board_size_x, board_size_y = room.get_board_width(), room.get_board_height()
 
             cell_size_x = self.width / board_size_x
             cell_size_y = self.height / board_size_y
@@ -78,16 +78,18 @@ class GameBoardWidget(Widget):
             col = int((touch.pos[0] - self.x) / cell_size_x)
             row = int((touch.pos[1] - self.y) / cell_size_y)
 
-            gomoku_game.handle_click(board_size_y - 1 - row, col)
+            room.handle_board_click(board_size_y - 1 - row, col)
 
     def on_mouse_pos(self, window, pos):
 
+        room = self.get_room()
+        if room is None:
+            return
+
         cell = BoardCellHovering()
 
-        cell.game = self.get_game()
-
         if self.collide_point(*pos):
-            board_size_x, board_size_y = self.get_game().get_board_width(), self.get_game().get_board_height()
+            board_size_x, board_size_y = room.get_board_width(), room.get_board_height()
 
             cell_size_x = self.width / board_size_x
             cell_size_y = self.height / board_size_y
@@ -101,9 +103,7 @@ class BoardCellHovering:
 
     row: int
     col: int
-    game: GomokuGame
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.row = -1
         self.col = -1
-        self.game = None

@@ -1,15 +1,15 @@
 from app.gomoku_app import GomokuApp
 
 from core.callback_center import CallbackCenter
-from core.gomoku_game import GomokuGame
+from core.gomoku_room import GameRoom
 
 
 import asyncio
 
 
-def display_moves(message, game: GomokuGame):
+def display_moves(message, game: GameRoom):
     move_string = ""
-    for move in game.move_list:
+    for move in game.get_move_list():
         move_string += game.coordinates_name(move.row, move.column) + ","
     print(move_string[:-1])
 

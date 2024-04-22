@@ -16,6 +16,10 @@ class CallbackCenter:
         if message in self._callbacks and callback in self._callbacks[message]:
             self._callbacks[message].remove(callback)
 
+    def remove_all_callbacks(self, message: str) -> None:
+        if message in self._callbacks:
+            self._callbacks[message] = []
+
     def send_message(self, message: str, payload: Any) -> None:
         if message in self._callbacks:
             for callback in self._callbacks[message]:

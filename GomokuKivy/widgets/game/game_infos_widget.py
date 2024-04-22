@@ -1,6 +1,6 @@
 from kivy.uix.widget import Widget
 from core.callback_center import CallbackCenter
-from core.gomoku_game import GomokuGame, GomokuPlayer, GomokuMove
+from core.gomoku_room import GameRoom, GomokuPlayer, GomokuMove
 from app.shared_object import SharedObject
 from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
 from kivy.clock import Clock
@@ -21,22 +21,18 @@ class GameInfosWidget(Widget):
 
     def __init__(self, **kwargs):
         super(GameInfosWidget, self).__init__(**kwargs)
-        CallbackCenter.shared().add_callback(
-            "GomokuGame.modified", self.on_game_modified
-        )
-        CallbackCenter.shared().add_callback(
-            "GomokuGame.time", self.on_game_time_modified
-        )
+        CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_game_modified)
+        CallbackCenter.shared().add_callback("GomokuGame.time", self.on_game_time_modified)
 
-    def on_game_modified(self, message, game: GomokuGame):
-        self.current_player = game.get_current_player()
-        self.score_marker_black.text = str(game.get_player_score(GomokuPlayer.BLACK))
-        self.score_marker_white.text = str(game.get_player_score(GomokuPlayer.WHITE))
-        self.button_previous.disabled = not game.can_reverse_move()
-        self.button_next.disabled = not game.can_reapply_move()
+    def on_game_modified(self, _, room: GameRoom):
+        self.current_player = room.get_current_player()
+        self.score_marker_black.text = str(room.get_player_score(GomokuPlayer.BLACK))
+        self.score_marker_white.text = str(room.get_player_score(GomokuPlayer.WHITE))
+        self.button_previous.disabled = not room.can_reverse_move()
+        self.button_next.disabled = not room.can_reapply_move()
 
-    def on_game_time_modified(self, message, game: GomokuGame):
-        if game is None:
+    def on_game_time_modified(self, _, room: GameRoom):
+        if room is None:
             self.time_marker_black.text = ""
             self.time_marker_white.text = ""
             return
@@ -44,40 +40,27 @@ class GameInfosWidget(Widget):
         def time_to_string(time: float) -> str:
             return "{:.1f}".format(time)
 
-        black_time = (
-            game.players_time[GomokuPlayer.BLACK]
-            + game.players_time_since_start_turn[GomokuPlayer.BLACK]
-        )
+        black_time = room.get_player_time(GomokuPlayer.BLACK)
         self.time_marker_black.text = time_to_string(black_time)
-        white_time = (
-            game.players_time[GomokuPlayer.WHITE]
-            + game.players_time_since_start_turn[GomokuPlayer.WHITE]
-        )
+        white_time = room.get_player_time(GomokuPlayer.WHITE)
         self.time_marker_white.text = time_to_string(white_time)
 
-    def get_game(self) -> GomokuGame:
-        return SharedObject.get_instance().get_game()
+    def get_room(self) -> GameRoom:
+        return SharedObject.get_instance().get_room()
 
     def reverse_move(self):
-        game = self.get_game()
+        room = self.get_room()
 
-        if game is None:
+        if room is None:
             return
 
-        game.reverse_last_move()
+        room.reverse_last_move()
 
     def reapply_move(self):
-        game = self.get_game()
+        room = self.get_room()
 
-        if game is None:
+        if room is None:
             return
 
-        game.reverse_last_move()
+        room.reapply_last_move()
 
-    def reapply_move(self):
-        game = self.get_game()
-
-        if game is None:
-            return
-
-        game.reapply_last_move()
