@@ -115,9 +115,20 @@ void GomokuGame::modify_player_score(Player player, int score)
     players_scores[player] += score;
 }
 
-std::pair<GomokuCellIndex, GomokuCellIndex> GomokuGame::get_played_bounds() const
+std::pair<GomokuCellIndex, GomokuCellIndex> GomokuGame::get_played_bounds(int margin) const
 {
-    return {_min_played, _max_played};
+    if (margin == 0)
+        return {_min_played, _max_played};
+
+    GomokuCellIndex min_played = GomokuCellIndex(
+        std::max(0, _min_played.row - margin),
+        std::max(0, _min_played.col - margin));
+
+    GomokuCellIndex max_played = GomokuCellIndex(
+        std::min(get_board_height() - 1, _max_played.row + margin),
+        std::min(get_board_width() - 1, _max_played.col + margin));
+
+    return {min_played, max_played};
 }
 
 const GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player) const

@@ -538,10 +538,18 @@ TEST(PlayedBounds, PlayedBounds)
     game.make_move(1, 1);
     EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
     EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(1, 1));
+    EXPECT_EQ(game.get_played_bounds(1).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(1).second, GomokuCellIndex(2, 2));
+    EXPECT_EQ(game.get_played_bounds(2).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(2).second, GomokuCellIndex(3, 3));
 
     game.make_move(3, 3);
     EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
     EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 3));
+    EXPECT_EQ(game.get_played_bounds(1).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(1).second, GomokuCellIndex(4, 4));
+    EXPECT_EQ(game.get_played_bounds(2).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(2).second, GomokuCellIndex(5, 5));
 
     game.make_move(2, 2);
     EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
@@ -554,6 +562,16 @@ TEST(PlayedBounds, PlayedBounds)
     game.make_move(2, 5);
     EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(0, 1));
     EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 5));
+    EXPECT_EQ(game.get_played_bounds(1).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(1).second, GomokuCellIndex(4, 6));
+    EXPECT_EQ(game.get_played_bounds(2).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(2).second, GomokuCellIndex(5, 6));
+
+    for (int i = 3; i < 20; ++i)
+    {
+        EXPECT_EQ(game.get_played_bounds(i).first, GomokuCellIndex(0, 0));
+        EXPECT_EQ(game.get_played_bounds(i).second, GomokuCellIndex(6, 6));
+    }
 }
 
 TEST(PlayedBounds, PlayedBounds_ReverseMove)
