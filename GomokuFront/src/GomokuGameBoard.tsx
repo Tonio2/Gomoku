@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 const Game: React.FC = () => {
   const {
     board,
+    nextPlayer,
+    nextAction,
     listMoves,
     currentMove,
     xIsNext,
@@ -28,7 +30,7 @@ const Game: React.FC = () => {
   if (winner) {
     status = (winner === 1 ? "Black" : "White") + " wins!";
   } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
+    status = "Next : Player " + (nextPlayer + 1).toString()
   }
 
   function handleMenu(): void {

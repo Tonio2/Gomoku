@@ -105,7 +105,7 @@ def ai_turn():
 
     if game.next_action == Action.MOVE:
         try:
-            move_evaluation = game.get_suggestion(3, 3)
+            move_evaluation = game.get_suggestion(5, 3)
             best_move_evaluation = max(move_evaluation["list_moves"], key = lambda move_evaluation: move_evaluation["score"])
             success, msg = game.make_move(best_move_evaluation["move"][0], best_move_evaluation["move"][1])
             state = game.get_state()

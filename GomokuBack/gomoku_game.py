@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 from constants import *
 
 sys.path.append("../lib")
@@ -60,12 +61,14 @@ class GomokuGame:
                 "isAI": mode == Mode.PVAI and ai_is_first,
                 "score": 0,
                 "time": 0,
+                "turn_start_time": datetime.now()
             },
             {
                 "color": WHITE,
                 "isAI": mode == Mode.PVAI and not ai_is_first,
                 "score": 0,
                 "time": 0,
+                "turn_start_time": 0
             },
         ]
         self.size = size
@@ -83,6 +86,11 @@ class GomokuGame:
                 return self.is_three_cell_away_from_center(row, col), "Move must be at least 3 cells away from center"
         return True, ""
             
+    def update_score(self):
+        for i in range(2):
+            p = self.players[i]
+            self.players[i]["score"] = self.game.get_player_score(pygomoku.Player(p["color"] + 1))
+
 
     def make_move(self, row, col):
         legal, msg = self.is_move_legal(row,col)
@@ -90,6 +98,16 @@ class GomokuGame:
             return False, msg 
         try:
             move_result = self.game.make_move(row, col)
+            # Update time
+            player = self.players[self.next_player]
+            turn_start_time = player["turn_start_time"]
+            now = datetime.now()
+            if turn_start_time != 0:
+                time_diff = now - turn_start_time
+                player["time"] += time_diff.total_seconds()
+
+            # Update score
+            self.update_score()
             # Determine next player and next action and current move
             if self.rule_style == RuleStyle.SWAP and self.current_move <= 2:
                 if self.current_move == 0 or self.current_move == 1:
@@ -101,7 +119,10 @@ class GomokuGame:
             else:
                 self.next_player = 1 - self.next_player
                 self.next_action = Action.MOVE
-            
+
+            #Update next_player start time
+            self.players[self.next_player]["turn_start_time"] = now
+
             # Update list_moves
             self.list_moves = self.list_moves[:self.current_move] + [{
                 "row": row,
@@ -121,6 +142,7 @@ class GomokuGame:
         try:
             move_result = self.list_moves[self.current_move - 1]["move_result"]
             self.game.reverse_move(move_result)
+            self.update_score()
             self.next_player = 1 - self.next_player
             self.current_move -= 1
             return True, ""
@@ -134,6 +156,7 @@ class GomokuGame:
         try:
             move_result = self.list_moves[self.current_move]["move_result"]
             self.game.reapply_move(move_result)
+            self.update_score()
             self.next_player = 1 - self.next_player
             self.current_move += 1
             return True, ""

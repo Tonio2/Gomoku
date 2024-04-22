@@ -14,6 +14,8 @@ import { MoveHistory, Mode, Rule, Player, ActionResult } from "../interface";
 
 type GameLogic = {
   board: number[][];
+  nextPlayer: number;
+  nextAction: number;
   listMoves: MoveHistory[];
   currentMove: number;
   xIsNext: boolean;
@@ -25,6 +27,20 @@ type GameLogic = {
   handleReapply: () => void;
   handleReset: () => void;
 };
+
+function getTimeDifferenceInSeconds(dateStringFromBackend: string): number {
+  // Convert the ISO string to a Date object
+  const backendDate = new Date(dateStringFromBackend);
+
+  // Get the current date and time
+  const currentDate = new Date();
+
+  // Compute the difference in milliseconds
+  const differenceInMilliseconds = currentDate.getTime() - backendDate.getTime() + 7200000;
+
+  // Convert milliseconds to seconds
+  return differenceInMilliseconds / 1000;
+}
 
 const useGameLogic = (): GameLogic => {
   const size = useMemo(
@@ -70,29 +86,6 @@ const useGameLogic = (): GameLogic => {
 
   const [isGameCreated, setIsGameCreated] = useState(false);
 
-  //   const [timerStarted, setTimerStarted] = useState(
-  //     ruleStyle === Rule.Standard || ruleStyle === Rule.Pro
-  //   );
-
-  //   useEffect(() => {
-  //     const timer = setInterval(() => {
-  //       if (timerStarted && !isGameOver) {
-  //         if (xIsNext) {
-  //           setPlayerX((prevPlayer) => ({
-  //             ...prevPlayer,
-  //             time: prevPlayer.time + 0.1,
-  //           }));
-  //         } else {
-  //           setPlayerO((prevPlayer) => ({
-  //             ...prevPlayer,
-  //             time: prevPlayer.time + 0.1,
-  //           }));
-  //         }
-  //       }
-  //     }, 100);
-
-  //     return () => clearInterval(timer);
-  //   }, [timerStarted, xIsNext, isGameOver]);
 
   useEffect(() => {
     const createGame = async () => {
@@ -114,6 +107,7 @@ const useGameLogic = (): GameLogic => {
     setListMoves(res._listMoves);
     setCurrentMove(res._currentMove);
     setPlayers(res._players);
+    setNextPlayer(res._nextPlayer);
   };
 
   const handleMoveResponse = useCallback(
@@ -123,7 +117,6 @@ const useGameLogic = (): GameLogic => {
         return;
       }
       console.log(res);
-      console.log(res._players[res._nextPlayer].isAI);
       updateBoard(res);
       if (!res._players[res._nextPlayer].isAI) return;
       try {
@@ -174,6 +167,8 @@ const useGameLogic = (): GameLogic => {
 
   return {
     board,
+    nextPlayer,
+    nextAction,
     listMoves,
     currentMove,
     xIsNext,

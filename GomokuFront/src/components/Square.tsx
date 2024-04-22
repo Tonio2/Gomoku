@@ -1,16 +1,6 @@
 import React from "react";
-
-const stoneStyle = (value: string) => {
-  if (value === "") return "";
-  let className =
-    "absolute top-[50%] left-[50%] ml-[-15px] mt-[-15px] w-[30px] h-[30px] rounded-full shadow-blur hover:scale-110 cursor-pointer";
-  if (value === "X") {
-    className += " bg-black";
-  } else if (value === "O") {
-    className += " bg-white";
-  }
-  return className;
-};
+import Stone from "./Stone";
+import { StoneType } from "../interface";
 
 interface ISquare {
   value: string;
@@ -52,25 +42,9 @@ const Square: React.FC<ISquare> = ({
           (verticalHighlight ? "bg-[#0ff] shadow-strongBlur" : "")
         }
       ></div>
-      <div className={stoneStyle(value)}></div>
-      {value === "" && (
-        <div
-          className={
-            stoneStyle(xIsNext ? "X" : "O") +
-            " opacity-0 hover:opacity-50 duration-400"
-          }
-        ></div>
-      )}
-      {suggestion[1] > 0 && (
-        <div
-          className={
-            stoneStyle(["", "X", "O"][suggestion[1]]) +
-            " opacity-50 text-red-500 text-center text-lg font-bold line-height-[30px]"
-          }
-        >
-          {suggestion[0]}
-        </div>
-      )}
+      <Stone value={value} type={StoneType.Standard} />
+      {value === "" && <Stone value={xIsNext? "X" : "O"} type={StoneType.Hover} />}
+      {suggestion[1] > 0 && <Stone value={["", "X", "O"][suggestion[1]]} type={StoneType.Suggestion} text={suggestion[0].toString()}/>} 
     </div>
   );
 };

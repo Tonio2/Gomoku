@@ -51,3 +51,10 @@ export interface ActionResult {
   _currentMove: number;
   _players: Player[];
 }
+
+export enum StoneType {
+    Standard,
+    Hover,
+    Suggestion,
+    Display
+}
