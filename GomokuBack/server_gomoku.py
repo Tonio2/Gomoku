@@ -1,154 +1,132 @@
-import random
-import string
-from flask import Flask, jsonify, request
-from flask_socketio import SocketIO, emit
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+from functools import wraps
+
 import sys
+from gomoku_room import GomokuRoom
 
 sys.path.append("../lib")
-import pygomoku
+import pygomoku # type: ignore
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+
+def handle_exceptions(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            # Log the exception if needed
+            return jsonify({"success": False, "message": str(e)})
+    return decorated_function
+
+rooms = {}  # Dictionary to store room instances / TODO: Store them 3 days
 
 
-def deserialize_cell_change(cell_change):
-    ret = pygomoku.CellChange()
-    ret.row = cell_change["row"]
-    ret.col = cell_change["col"]
-    ret.old_value = pygomoku.Player(cell_change["old_value"])
-    ret.new_value = pygomoku.Player(cell_change["new_value"])
-    return ret
-
-
-def deserialize_move_result(moveResult):
-    cell_changes = []
-    for cell_change in moveResult["cell_changes"]:
-        cell_changes.append(deserialize_cell_change(cell_change))
-    ret = pygomoku.MoveResult()
-    ret.cell_changes = cell_changes
-    ret.white_score_change = moveResult["white_score_change"]
-    ret.black_score_change = moveResult["black_score_change"]
-    return ret
-
-
-def serialize_player(player):
-    if player == pygomoku.Player.BLACK:
-        return 1
-    elif player == pygomoku.Player.WHITE:
-        return 2
-    else:
-        return 0
-
-
-def serialize_move_result(moveResult):
-    cell_changes = []
-    for cell_change in moveResult.cell_changes:
-        cell_changes.append(
-            {
-                "row": cell_change.row,
-                "col": cell_change.col,
-                "old_value": serialize_player(cell_change.old_value),
-                "new_value": serialize_player(cell_change.new_value),
-            }
-        )
-    return {
-        "cell_changes": cell_changes,
-        "white_score_change": moveResult.white_score_change,
-        "black_score_change": moveResult.black_score_change,
-    }
-
-
-class Mode:
-    PVP_OFFLINE = 1
-    PVP_ONLINE = 2
-    PVIA = 3
-
-
-class GomokuPlayer:
-    def __init__(self, isHuman, ip=""):
-        self.isHuman = isHuman
-        self.ip = ip
-
-
-class GomokuRoom:
-    def __init__(self, size, mode, ruleStyle, roomCreatorIsFirstPlayer=True):
-        if mode not in [Mode.PVP_OFFLINE, Mode.PVP_ONLINE, Mode.PVIA]:
-            raise Exception("Invalid mode")
-        self.players = [GomokuPlayer(True), GomokuPlayer(True)]
-        if mode == Mode.PVIA:
-            self.players[int(roomCreatorIsFirstPlayer)].isHuman = False
-
-        self.room = pygomoku.Room(size, size, ruleStyle)
-        self.mode = mode
-        self.ruleStyle = ruleStyle
-        self.playersIp = ["", ""]
-
-
-rooms = {}
-
-
-def uniqueID():
-    isUnique = False
-    while not isUnique:
-        roomID = "".join(
-            random.choices(
-                string.ascii_uppercase + string.digits + string.ascii_lowercase, k=3
-            )
-        )
-        if roomID not in rooms:
-            isUnique = True
-    return roomID
-
-
-@app.route("/create_game", methods=["POST"])
-def create_game():
-    # Generate a string of 4 characters which will be the unique ID for the game
-    roomID = uniqueID()
+@app.route("/create_room", methods=["POST"])
+@handle_exceptions
+def create_room():
+    user_id = request.json["userId"]  # Unique identifier for the user/session
     size = request.json.get("size", 19)
     mode = request.json.get("mode", 0)
-    ruleStyle = request.json.get("ruleStyle", 0)
-    roomCreatorIsFirstPlayer = request.json.get("roomCreatorIsFirstPlayer", True)
-    room = GomokuRoom(size, mode, ruleStyle, roomCreatorIsFirstPlayer)
-    rooms[roomID] = room
-    return jsonify({"success": True, "message": "Game created", "roomID": roomID})
+    rule_style = request.json.get("rule_style", 0)
+    ai_is_first = request.json.get("AiIsFirst", 0)
+    room = rooms.get(user_id)
+    if not room:
+        room = GomokuRoom(Mode(mode), rule_style, ai_is_first, size) # TODO
+        rooms[user_id] = room
+    state = room.get_state()
+    state["success"] = True
+    state["message"] = "Game created"
+    return jsonify(state)
+
+@app.route("/reset_room", methods=["POST"])
+@handle_exceptions
+def reset_room():
+    user_id = request.json["userId"]
+    room = rooms.get(user_id)
+    if not room:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    room.reset() # TODO
+    return jsonify({"success": True, "message": "Game reset"})
 
 
-@socketio.on("connect")
-def handle_connection():
-    print("A user connected")
+@app.route("/make_move", methods=["POST"])
+@handle_exceptions
+def make_move():
+    user_id = request.json["user_id"]
+    room = rooms.get(user_id)
+    if not room:
+        return jsonify({"success": False, "message": "Game not found"})
 
-    @socketio.on("joinRoom")
-    def handle_join_room(roomID):
-        if roomID not in rooms:
-            return {"success": False, "message": "Room not found"}
-        return {"success": True, "message": "Room found"}
+    if room.is_room_over():
+        return jsonify({"success": False, "message": "Game is over"})
 
-    @socketio.on("board")
-    def handle_board():
-        emit("board", game.get_board(), broadcast=True)
+    row = request.json["row"]
+    col = request.json["col"]
 
-    @socketio.on("makeMove")
-    def handle_make_move(row, col):
-        success, moveResult = game.make_move(row, col)
-        print("Move result: ", moveResult)
-        if not success:
-            return {"success": False}
-        return {
-            "success": True,
-            "board": game.get_board(),
-            "is_game_over": game.is_game_over(),
-            "winner": game.get_winner(),
-            "moveResult": moveResult,
-        }
+    msg = room.make_move(row, col)
+    state = room.get_state()
+    state["success"] = True
+    state["message"] = msg
+    return jsonify(state)
 
-    @socketio.on("reverseMove")
-    def handle_reverse_move(moveResult):
-        game.reverse_move(moveResult)
-        return {"success": True, "board": game.get_board()}
 
-    @socketio.on("reapplyMove")
-    def handle_reapply_move(moveResult):
-        game.reapply_move(moveResult)
-        return {"success": True, "board": game.get_board()}
+@app.route("/reverse_move", methods=["POST"])
+@handle_exceptions
+def reverse_move():
+    user_id = request.json["user_id"]
+    room = rooms.get(user_id)
+    if not room:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    room.reverse_move()
+    state = room.get_state()
+    state["success"] = True
+    return jsonify(state)
+
+@app.route("/reapply_move", methods=["POST"])
+@handle_exceptions
+def reapply_move():
+    user_id = request.json["user_id"]
+    room = rooms.get(user_id)
+    if not room:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    room.reapply_move()
+    state = room.get_state()
+    state["success"] = True
+    return jsonify(state)
+
+@app.route("/ai_turn", methods=["POST"])
+def ai_turn():
+    user_id = request.json["user_id"]
+    room = rooms.get(user_id)
+    if not room:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    if not room.players[room.next_player]["isAI"]:
+        return jsonify({"success": False, "message": "not AI's turn"})
+
+    if room.next_action == Action.MOVE:
+        move_evaluation = room.get_suggestion(5, 3)
+        best_move_evaluation = max(move_evaluation["list_moves"], key = lambda move_evaluation: move_evaluation["score"])
+        msg = room.make_move(best_move_evaluation["move"][0], best_move_evaluation["move"][1])
+        state = room.get_state()
+        state["success"] = True
+        state["message"] = msg
+        return jsonify(state)
+
+
+@app.route("/get_suggestion", methods=["GET"])
+@handle_exceptions
+def get_suggestion():
+    user_id = request.args.get("user_id")
+    room = rooms.get(user_id)
+    if not room:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    move_evaluation = room.get_suggestion(3, 3)
+    return jsonify({"success": True, "moveEvaluation": move_evaluation})
