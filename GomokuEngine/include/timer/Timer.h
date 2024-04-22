@@ -62,7 +62,7 @@ public:
 
     static double getAccumulatedTime(const std::string &name);
 
-    static void printAccumulatedTimes();
+    static void printAccumulatedTimes(bool colored = false);
 
     static void reset();
 };
