@@ -166,7 +166,7 @@ void test_eval(std::string moves_string)
     std::cout << moves << std::endl;
 
     // Display the board
-    std::cout << to_string(game, true);
+    std::cout << to_string(game, true, 2);
 
     // Display if game is over and winner
     std::cout << "Is game over: " << game.is_game_over() << "\n";
@@ -238,9 +238,14 @@ void test_line(const std::string &line)
         char cell_state = (col > 0 && col <= int(line.size())) ? line[col - 1] : 'X';
 
         auto cell_pattern = reconizer.get_structure_at(GomokuCellIndex(0, col - 1), PatternDirection::LeftToRight);
+        bool has_struct[3];
+        for (int i = 0; i < 3; i++)
+            has_struct[i] = reconizer.has_structure_around(GomokuCellIndex(0, col - 1), i);
 
         std::cout << cell_state << " -> " << cell_data << " " << all_structures << " "
-                  << cell_pattern.first << "[" << int(cell_pattern.second.col) << "]" << std::endl;
+                  << "structat=" << cell_pattern.first << "[" << int(cell_pattern.second.col) << "]"
+                  << "\t" << has_struct[0] << " " << has_struct[1] << " " << has_struct[2]
+                  << std::endl;
     }
 }
 

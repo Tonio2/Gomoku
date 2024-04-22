@@ -9,7 +9,7 @@ std::vector<std::string> split(const std::string &str, char delimiter);
 int char_to_coordinate(char coordinate);
 char coordinate_to_char(int coordinate);
 
-std::string to_string(const GomokuGame &game, bool with_coordinates = false);
+std::string to_string(const GomokuGame &game, bool with_coordinates = false, int empty_cell_structure_distance = 0);
 
 void apply_moves(GomokuGame &game, std::vector<std::string> moves);
 void apply_moves(GomokuGame &game, std::string move_str);

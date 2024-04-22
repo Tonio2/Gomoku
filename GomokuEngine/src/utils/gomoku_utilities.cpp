@@ -25,9 +25,29 @@ char coordinate_to_char(int coordinate)
 
     return '?';
 }
-std::string to_string(const GomokuGame &game, bool with_coordinates)
+std::string to_string(const GomokuGame &game, bool with_coordinates, int distance)
 {
     std::stringstream ss;
+
+    auto print_at = [&ss, &game, distance](int row, int col)
+    {
+        Player value = game.get_board_value(row, col);
+        if (value == E)
+        {
+            bool black_has_struct = game.get_pattern_reconizer(X)
+                                        .has_structure_around(GomokuCellIndex(row, col), distance);
+            bool white_has_struct = game.get_pattern_reconizer(O)
+                                        .has_structure_around(GomokuCellIndex(row, col), distance);
+            if (black_has_struct || white_has_struct)
+                ss << "*";
+            else
+                ss << ".";
+        }
+        else
+        {
+            ss << value;
+        }
+    };
 
     if (with_coordinates)
     {
@@ -41,7 +61,7 @@ std::string to_string(const GomokuGame &game, bool with_coordinates)
             ss << coordinate_to_char(row) << " ";
             for (int col = 0; col < game.get_board_width(); ++col)
             {
-                ss << game.get_board_value(row, col);
+                print_at(row, col);
                 if (col < game.get_board_width() - 1)
                     ss << ' ';
             }
@@ -54,7 +74,7 @@ std::string to_string(const GomokuGame &game, bool with_coordinates)
         {
             for (int col = 0; col < game.get_board_width(); col++)
             {
-                ss << game.get_board_value(row, col);
+                print_at(row, col);
             }
             ss << std::endl;
         }

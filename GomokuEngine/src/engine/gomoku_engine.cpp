@@ -130,6 +130,11 @@ void GomokuGame::modify_player_score(Player player, int score)
     players_scores[player] += score;
 }
 
+const GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player) const
+{
+    return players_reconizers[player];
+}
+
 const std::vector<int> &GomokuGame::get_patterns_count(Player player)
 {
     TIMER
