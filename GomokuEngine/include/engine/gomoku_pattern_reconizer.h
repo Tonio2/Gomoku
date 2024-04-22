@@ -75,8 +75,6 @@ struct PatternCellData
 
 std::ostream &operator<<(std::ostream &stream, const PatternCellData &cell_data);
 
-typedef Matrix<Player>::Index GomokuCellIndex;
-
 struct PatternCellIndex : public Matrix<PatternCellData>::Index
 {
     PatternCellIndex(int row, int col);
