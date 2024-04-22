@@ -32,7 +32,7 @@ std::string to_string(const GomokuGame &game, bool with_coordinates, int distanc
     auto print_at = [&ss, &game, distance](int row, int col)
     {
         Player value = game.get_board_value(row, col);
-        if (value == E)
+        if (value == E && distance >= 0)
         {
             bool black_has_struct = game.get_pattern_reconizer(X)
                                         .has_structure_around(GomokuCellIndex(row, col), distance);
