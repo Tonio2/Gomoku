@@ -337,6 +337,178 @@ TEST(DrawTest, FillAllBoardShouldDraw_WidthBoard)
     ASSERT_EQ(game.get_winner(), Player::EMPTY);
 }
 
+TEST(MoveResultTest, ReverseMove)
+{
+    GomokuGame game(7, 7);
+
+    std::string move_str = "11,12,13,14,15,21,22";
+    apply_moves(game, move_str);
+
+    MoveResult result = game.make_move(3, 3);
+
+    ASSERT_EQ(to_string(game),
+              ".......\n"
+              ".XOXOX.\n"
+              ".OX....\n"
+              "...O...\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+
+    game.reverse_move(result);
+
+    EXPECT_EQ(to_string(game),
+              ".......\n"
+              ".XOXOX.\n"
+              ".OX....\n"
+              ".......\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+}
+
+TEST(MoveResultTest, ReapplyMove)
+{
+    GomokuGame game(7, 7);
+
+    std::string move_str = "11,12,13,14,15,21,22";
+    apply_moves(game, move_str);
+
+    MoveResult result = game.make_move(3, 3);
+
+    game.reverse_move(result);
+
+    ASSERT_EQ(to_string(game),
+              ".......\n"
+              ".XOXOX.\n"
+              ".OX....\n"
+              ".......\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+
+    game.reapply_move(result);
+
+    ASSERT_EQ(to_string(game),
+              ".......\n"
+              ".XOXOX.\n"
+              ".OX....\n"
+              "...O...\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+}
+
+TEST(MoveResultTest, ReapplyMultipleMoves)
+{
+    GomokuGame game(6, 6);
+
+    std::vector<MoveResult> results;
+    for (int r = 1; r < 5; r++)
+    {
+        for (int c = 1; c < 5; c++)
+        {
+            results.push_back(game.make_move(r, c));
+        }
+    }
+
+    ASSERT_EQ(to_string(game),
+              "......\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              "......\n");
+
+    for (int i = results.size() - 1; i >= 8; i--)
+    {
+        game.reverse_move(results[i]);
+    }
+
+    ASSERT_EQ(to_string(game),
+              "......\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              "......\n"
+              "......\n"
+              "......\n");
+
+    for (int i = 8; i < results.size(); i++)
+    {
+        game.reapply_move(results[i]);
+    }
+
+    ASSERT_EQ(to_string(game),
+              "......\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              "......\n");
+
+    for (int i = results.size() - 1; i >= 0; i--)
+    {
+        game.reverse_move(results[i]);
+    }
+
+    ASSERT_EQ(to_string(game),
+              "......\n"
+              "......\n"
+              "......\n"
+              "......\n"
+              "......\n"
+              "......\n");
+}
+
+TEST(MoveResultTest, ReverseCapture)
+{
+    GomokuGame game(7, 7);
+
+    MoveResult moves[8];
+
+    moves[0] = game.make_move(1, 1);
+    moves[1] = game.make_move(2, 2);
+    moves[2] = game.make_move(2, 1);
+    moves[3] = game.make_move(3, 3);
+    moves[4] = game.make_move(4, 4);
+    moves[5] = game.make_move(0, 1);
+    moves[6] = game.make_move(3, 4);
+    moves[7] = game.make_move(3, 1);
+
+    ASSERT_EQ(to_string(game),
+              ".O.....\n"
+              ".......\n"
+              ".......\n"
+              ".O..X..\n"
+              "....X..\n"
+              ".......\n"
+              ".......\n");
+
+    game.reverse_move(moves[7]);
+
+    ASSERT_EQ(to_string(game),
+              ".O.....\n"
+              ".X.....\n"
+              ".X.....\n"
+              "....X..\n"
+              "....X..\n"
+              ".......\n"
+              ".......\n");
+
+    game.reverse_move(moves[6]);
+    game.reverse_move(moves[5]);
+    game.reverse_move(moves[4]);
+
+    EXPECT_EQ(to_string(game),
+              ".......\n"
+              ".X.....\n"
+              ".XO....\n"
+              "...O...\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
