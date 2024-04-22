@@ -233,17 +233,21 @@ void GomokuPatternReconizer::update_patterns_with_move(const GomokuGame &board, 
 void GomokuPatternReconizer::print_patterns()
 {
     std::cout << "Pattern(" << _gomoku_player << "):" << std::endl;
+
+    std::cout << " Tagged:" << std::endl;
     for_each_tagged_structures(
         [](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
-        GomokuCellIndex game_index = index.to_game_index();
-        std::cout << "  " << direction << " " << data << " [" << int(game_index.row) << ';' << int(game_index.col) << "]" << std::endl; });
+            GomokuCellIndex game_index = index.to_game_index();
+            std::cout << "  " << direction << " " << data << " [" << int(game_index.row) << ';' << int(game_index.col) << "]" << std::endl;
+        });
 
-    std::cout << "  cached:" << std::endl;
+    std::cout << " Cached: {";
     for (size_t i = 0; i < _cached_pattern_count.size(); i++)
     {
-        std::cout << "    " << StructureType(i) << ':' << _cached_pattern_count[i] << std::endl;
+        std::cout << StructureType(i) << ':' << _cached_pattern_count[i] << (i == _cached_pattern_count.size() - 1 ? "" : ",");
     }
+    std::cout << "}" << std::endl;
 }
 
 const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const

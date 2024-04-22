@@ -56,6 +56,8 @@ GomokuGame::GomokuGame(uint width, uint height)
 
 GomokuGame::GomokuGame(const GomokuGame &copy)
     : board(copy.board),
+      _min_played(copy._min_played),
+      _max_played(copy._max_played),
       empty_cells(copy.empty_cells),
       current_player(copy.current_player),
       players_scores(copy.players_scores),
@@ -70,6 +72,8 @@ GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
     if (this != &copy)
     {
         board = copy.board;
+        _min_played = copy._min_played;
+        _max_played = copy._max_played;
         empty_cells = copy.empty_cells;
         current_player = copy.current_player;
         players_scores = copy.players_scores;
