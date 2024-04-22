@@ -167,6 +167,11 @@ void test_eval(std::string moves_string)
 
     // Display the board
     std::cout << to_string(game, true, 2);
+    auto bounds = game.get_played_bounds();
+    std::cout << "Played bounds:"
+              << "row[" << int(bounds.first.row) << "-" << int(bounds.second.row) << "]"
+              << "col[" << int(bounds.first.col) << "-" << int(bounds.second.col) << "]"
+              << std::endl;
 
     // Display if game is over and winner
     std::cout << "Is game over: " << game.is_game_over() << "\n";
@@ -181,6 +186,19 @@ void test_eval(std::string moves_string)
 
     // Display the evaluation
     std::cout << "Board evaluation for " << last_player << ": " << evaluation << std::endl;
+
+    // Display the suggested move
+    std::vector<MoveHeuristic> relevant_moves = AI.get_relevant_moves(game);
+    std::cout << "Relevant moves (" << relevant_moves.size() << "): [";
+    for (MoveHeuristic move : relevant_moves)
+    {
+        std::cout << "(" << int(move.row) << "," << int(move.col) << "),";
+    }
+    std::cout << "]" << std::endl;
+
+    MoveEvaluation moveEvaluation = AI.suggest_move(game);
+    std::pair<int, int> bestMove = getBestMove(moveEvaluation, true);
+    std::cout << "Suggested move: " << bestMove.first << "," << bestMove.second << std::endl;
 }
 
 std::ostream &operator<<(std::ostream &stream, std::vector<int> array)

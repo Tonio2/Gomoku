@@ -26,8 +26,6 @@ private:
 
     void modify_player_score(Player player, int score);
 
-    friend class GomokuAI;
-
 public:
     GomokuGame(uint width, uint height);
     GomokuGame(const GomokuGame &copy);
