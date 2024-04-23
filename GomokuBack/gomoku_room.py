@@ -32,6 +32,13 @@ ACTION_SWAP = 1
 
 BOARD_COORDINATES = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
+class RoomError(Exception):
+    def __init__(self, msg):
+        Exception.__init__(self)
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
 
 class GomokuRoom:
     def __init__(self, size, mode, rule_style, ai_player):
@@ -49,13 +56,13 @@ class GomokuRoom:
             Get state returns in python format with correct indexation
         """
         if size < 10 or size > 25:
-            raise Exception("Size must be betwwen 10 and 25")
+            raise RoomError("Size must be betwwen 10 and 25")
         if not mode in [0,1]:
-            raise Exception("Mode must be Human vs AI or Human vs Human")
+            raise RoomError("Mode must be Human vs AI or Human vs Human")
         if not rule_style in [0, 1, 2, 3, 4]:
-            raise Exception("Rule style must be Standard, Pro, Long Pro, Swap or Swap2")
+            raise RoomError("Rule style must be Standard, Pro, Long Pro, Swap or Swap2")
         if mode == 0 and not ai_player in [0, 1]:
-            raise Exception("Ai player must first or second")
+            raise RoomError("Ai player must first or second")
         self.size = size
         self.mode = mode
         self.rule_style = pygomoku.GameRoomRuleStyle(rule_style)
@@ -177,8 +184,13 @@ class GomokuRoom:
 
 
     def make_move(self, row, col):
-        self.room.perform_action_move(self.get_next_player(), row, col)
+        if self.players[self.get_next_player()]["is_ai"]:
+            raise RoomError("You cannot play AI's move")
+        print(self.get_next_player())
+        action_result = self.room.perform_action_move(self.get_next_player(), row, col)
         self.update_state()
+        if not action_result.success:
+            raise RoomError(action_result.message)
 
     def swap(self, swap):
         self.room.perfrom_action_swap(self.get_next_player(), swap)

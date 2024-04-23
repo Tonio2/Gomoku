@@ -3,7 +3,7 @@ from flask_cors import CORS
 from functools import wraps
 
 import sys
-from gomoku_room import GomokuRoom
+from gomoku_room import GomokuRoom, RoomError
 
 sys.path.append("../lib")
 import pygomoku # type: ignore
@@ -16,8 +16,7 @@ def handle_exceptions(f):
     def decorated_function(*args, **kwargs):
         try:
             return f(*args, **kwargs)
-        except Exception as e:
-            # Log the exception if needed
+        except RoomError as e:
             return jsonify({"success": False, "message": str(e)})
     return decorated_function
 
@@ -25,6 +24,7 @@ rooms = {}  # Dictionary to store room instances / TODO: Store them 3 days
 
 
 @app.route("/create_room", methods=["POST"])
+@handle_exceptions
 def create_room():
     user_id = request.json["userId"]  # Unique identifier for the user/session
     size = request.json.get("size", 19)
@@ -53,6 +53,7 @@ def reset_room():
 
 
 @app.route("/make_move", methods=["POST"])
+@handle_exceptions
 def make_move():
     user_id = request.json["user_id"]
     room = rooms.get(user_id)
