@@ -30,6 +30,9 @@ PLAYER_2 = 2
 ACTION_MOVE = 0
 ACTION_SWAP = 1
 
+BOARD_COORDINATES = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+
+
 class GomokuRoom:
     def __init__(self, size, mode, rule_style, ai_player):
         """Init room
@@ -42,18 +45,20 @@ class GomokuRoom:
             All variable in self are in pygomoku format
 
             All getter returns in python format
+
+            Get state returns in python format with correct indexation
         """
         if size < 10 or size > 25:
             raise Exception("Size must be betwwen 10 and 25")
         if not mode in [0,1]:
             raise Exception("Mode must be Human vs AI or Human vs Human")
-        if not rule_style in [0, 1, 2]:
-            raise Exception("Rule style must be Standard, Pro or Swap")
+        if not rule_style in [0, 1, 2, 3, 4]:
+            raise Exception("Rule style must be Standard, Pro, Long Pro, Swap or Swap2")
         if mode == 0 and not ai_player in [0, 1]:
             raise Exception("Ai player must first or second")
         self.size = size
         self.mode = mode
-        self.rule_style = pygomoku.GameRoomStyle(rule_style)
+        self.rule_style = pygomoku.GameRoomRuleStyle(rule_style)
         self.ai_player = ai_player
         players = [{
             "is_ai": False,
@@ -66,25 +71,31 @@ class GomokuRoom:
         if mode == MODE_PVAI:
             players[ai_player]["is_ai"] = True
             players[ai_player]["depth"] = 3
-        game_room_settings = pygomoku.GameRoomSettings(size, size, self.rule_style, players[0], players[1])
+        game_room_settings = pygomoku.GameRoomSettings()
+        game_room_settings.width = size
+        game_room_settings.height = size
+        game_room_settings.rule_style = self.rule_style
+        game_room_settings.p1 = pygomoku.GameEntitySetting()
+        game_room_settings.p1.is_ai = players[0]["is_ai"]
+        game_room_settings.p1.ai_depth = players[0]["depth"]
+        game_room_settings.p2 = pygomoku.GameEntitySetting()
+        game_room_settings.p2.is_ai = players[1]["is_ai"]
+        game_room_settings.p2.ai_depth = players[1]["depth"]
+
         self.room = pygomoku.GameRoom(game_room_settings)
         self.players = [{}, players[0], players[1]]
         self.update_state()
 
     def update_state(self):
-        self.action_index = self.room.get_action_index()
-        self.list_moves = self.room.get_actions_history()
-        
         pygomoku_color = self.room.gomoku_player_from_id(PLAYER_1)
         self.players[PLAYER_1]["color"] = pygomoku_color
         self.players[PLAYER_1]["score"] = self.room.get_color_score(pygomoku_color)
+        self.players[PLAYER_1]["time"] = 0
         
         pygomoku_color = self.room.gomoku_player_from_id(PLAYER_2)
         self.players[PLAYER_2]["color"] = pygomoku_color
         self.players[PLAYER_2]["score"] = self.room.get_color_score(pygomoku_color)
-
-        self.next_player = self.room.expected_player()
-        self.next_action = self.expected_action()
+        self.players[PLAYER_2]["time"] = 0
 
     def get_board(self):
         return self.room.get_game().get_board()
@@ -93,7 +104,7 @@ class GomokuRoom:
         return self.room.get_game().is_game_over()
 
     def get_winner(self):
-        winner_color = self.room.get_game.get_winner()
+        winner_color = self.room.get_game().get_winner()
         if winner_color == pygomoku.Player.EMPTY:
             return 0
         elif winner_color == self.players[PLAYER_1]["color"]:
@@ -102,18 +113,18 @@ class GomokuRoom:
             return PLAYER_2
 
     def get_next_player(self):
-        return self.next_player
+        return self.room.expected_player()
     
     def get_next_action(self):
         table = {
             pygomoku.GameActionType.MOVE: ACTION_MOVE,
             pygomoku.GameActionType.SWAP: ACTION_SWAP
         }
-        return table[self.next_action]
+        return table[self.room.expected_action()]
 
     def get_list_moves(self):
         moves = []
-        for move in self.list_moves:
+        for move in self.room.get_actions_history():
             # Player X played COLOR at x,y
             # Player X swapped
             action = "Player " + str(move.player)
@@ -121,7 +132,7 @@ class GomokuRoom:
                 action += " played "
                 color = "BLACK" if self.players[move.player]["color"] == pygomoku.Player.BLACK else "WHITE"
                 action += color
-                action += " at " + str(move.action_value.move.row) + str(move.action_value.move.col)
+                action += " at " + BOARD_COORDINATES[move.action_value.move.row] + BOARD_COORDINATES[move.action_value.move.col]
             else:
                 if move.action_value.swap.did_swap:
                     action += " swapped color"
@@ -131,32 +142,56 @@ class GomokuRoom:
         return moves
 
     def get_current_move(self):
-        return self.action_index
+        return self.room.get_action_index()
 
     def get_players(self):
-        players = self.players
-        players[PLAYER_1]["color"] = server_color(players[PLAYER_1]["color"])
-        players[PLAYER_2]["color"] = server_color(players[PLAYER_2]["color"])
-        return players
+        p1 = self.players[PLAYER_1]
+        p2 = self.players[PLAYER_2]
+        color1 = server_color(p1["color"]) - 1
+        color2 = server_color(p2["color"]) - 1
+
+        return [{
+            "color": color1,
+            "isAI": p1["is_ai"],
+            "score": p1["score"],
+            "time": p1["time"],
+        },
+        {
+            "color": color2,
+            "isAI": p2["is_ai"],
+            "score": p2["score"],
+            "time": p2["time"],
+        }]
 
     def get_state(self):
         return {
             "_board": self.get_board(),
             "_isGameOver": self.is_game_over(),
-            "_winner": self.get_winner(),
-            "_nextPlayer": self.get_next_player(),
+            "_winner": self.get_winner() - 1,
+            "_nextPlayer": self.get_next_player() - 1,
             "_nextAction": self.get_next_action(),
             "_listMoves": self.get_list_moves(),
-            "_currentMove": self.get_current_move(),
+            "_currentMove": self.get_current_move() + 1,
             "_players": self.get_players(),
         }
 
 
     def make_move(self, row, col):
-        self.room.perform_action_move(self.next_player, row, col)
+        self.room.perform_action_move(self.get_next_player(), row, col)
+        self.update_state()
+
+    def swap(self, swap):
+        self.room.perfrom_action_swap(self.get_next_player(), swap)
+        self.update_state()
 
     def reverse_last_action(self):
         self.room.reverse_last_action()
+        self.update_state()
 
     def reapply_last_action(self):
         self.room.reapply_last_action()
+        self.update_state()
+
+    def perform_pending_action(self):
+        self.room.perform_pending_action()
+        self.update_state()

@@ -16,7 +16,7 @@ type GameLogic = {
   board: number[][];
   nextPlayer: number;
   nextAction: number;
-  listMoves: MoveHistory[];
+  listMoves: string[];
   currentMove: number;
   xIsNext: boolean;
   winner: number;
@@ -54,12 +54,17 @@ const useGameLogic = (): GameLogic => {
     []
   );
 
+  const starter = useMemo(
+    () => Number(new URLSearchParams(window.location.search).get("starter")),
+    []
+  );
+
   const ruleStyle = useMemo(
     () => Number(new URLSearchParams(window.location.search).get("ruleStyle")),
     []
   );
   const [board, setBoard] = useState<number[][]>(emptyBoard(size));
-  const [listMoves, setListMoves] = useState<MoveHistory[]>([]);
+  const [listMoves, setListMoves] = useState<string[]>([]);
   const [currentMove, setCurrentMove] = useState<number>(0);
   const xIsNext = currentMove % 2 === 0;
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
@@ -90,7 +95,7 @@ const useGameLogic = (): GameLogic => {
   useEffect(() => {
     const createGame = async () => {
       try {
-        const res = await api.createGame(userId, mode, size);
+        const res = await api.createGame(userId, mode, size, ruleStyle, starter);
         handleMoveResponse(res);
       } catch (error) {
         console.error("Server error");
@@ -98,7 +103,7 @@ const useGameLogic = (): GameLogic => {
     };
 
     createGame();
-  }, [userId, mode, size]);
+  }, [userId, mode, size, ruleStyle, starter]);
 
   const updateBoard = (res: ActionResult) => {
     setBoard(res._board);
@@ -118,7 +123,17 @@ const useGameLogic = (): GameLogic => {
       }
       console.log(res);
       updateBoard(res);
-      if (!res._players[res._nextPlayer].isAI) return;
+      if (!res._players[res._nextPlayer].isAI) {
+          if (res._nextAction == 1) {
+              console.log("Hello");
+              let input = ""
+              while (input.toLowerCase() != "y" && input.toLowerCase() != "n")
+                  input = prompt("swap? (Y/N)") || ""
+              const _res = await api.swap(userId, input.toLowerCase() === "y")
+              handleMoveResponse(_res)
+          }
+          return;
+      }
       try {
         const newRes = await api.aiTurn(userId);
         handleMoveResponse(newRes);

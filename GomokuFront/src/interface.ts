@@ -47,7 +47,7 @@ export interface ActionResult {
   _winner: number;
   _nextPlayer: number;
   _nextAction: number;
-  _listMoves: MoveHistory[];
+  _listMoves: string[];
   _currentMove: number;
   _players: Player[];
 }

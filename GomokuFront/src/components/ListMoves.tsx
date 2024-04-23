@@ -7,23 +7,19 @@ const moveStyle = (isCurrentMove: boolean) => ({
 });
 
 interface IListMoves {
-  moves: { row: number; col: number; moveResult: any }[];
+  moves: string[];
   currentMove: number;
 }
 
 const ListMoves: React.FC<IListMoves> = ({ moves, currentMove }) => {
   const formattedMoves = [];
-  for (let i = 0; i < moves.length; i += 2) {
+  for (let i = 0; i < moves.length; i += 1) {
     const firstMove = moves[i];
-    const secondMove = moves[i + 1];
 
     formattedMoves.push(
       <tr key={i}>
-        <td style={moveStyle(currentMove === i + 1)}>
-          {i + 1}. {firstMove ? `(${firstMove.row}, ${firstMove.col})` : ""}
-        </td>
-        <td style={moveStyle(currentMove === i + 2)}>
-          {i + 2}. {secondMove ? `(${secondMove.row}, ${secondMove.col})` : ""}
+        <td className="text-left py-2" style={moveStyle(currentMove === i + 1)}>
+          {i + 1}. {firstMove}
         </td>
       </tr>
     );
@@ -32,12 +28,6 @@ const ListMoves: React.FC<IListMoves> = ({ moves, currentMove }) => {
   return (
     <div className="flex-grow overflow-y-auto shadow-blur custom-scrollbar">
       <table className="border-separate border-spacing-0 w-full bg-[rgba(10,23,38,0.8)]">
-        <thead>
-          <tr>
-            <th>X</th>
-            <th>O</th>
-          </tr>
-        </thead>
         <tbody>{formattedMoves}</tbody>
       </table>
     </div>

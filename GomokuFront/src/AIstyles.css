@@ -38,10 +38,14 @@ body {
 
 .game-info th,
 .game-info td {
-  text-align: center;
-  padding: 1rem 0;
+  padding: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 1.1rem;
+}
+
+.score-board td {
+    text-align: center;
+    padding: 1rem 0;
 }
 
 .game-info th {

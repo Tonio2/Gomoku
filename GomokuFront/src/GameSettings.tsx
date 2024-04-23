@@ -66,8 +66,8 @@ const GameSetting: React.FC = () => {
           >
             <option value="0">Standard</option>
             <option value="1">Pro</option>
-            <option value="2">Swap</option>
-            <option value="3">Swap2</option>
+            <option value="3">Swap</option>
+            <option value="4">Swap2</option>
           </select>
         </div>
 

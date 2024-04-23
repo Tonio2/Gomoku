@@ -27,8 +27,8 @@ const Game: React.FC = () => {
   const navigate = useNavigate();
 
   let status: string;
-  if (winner) {
-    status = (winner === 1 ? "Black" : "White") + " wins!";
+  if (winner != -1) {
+    status = (winner === 0 ? "Black" : "White") + " wins!";
   } else {
     status = "Next : Player " + (nextPlayer + 1).toString()
   }
@@ -40,7 +40,7 @@ const Game: React.FC = () => {
   const boardJSX = useMemo(() => {
     return (
       <Board
-        xIsNext={xIsNext}
+        xIsNext={Boolean(1 - players[nextPlayer].color)}
         board={board}
         handleClick={handleClick}
         suggestionBoard={suggestionBoard}

@@ -25,13 +25,12 @@ rooms = {}  # Dictionary to store room instances / TODO: Store them 3 days
 
 
 @app.route("/create_room", methods=["POST"])
-@handle_exceptions
 def create_room():
     user_id = request.json["userId"]  # Unique identifier for the user/session
     size = request.json.get("size", 19)
     mode = request.json.get("mode", 0)
-    rule_style = request.json.get("ruleStyle", 0)
-    ai_player = request.json.get("aiPlayer", 2)
+    rule_style = request.json.get("rule_style", 0)
+    ai_player = request.json.get("ai_player", 2)
     room = rooms.get(user_id)
     if not room:
         room = GomokuRoom(size, mode, rule_style, ai_player)
@@ -54,7 +53,6 @@ def reset_room():
 
 
 @app.route("/make_move", methods=["POST"])
-@handle_exceptions
 def make_move():
     user_id = request.json["user_id"]
     room = rooms.get(user_id)
@@ -82,7 +80,7 @@ def reverse_move():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    room.reverse_move()
+    room.reverse_last_action()
     state = room.get_state()
     state["success"] = True
     return jsonify(state)
@@ -95,7 +93,7 @@ def reapply_move():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    room.reapply_move()
+    room.reapply_last_action()
     state = room.get_state()
     state["success"] = True
     return jsonify(state)
@@ -107,17 +105,26 @@ def ai_turn():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    if not room.players[room.next_player]["isAI"]:
+    if not room.players[room.get_next_player()]["is_ai"]:
         return jsonify({"success": False, "message": "not AI's turn"})
 
-    if room.next_action == Action.MOVE:
-        move_evaluation = room.get_suggestion(5, 3)
-        best_move_evaluation = max(move_evaluation["list_moves"], key = lambda move_evaluation: move_evaluation["score"])
-        msg = room.make_move(best_move_evaluation["move"][0], best_move_evaluation["move"][1])
-        state = room.get_state()
-        state["success"] = True
-        state["message"] = msg
-        return jsonify(state)
+    room.perform_pending_action()
+    state = room.get_state()
+    state["success"] = True
+    return jsonify(state)
+
+@app.route("/swap", methods=["POST"])
+def swap():
+    user_id = request.json["user_id"]
+    room = rooms.get(user_id)
+    if not room:
+        return jsonify({"success": False, "message": "Game not found"})
+
+    swap = request.json["swap"]
+    room.swap(swap)
+    state = room.get_state()
+    state["success"] = True
+    return jsonify(state)
 
 
 @app.route("/get_suggestion", methods=["GET"])
