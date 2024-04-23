@@ -1,162 +1,81 @@
-import React, { useState } from "react";
-import { socket } from "./socket";
+import React, { useMemo } from "react";
 
-const Square: React.FC<{ value: string; onSquareClick: () => void }> = ({
-  value,
-  onSquareClick,
-}) => {
-  return (
-    <button className="square" onClick={onSquareClick}>
-      {value}
-    </button>
-  );
-};
+import useGameLogic from "./hooks/useGameLogicv2";
 
-type BoardProps = {
-  xIsNext: boolean;
-  board: number[][];
-  winner: string | null;
-  onPlay: (row: number, col: number) => void;
-};
+import Board from "./components/Board";
+import ListMoves from "./components/ListMoves";
+import Button from "./components/Button";
+import ScoreBoard from "./components/ScoreBoard";
+import { useNavigate } from "react-router-dom";
 
-const Board: React.FC<BoardProps> = ({ xIsNext, board, winner, onPlay }) => {
-  const handleClick = (i: number, j: number) => {
-    onPlay(i, j);
-  };
+const Game: React.FC = () => {
+  const {
+    board,
+    nextPlayer,
+    nextAction,
+    listMoves,
+    currentMove,
+    xIsNext,
+    winner,
+    players,
+    suggestionBoard,
+    handleClick,
+    handleReverse,
+    handleReapply,
+    handleReset,
+  } = useGameLogic();
+  const navigate = useNavigate();
 
   let status: string;
   if (winner) {
-    status = "Winner: " + winner;
+    status = (winner === 1 ? "Black" : "White") + " wins!";
   } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
+    status = "Next : Player " + (nextPlayer + 1).toString()
   }
 
+  function handleMenu(): void {
+    navigate("/");
+  }
+
+  const boardJSX = useMemo(() => {
+    return (
+      <Board
+        xIsNext={xIsNext}
+        board={board}
+        handleClick={handleClick}
+        suggestionBoard={suggestionBoard}
+      />
+    );
+  }, [xIsNext, board, handleClick, suggestionBoard]);
+
   return (
-    <>
-      <div className="status">{status}</div>
-      {board.map((row, i) => (
-        <div className="board-row" key={i}>
-          {row.map((value, j) => (
-            <Square
-              key={j}
-              value={value === 1 ? "X" : value === 2 ? "O" : ""}
-              onSquareClick={() => handleClick(i, j)}
-            />
-          ))}
+    <div className="flex flex-row justify-items-center justify-center gap-10 h-screen px-10 items-start pt-20">
+      <div className="flex flex-col">
+        <div className="game-board flex-none">{boardJSX}</div>
+        <div className="grid grid-cols-2 gap-4">
+          <Button onClick={() => handleMenu()} text="Menu" />
+          <Button onClick={() => handleReset()} text="Reset game" />
         </div>
-      ))}
-    </>
-  );
-};
-
-type MoveHistory = {
-  row: number;
-  col: number;
-  moveResult: any;
-};
-
-export default function Game() {
-  const [listMoves, setListMoves] = useState<MoveHistory[]>([]);
-  const [currentMove, setCurrentMove] = useState<number>(0);
-  const [winner, setWinner] = useState<string | null>(null);
-  const xIsNext: boolean = currentMove % 2 === 0;
-  const [board, setBoard] = useState<number[][]>(
-    Array(19).fill(Array(19).fill(0))
-  );
-
-  function handlePlay(row: number, col: number) {
-    console.log("Move: " + row + ", " + col);
-    const startTime = new Date().getTime();
-    socket.emit("makeMove", row, col, (response: any) => {
-      if (response.success) {
-        setBoard(response.board);
-        const nextListMoves: MoveHistory[] = [
-          ...listMoves.slice(0, currentMove),
-          {
-            row: row,
-            col: col,
-            moveResult: response.moveResult,
-          },
-        ];
-        setListMoves(nextListMoves);
-        setWinner(response.winner);
-        setCurrentMove(nextListMoves.length);
-      } else {
-        console.error("Invalid move");
-      }
-
-      const endTime = new Date().getTime();
-      console.log("Time taken: " + (endTime - startTime) + "ms");
-    });
-  }
-
-  const moves: JSX.Element[] = listMoves.map(
-    (move: MoveHistory, index: number) => {
-      return (
-        <li key={index}>
-          <button>
-            {(index % 2 === 0 ? "X" : "O") +
-              ": (" +
-              move.row +
-              ", " +
-              move.col +
-              ")"}
-          </button>
-        </li>
-      );
-    }
-  );
-
-  function reverseMove() {
-    socket.emit(
-      "reverseMove",
-      listMoves[currentMove - 1].moveResult,
-      (response: any) => {
-        if (response.success) {
-          setBoard(response.board);
-          setWinner(null);
-          setCurrentMove(currentMove - 1);
-        }
-      }
-    );
-  }
-
-  function reapplyMove() {
-    socket.emit(
-      "reapplyMove",
-      listMoves[currentMove].moveResult,
-      (response: any) => {
-        if (response.success) {
-          setBoard(response.board);
-          setWinner(response.winner);
-          setCurrentMove(currentMove + 1);
-        }
-      }
-    );
-  }
-
-  return (
-    <div className="game">
-      <div className="game-board">
-        <Board
-          xIsNext={xIsNext}
-          board={board}
-          winner={winner}
-          onPlay={handlePlay}
-        />
       </div>
-      <div className="game-info">
-        <ol>{moves}</ol>
-        <button onClick={() => reverseMove()} disabled={currentMove === 0}>
-          Back
-        </button>
-        <button
-          onClick={() => reapplyMove()}
-          disabled={currentMove === listMoves.length}
-        >
-          Next
-        </button>
+      <div className="game-info flex flex-col max-h-[80vh] w-[325px]">
+        <h1 className="font-bold text-2xl mb-5">{status}</h1>
+        <ScoreBoard players={players} />
+        <ListMoves moves={listMoves} currentMove={currentMove} />
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            onClick={() => handleReverse()}
+            text="Reverse"
+            disabled={currentMove === 0}
+          />
+          <Button
+            onClick={() => handleReapply()}
+            text="Reapply"
+            disabled={currentMove === listMoves.length}
+          />
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Game;
