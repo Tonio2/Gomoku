@@ -107,7 +107,7 @@ int get_depth_from_env(int default_depth)
     return default_depth;
 }
 
-void writeMoveEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth)
+void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int depth)
 {
     // Create indentation based on the depth
     std::string indent(depth * 4, ' '); // 4 spaces for each level of depth

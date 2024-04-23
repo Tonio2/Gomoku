@@ -6,7 +6,7 @@ from kivy.properties import (
     NumericProperty, ReferenceListProperty, ObjectProperty
 )
 from app.shared_object import SharedObject
-from core.gomoku_game import GomokuGame, GomokuPlayer
+from core.gomoku_room import GameRoom, GomokuPlayer
 
 from core.callback_center import CallbackCenter
 
@@ -26,32 +26,31 @@ class GameInfosPlayerIndicatorWidget(Widget):
     def _on_window_resized(self, window, size):
         Clock.schedule_once(lambda _ : self.draw(), 0.1)
 
-    def on_application_draw(self, message, _):
+    def on_application_draw(self, _, __):
         self.draw()
 
-    def get_game(self) -> GomokuGame:
-        return SharedObject.get_instance().get_game()
+    def get_room(self) -> GameRoom:
+        return SharedObject.get_instance().get_room()
 
-    def on_gomokugame_modified(self, message, game):
-        if game == self.get_game():
+    def on_gomokugame_modified(self, _, room: GameRoom):
+        if room == self.get_room():
             self.draw()
 
     def draw(self):
-        self.canvas.clear()
-
-        gomoku_game = self.get_game()
-        if gomoku_game is None:
+        room = self.get_room()
+        if room is None:
             return
 
         gomoku_player = GomokuPlayer(self.player)
         player_color = WHITE_COLOR if gomoku_player == GomokuPlayer.WHITE else BLACK_COLOR
 
-        my_turn = gomoku_game.get_current_player() == gomoku_player
+        my_turn = room.get_current_player() == gomoku_player
 
         wf, hf = (1, 1) if my_turn else (0.6, 0.6)
         width, height = wf * self.width, hf * self.height
         size = min(width, height)
 
+        self.canvas.clear()
         with self.canvas:
             Color(*player_color)
             Ellipse(

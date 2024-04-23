@@ -33,7 +33,7 @@
                             Slider:
                                 id: width_slider
                                 min: 10
-                                max: 25
+                                max: 36
                                 value: 19
                                 on_value: root_widget.set_board_width(self.value)
 
@@ -43,7 +43,7 @@
                             Slider:
                                 id: height_slider
                                 min: 10
-                                max: 25
+                                max: 36
                                 value: 19
                                 on_value: root_widget.set_board_height(self.value)
 
@@ -51,76 +51,55 @@
                 BoxLayout:
                     orientation: 'vertical'
                     Label:
-                        text: 'Game Mode:'
+                        text: 'Ai settings:'
                         font_size: '16sp'
                     
                     BoxLayout:
-                        ToggleButton:
-                            text: 'Human vs AI'
-                            group: 'mode'
-                            state: 'down'
-                            on_press: root_widget.set_mode(0)
-                        ToggleButton:
-                            text: 'Human vs Human'
-                            group: 'mode'
-                            state: 'normal'
-                            on_press: root_widget.set_mode(1)
+                        Spinner:
+                            text: 'Human VS Ai'
+                            values: ('Human VS Human', 'Human VS AI', 'AI VS Human', 'AI VS AI')
+                            on_text: root_widget.set_ai_mode(self.text)
 
-                # Rules Selection
                 BoxLayout:
-                    orientation: 'vertical'
-                    Label:
-                        text: 'Game Rules:'
-                        font_size: '16sp'
-                    BoxLayout:
-                        ToggleButton:
-                            text: 'Standard'
-                            group: 'rules'
-                            state: 'down'
-                        ToggleButton:
-                            text: 'Pro'
-                            group: 'rules'
-                        ToggleButton:
-                            text: 'Swap'
-                            group: 'rules'
-                        ToggleButton:
-                            text: 'Swap2'
-                            group: 'rules'
+                    # multiple buttons but only one is active at a time
 
-                # First Player Selection
-                BoxLayout:
-                    orientation: 'vertical'
+                    orientation: 'horizontal'
                     Label:
-                        text: 'First Player:'
+                        text: 'Rule Style'
                         font_size: '16sp'
-                    BoxLayout:
-                        ToggleButton:
-                            text: 'Black'
-                            group: 'first_player'
-                            state: 'down'
-                        ToggleButton:
-                            text: 'White'
-                            group: 'first_player'
+                    Spinner:
+                        text: 'Standard'
+                        values: ('Standard', 'Pro', 'LongPro', 'Swap', 'Swap2')
+                        on_text: root_widget.set_rule_style(self.text)
+
+                    Label:
+                        text: 'Capture'
+                        font_size: '16sp'
+                    CheckBox:
+                        active: True
+                        on_active: root_widget.toggle_capture(self.active)
 
                 # Total Time Allowed Selection
                 BoxLayout:
-                    orientation: 'vertical'
+                    orientation: 'horizontal'
                     Label:
-                        text: 'Total Time per Player:'
+                        text: 'Total Time per Player (minutes):'
                         font_size: '16sp'
                     Spinner:
                         text: 'No limit'
-                        values: ('2 min', '3 min', '4 min', '5 min', 'No limit')
+                        values: ('2', '3', '4', '5', '10', '30', 'No limit')
+                        on_text: root_widget.set_total_time(self.text)
 
                 # Time Per Turn Selection
                 BoxLayout:
-                    orientation: 'vertical'
+                    orientation: 'horizontal'
                     Label:
-                        text: 'Time Per Turn:'
+                        text: 'Time Per Turn (seconds):'
                         font_size: '16sp'
                     Spinner:
                         text: 'No limit'
-                        values: ('10 s', '20 s', '30 s', '40 s', 'No limit')
+                        values: ('10', '20', '30', '40', '60', 'No limit')
+                        on_text: root_widget.set_turn_time(self.text)
 
                 # Start Game Button
                 Button:
@@ -167,20 +146,25 @@
                     on_press: root.back_to_menu()
                     size_hint: None, None
                     size: 60, 50
+                    pos_hint: {'center_x': 0.5}
 
                 ScrollView:
                     do_scroll_x: False
 
-                    GameMoveListWidget:
-                        id: game_move_list_widget
-                        grid_widget: grid_layout
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_y: None
 
-                        GridLayout:
-                            id: grid_layout
-                            cols: 2
-                            size_hint: None, None
-                            size: game_move_list_widget.width, 0
-                            spacing: dp(10)
+                        GameMoveListWidget:
+                            id: game_move_list_widget
+                            grid_widget: grid_layout
+
+                            GridLayout:
+                                id: grid_layout
+                                cols: 2
+                                size_hint: None, None
+                                size: game_move_list_widget.width, 0
+                                spacing: dp(10)
 
                 GameInfosWidget:
                     id: game_infos_widget
@@ -190,6 +174,17 @@
 
                     size_hint_y: None if root_box_layout.orientation == 'horizontal' else 1
                     height: 150 if root_box_layout.orientation == 'horizontal' else self.height
+
+        GameActionResultWidget:
+            id: game_action_result_widget
+            pos: (root.width - self.width) / 2, (root.height - self.height) / 2
+
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.5
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
 <GameInfosWidget>:
 

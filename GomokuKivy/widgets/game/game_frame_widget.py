@@ -7,7 +7,7 @@ from kivy.properties import (
     NumericProperty, ReferenceListProperty, ObjectProperty
 )
 from app.shared_object import SharedObject
-from core.gomoku_game import GomokuGame, GomokuPlayer
+from core.gomoku_room import GameRoom, GomokuPlayer
 
 from core.callback_center import CallbackCenter
 
@@ -30,18 +30,17 @@ class GameFrameWidget(Widget):
     def _on_window_resized(self, window, size):
         Clock.schedule_once(lambda _ : self.draw_board_frame(), 0.1)
 
-    def get_game(self) -> GomokuGame:
-        return SharedObject.get_instance().get_game()
+    def get_room(self) -> GameRoom:
+        return SharedObject.get_instance().get_room()
 
-    def on_application_draw(self, message, _):
+    def on_application_draw(self, _, __):
         self.draw_board_frame()
-
-    def get_game(self) -> GomokuGame:
-        return SharedObject.get_instance().get_game()
+        Clock.schedule_once(lambda _ : self.get_room().perform_pending_actions(), 0.1)
 
     def update_widget_layouts(self):
 
-        game_ratio = self.get_game().get_board_width() / self.get_game().get_board_height()
+        room = self.get_room()
+        game_ratio = room.get_board_width() / room.get_board_height()
         frame_ratio = self.parent.width / self.parent.height
 
         if game_ratio > frame_ratio:
@@ -60,14 +59,16 @@ class GameFrameWidget(Widget):
 
         self.board_widget.draw_board()
 
-        game = self.get_game()
-        board_size_y, board_size_x = game.get_board_height(), game.get_board_width()
+        room = self.get_room()
+        board_size_y, board_size_x = room.get_board_height(), room.get_board_width()
         cell_size_x = self.board_widget.width / board_size_x
         cell_size_y = self.board_widget.height / board_size_y
 
+        CallbackCenter.shared().remove_all_callbacks("Board.mouse")
         self.clear_widgets()
+
         for x in range(board_size_x):
-            coordinate_label = BoardCoordinateLabel(text=game.coordinate_index_name(x))
+            coordinate_label = BoardCoordinateLabel(text=room.coordinate_index_name(x))
             coordinate_label.index = x
             coordinate_label.horizontal = True
             coordinate_label.pos = self.board_widget.pos[0] + x * cell_size_x, self.board_widget.pos[1] + self.board_widget.size[1]
@@ -75,7 +76,7 @@ class GameFrameWidget(Widget):
             self.add_widget(coordinate_label)
 
         for y in range(board_size_y):
-            coordinate_label = BoardCoordinateLabel(text=game.coordinate_index_name(board_size_y - y - 1))
+            coordinate_label = BoardCoordinateLabel(text=room.coordinate_index_name(board_size_y - y - 1))
             coordinate_label.index = y
             coordinate_label.horizontal = False
             coordinate_label.pos = self.board_widget.pos[0] - 20, self.board_widget.pos[1] + y * cell_size_y
@@ -99,7 +100,7 @@ class BoardCoordinateLabel(Label):
     def __del__(self):
         CallbackCenter.shared().remove_callback("Board.mouse", self.on_mouse_board)
 
-    def on_mouse_board(self, message, cell):
+    def on_mouse_board(self, _, cell):
         if self.horizontal:
             if cell.col == self.index:
                 self.color = HOVERED_COLOR

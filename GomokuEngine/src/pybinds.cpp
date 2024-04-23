@@ -4,6 +4,7 @@
 #include "engine/gomoku_engine.h"
 #include "ai/gomoku_ai.h"
 #include "room/game_room.h"
+#include "utils/gomoku_utilities.h"
 
 namespace py = pybind11;
 
@@ -41,6 +42,10 @@ PYBIND11_MODULE(pygomoku, m)
         .value("WHITE", Player::WHITE)
         .export_values();
 
+    /** Utils */
+    m.def("char_to_coordinate", &char_to_coordinate);
+    m.def("coordinate_to_char", &coordinate_to_char);
+
     /** Ai */
     py::class_<MoveEvaluation>(m, "MoveEvaluation")
         .def(py::init<>())
@@ -59,7 +64,9 @@ PYBIND11_MODULE(pygomoku, m)
     py::enum_<GameRoomRuleStyle>(m, "GameRoomRuleStyle")
         .value("STANDARD", GameRoomRuleStyle::STANDARD)
         .value("PRO", GameRoomRuleStyle::PRO)
+        .value("LONG_PRO", GameRoomRuleStyle::LONG_PRO)
         .value("SWAP", GameRoomRuleStyle::SWAP)
+        .value("SWAP2", GameRoomRuleStyle::SWAP2)
         .export_values();
     py::class_<GameActionValue_Move>(m, "GameActionValue_Move")
         .def_readwrite("row", &GameActionValue_Move::row)
@@ -76,6 +83,7 @@ PYBIND11_MODULE(pygomoku, m)
         .def_readwrite("action_type", &GameAction::action_type)
         .def_readwrite("action_value", &GameAction::action_value);
     py::class_<GameActionResult>(m, "GameActionResult")
+        .def(py::init<>())
         .def_readwrite("success", &GameActionResult::success)
         .def_readwrite("message", &GameActionResult::message);
     py::class_<GameEntitySetting>(m, "GameEntitySetting")
@@ -87,6 +95,7 @@ PYBIND11_MODULE(pygomoku, m)
         .def_readwrite("width", &GameRoomSettings::width)
         .def_readwrite("height", &GameRoomSettings::height)
         .def_readwrite("rule_style", &GameRoomSettings::rule_style)
+        .def_readwrite("capture", &GameRoomSettings::capture)
         .def_readwrite("p1", &GameRoomSettings::p1)
         .def_readwrite("p2", &GameRoomSettings::p2);
     py::class_<GameRoom>(m, "GameRoom")
@@ -95,7 +104,17 @@ PYBIND11_MODULE(pygomoku, m)
         .def("perform_action_swap", &GameRoom::perform_action_swap)
         .def("has_pending_action", &GameRoom::has_pending_action)
         .def("perform_pending_action", &GameRoom::perform_pending_action)
+        .def("expected_player", &GameRoom::expected_player)
+        .def("expected_action", &GameRoom::expected_action)
         .def("get_actions_history", &GameRoom::get_actions_history)
+        .def("get_action_index", &GameRoom::get_action_index)
         .def("get_settings", &GameRoom::get_settings)
-        .def("get_game", &GameRoom::get_game);
+        .def("get_game", &GameRoom::get_game)
+        .def("get_color_score", &GameRoom::get_color_score)
+        .def("gomoku_player_from_id", &GameRoom::gomoku_player_from_id)
+        .def("id_from_gomoku_player", &GameRoom::id_from_gomoku_player)
+        .def("can_reverse_last_action", &GameRoom::can_reverse_last_action)
+        .def("reverse_last_action", &GameRoom::reverse_last_action)
+        .def("can_reapply_last_action", &GameRoom::can_reapply_last_action)
+        .def("reapply_last_action", &GameRoom::reapply_last_action);
 }
