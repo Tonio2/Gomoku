@@ -30,18 +30,18 @@ def create_room():
     user_id = request.json["userId"]  # Unique identifier for the user/session
     size = request.json.get("size", 19)
     mode = request.json.get("mode", 0)
-    rule_style = request.json.get("rule_style", 0)
-    ai_is_first = request.json.get("AiIsFirst", 0)
+    rule_style = request.json.get("ruleStyle", 0)
+    ai_player = request.json.get("aiPlayer", 2)
     room = rooms.get(user_id)
     if not room:
-        room = GomokuRoom(Mode(mode), rule_style, ai_is_first, size) # TODO
+        room = GomokuRoom(size, mode, rule_style, ai_player)
         rooms[user_id] = room
     state = room.get_state()
     state["success"] = True
-    state["message"] = "Game created"
+    state["message"] = ""
     return jsonify(state)
 
-@app.route("/reset_room", methods=["POST"])
+@app.route("/reset_room", methods=["POST"]) # TODO
 @handle_exceptions
 def reset_room():
     user_id = request.json["userId"]
@@ -61,16 +61,16 @@ def make_move():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    if room.is_room_over():
-        return jsonify({"success": False, "message": "Game is over"})
+    #if room.is_room_over():
+    #    return jsonify({"success": False, "message": "Game is over"})
 
     row = request.json["row"]
     col = request.json["col"]
 
-    msg = room.make_move(row, col)
+    room.make_move(row, col)
     state = room.get_state()
     state["success"] = True
-    state["message"] = msg
+    state["message"] = ""
     return jsonify(state)
 
 
