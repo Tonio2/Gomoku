@@ -51,11 +51,13 @@ const useGameLogic = (): GameLogic => {
       color: 0,
       score: 0,
       time: 0,
+      isAI: false,
     },
     {
       color: 0,
       score: 0,
       time: 0,
+      isAI: false,
     },
   ]);
   const [nextPlayerId, setNextPlayerId] = useState<number>(0);
@@ -99,17 +101,16 @@ const useGameLogic = (): GameLogic => {
     const handleSwapChoice = async () => {
       let input = "";
       while (input.toLowerCase() !== "y" && input.toLowerCase() !== "n")
-         input = prompt("swap? (Y/N)") || "";
+        input = prompt("swap? (Y/N)") || "";
       const swapActionResult = await api.swap(
-         userId,
-         input.toLowerCase() === "y",
+        userId,
+        input.toLowerCase() === "y",
       );
       await handleMoveResponse(swapActionResult);
-    }
+    };
 
-    if (!hasPendingAction && nextAction === 1) handleSwapChoice()
+    if (!hasPendingAction && nextAction === 1) handleSwapChoice();
   }, [userId, hasPendingAction, nextAction, handleMoveResponse]);
-
 
   useEffect(() => {
     const createGame = async () => {

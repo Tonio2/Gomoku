@@ -36,6 +36,7 @@ export interface Player {
   color: number;
   score: number;
   time: number;
+  isAI: boolean;
 }
 
 export interface ActionResult {

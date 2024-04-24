@@ -83,11 +83,13 @@ def format_players(players):
             "color": p1["color"] - 1,
             "score": p1["score"],
             "time": p1["time"],
+            "isAI": p1["is_ai"],
         },
         {
             "color": p2["color"] - 1,
             "score": p2["score"],
             "time": p2["time"],
+            "isAI": p2["is_ai"],
         },
     ]
 
@@ -184,11 +186,13 @@ class GomokuRoom:
         players[PLAYER_1]["color"] = int(pygomoku_color)
         players[PLAYER_1]["score"] = self.room.get_color_score(pygomoku_color)
         players[PLAYER_1]["time"] = 0
+        players[PLAYER_1]["is_ai"] = self.room.get_settings().p1.is_ai
 
         pygomoku_color = self.room.gomoku_player_from_id(PLAYER_2)
         players[PLAYER_2]["color"] = int(pygomoku_color)
         players[PLAYER_2]["score"] = self.room.get_color_score(pygomoku_color)
         players[PLAYER_2]["time"] = 0
+        players[PLAYER_2]["is_ai"] = self.room.get_settings().p2.is_ai
 
         return players
 
