@@ -230,6 +230,10 @@ TEST(FiveInRowTest, TestShouldWinIfFiveInRowAndOpponentWinByCaptureNextTurn) {
   test_game_status(move_str, true, Player::BLACK);
 }
 
+TEST(weirdWinCondition, ShouldNotWinIfPossibleCapture){
+    std::string move_str = "99,77,9A,98,9C,9B,CC,99,F9,88,9A,AA,97,99,8C,BB,A9,"
+                           "8B,B8,C7,66,C8" test_game_status(move_str, false)}
+
 TEST(DoubleThreeTest, TestMakeDoubleThreeThrowError) {
   GomokuGame game(19, 19);
 
