@@ -59,6 +59,8 @@ const useGameLogic = (): GameLogic => {
     },
   ]);
   const [nextPlayerId, setNextPlayerId] = useState<number>(0);
+  const [hasPendingAction, setHasPendingAction] = useState<boolean>(false);
+  const [nextAction, setNextAction] = useState<number>(0);
   const [suggestionBoard, setSuggestionsBoard] = useState<number[][][]>(
     emptySuggestionBoard(size),
   );
@@ -71,6 +73,8 @@ const useGameLogic = (): GameLogic => {
     setCurrentMove(res._currentMove);
     setPlayers(res._players);
     setNextPlayerId(res._nextPlayer);
+    setHasPendingAction(res._hasPendingAction);
+    setNextAction(res._nextAction);
   }, []);
 
   const handleMoveResponse = useCallback(
@@ -81,19 +85,6 @@ const useGameLogic = (): GameLogic => {
       }
       console.log(res);
       updateBoard(res);
-      if (!res._has_pending_action) {
-        if (res._nextAction === 1) {
-          let input = "";
-          while (input.toLowerCase() !== "y" && input.toLowerCase() !== "n")
-            input = prompt("swap? (Y/N)") || "";
-          const swapActionResult = await api.swap(
-            userId,
-            input.toLowerCase() === "y",
-          );
-          handleMoveResponse(swapActionResult);
-        }
-        return;
-      }
       try {
         const newRes = await api.aiTurn(userId);
         handleMoveResponse(newRes);
@@ -103,6 +94,22 @@ const useGameLogic = (): GameLogic => {
     },
     [userId, updateBoard],
   );
+
+  useEffect(() => {
+    const handleSwapChoice = async () => {
+      let input = "";
+      while (input.toLowerCase() !== "y" && input.toLowerCase() !== "n")
+         input = prompt("swap? (Y/N)") || "";
+      const swapActionResult = await api.swap(
+         userId,
+         input.toLowerCase() === "y",
+      );
+      await handleMoveResponse(swapActionResult);
+    }
+
+    if (!hasPendingAction && nextAction === 1) handleSwapChoice()
+  }, [userId, hasPendingAction, nextAction, handleMoveResponse]);
+
 
   useEffect(() => {
     const createGame = async () => {

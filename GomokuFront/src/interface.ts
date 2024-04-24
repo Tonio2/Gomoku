@@ -49,7 +49,7 @@ export interface ActionResult {
   _listMoves: string[];
   _currentMove: number;
   _players: Player[];
-  _has_pending_action: boolean;
+  _hasPendingAction: boolean;
 }
 
 export enum StoneType {

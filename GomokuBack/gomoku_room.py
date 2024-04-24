@@ -234,7 +234,7 @@ class GomokuRoom:
             "_listMoves": format_actions_history(self.get_actions_history(), players),
             "_currentMove": self.get_current_move() + 1,
             "_players": format_players(players),
-            "_has_pending_action": self.has_pending_action(),
+            "_hasPendingAction": self.has_pending_action(),
         }
 
     def make_move(self, row, col):
@@ -246,7 +246,7 @@ class GomokuRoom:
             raise RoomError(action_result.message)
 
     def swap(self, swap):
-        self.room.perfrom_action_swap(self.get_next_player(), swap)
+        self.room.perform_action_swap(self.get_next_player(), swap)
 
     def reverse_last_action(self):
         self.room.reverse_last_action()
