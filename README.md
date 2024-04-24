@@ -55,3 +55,19 @@ mv pygomoku.cpython-310-x86_64-linux-gnu.so ../../lib/pygomoku.so
 cd ../../GomokuKivy
 python gomoku.py
 ```
+
+## LINTER
+
+### 1. Copy pre-commit scrip
+
+```bash
+cp ./pre-commit.example .git/hooks/pre-commit
+chmod u+x .git/hooks/pre-commit
+```
+
+### 2. Format code
+
+```bash
+./format_code.sh
+```
+
