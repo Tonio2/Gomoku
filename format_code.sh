@@ -29,7 +29,7 @@ if ! [ -x "$(command -v clang-format)" ]; then
   sudo apt-get install -y clang-format
 fi
 # Format all C++ files (.cpp, .hpp, .cc, .cxx)
-find . \( -path './GomokuEngine/external' -prune \) -o -name 'pybinds.cpp' -prune -o -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -i -style=file {} +
+find . \( -path './GomokuEngine/external' -prune -o -path './GomokuEngine/build' -prune \) -o -name 'pybinds.cpp' -prune -o -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -i -style=file {} +
 
 echo "Formatting complete."
 
