@@ -201,6 +201,8 @@ GameRoom::GameRuleLayerSwap::perform_action_move(PlayerId player, int row,
   }
 
   _room.append_action(new_action);
+  if (_room._action_index <= 1)
+    _room._players_swapped = !_room._players_swapped;
 
   return make_action_result(true, "Player " + std::to_string(player) +
                                       " played at " + std::to_string(row) +

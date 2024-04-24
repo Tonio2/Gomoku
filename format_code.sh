@@ -20,7 +20,7 @@ if ! [ -x "$(command -v black)" ]; then
   pip install black
 fi
 # Format all Python files
-black .
+black . --exclude '/GomokuEngine/external|/venv'
 
 echo "Formatting C++ files..."
 # Ensure clang-format is installed or install it
@@ -29,7 +29,7 @@ if ! [ -x "$(command -v clang-format)" ]; then
   sudo apt-get install -y clang-format
 fi
 # Format all C++ files (.cpp, .hpp, .cc, .cxx)
-find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -i -style=file {} +
+find . \( -path './GomokuEngine/external' -prune \) -o -name 'pybinds.cpp' -prune -o -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -i -style=file {} +
 
 echo "Formatting complete."
 
