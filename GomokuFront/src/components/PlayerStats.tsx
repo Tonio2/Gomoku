@@ -16,7 +16,7 @@ const PlayerStats: React.FC<IPlayerStats> = ({ player }) => {
           <td>
             <div className="flex justify-center">
               <Stone
-                value={player.color == 0 ? "X" : "O"}
+                value={player.color === 0 ? "X" : "O"}
                 type={StoneType.Display}
               />
             </div>

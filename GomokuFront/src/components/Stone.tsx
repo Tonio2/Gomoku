@@ -19,7 +19,7 @@ const stoneStyle = (value: string, type: StoneType) => {
     style += " bg-white";
   }
   return (
-    style + (type != StoneType.Display ? position + animation : "") + suffix
+    style + (type !== StoneType.Display ? position + animation : "") + suffix
   );
 };
 

@@ -1,21 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-  getBestMove,
   uniqueUserID,
   emptyBoard,
-  logMoveHistory,
-  getWorstMove,
   emptySuggestionBoard,
 } from "../utils/utils";
 import api from "../utils/api";
 
-import { MoveHistory, Mode, Rule, Player, ActionResult } from "../interface";
+import { Player, ActionResult } from "../interface";
 
 type GameLogic = {
   board: number[][];
   nextPlayerId: number;
-  nextAction: number;
   listMoves: string[];
   currentMove: number;
   isGameOver: boolean;
@@ -66,13 +62,51 @@ const useGameLogic = (): GameLogic => {
       time: 0,
     },
   ]);
-  const [nextAction, setNextAction] = useState<number>(0);
   const [nextPlayerId, setNextPlayerId] = useState<number>(0);
   const [suggestionBoard, setSuggestionsBoard] = useState<number[][][]>(
     emptySuggestionBoard(size),
   );
 
-  const [isGameCreated, setIsGameCreated] = useState(false);
+  const updateBoard = useCallback((res: ActionResult) => {
+    setBoard(res._board);
+    setIsGameOver(res._isGameOver);
+    setWinnerId(res._winner);
+    setListMoves(res._listMoves);
+    setCurrentMove(res._currentMove);
+    setPlayers(res._players);
+    setNextPlayerId(res._nextPlayer);
+  }, []);
+
+  const handleMoveResponse = useCallback(
+    async (res: ActionResult) => {
+      if (!res.success) {
+        console.error(res.message);
+        return;
+      }
+      console.log(res);
+      updateBoard(res);
+      if (!res._has_pending_action) {
+        if (res._nextAction === 1) {
+          let input = "";
+          while (input.toLowerCase() !== "y" && input.toLowerCase() !== "n")
+            input = prompt("swap? (Y/N)") || "";
+          const swapActionResult = await api.swap(
+            userId,
+            input.toLowerCase() === "y",
+          );
+          handleMoveResponse(swapActionResult);
+        }
+        return;
+      }
+      try {
+        const newRes = await api.aiTurn(userId);
+        handleMoveResponse(newRes);
+      } catch (error: any) {
+        console.error("Server error");
+      }
+    },
+    [userId, updateBoard],
+  );
 
   useEffect(() => {
     const createGame = async () => {
@@ -91,48 +125,7 @@ const useGameLogic = (): GameLogic => {
     };
 
     createGame();
-  }, [userId, mode, size, ruleStyle, starter]);
-
-  const updateBoard = (res: ActionResult) => {
-    setBoard(res._board);
-    setIsGameOver(res._isGameOver);
-    setWinnerId(res._winner);
-    setListMoves(res._listMoves);
-    setCurrentMove(res._currentMove);
-    setPlayers(res._players);
-    setNextPlayerId(res._nextPlayer);
-  };
-
-  const handleMoveResponse = useCallback(
-    async (res: ActionResult) => {
-      if (!res.success) {
-        console.error(res.message);
-        return;
-      }
-      console.log(res);
-      updateBoard(res);
-      if (!res._has_pending_action) {
-        if (res._nextAction == 1) {
-          let input = "";
-          while (input.toLowerCase() != "y" && input.toLowerCase() != "n")
-            input = prompt("swap? (Y/N)") || "";
-          const swapActionResult = await api.swap(
-            userId,
-            input.toLowerCase() === "y",
-          );
-          handleMoveResponse(swapActionResult);
-        }
-        return;
-      }
-      try {
-        const newRes = await api.aiTurn(userId);
-        handleMoveResponse(newRes);
-      } catch (error: any) {
-        console.error("Server error");
-      }
-    },
-    [userId],
-  );
+  }, [userId, mode, size, ruleStyle, starter, handleMoveResponse]);
 
   const play = useCallback(
     async (row: number, col: number) => {
@@ -143,7 +136,7 @@ const useGameLogic = (): GameLogic => {
         console.error("Server error");
       }
     },
-    [userId],
+    [userId, handleMoveResponse],
   );
 
   const handleClick = async (row: number, col: number) => {
@@ -173,7 +166,6 @@ const useGameLogic = (): GameLogic => {
   return {
     board,
     nextPlayerId,
-    nextAction,
     listMoves,
     currentMove,
     winnerId,

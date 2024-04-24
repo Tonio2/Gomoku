@@ -1,9 +1,6 @@
 import axios from "axios";
 import {
   MoveEvaluation,
-  MoveHistory,
-  MoveResult,
-  Player,
   ActionResult,
 } from "../interface";
 

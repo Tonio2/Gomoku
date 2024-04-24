@@ -16,7 +16,7 @@ const status = (
   let status;
   let next = (nextPlayerId + 1).toString();
   if (isGameOver) {
-    if (winnerId == -1) {
+    if (winnerId === -1) {
       status = "Draw!";
     } else {
       status = "Player " + next + " wins!";
@@ -31,7 +31,6 @@ const Game: React.FC = () => {
   const {
     board,
     nextPlayerId,
-    nextAction,
     listMoves,
     currentMove,
     winnerId,
