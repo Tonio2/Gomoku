@@ -14,10 +14,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install dependencies
+    - name: Temporarily Disable Microsoft Repo
       run: |
+        sudo sed -i 's/deb/#deb/g' /etc/apt/sources.list.d/microsoft-prod.list
         sudo apt-get update
-        sudo apt-get install -y cmake build-essential libgtest-dev python3-dev
+
+    - name: Install dependencies
+      run: sudo apt-get install -y cmake build-essential libgtest-dev python3-dev
 
     - name: Build
       working-directory: GomokuEngine
