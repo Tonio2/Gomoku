@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 
-import useGameLogic from "./hooks/useGameLogicv2";
+import useGameLogic from "./hooks/useGameLogic";
 
 import Board from "./components/Board";
 import ListMoves from "./components/ListMoves";
