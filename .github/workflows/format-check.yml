@@ -35,8 +35,13 @@ jobs:
     - name: Check Python formatting
       run: black --check .
 
+    - name: Temporarily Disable Microsoft Repo
+      run: |
+        sudo sed -i 's/deb/#deb/g' /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+
     - name: Install clang-format
-      run: sudo apt-get update && sudo apt-get install -y clang-format
+      run: sudo apt-get install -y clang-format
 
     - name: Check C++ formatting
       run: |
