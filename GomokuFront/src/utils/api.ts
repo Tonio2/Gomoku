@@ -1,12 +1,9 @@
 import axios from "axios";
-import {
-  MoveEvaluation,
-  ActionResult,
-} from "../interface";
+import { MoveEvaluation, ActionResult } from "../interface";
 
 const API_URL = "http://localhost:5000";
 const CREATE_GAME_URL = `${API_URL}/create_room`;
-const RESET_GAME_URL = `${API_URL}/reset_game`;
+const RESET_GAME_URL = `${API_URL}/reset_room`;
 const MAKE_MOVE_URL = `${API_URL}/make_move`;
 const GET_SUGGESTION_URL = `${API_URL}/get_suggestion`;
 const REVERSE_MOVE_URL = `${API_URL}/reverse_move`;
@@ -31,9 +28,7 @@ const createGame = async (
   return response.data;
 };
 
-const resetGame = async (
-  userId: string,
-): Promise<{ success: boolean; message: string }> => {
+const resetGame = async (userId: string): Promise<ActionResult> => {
   const response = await axios.post(RESET_GAME_URL, {
     userId: userId,
   });

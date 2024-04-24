@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  uniqueUserID,
-  emptyBoard,
-  emptySuggestionBoard,
-} from "../utils/utils";
+import { uniqueUserID, emptyBoard, emptySuggestionBoard } from "../utils/utils";
 import api from "../utils/api";
 
 import { Player, ActionResult } from "../interface";
@@ -161,7 +157,14 @@ const useGameLogic = (): GameLogic => {
     }
   };
 
-  const reset = () => {};
+  const reset = async () => {
+    try {
+      const res = await api.resetGame(userId);
+      handleMoveResponse(res);
+    } catch (error: any) {
+      console.error("Error while reseting game");
+    }
+  };
 
   return {
     board,

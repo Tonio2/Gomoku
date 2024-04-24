@@ -53,7 +53,10 @@ def reset_room():
         return jsonify({"success": False, "message": "Game not found"})
 
     room.reset()  # TODO
-    return jsonify({"success": True, "message": "Game reset"})
+    state = room.get_state()
+    state["success"] = True
+    state["message"] = ""
+    return jsonify(state)
 
 
 @app.route("/make_move", methods=["POST"])
