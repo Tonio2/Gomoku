@@ -35,12 +35,11 @@ jobs:
     - name: Check Python formatting
       run: black --check .
 
-    - name: Set up C++ Environment (clang-format)
-      uses: seanmiddleditch/gha-setup-clang@v1
-
     - name: Install clang-format
-      run: sudo apt-get install clang-format
+      run: sudo apt-get update && sudo apt-get install -y clang-format
 
     - name: Check C++ formatting
-      run: clang-format --version && find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -style=file -i {} +
+      run: |
+        clang-format --version
+        find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -style=file -i {} + && git diff --exit-code
 
