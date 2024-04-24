@@ -4,8 +4,29 @@ import json
 sys.path.append("../lib")
 import pygomoku
 
-coordinates = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+coordinates = [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+]
 depth = 2
+
 
 def convert_to_dict(node):
     """
@@ -14,16 +35,18 @@ def convert_to_dict(node):
     return {
         "move": node.move,
         "score": node.score,
-        "listMoves": [convert_to_dict(child) for child in node.listMoves]
+        "listMoves": [convert_to_dict(child) for child in node.listMoves],
     }
+
 
 def write_json(root_node, filename):
     """
     Converts the tree of MoveEvaluation nodes into a dictionary and writes it to a JSON file.
     """
     root_dict = convert_to_dict(root_node)
-    with open(filename, 'w') as json_file:
-        json.dump(root_dict, json_file, indent=4) 
+    with open(filename, "w") as json_file:
+        json.dump(root_dict, json_file, indent=4)
+
 
 def main():
     current_player = pygomoku.Player.BLACK
@@ -32,7 +55,11 @@ def main():
         for row in range(0, game.get_board_height()):
             for col in range(0, game.get_board_width()):
                 val = game.get_board_value(row, col)
-                val_formatted = "X" if val == pygomoku.Player.BLACK else "O" if val == pygomoku.Player.WHITE else "."
+                val_formatted = (
+                    "X"
+                    if val == pygomoku.Player.BLACK
+                    else "O" if val == pygomoku.Player.WHITE else "."
+                )
                 print(val_formatted, end=" ")
             print()
         illegal = True
@@ -55,15 +82,19 @@ def main():
                     # write_json(moveEvaluations, 'minimax_output.json')
                     # bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
                     # game.make_move(bestMove[0], bestMove[1])
-                    
+
                     # Player
-                    
+
                     AI = pygomoku.GomokuAI(game, pygomoku.Player.WHITE, depth)
                     moveEvaluations = AI.suggest_move()
-                    write_json(moveEvaluations, 'minimax_output.json')
-                    bestMove = max(moveEvaluations.listMoves, key=lambda x: x.score).move
-                    print(f"AI move: {coordinates[bestMove[0]]} {coordinates[bestMove[1]]}")
-                    
+                    write_json(moveEvaluations, "minimax_output.json")
+                    bestMove = max(
+                        moveEvaluations.listMoves, key=lambda x: x.score
+                    ).move
+                    print(
+                        f"AI move: {coordinates[bestMove[0]]} {coordinates[bestMove[1]]}"
+                    )
+
                     row, col = input("Enter your move (row col): ").split()
                     row = coordinates.index(row)
                     col = coordinates.index(col)

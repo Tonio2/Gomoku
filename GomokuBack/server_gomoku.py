@@ -6,10 +6,11 @@ import sys
 from gomoku_room import GomokuRoom, RoomError
 
 sys.path.append("../lib")
-import pygomoku # type: ignore
+import pygomoku  # type: ignore
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
 
 def handle_exceptions(f):
     @wraps(f)
@@ -18,7 +19,9 @@ def handle_exceptions(f):
             return f(*args, **kwargs)
         except RoomError as e:
             return jsonify({"success": False, "message": str(e)})
+
     return decorated_function
+
 
 rooms = {}  # Dictionary to store room instances / TODO: Store them 3 days
 
@@ -40,7 +43,8 @@ def create_room():
     state["message"] = ""
     return jsonify(state)
 
-@app.route("/reset_room", methods=["POST"]) # TODO
+
+@app.route("/reset_room", methods=["POST"])  # TODO
 @handle_exceptions
 def reset_room():
     user_id = request.json["userId"]
@@ -48,7 +52,7 @@ def reset_room():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    room.reset() # TODO
+    room.reset()  # TODO
     return jsonify({"success": True, "message": "Game reset"})
 
 
@@ -60,7 +64,7 @@ def make_move():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    #if room.is_room_over():
+    # if room.is_room_over():
     #    return jsonify({"success": False, "message": "Game is over"})
 
     row = request.json["row"]
@@ -86,6 +90,7 @@ def reverse_move():
     state["success"] = True
     return jsonify(state)
 
+
 @app.route("/reapply_move", methods=["POST"])
 @handle_exceptions
 def reapply_move():
@@ -99,6 +104,7 @@ def reapply_move():
     state["success"] = True
     return jsonify(state)
 
+
 @app.route("/ai_turn", methods=["POST"])
 def ai_turn():
     user_id = request.json["user_id"]
@@ -106,13 +112,14 @@ def ai_turn():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    if not room.players[room.get_next_player()]["is_ai"]:
+    if not room.has_pending_action():
         return jsonify({"success": False, "message": "not AI's turn"})
 
     room.perform_pending_action()
     state = room.get_state()
     state["success"] = True
     return jsonify(state)
+
 
 @app.route("/swap", methods=["POST"])
 def swap():

@@ -6,7 +6,7 @@ interface ISquare {
   value: string;
   suggestion: number[];
   onSquareClick: () => void;
-  xIsNext: boolean;
+  nextPlayerColor: number;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   horizontalHighlight: boolean;
@@ -17,7 +17,7 @@ const Square: React.FC<ISquare> = ({
   value,
   suggestion,
   onSquareClick,
-  xIsNext,
+  nextPlayerColor,
   onMouseEnter,
   onMouseLeave,
   horizontalHighlight,
@@ -43,8 +43,19 @@ const Square: React.FC<ISquare> = ({
         }
       ></div>
       <Stone value={value} type={StoneType.Standard} />
-      {value === "" && <Stone value={xIsNext? "X" : "O"} type={StoneType.Hover} />}
-      {suggestion[1] > 0 && <Stone value={["", "X", "O"][suggestion[1]]} type={StoneType.Suggestion} text={suggestion[0].toString()}/>} 
+      {value === "" && (
+        <Stone
+          value={nextPlayerColor === 0 ? "X" : "O"}
+          type={StoneType.Hover}
+        />
+      )}
+      {suggestion[1] > 0 && (
+        <Stone
+          value={["", "X", "O"][suggestion[1]]}
+          type={StoneType.Suggestion}
+          text={suggestion[0].toString()}
+        />
+      )}
     </div>
   );
 };

@@ -34,7 +34,6 @@ export enum Rule {
 
 export interface Player {
   color: number;
-  isAI: boolean;
   score: number;
   time: number;
 }
@@ -50,11 +49,12 @@ export interface ActionResult {
   _listMoves: string[];
   _currentMove: number;
   _players: Player[];
+  _has_pending_action: boolean;
 }
 
 export enum StoneType {
-    Standard,
-    Hover,
-    Suggestion,
-    Display
+  Standard,
+  Hover,
+  Suggestion,
+  Display,
 }

@@ -8,15 +8,34 @@ import Button from "./components/Button";
 import ScoreBoard from "./components/ScoreBoard";
 import { useNavigate } from "react-router-dom";
 
+const status = (
+  isGameOver: boolean,
+  winnerId: number,
+  nextPlayerId: number,
+) => {
+  let status;
+  let next = (nextPlayerId + 1).toString();
+  if (isGameOver) {
+    if (winnerId == -1) {
+      status = "Draw!";
+    } else {
+      status = "Player " + next + " wins!";
+    }
+  } else {
+    status = "Waiting for Player " + next + "...";
+  }
+  return status;
+};
+
 const Game: React.FC = () => {
   const {
     board,
-    nextPlayer,
+    nextPlayerId,
     nextAction,
     listMoves,
     currentMove,
-    xIsNext,
-    winner,
+    winnerId,
+    isGameOver,
     players,
     suggestionBoard,
     handleClick,
@@ -26,13 +45,6 @@ const Game: React.FC = () => {
   } = useGameLogic();
   const navigate = useNavigate();
 
-  let status: string;
-  if (winner != -1) {
-    status = (winner === 0 ? "Black" : "White") + " wins!";
-  } else {
-    status = "Next : Player " + (nextPlayer + 1).toString()
-  }
-
   function handleMenu(): void {
     navigate("/");
   }
@@ -40,13 +52,13 @@ const Game: React.FC = () => {
   const boardJSX = useMemo(() => {
     return (
       <Board
-        xIsNext={Boolean(1 - players[nextPlayer].color)}
+        nextPlayerColor={players[nextPlayerId].color}
         board={board}
         handleClick={handleClick}
         suggestionBoard={suggestionBoard}
       />
     );
-  }, [xIsNext, board, handleClick, suggestionBoard]);
+  }, [players, nextPlayerId, board, handleClick, suggestionBoard]);
 
   return (
     <div className="flex flex-row justify-items-center justify-center gap-10 h-screen px-10 items-start pt-20">
@@ -58,7 +70,9 @@ const Game: React.FC = () => {
         </div>
       </div>
       <div className="game-info flex flex-col max-h-[80vh] w-[325px]">
-        <h1 className="font-bold text-2xl mb-5">{status}</h1>
+        <h1 className="font-bold text-2xl mb-5">
+          {status(isGameOver, winnerId, nextPlayerId)}
+        </h1>
         <ScoreBoard players={players} />
         <ListMoves moves={listMoves} currentMove={currentMove} />
         <div className="grid grid-cols-2 gap-4">

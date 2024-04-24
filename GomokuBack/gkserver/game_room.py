@@ -1,6 +1,8 @@
 import sys
+
 sys.path.append("./gkserver/lib")
 import pygomoku
+
 
 class GameRoom:
 

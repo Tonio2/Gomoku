@@ -19,7 +19,6 @@ async def main():
     CallbackCenter.shared().add_callback("GomokuGame.modified", display_moves)
     app = GomokuApp()
     app_task = asyncio.ensure_future(app.async_run(async_lib="asyncio"))
-    
 
     # Wait for the Kivy app to finish running
     await app_task

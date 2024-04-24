@@ -22,20 +22,20 @@ const createGame = async (
   mode: number,
   size: number,
   ruleStyle: number,
-  starter: number
+  starter: number,
 ): Promise<ActionResult> => {
   const response = await axios.post(CREATE_GAME_URL, {
     userId: userId,
     mode: mode,
     size: size,
     rule_style: ruleStyle,
-    ai_player: 1 - starter
+    ai_player: 1 - starter,
   });
   return response.data;
 };
 
 const resetGame = async (
-  userId: string
+  userId: string,
 ): Promise<{ success: boolean; message: string }> => {
   const response = await axios.post(RESET_GAME_URL, {
     userId: userId,
@@ -46,7 +46,7 @@ const resetGame = async (
 const makeMove = async (
   userId: string,
   row: number,
-  col: number
+  col: number,
 ): Promise<ActionResult> => {
   const response = await axios.post(MAKE_MOVE_URL, {
     user_id: userId,
@@ -57,12 +57,12 @@ const makeMove = async (
 };
 
 const swap = async (userId: string, swap: boolean): Promise<ActionResult> => {
-    const response = await axios.post(SWAP_URL, {user_id: userId, swap: swap});
-    return response.data
+  const response = await axios.post(SWAP_URL, { user_id: userId, swap: swap });
+  return response.data;
 };
 
 const getSuggestion = async (
-  userId: string
+  userId: string,
 ): Promise<{
   success: boolean;
   message: string;

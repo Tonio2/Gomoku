@@ -1,5 +1,6 @@
 from typing import Any, Callable, Dict, List
 
+
 class CallbackCenter:
 
     _callbacks: Dict[str, List[Callable[[str, Any], None]]]
@@ -12,7 +13,9 @@ class CallbackCenter:
             self._callbacks[message] = []
         self._callbacks[message].append(callback)
 
-    def remove_callback(self, message: str, callback: Callable[[str, Any], None]) -> None:
+    def remove_callback(
+        self, message: str, callback: Callable[[str, Any], None]
+    ) -> None:
         if message in self._callbacks and callback in self._callbacks[message]:
             self._callbacks[message].remove(callback)
 

@@ -2,7 +2,7 @@ import { MoveEvaluation, MoveHistory } from "../interface";
 
 export const getBestMove = (
   moveEvaluation: MoveEvaluation,
-  predicate: (move: number[]) => boolean
+  predicate: (move: number[]) => boolean,
 ): MoveEvaluation => {
   let bestScore = -Infinity;
   let bestMove = moveEvaluation;
@@ -17,7 +17,7 @@ export const getBestMove = (
 
 export const getWorstMove = (
   moveEvaluation: MoveEvaluation,
-  predicate: (move: number[]) => boolean
+  predicate: (move: number[]) => boolean,
 ): MoveEvaluation => {
   let worstScore = Infinity;
   let worstMove = moveEvaluation;
@@ -46,7 +46,7 @@ export const emptySuggestionBoard = (size: number) => {
     .map(() =>
       Array(size)
         .fill(null)
-        .map(() => Array(2).fill(0))
+        .map(() => Array(2).fill(0)),
     );
 };
 

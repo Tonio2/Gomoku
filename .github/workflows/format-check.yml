@@ -1,0 +1,46 @@
+name: Format Check
+
+on: [push, pull_request]
+
+jobs:
+  check-formatting:
+    name: Check Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14' # or any other version you prefer
+
+    - name: Install Prettier
+      run: npm install --save-dev prettier
+
+    - name: Check TypeScript and React formatting
+      run: |
+        npx prettier --check '**/*.ts'
+        npx prettier --check '**/*.tsx'
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8' # or any other version you prefer
+
+    - name: Install Black
+      run: pip install black
+
+    - name: Check Python formatting
+      run: black --check .
+
+    - name: Set up C++ Environment (clang-format)
+      uses: seanmiddleditch/gha-setup-clang@v1
+
+    - name: Install clang-format
+      run: sudo apt-get install clang-format
+
+    - name: Check C++ formatting
+      run: clang-format --version && find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -style=file -i {} +
+

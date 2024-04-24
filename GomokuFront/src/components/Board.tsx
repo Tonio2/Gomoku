@@ -5,14 +5,14 @@ import Square from "./Square";
 import { formatCoordinate } from "../utils/utils";
 
 interface IBoard {
-  xIsNext: boolean;
+  nextPlayerColor: number;
   board: number[][];
   handleClick: (row: number, col: number) => void;
   suggestionBoard: number[][][];
 }
 
 const Board: React.FC<IBoard> = ({
-  xIsNext,
+  nextPlayerColor,
   board,
   handleClick,
   suggestionBoard,
@@ -53,7 +53,7 @@ const Board: React.FC<IBoard> = ({
               value={value === 1 ? "X" : value === 2 ? "O" : ""}
               suggestion={suggestionBoard[i][j]}
               onSquareClick={() => handleClick(i, j)}
-              xIsNext={xIsNext}
+              nextPlayerColor={nextPlayerColor}
               onMouseEnter={() => setHoveredCell([i, j])}
               onMouseLeave={() => setHoveredCell([-1, -1])}
               horizontalHighlight={i === hoveredCell[0]}

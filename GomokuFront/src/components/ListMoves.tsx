@@ -21,7 +21,7 @@ const ListMoves: React.FC<IListMoves> = ({ moves, currentMove }) => {
         <td className="text-left py-2" style={moveStyle(currentMove === i + 1)}>
           {i + 1}. {firstMove}
         </td>
-      </tr>
+      </tr>,
     );
   }
 

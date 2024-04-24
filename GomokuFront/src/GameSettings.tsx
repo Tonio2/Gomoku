@@ -11,7 +11,7 @@ const GameSetting: React.FC = () => {
   const startGame = () => {
     // Redirect to the game page and pass the settings
     navigate(
-      `/game?mode=${mode}&size=${size}&starter=${starter}&ruleStyle=${ruleStyle}`
+      `/game?mode=${mode}&size=${size}&starter=${starter}&ruleStyle=${ruleStyle}`,
     );
   };
 

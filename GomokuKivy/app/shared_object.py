@@ -1,5 +1,5 @@
-
 from core.gomoku_room import GameRoom, GameRoomSettings
+
 
 class SharedObject:
 
