@@ -10,6 +10,9 @@ const REVERSE_MOVE_URL = `${API_URL}/reverse_move`;
 const REAPPLY_MOVE_URL = `${API_URL}/reapply_move`;
 const AI_TURN_URL = `${API_URL}/ai_turn`;
 const SWAP_URL = `${API_URL}/swap`;
+const CREATE_ONLINE_GAME_URL = `${API_URL}/create_online_room`;
+const GET_AVAILABLE_ROLES_URL = `${API_URL}/get_online_room_roles/`;
+
 
 const createGame = async (
   userId: string,
@@ -27,6 +30,25 @@ const createGame = async (
   });
   return response.data;
 };
+
+const createOnlineGame = async(
+  size: number,
+  ruleStyle: number
+): Promise<{
+  success: boolean;
+  roomId: string;
+}> => {
+  const response = await axios.post(CREATE_ONLINE_GAME_URL, {
+    size: size,
+    rule_style: ruleStyle
+  });
+  return response.data;
+}
+
+const getAvailableRoles = async(roomId: string): Promise<boolean[]> => {
+  const response = await axios.get(GET_AVAILABLE_ROLES_URL + roomId);
+  return response.data;
+}
 
 const resetGame = async (userId: string): Promise<ActionResult> => {
   const response = await axios.post(RESET_GAME_URL, {
@@ -87,6 +109,8 @@ const aiTurn = async (userId: string): Promise<ActionResult> => {
 
 const api = {
   createGame,
+  createOnlineGame,
+  getAvailableRoles,
   resetGame,
   makeMove,
   swap,

@@ -233,7 +233,7 @@ class GomokuRoom:
             "_board": self.get_board(),
             "_isGameOver": self.is_game_over(),
             "_winner": self.get_winner_id() - 1,
-            "_nextPlayer": self.room.expected_player() - 1,
+            "_nextPlayer": self.get_next_player() - 1,
             "_nextAction": self.get_next_action(),
             "_listMoves": format_actions_history(self.get_actions_history(), players),
             "_currentMove": self.get_current_move() + 1,
@@ -244,7 +244,6 @@ class GomokuRoom:
     def make_move(self, row, col):
         if self.has_pending_action():
             raise RoomError("You cannot play AI's move")
-        print(self.get_next_player())
         action_result = self.room.perform_action_move(self.get_next_player(), row, col)
         if not action_result.success:
             raise RoomError(action_result.message)
@@ -260,3 +259,46 @@ class GomokuRoom:
 
     def perform_pending_action(self):
         self.room.perform_pending_action()
+
+class OnlineRoom(GomokuRoom):
+    def __init__(self, size, rule_style):
+        GomokuRoom.__init__(self, size, 1, rule_style, 0)
+        self.ip_addresses = ["", "", ""]
+
+    def is_room_ready(self):
+        if "" in self.ip_addresses[1:]:
+            return False
+        return True
+
+    def make_move(self, ip, row, col):
+        if not self.is_room_ready():
+            raise RoomError("Not all players have joined")
+        if ip != self.ip_addresses[self.get_next_player()]:
+            raise RoomError("Not your turn")
+        GomokuRoom.make_move(self, row, col)
+
+    def connect(self, ip, player_id):
+        if self.ip_addresses[player_id] not in ["", ip]:
+            raise RoomError("Player already connected")
+        self.ip_addresses[player_id] = ip
+
+    def disconnect(self, ip):
+        try:
+            player_id = self.ip_addresses.index(ip)
+            self.ip_addresses[player_id] = ""
+            return player_id
+        except ValueError:
+            return 0
+
+    def get_available_roles(self):
+        return [ip == "" for ip in self.ip_addresses]
+
+    def get_player_id_from_ip(self, ip):
+        if ip in self.ip_addresses:
+            return self.ip_addresses.index(ip)
+        return 0
+    
+    def get_state(self):
+        state = GomokuRoom.get_state(self)
+        state["_isGameReady"] = self.is_room_ready()
+        return state

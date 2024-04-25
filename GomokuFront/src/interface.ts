@@ -53,6 +53,10 @@ export interface ActionResult {
   _hasPendingAction: boolean;
 }
 
+export interface OnlineActionResult extends ActionResult {
+  _isGameReady: boolean
+}
+
 export enum StoneType {
   Standard,
   Hover,
