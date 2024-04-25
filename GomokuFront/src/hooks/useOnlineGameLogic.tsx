@@ -49,9 +49,13 @@ const useGameLogic = (): GameLogic => {
   const [hasPendingAction, setHasPendingAction] = useState<boolean>(false);
   const [nextAction, setNextAction] = useState<number>(0);
   const [isGameReady, setIsGameReady] = useState<boolean>(false);
-  const [availableRoles, setAvailableRoles] = useState<boolean[]>([true, false, false])
-  const [playerId, setPlayerId] = useState<number>(0)
-  const [isFetching, setIsFetching] = useState<boolean>(true)
+  const [availableRoles, setAvailableRoles] = useState<boolean[]>([
+    true,
+    false,
+    false,
+  ]);
+  const [playerId, setPlayerId] = useState<number>(0);
+  const [isFetching, setIsFetching] = useState<boolean>(true);
   const [suggestionBoard, setSuggestionsBoard] = useState<number[][][]>(
     emptySuggestionBoard(19),
   );
@@ -70,53 +74,70 @@ const useGameLogic = (): GameLogic => {
   }, []);
 
   useEffect(() => {
-    socket.on("update", updateBoard)
-    socket.emit("whoami", {room_id: roomId}, (success: boolean, message: string, _playerId: number, _availableRoles: boolean[]) => {
-      if (!success) console.error(message)
-      else {
-        setPlayerId(_playerId);
-        setAvailableRoles(_availableRoles);
-        setIsFetching(false);
-      }
-    });
+    socket.on("update", updateBoard);
+    socket.emit(
+      "whoami",
+      { room_id: roomId },
+      (
+        success: boolean,
+        message: string,
+        _playerId: number,
+        _availableRoles: boolean[],
+      ) => {
+        if (!success) console.error(message);
+        else {
+          setPlayerId(_playerId);
+          setAvailableRoles(_availableRoles);
+          setIsFetching(false);
+        }
+      },
+    );
 
     return () => {
-      socket.off("update", updateBoard)
-    }
-  }, [roomId])
+      socket.off("update", updateBoard);
+    };
+  }, [roomId]);
 
   useEffect(() => {
     const selectRole = async () => {
       let chosenRole = -1;
       while (chosenRole === -1 || availableRoles[chosenRole] !== true) {
-        let text = "Choose a role:\n"
-        const roles = ["0. Spectator", "1. Player 1", "2. Player 2"]
+        let text = "Choose a role:\n";
+        const roles = ["0. Spectator", "1. Player 1", "2. Player 2"];
         for (let i = 0; i < 3; i++) {
           if (availableRoles[i]) text = text + roles[i] + "\n";
         }
-        chosenRole = parseInt(prompt(text) || "")
+        chosenRole = parseInt(prompt(text) || "");
       }
 
-      socket.emit("join", {room_id: roomId, player_id: chosenRole}, async (success: boolean, message: string) => {
-        if (!success) {
-          console.error(message)
-        } else {
-          setPlayerId(chosenRole)
-        }
-      });
-    }
+      socket.emit(
+        "join",
+        { room_id: roomId, player_id: chosenRole },
+        async (success: boolean, message: string) => {
+          if (!success) {
+            console.error(message);
+          } else {
+            setPlayerId(chosenRole);
+          }
+        },
+      );
+    };
 
-    if (!isFetching && playerId == 0) selectRole()
+    if (!isFetching && playerId == 0) selectRole();
+  }, [playerId, availableRoles, isFetching]);
 
-    
-  },  [playerId, availableRoles, isFetching]);
-
-
-  const play = useCallback((row: number, col: number) => {
-    socket.emit("make_move", {room_id: roomId, row: row, col: col}, (success: boolean, message: string) => {
-      if (!success) console.error(message);
-    });
-  }, [roomId]);
+  const play = useCallback(
+    (row: number, col: number) => {
+      socket.emit(
+        "make_move",
+        { room_id: roomId, row: row, col: col },
+        (success: boolean, message: string) => {
+          if (!success) console.error(message);
+        },
+      );
+    },
+    [roomId],
+  );
 
   const handleClick = async (row: number, col: number) => {
     play(row, col);

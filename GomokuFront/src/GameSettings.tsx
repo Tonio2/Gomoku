@@ -7,7 +7,7 @@ const GameSetting: React.FC = () => {
   const [mode, setMode] = useState<number>(0); // Default mode: Human vs AI
   const [starter, setStarter] = useState<number>(0); // Default starter: Human
   const [ruleStyle, setRuleStyle] = useState<number>(0); // Default rule style: Standard
-  
+
   const [size2, setSize2] = useState<number>(19);
   const [ruleStyle2, setRuleStyle2] = useState<number>(0);
   const navigate = useNavigate();
@@ -21,20 +21,21 @@ const GameSetting: React.FC = () => {
 
   const startOnlineGame = async () => {
     try {
-        const {roomId} = await api.createOnlineGame(size, ruleStyle)
-        navigate(`/online_game?roomId=${roomId}`)
+      const { roomId } = await api.createOnlineGame(size, ruleStyle);
+      navigate(`/online_game?roomId=${roomId}`);
     } catch (error: any) {
       console.log(error);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <h1 className="text-4xl font-bold text-[#4affef] mb-8">Game Menu</h1>
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-[#4affef]">
-          
-          <h2 className="text-xl font-bold text-[#4affef] mb-8 text-center">Solo</h2>
+          <h2 className="text-xl font-bold text-[#4affef] mb-8 text-center">
+            Solo
+          </h2>
           <div className="mb-6">
             <label className="block mb-2">Board Size:</label>
             <input
@@ -95,7 +96,9 @@ const GameSetting: React.FC = () => {
           </button>
         </div>
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-[#4affef]">
-          <h2 className="text-xl font-bold text-[#4affef] mb-8 text-center">Online</h2>
+          <h2 className="text-xl font-bold text-[#4affef] mb-8 text-center">
+            Online
+          </h2>
           <div className="mb-6">
             <label className="block mb-2">Board Size:</label>
             <input

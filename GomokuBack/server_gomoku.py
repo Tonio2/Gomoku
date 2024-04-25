@@ -27,6 +27,7 @@ def handle_exceptions(f):
 
     return decorated_function
 
+
 def handle_socket_exception(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -38,17 +39,17 @@ def handle_socket_exception(f):
     return decorated_function
 
 
-
 rooms = {}  # Dictionary to store room instances / TODO: Store them 3 days
 online_rooms = {}
+
 
 def generate_room_id():
     room_id = ""
     characters = string.ascii_uppercase + string.digits
     while room_id == "" or online_rooms.get(room_id) != None:
-        room_id = ''.join(random.choices(characters, k=3))
+        room_id = "".join(random.choices(characters, k=3))
     return room_id
-        
+
 
 @app.route("/create_online_room", methods=["POST"])
 @handle_exceptions
@@ -58,12 +59,10 @@ def create_online_room():
     room_id = generate_room_id()
     online_room = OnlineRoom(size, rule_style)
     online_rooms[room_id] = online_room
-    return jsonify({
-        "success": True,
-        "roomId": room_id
-    })
+    return jsonify({"success": True, "roomId": room_id})
 
-@socketio.on('whoami')
+
+@socketio.on("whoami")
 @handle_socket_exception
 def whoami(data):
     room_id = data["room_id"]
@@ -73,9 +72,9 @@ def whoami(data):
     player_id = room.get_player_id_from_ip(request.sid)
     available_roles = room.get_available_roles()
     return True, "", player_id, available_roles
-    
 
-@socketio.on('join')
+
+@socketio.on("join")
 @handle_socket_exception
 def on_join(data):
     room_id = data["room_id"]
@@ -90,7 +89,8 @@ def on_join(data):
     emit("update", room.get_state(), to=room_id)
     return True, ""
 
-@socketio.on('make_move')
+
+@socketio.on("make_move")
 @handle_socket_exception
 def on_make_move(data):
     room_id = data["room_id"]
@@ -105,7 +105,9 @@ def on_make_move(data):
     emit("update", room.get_state(), to=room_id)
     return True, ""
 
-#TODO : Disconnect
+
+# TODO : Disconnect
+
 
 @app.route("/create_room", methods=["POST"])
 @handle_exceptions

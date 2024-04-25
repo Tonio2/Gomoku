@@ -13,7 +13,6 @@ const SWAP_URL = `${API_URL}/swap`;
 const CREATE_ONLINE_GAME_URL = `${API_URL}/create_online_room`;
 const GET_AVAILABLE_ROLES_URL = `${API_URL}/get_online_room_roles/`;
 
-
 const createGame = async (
   userId: string,
   mode: number,
@@ -31,24 +30,24 @@ const createGame = async (
   return response.data;
 };
 
-const createOnlineGame = async(
+const createOnlineGame = async (
   size: number,
-  ruleStyle: number
+  ruleStyle: number,
 ): Promise<{
   success: boolean;
   roomId: string;
 }> => {
   const response = await axios.post(CREATE_ONLINE_GAME_URL, {
     size: size,
-    rule_style: ruleStyle
+    rule_style: ruleStyle,
   });
   return response.data;
-}
+};
 
-const getAvailableRoles = async(roomId: string): Promise<boolean[]> => {
+const getAvailableRoles = async (roomId: string): Promise<boolean[]> => {
   const response = await axios.get(GET_AVAILABLE_ROLES_URL + roomId);
   return response.data;
-}
+};
 
 const resetGame = async (userId: string): Promise<ActionResult> => {
   const response = await axios.post(RESET_GAME_URL, {

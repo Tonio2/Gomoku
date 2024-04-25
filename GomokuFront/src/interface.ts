@@ -54,7 +54,7 @@ export interface ActionResult {
 }
 
 export interface OnlineActionResult extends ActionResult {
-  _isGameReady: boolean
+  _isGameReady: boolean;
 }
 
 export enum StoneType {

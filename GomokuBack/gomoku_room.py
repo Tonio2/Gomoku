@@ -260,6 +260,7 @@ class GomokuRoom:
     def perform_pending_action(self):
         self.room.perform_pending_action()
 
+
 class OnlineRoom(GomokuRoom):
     def __init__(self, size, rule_style):
         GomokuRoom.__init__(self, size, 1, rule_style, 0)
@@ -297,8 +298,8 @@ class OnlineRoom(GomokuRoom):
         if ip in self.ip_addresses:
             return self.ip_addresses.index(ip)
         return 0
-    
+
     def get_state(self):
         state = GomokuRoom.get_state(self)
-        state["_isGameReady"] = self.is_room_ready() #TODO: remove ?
+        state["_isGameReady"] = self.is_room_ready()  # TODO: remove ?
         return state
