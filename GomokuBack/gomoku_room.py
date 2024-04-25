@@ -280,7 +280,9 @@ class OnlineRoom(GomokuRoom):
 
     def connect(self, ip, player_id):
         if self.ip_addresses[player_id] not in ["", ip]:
-            raise RoomError("Player already connected")
+            raise RoomError("Someone already took this role")
+        if ip in self.ip_addresses:
+            raise RoomError("You already took a role")
         self.ip_addresses[player_id] = ip
 
     def disconnect(self, ip):
