@@ -300,5 +300,5 @@ class OnlineRoom(GomokuRoom):
     
     def get_state(self):
         state = GomokuRoom.get_state(self)
-        state["_isGameReady"] = self.is_room_ready()
+        state["_isGameReady"] = self.is_room_ready() #TODO: remove ?
         return state

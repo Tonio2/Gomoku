@@ -63,14 +63,6 @@ def create_online_room():
         "roomId": room_id
     })
 
-@app.route("/get_online_room_roles/<string:room_id>")
-@handle_exceptions
-def get_online_room_roles(room_id):
-    online_room = online_rooms.get(room_id)
-    if not online_room:
-        raise RoomError("Room not found")
-    return jsonify(online_room.get_available_roles())
-
 @socketio.on('whoami')
 @handle_socket_exception
 def whoami(data):
@@ -113,7 +105,7 @@ def on_make_move(data):
     emit("update", room.get_state(), to=room_id)
     return True, ""
 
-
+#TODO : Disconnect
 
 @app.route("/create_room", methods=["POST"])
 @handle_exceptions
