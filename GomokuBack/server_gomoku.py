@@ -71,6 +71,10 @@ def whoami(data):
         raise RoomError("Room not found")
     player_id = room.get_player_id_from_ip(request.sid)
     available_roles = room.get_available_roles()
+    emit("update", room.get_state())
+    if True not in available_roles[1:]:
+        emit("connected", 0, to=room_id)
+    join_room(room_id)
     return True, "", player_id, available_roles
 
 
@@ -85,9 +89,18 @@ def on_join(data):
         raise RoomError("Room not found")
     if player_id != 0:
         room.connect(request.sid, player_id)
-    join_room(room_id)
     emit("update", room.get_state(), to=room_id)
+    emit("connected", player_id, to=room_id)
     return True, ""
+
+
+@socketio.on("disconnect")
+def test_disconnect():
+    for room_id, room in online_rooms.items():
+        player_id = room.disconnect(request.sid)
+        if player_id != 0:
+            emit("disconnected", {"playerId": player_id}, to=room_id)
+    print("Client disconnected: ", request.sid)
 
 
 @socketio.on("make_move")

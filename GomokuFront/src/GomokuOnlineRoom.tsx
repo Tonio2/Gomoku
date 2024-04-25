@@ -6,6 +6,7 @@ import Board from "./components/Board";
 import ListMoves from "./components/ListMoves";
 import Button from "./components/Button";
 import ScoreBoard from "./components/ScoreBoard";
+import RoleModal from "./components/RoleModal";
 import { useNavigate } from "react-router-dom";
 
 const status = (
@@ -37,6 +38,10 @@ const Game: React.FC = () => {
     isGameOver,
     players,
     suggestionBoard,
+    availableRoles,
+    onRoleSelected,
+    isRoleModalVisible,
+    playerId,
     handleClick,
     handleReverse,
     handleReapply,
@@ -51,7 +56,7 @@ const Game: React.FC = () => {
   const boardJSX = useMemo(() => {
     return (
       <Board
-        nextPlayerColor={players[nextPlayerId].color}
+        nextPlayerColor={players[playerId - 1] && players[playerId - 1].color}
         board={board}
         handleClick={handleClick}
         suggestionBoard={suggestionBoard}
@@ -87,6 +92,11 @@ const Game: React.FC = () => {
           />
         </div>
       </div>
+      <RoleModal
+        onRoleSelected={onRoleSelected}
+        roles={availableRoles}
+        isVisible={isRoleModalVisible}
+      />
     </div>
   );
 };

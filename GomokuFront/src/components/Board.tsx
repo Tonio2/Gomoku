@@ -53,7 +53,7 @@ const Board: React.FC<IBoard> = ({
               value={value === 1 ? "X" : value === 2 ? "O" : ""}
               suggestion={suggestionBoard[i][j]}
               onSquareClick={() => handleClick(i, j)}
-              nextPlayerColor={nextPlayerColor}
+              nextPlayerColor={nextPlayerColor || 0}
               onMouseEnter={() => setHoveredCell([i, j])}
               onMouseLeave={() => setHoveredCell([-1, -1])}
               horizontalHighlight={i === hoveredCell[0]}

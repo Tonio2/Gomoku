@@ -15,6 +15,10 @@ type GameLogic = {
   winnerId: number;
   players: Player[];
   suggestionBoard: number[][][]; // store [currentMove, value] for each cell
+  onRoleSelected: (index: number) => void;
+  availableRoles: boolean[];
+  isRoleModalVisible: boolean;
+  playerId: number;
   handleClick: (row: number, col: number) => void;
   handleReverse: () => void;
   handleReapply: () => void;
@@ -55,7 +59,7 @@ const useGameLogic = (): GameLogic => {
     false,
   ]);
   const [playerId, setPlayerId] = useState<number>(0);
-  const [isFetching, setIsFetching] = useState<boolean>(true);
+  const [isRoleModalVisible, setIsRoleModalVisible] = useState<boolean>(false);
   const [suggestionBoard, setSuggestionsBoard] = useState<number[][][]>(
     emptySuggestionBoard(19),
   );
@@ -74,7 +78,18 @@ const useGameLogic = (): GameLogic => {
   }, []);
 
   useEffect(() => {
+    const onDisconnect = (data: { playerId: number }) => {
+      console.log("Player " + data.playerId.toString() + " disconnected...");
+    };
+
+    const onConnect = (_playerId: number) => {
+      if (_playerId === 0) console.log("A spectator connected...");
+      else console.log("Player " + _playerId.toString() + " connected...");
+    };
+
     socket.on("update", updateBoard);
+    socket.on("disconnected", onDisconnect);
+    socket.on("connected", onConnect);
     socket.emit(
       "whoami",
       { room_id: roomId },
@@ -86,45 +101,43 @@ const useGameLogic = (): GameLogic => {
       ) => {
         if (!success) console.error(message);
         else {
+          console.log(_playerId);
           setPlayerId(_playerId);
           setAvailableRoles(_availableRoles);
-          setIsFetching(false);
+          if (
+            (_availableRoles[1] === true || _availableRoles[2] === true) &&
+            _playerId === 0
+          )
+            // If I haven't got a role and roles are available
+            setIsRoleModalVisible(true);
         }
       },
     );
 
     return () => {
       socket.off("update", updateBoard);
+      socket.off("disconnected", onDisconnect);
+      socket.off("connected", onConnect);
     };
   }, [roomId]);
 
-  useEffect(() => {
-    const selectRole = async () => {
-      let chosenRole = -1;
-      while (chosenRole === -1 || availableRoles[chosenRole] !== true) {
-        let text = "Choose a role:\n";
-        const roles = ["0. Spectator", "1. Player 1", "2. Player 2"];
-        for (let i = 0; i < 3; i++) {
-          if (availableRoles[i]) text = text + roles[i] + "\n";
-        }
-        chosenRole = parseInt(prompt(text) || "");
-      }
-
+  const onRoleSelected = useCallback(
+    (_playerId: number) => {
       socket.emit(
         "join",
-        { room_id: roomId, player_id: chosenRole },
+        { room_id: roomId, player_id: _playerId },
         async (success: boolean, message: string) => {
           if (!success) {
             console.error(message);
           } else {
-            setPlayerId(chosenRole);
+            setPlayerId(_playerId);
+            setIsRoleModalVisible(false);
           }
         },
       );
-    };
-
-    if (!isFetching && playerId == 0) selectRole();
-  }, [playerId, availableRoles, isFetching]);
+    },
+    [roomId],
+  );
 
   const play = useCallback(
     (row: number, col: number) => {
@@ -158,6 +171,10 @@ const useGameLogic = (): GameLogic => {
     isGameOver,
     players,
     suggestionBoard,
+    onRoleSelected,
+    availableRoles,
+    isRoleModalVisible,
+    playerId,
     handleClick: handleClick,
     handleReverse: reverse,
     handleReapply: reapply,
