@@ -1,5 +1,3 @@
-
-
 from app.shared_object import SharedObject
 from kivy.uix.screenmanager import ScreenManager, Screen
 from widgets.game.game_root_widget import GameRootWidget
@@ -12,6 +10,7 @@ from kivy.uix.label import Label
 from core.callback_center import CallbackCenter
 from core.gomoku_room import GameRoom, GomokuPlayer
 
+
 class GameScreen(Screen):
 
     def __init__(self, **kwargs):
@@ -20,7 +19,7 @@ class GameScreen(Screen):
         CallbackCenter.shared().add_callback("GomokuGame.gameover", self.on_game_over)
 
     def back_to_menu(self):
-        self.manager.current = 'menu'
+        self.manager.current = "menu"
         SharedObject.get_instance().clear_room()
 
     def on_enter(self):
@@ -31,7 +30,7 @@ class GameScreen(Screen):
         text = "Draw"
         winner = room.get_winner()
         if winner != GomokuPlayer.EMPTY:
-            text = f'{winner.to_str()} wins !'
+            text = f"{winner.to_str()} wins !"
 
         self.end_game_popup.add_widget(Button(text=text, on_release=self.close_popup))
         self.end_game_popup.open()

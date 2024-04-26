@@ -1,0 +1,8 @@
+.bg-dark-blue {
+  background: #0d1b2a; /* Dark blue shade */
+  border: 1px solid #08f; /* Bright blue border */
+}
+
+.shadow-neon {
+  box-shadow: 0 4px 15px #08f; /* Neon glow effect */
+}

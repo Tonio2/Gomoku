@@ -3,15 +3,14 @@ from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle, Ellipse
 from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.properties import (
-    NumericProperty, ReferenceListProperty, ObjectProperty
-)
+from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
 from app.shared_object import SharedObject
 from core.gomoku_room import GameRoom, GomokuPlayer
 
 from core.callback_center import CallbackCenter
 
 BOARD_FRAME_COLOR = (0.5, 0.3, 0.1)
+
 
 class GameFrameWidget(Widget):
 
@@ -21,21 +20,25 @@ class GameFrameWidget(Widget):
     def __init__(self, **kwargs):
         super(GameFrameWidget, self).__init__(**kwargs)
         Window.bind(size=self._on_window_resized)
-        CallbackCenter.shared().add_callback("Application.draw", self.on_application_draw)
+        CallbackCenter.shared().add_callback(
+            "Application.draw", self.on_application_draw
+        )
 
     def __del__(self):
         Window.unbind(size=self._on_window_resized)
-        CallbackCenter.shared().remove_callback("Application.draw", self.on_application_draw)
+        CallbackCenter.shared().remove_callback(
+            "Application.draw", self.on_application_draw
+        )
 
     def _on_window_resized(self, window, size):
-        Clock.schedule_once(lambda _ : self.draw_board_frame(), 0.1)
+        Clock.schedule_once(lambda _: self.draw_board_frame(), 0.1)
 
     def get_room(self) -> GameRoom:
         return SharedObject.get_instance().get_room()
 
     def on_application_draw(self, _, __):
         self.draw_board_frame()
-        Clock.schedule_once(lambda _ : self.get_room().perform_pending_actions(), 0.1)
+        Clock.schedule_once(lambda _: self.get_room().perform_pending_actions(), 0.1)
 
     def update_widget_layouts(self):
 
@@ -51,7 +54,10 @@ class GameFrameWidget(Widget):
         self.pos[0] = self.parent.pos[0] + (self.parent.width - self.width) / 2
         self.pos[1] = self.parent.pos[1] + (self.parent.height - self.height) / 2
 
-        self.board_widget.size = self.width - 2 * self.margin, self.height - 2 * self.margin
+        self.board_widget.size = (
+            self.width - 2 * self.margin,
+            self.height - 2 * self.margin,
+        )
         self.board_widget.pos = self.pos[0] + self.margin, self.pos[1] + self.margin
 
     def draw_board_frame(self):
@@ -71,21 +77,31 @@ class GameFrameWidget(Widget):
             coordinate_label = BoardCoordinateLabel(text=room.coordinate_index_name(x))
             coordinate_label.index = x
             coordinate_label.horizontal = True
-            coordinate_label.pos = self.board_widget.pos[0] + x * cell_size_x, self.board_widget.pos[1] + self.board_widget.size[1]
+            coordinate_label.pos = (
+                self.board_widget.pos[0] + x * cell_size_x,
+                self.board_widget.pos[1] + self.board_widget.size[1],
+            )
             coordinate_label.size = cell_size_x, 20
             self.add_widget(coordinate_label)
 
         for y in range(board_size_y):
-            coordinate_label = BoardCoordinateLabel(text=room.coordinate_index_name(board_size_y - y - 1))
+            coordinate_label = BoardCoordinateLabel(
+                text=room.coordinate_index_name(board_size_y - y - 1)
+            )
             coordinate_label.index = y
             coordinate_label.horizontal = False
-            coordinate_label.pos = self.board_widget.pos[0] - 20, self.board_widget.pos[1] + y * cell_size_y
+            coordinate_label.pos = (
+                self.board_widget.pos[0] - 20,
+                self.board_widget.pos[1] + y * cell_size_y,
+            )
             coordinate_label.size = 20, cell_size_y
             self.add_widget(coordinate_label)
 
 
 HOVERED_COLOR = (0.3, 0.3, 0.3)
 UNHOVERED_COLOR = (0.1, 0.1, 0.1)
+
+
 class BoardCoordinateLabel(Label):
 
     index: int

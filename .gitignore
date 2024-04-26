@@ -7,10 +7,11 @@ GomokuEngine/build/
 # Python virtual environment
 venv/
 
-# Python byte-compiled / optimized / DLL files
+# Python byte-compiled / optimized / DLL files / tmp files
 __pycache__/
 *.py[cod]
 *$py.class
+*.swp
 
 # macOS specific
 .DS_Store

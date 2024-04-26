@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap");
+
+/* Futuristic theme styles */
+body {
+  background-color: #121212; /* Dark background for a futuristic look */
+  font-family: "Orbitron", sans-serif; /* A modern, futuristic font */
+  color: white;
+}
+
+.game-board {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); /* Glowing effect */
+  position: relative;
+  overflow: hidden;
+}
+
+.game-board:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+      90deg,
+      transparent 50%,
+      rgba(255, 255, 255, 0.05) 50%
+    ),
+    linear-gradient(transparent 50%, rgba(255, 255, 255, 0.05) 50%);
+  background-size: 10px 10px;
+  pointer-events: none;
+}
+
+.game-info th,
+.game-info td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1.1rem;
+}
+
+.score-board td {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.game-info th {
+  color: #4affef; /* Neon color for headers */
+}
+
+/* Hover effect for rows */
+.game-info tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+/* Custom scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(10, 23, 38, 0.6);
+  border-radius: 4px;
+}

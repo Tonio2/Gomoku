@@ -1,9 +1,8 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
-from kivy.properties import (
-    NumericProperty, ReferenceListProperty, ObjectProperty
-)
+from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
 from kivy.core.window import Window
+
 
 class GameRootWidget(Widget):
     board_widget = ObjectProperty(None)

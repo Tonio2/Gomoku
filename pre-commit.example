@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Exit on the first error
+set -e
+
+# Check formatting for TypeScript and React files
+echo "Checking formatting for TypeScript and React files..."
+prettier --check "**/*.ts"
+prettier --check "**/*.tsx"
+
+# Check formatting for Python files
+echo "Checking formatting for Python files..."
+black . --check --exclude '/GomokuEngine/external|/venv'
+
+# Check formatting for C++ files
+echo "Checking formatting for C++ files..."
+find . \( -path './GomokuEngine/external' -prune -o -path './GomokuEngine/build' -prune \) -o -name 'pybinds.cpp' -prune -o -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format --dry-run -Werror {} +
+
+# If we reach here, formatting is correct
+echo "All files formatted correctly."
+
+exit 0
+

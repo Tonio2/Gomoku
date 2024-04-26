@@ -1,13 +1,11 @@
-
 from app.shared_object import SharedObject
 
 from kivy.app import App
 from kivy.uix.widget import Widget
-from kivy.properties import (
-    NumericProperty, ReferenceListProperty, ObjectProperty
-)
+from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
 from kivy.core.window import Window
 from core.gomoku_room import GomokuRuleStyle
+
 
 class MenuRootWidget(Widget):
 

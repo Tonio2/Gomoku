@@ -21,8 +21,12 @@ class GameInfosWidget(Widget):
 
     def __init__(self, **kwargs):
         super(GameInfosWidget, self).__init__(**kwargs)
-        CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_game_modified)
-        CallbackCenter.shared().add_callback("GomokuGame.time", self.on_game_time_modified)
+        CallbackCenter.shared().add_callback(
+            "GomokuGame.modified", self.on_game_modified
+        )
+        CallbackCenter.shared().add_callback(
+            "GomokuGame.time", self.on_game_time_modified
+        )
 
     def on_game_modified(self, _, room: GameRoom):
         self.current_player = room.get_current_player()
@@ -63,4 +67,3 @@ class GameInfosWidget(Widget):
             return
 
         room.reapply_last_move()
-

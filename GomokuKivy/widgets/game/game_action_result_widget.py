@@ -2,14 +2,13 @@ from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle, Ellipse
 from kivy.clock import Clock
-from kivy.properties import (
-    NumericProperty, ReferenceListProperty, ObjectProperty
-)
+from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
 
 from app.shared_object import SharedObject
 from core.gomoku_room import GameRoom, GomokuPlayer
 
 from core.callback_center import CallbackCenter
+
 
 class GameActionResultWidget(Widget):
 
@@ -26,7 +25,9 @@ class GameActionResultWidget(Widget):
         self.clock = None
 
     def __del__(self):
-        CallbackCenter.shared().remove_callback("GameRoom.action", self.on_action_result)
+        CallbackCenter.shared().remove_callback(
+            "GameRoom.action", self.on_action_result
+        )
 
     def on_action_result(self, _, action):
         if action.success:

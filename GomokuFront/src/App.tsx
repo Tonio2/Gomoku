@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import GameSetting from "./GameSettings";
-import GameBoard from "./GameBoard";
 import GomokuGameBoard from "./GomokuGameBoard";
+import GomokuOnlineRoom from "./GomokuOnlineRoom";
 
 const App: React.FC = () => {
   return (
@@ -10,6 +10,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<GameSetting />} />
         <Route path="/game" element={<GomokuGameBoard />} />
+        <Route path="/online_game" element={<GomokuOnlineRoom />} />
       </Routes>
     </Router>
   );

@@ -15,11 +15,14 @@ DARK_COLOR = (0.5, 0.5, 0.5)
 WHITE_COLOR = (0.9, 0.9, 0.9)
 BLACK_COLOR = (0.1, 0.1, 0.1)
 
+
 class GameBoardWidget(Widget):
 
     def __init__(self, **kwargs):
         super(GameBoardWidget, self).__init__(**kwargs)
-        CallbackCenter.shared().add_callback("GomokuGame.modified", self.on_gomokugame_modified)
+        CallbackCenter.shared().add_callback(
+            "GomokuGame.modified", self.on_gomokugame_modified
+        )
         Window.bind(mouse_pos=self.on_mouse_pos)
 
     def get_room(self) -> GameRoom:
@@ -45,9 +48,15 @@ class GameBoardWidget(Widget):
             # Draw board grid lines
             Color(*GRID_COLOR)
             for x in range(board_size_x):
-                Rectangle(pos=(self.x + (x + 0.5) * cell_size_x, self.y), size=(1.5, self.height))
+                Rectangle(
+                    pos=(self.x + (x + 0.5) * cell_size_x, self.y),
+                    size=(1.5, self.height),
+                )
             for y in range(board_size_y):
-                Rectangle(pos=(self.x, self.y + (y + 0.5) * cell_size_y), size=(self.width, 1.5))
+                Rectangle(
+                    pos=(self.x, self.y + (y + 0.5) * cell_size_y),
+                    size=(self.width, 1.5),
+                )
 
             # Draw the pieces
             for x in range(board_size_x):
@@ -56,12 +65,22 @@ class GameBoardWidget(Widget):
                     match cell_value:
                         case GomokuPlayer.WHITE:
                             Color(*WHITE_COLOR)
-                            Ellipse(pos=(self.x + x * cell_size_x, self.y + y * cell_size_y),
-                                    size=(cell_size_x, cell_size_y))
+                            Ellipse(
+                                pos=(
+                                    self.x + x * cell_size_x,
+                                    self.y + y * cell_size_y,
+                                ),
+                                size=(cell_size_x, cell_size_y),
+                            )
                         case GomokuPlayer.BLACK:
                             Color(*BLACK_COLOR)
-                            Ellipse(pos=(self.x + x * cell_size_x, self.y + y * cell_size_y),
-                                    size=(cell_size_x, cell_size_y))
+                            Ellipse(
+                                pos=(
+                                    self.x + x * cell_size_x,
+                                    self.y + y * cell_size_y,
+                                ),
+                                size=(cell_size_x, cell_size_y),
+                            )
 
     def on_touch_down(self, touch):
 
@@ -98,6 +117,7 @@ class GameBoardWidget(Widget):
             cell.row = int((pos[1] - self.y) / cell_size_y)
 
         CallbackCenter.shared().send_message("Board.mouse", cell)
+
 
 class BoardCellHovering:
 

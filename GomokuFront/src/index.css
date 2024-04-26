@@ -1,91 +1,140 @@
-* {
-    box-sizing: border-box;
-}
-
+/* Futuristic theme styles */
 body {
-    font-family: sans-serif;
-    margin: 20px;
-    padding: 0;
-}
-
-h1 {
-    margin-top: 0;
-    font-size: 22px;
-}
-
-h2 {
-    margin-top: 0;
-    font-size: 20px;
-}
-
-h3 {
-    margin-top: 0;
-    font-size: 18px;
-}
-
-h4 {
-    margin-top: 0;
-    font-size: 16px;
-}
-
-h5 {
-    margin-top: 0;
-    font-size: 14px;
-}
-
-h6 {
-    margin-top: 0;
-    font-size: 12px;
-}
-
-code {
-    font-size: 1.2em;
-}
-
-ul {
-    padding-inline-start: 20px;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    font-family: sans-serif;
-    margin: 20px;
-    padding: 0;
-}
-
-.square {
-    background: #fff;
-    border: 1px solid #999;
-    float: left;
-    font-size: 24px;
-    font-weight: bold;
-    line-height: 34px;
-    height: 34px;
-    margin-right: -1px;
-    margin-top: -1px;
-    padding: 0;
-    text-align: center;
-    width: 34px;
-}
-
-.board-row:after {
-    clear: both;
-    content: '';
-    display: table;
-}
-
-.status {
-    margin-bottom: 10px;
+  background-color: #121212; /* Dark background for a futuristic look */
+  color: #0f9d58; /* Neon-like font color */
+  font-family: "Orbitron", sans-serif; /* A modern, futuristic font */
 }
 
 .game {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
+.game-board {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); /* Glowing effect */
+}
+
+.board-row {
+  display: flex;
+}
+
+.cell {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.stone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -20px;
+  margin-top: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); /* Glowing effect */
+}
+
+.cell .stone-transparent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -20px;
+  margin-top: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); /* Glowing effect */
+  opacity: 0;
+  transition: all 0.5s;
+}
+
+.cell:hover .stone-transparent {
+  opacity: 0.5;
+}
+
+.stone:hover {
+  /* Scale the stone on hover */
+  transform: scale(1.1);
+}
+
+.stone-o {
+  background: #ccc;
+}
+
+.stone-x {
+  background: #000;
+}
+
+.horizontal-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #0f9d58;
+}
+
+.vertical-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  background: #0f9d58;
+}
+
+button {
+  background-color: #333;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 0 4px #999;
+}
+
+button:hover {
+  background-color: #0f9d58;
+  color: white;
+}
+
+.status {
+  margin-bottom: 10px;
+  color: #0f9d58; /* Neon-like font color */
+}
+
+/* Add futuristic fonts and effects for the list of moves */
 .game-info {
-    margin-left: 20px;
+  color: #0f9d58;
+  margin-left: 20px;
+}
+
+.game-info table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.game-info th,
+.game-info td {
+  text-align: left;
+  padding: 8px;
+}
+
+.game-info tr:nth-child(even) {
+  background-color: #0f9d58;
 }

@@ -35,12 +35,14 @@ class GomokuMove:
     timestamp: float
     move_result: pygomoku.MoveResult
 
+
 class GomokuRuleStyle(Enum):
     STANDARD = 0
     PRO = 1
     LONG_PRO = 2
     SWAP = 3
     SWAP2 = 4
+
 
 class GameRoomSettings:
 
@@ -55,13 +57,13 @@ class GameRoomSettings:
 
     def set_width(self, width: int):
         self.settings.width = width
-    
+
     def get_width(self) -> int:
         return self.settings.width
 
     def set_height(self, height: int):
         self.settings.height = height
-    
+
     def get_height(self) -> int:
         return self.settings.height
 
@@ -107,17 +109,19 @@ class GameRoomSettings:
 
     def get_total_time(self) -> float:
         return self.total_time
-    
+
     def set_turn_time(self, turn_time: float):
         self.turn_time = turn_time
 
     def get_turn_time(self) -> float:
         return self.turn_time
 
+
 class ExpectedAction:
     player: GomokuPlayer
     player_id: int
     action_type: pygomoku.GameActionType
+
 
 class GameRoom:
 
@@ -144,7 +148,9 @@ class GameRoom:
         }
         Clock.schedule_interval(self.update_time, 1 / 20)
         self.pending_action_task = None
-        CallbackCenter.shared().add_callback("GomokuGame.modified", self.broadcast_expected_action)
+        CallbackCenter.shared().add_callback(
+            "GomokuGame.modified", self.broadcast_expected_action
+        )
         self.callback_removed = False
 
     def __del__(self):
@@ -152,7 +158,9 @@ class GameRoom:
 
     def remove_callbacks(self):
         Clock.unschedule(self.update_time)
-        CallbackCenter.shared().remove_callback("GomokuGame.modified", self.broadcast_expected_action)
+        CallbackCenter.shared().remove_callback(
+            "GomokuGame.modified", self.broadcast_expected_action
+        )
         if self.pending_action_task is not None:
             self.pending_action_task.cancel()
         self.callback_removed = True
@@ -181,7 +189,11 @@ class GameRoom:
         return self.coordinate_index_name(row) + self.coordinate_index_name(col)
 
     def get_player_score(self, player: GomokuPlayer) -> int:
-        player = pygomoku.Player.BLACK if player == GomokuPlayer.BLACK else pygomoku.Player.WHITE
+        player = (
+            pygomoku.Player.BLACK
+            if player == GomokuPlayer.BLACK
+            else pygomoku.Player.WHITE
+        )
         return self.room.get_color_score(player)
 
     def get_winner(self) -> GomokuPlayer:
@@ -203,7 +215,9 @@ class GameRoom:
         for action in self.room.get_actions_history():
             if action.action_type == pygomoku.GameActionType.MOVE:
                 move = GomokuMove()
-                move.player = GomokuPlayer(self.room.gomoku_player_from_id(action.player))
+                move.player = GomokuPlayer(
+                    self.room.gomoku_player_from_id(action.player)
+                )
                 move.row = action.action_value.move.row
                 move.column = action.action_value.move.col
                 move.timestamp = datetime.now().timestamp()
@@ -248,14 +262,16 @@ class GameRoom:
     def broadcast_expected_action(self, _, __):
         expected = ExpectedAction()
         expected.player_id = self.room.expected_player()
-        expected.player = GomokuPlayer(self.room.gomoku_player_from_id(expected.player_id))
+        expected.player = GomokuPlayer(
+            self.room.gomoku_player_from_id(expected.player_id)
+        )
         expected.action_type = self.room.expected_action()
         CallbackCenter.shared().send_message("GomokuGame.expected_action", self)
         print("We expect ", expected.player, " to ", expected.action_type)
 
     def perform_pending_actions(self):
-        
-        if (self.room.has_pending_action() == False):
+
+        if self.room.has_pending_action() == False:
             return
 
         def task_done_callback(_):
@@ -266,7 +282,9 @@ class GameRoom:
                 if self.callback_removed == False:
                     self.perform_pending_actions()
 
-        self.pending_action_task = asyncio.create_task(self.perform_one_pending_action_async())
+        self.pending_action_task = asyncio.create_task(
+            self.perform_one_pending_action_async()
+        )
         self.pending_action_task.add_done_callback(task_done_callback)
 
     async def perform_one_pending_action_async(self):

@@ -175,17 +175,39 @@ GameActionResult GameRoom::GameRuleLayerPro::perform_pending_action()
 
 GameActionResult GameRoom::GameRuleLayerSwap::perform_action_move(PlayerId player, int row, int col)
 {
+    if (_room._game.is_game_over())
+    {
+        return make_action_result(false, "The game is over, why are you even still here ?");
+    }
+
     if (is_swap_expected())
     {
         return make_action_result(false, "Expected a swap action");
     }
 
-    if (player == expected_player())
+    if (player != expected_player())
     {
-        return GameRuleLayerStandard::perform_action_move(GameRuleLayerStandard::expected_player(), row, col);
+        return make_action_result(false, "That's not your turn bro...");
     }
 
-    return make_action_result(false, "Not your turn");
+    GameAction new_action;
+    new_action.player = player;
+    new_action.action_type = GameActionType::MOVE;
+    new_action.action_value.move.row = row;
+    new_action.action_value.move.col = col;
+
+    try
+    {
+        new_action.action_value.move.result = _room._game.make_move(row, col);
+    }
+    catch (std::exception &e)
+    {
+        return make_action_result(false, e.what());
+    }
+
+    _room.append_action(new_action);
+
+    return make_action_result(true, "Player " + std::to_string(player) + " played at " + std::to_string(row) + ";" + std::to_string(col));
 }
 
 GameActionResult GameRoom::GameRuleLayerSwap::perform_action_swap(PlayerId player, bool do_the_swap)
