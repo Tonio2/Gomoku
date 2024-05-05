@@ -88,8 +88,8 @@ GameActionResult GameRoom::GameRuleLayerStandard::perform_pending_action()
 
 PlayerId GameRoom::GameRuleLayerStandard::expected_player() const
 {
-    if (_room._game.is_game_over())
-        return PlayerId(0);
+    //if (_room._game.is_game_over())
+    //    return PlayerId(0);
 
     return _room.id_from_gomoku_player(_room._game.get_current_player());
 }

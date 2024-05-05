@@ -16,11 +16,12 @@ const status = (
 ) => {
   let status;
   let next = (nextPlayerId + 1).toString();
+  let winner = (winnerId + 1).toString();
   if (isGameOver) {
     if (winnerId === -1) {
       status = "Draw!";
     } else {
-      status = "Player " + next + " wins!";
+      status = "Player " + winner + " wins!";
     }
   } else {
     status = "Waiting for Player " + next + "...";
