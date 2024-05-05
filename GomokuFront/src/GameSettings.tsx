@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "./utils/api";
+import PlayerAvailableStatus from "./components/PlayerAvailableStatus";
 
 const GameSetting: React.FC = () => {
   const [size, setSize] = useState<number>(19); // Default board size
@@ -10,7 +11,21 @@ const GameSetting: React.FC = () => {
 
   const [size2, setSize2] = useState<number>(19);
   const [ruleStyle2, setRuleStyle2] = useState<number>(0);
+  const [rooms, setRooms] = useState<{roomId: string; availableRoles: boolean[]}[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const _rooms = await api.getRooms();
+        setRooms(_rooms);
+      } catch (error: any) {
+        console.error(error);
+      }
+    }
+
+    fetchRooms();
+  }, []);
 
   const startGame = () => {
     // Redirect to the game page and pass the settings
@@ -31,7 +46,7 @@ const GameSetting: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <h1 className="text-4xl font-bold text-[#4affef] mb-8">Game Menu</h1>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-[#4affef]">
           <h2 className="text-xl font-bold text-[#4affef] mb-8 text-center">
             Solo
@@ -131,6 +146,21 @@ const GameSetting: React.FC = () => {
           >
             Play
           </button>
+        </div>
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-[#4affef]">
+          <h2 className="text-xl font-bold text-[#4affef] mb-8 text-center">
+            Join
+          </h2>
+          <table className="w-full">
+            <tbody>
+              {rooms.map(room => (
+                <tr key={room.roomId} onClick={() => navigate(`/online_game?roomId=${room.roomId}`)} className="hover:bg-gray-900">
+                  <td className="ps-4 py-2">{room.roomId}</td>
+                  <td className="flex justify-center gap-2 py-2"><PlayerAvailableStatus ready={!room.availableRoles[1]} /><PlayerAvailableStatus ready={!room.availableRoles[2]} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

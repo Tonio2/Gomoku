@@ -73,6 +73,11 @@ def reset_online_room():
     socketio.emit("update", room.get_state(), to=room_id)
     return True
 
+@app.route("/get_online_rooms", methods=["GET"])
+@handle_exceptions
+def get_online_rooms():
+    return [{"roomId": room_id, "availableRoles": room.get_available_roles()} for room_id, room in online_rooms.items()]
+
 
 @socketio.on("whoami")
 @handle_socket_exception
