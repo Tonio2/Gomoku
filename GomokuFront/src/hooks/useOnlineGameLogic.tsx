@@ -160,7 +160,13 @@ const useGameLogic = (): GameLogic => {
 
   const reapply = () => {};
 
-  const reset = () => {};
+  const reset = async () => {
+    try {
+      const res = await api.resetOnlineRoom(roomId);
+    } catch (error:any) {
+      console.error(error);
+    }
+  };
 
   return {
     board,

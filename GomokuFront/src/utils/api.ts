@@ -4,6 +4,7 @@ import { MoveEvaluation, ActionResult } from "../interface";
 const API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 const CREATE_GAME_URL = `${API_URL}/create_room`;
 const RESET_GAME_URL = `${API_URL}/reset_room`;
+const RESET_ONLINE_GAME_URL = `${API_URL}/reset_online_room`;
 const MAKE_MOVE_URL = `${API_URL}/make_move`;
 const GET_SUGGESTION_URL = `${API_URL}/get_suggestion`;
 const REVERSE_MOVE_URL = `${API_URL}/reverse_move`;
@@ -43,6 +44,14 @@ const createOnlineGame = async (
   });
   return response.data;
 };
+
+const resetOnlineRoom = async (roomId: string): Promise<boolean> => {
+  const response = await axios.post(RESET_ONLINE_GAME_URL, {
+    roomId: roomId
+  });
+  return response.data
+}
+
 
 const getAvailableRoles = async (roomId: string): Promise<boolean[]> => {
   const response = await axios.get(GET_AVAILABLE_ROLES_URL + roomId);
@@ -109,6 +118,7 @@ const aiTurn = async (userId: string): Promise<ActionResult> => {
 const api = {
   createGame,
   createOnlineGame,
+  resetOnlineRoom,
   getAvailableRoles,
   resetGame,
   makeMove,

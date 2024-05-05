@@ -62,6 +62,18 @@ def create_online_room():
     return jsonify({"success": True, "roomId": room_id})
 
 
+@app.route("/reset_online_room", methods=["POST"])
+@handle_exceptions
+def reset_online_room():
+    room_id = request.json["roomId"]
+    room = online_rooms.get(room_id)
+    if not room:
+        raise RoomError("Room not found")
+    room.reset()
+    socketio.emit("update", room.get_state(), to=room_id)
+    return True
+
+
 @socketio.on("whoami")
 @handle_socket_exception
 def whoami(data):

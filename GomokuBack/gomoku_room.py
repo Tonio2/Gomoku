@@ -288,7 +288,7 @@ class OnlineRoom(GomokuRoom):
     def disconnect(self, ip):
         if not ip in self.ip_addresses:
             return 0
-        
+
         player_id = self.ip_addresses.index(ip)
         self.ip_addresses[player_id] = ""
         return player_id
