@@ -286,12 +286,12 @@ class OnlineRoom(GomokuRoom):
         self.ip_addresses[player_id] = ip
 
     def disconnect(self, ip):
-        try:
-            player_id = self.ip_addresses.index(ip)
-            self.ip_addresses[player_id] = ""
-            return player_id
-        except ValueError:
+        if not ip in self.ip_addresses:
             return 0
+        
+        player_id = self.ip_addresses.index(ip)
+        self.ip_addresses[player_id] = ""
+        return player_id
 
     def get_available_roles(self):
         return [ip == "" for ip in self.ip_addresses]
