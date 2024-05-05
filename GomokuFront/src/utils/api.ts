@@ -1,7 +1,7 @@
 import axios from "axios";
 import { MoveEvaluation, ActionResult } from "../interface";
 
-const API_URL = "http://localhost:5000";
+const API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 const CREATE_GAME_URL = `${API_URL}/create_room`;
 const RESET_GAME_URL = `${API_URL}/reset_room`;
 const MAKE_MOVE_URL = `${API_URL}/make_move`;
@@ -18,7 +18,7 @@ const createGame = async (
   mode: number,
   size: number,
   ruleStyle: number,
-  starter: number,
+  starter: number
 ): Promise<ActionResult> => {
   const response = await axios.post(CREATE_GAME_URL, {
     userId: userId,
@@ -32,7 +32,7 @@ const createGame = async (
 
 const createOnlineGame = async (
   size: number,
-  ruleStyle: number,
+  ruleStyle: number
 ): Promise<{
   success: boolean;
   roomId: string;
@@ -59,7 +59,7 @@ const resetGame = async (userId: string): Promise<ActionResult> => {
 const makeMove = async (
   userId: string,
   row: number,
-  col: number,
+  col: number
 ): Promise<ActionResult> => {
   const response = await axios.post(MAKE_MOVE_URL, {
     user_id: userId,
@@ -75,7 +75,7 @@ const swap = async (userId: string, swap: boolean): Promise<ActionResult> => {
 };
 
 const getSuggestion = async (
-  userId: string,
+  userId: string
 ): Promise<{
   success: boolean;
   message: string;
