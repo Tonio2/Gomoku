@@ -73,10 +73,14 @@ def reset_online_room():
     socketio.emit("update", room.get_state(), to=room_id)
     return True
 
+
 @app.route("/get_online_rooms", methods=["GET"])
 @handle_exceptions
 def get_online_rooms():
-    return [{"roomId": room_id, "availableRoles": room.get_available_roles()} for room_id, room in online_rooms.items()]
+    return [
+        {"roomId": room_id, "availableRoles": room.get_available_roles()}
+        for room_id, room in online_rooms.items()
+    ]
 
 
 @socketio.on("whoami")
@@ -117,6 +121,8 @@ def test_disconnect():
         player_id = room.disconnect(request.sid)
         if player_id != 0:
             emit("disconnected", {"playerId": player_id}, to=room_id)
+            if room.get_available_roles()[1:] == [True, True]:
+                del online_rooms[room_id]
     print("Client disconnected: ", request.sid)
 
 
