@@ -87,8 +87,10 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
       }
       updateBoard(res);
       try {
-        const newRes = await api.aiTurn(userId);
-        handleMoveResponse(newRes);
+        if (res._players[res._nextPlayer].isAI) {
+          const newRes = await api.aiTurn(userId);
+          handleMoveResponse(newRes);
+        }
       } catch (error: any) {
         console.error("Server error");
       }
