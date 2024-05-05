@@ -4,14 +4,38 @@ import GameSetting from "./GameSettings";
 import GomokuGameBoard from "./GomokuGameBoard";
 import GomokuOnlineRoom from "./GomokuOnlineRoom";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const App: React.FC = () => {
+  const notify = (msg: string, type: string) => {
+    if (type == "error") {
+      toast.error(msg);
+    }
+    if (type === "info") {
+      toast.info(msg);
+    }
+  }
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<GameSetting />} />
-        <Route path="/game" element={<GomokuGameBoard />} />
-        <Route path="/online_game" element={<GomokuOnlineRoom />} />
+        <Route path="/" element={<GameSetting  />} />
+        <Route path="/game" element={<GomokuGameBoard notify={notify}/>} />
+        <Route path="/online_game" element={<GomokuOnlineRoom notify={notify}/>} />
       </Routes>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
     </Router>
   );
 };

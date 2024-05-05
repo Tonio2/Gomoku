@@ -25,7 +25,7 @@ type GameLogic = {
   handleReset: () => void;
 };
 
-const useGameLogic = (): GameLogic => {
+const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic => {
   const roomId = useMemo(
     () => new URLSearchParams(window.location.search).get("roomId") || "",
     [],
@@ -79,12 +79,12 @@ const useGameLogic = (): GameLogic => {
 
   useEffect(() => {
     const onDisconnect = (data: { playerId: number }) => {
-      console.log("Player " + data.playerId.toString() + " disconnected...");
+      notify("Player " + data.playerId.toString() + " disconnected...", "info");
     };
 
     const onConnect = (_playerId: number) => {
-      if (_playerId === 0) console.log("A spectator connected...");
-      else console.log("Player " + _playerId.toString() + " connected...");
+      if (_playerId === 0) notify("A spectator connected...", "info");
+      else notify("Player " + _playerId.toString() + " connected...", "info");
     };
 
     socket.on("update", updateBoard);
@@ -99,9 +99,8 @@ const useGameLogic = (): GameLogic => {
         _playerId: number,
         _availableRoles: boolean[],
       ) => {
-        if (!success) console.error(message);
+        if (!success) notify(message, "error");
         else {
-          console.log(_playerId);
           setPlayerId(_playerId);
           setAvailableRoles(_availableRoles);
           if (
@@ -128,7 +127,7 @@ const useGameLogic = (): GameLogic => {
         { room_id: roomId, player_id: _playerId },
         async (success: boolean, message: string) => {
           if (!success) {
-            console.error(message);
+            notify(message, "error");
           } else {
             setPlayerId(_playerId);
             setIsRoleModalVisible(false);
@@ -145,7 +144,7 @@ const useGameLogic = (): GameLogic => {
         "make_move",
         { room_id: roomId, row: row, col: col },
         (success: boolean, message: string) => {
-          if (!success) console.error(message);
+          if (!success) notify(message, "error");
         },
       );
     },
@@ -164,7 +163,7 @@ const useGameLogic = (): GameLogic => {
     try {
       const res = await api.resetOnlineRoom(roomId);
     } catch (error:any) {
-      console.error(error);
+      console.error("Server error");
     }
   };
 

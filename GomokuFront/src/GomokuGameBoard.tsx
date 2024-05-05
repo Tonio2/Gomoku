@@ -27,7 +27,7 @@ const status = (
   return status;
 };
 
-const Game: React.FC = () => {
+const Game: React.FC<{notify: (msg: string, type: string) => void}> = ({notify}) => {
   const {
     board,
     nextPlayerId,
@@ -41,7 +41,7 @@ const Game: React.FC = () => {
     handleReverse,
     handleReapply,
     handleReset,
-  } = useGameLogic();
+  } = useGameLogic(notify);
   const navigate = useNavigate();
 
   function handleMenu(): void {

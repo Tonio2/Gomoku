@@ -20,7 +20,7 @@ const GameSetting: React.FC = () => {
         const _rooms = await api.getRooms();
         setRooms(_rooms);
       } catch (error: any) {
-        console.error(error);
+        console.error("Server error");
       }
     }
 
@@ -39,7 +39,7 @@ const GameSetting: React.FC = () => {
       const { roomId } = await api.createOnlineGame(size, ruleStyle);
       navigate(`/online_game?roomId=${roomId}`);
     } catch (error: any) {
-      console.log(error);
+      console.error("Server error");
     }
   };
 

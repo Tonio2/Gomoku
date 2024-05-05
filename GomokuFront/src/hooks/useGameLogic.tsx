@@ -20,7 +20,7 @@ type GameLogic = {
   handleReset: () => void;
 };
 
-const useGameLogic = (): GameLogic => {
+const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic => {
   const size = useMemo(
     () => Number(new URLSearchParams(window.location.search).get("size")),
     [],
@@ -82,10 +82,9 @@ const useGameLogic = (): GameLogic => {
   const handleMoveResponse = useCallback(
     async (res: ActionResult) => {
       if (!res.success) {
-        console.error(res.message);
+        notify(res.message, "error");
         return;
       }
-      console.log(res);
       updateBoard(res);
       try {
         const newRes = await api.aiTurn(userId);
