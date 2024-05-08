@@ -9,8 +9,13 @@ from gomoku_room import GomokuRoom, RoomError, OnlineRoom
 
 import sys
 
-sys.path.append("../lib")
+sys.path.append("./lib")
 import pygomoku  # type: ignore
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})

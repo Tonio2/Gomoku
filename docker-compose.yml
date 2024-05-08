@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  gomokuback:
+    build: ./GomokuBack
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./GomokuBack:/app
+    environment:
+      - FLASK_ENV=development
+
+  gomokufront:
+    build: ./GomokuFront
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./GomokuFront:/usr/src/app
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - gomokuback
