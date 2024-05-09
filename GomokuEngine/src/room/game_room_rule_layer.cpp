@@ -199,6 +199,8 @@ GameActionResult GameRoom::GameRuleLayerSwap::perform_action_move(PlayerId playe
     try
     {
         new_action.action_value.move.result = _room._game.make_move(row, col);
+        if (_room._action_index < 2)
+            _room._players_swapped = !_room._players_swapped;
     }
     catch (std::exception &e)
     {

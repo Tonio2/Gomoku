@@ -20,26 +20,28 @@ type GameLogic = {
   handleReset: () => void;
 };
 
-const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic => {
+const useGameLogic = (
+  notify: (msg: string, type: string) => void
+): GameLogic => {
   const size = useMemo(
     () => Number(new URLSearchParams(window.location.search).get("size")),
-    [],
+    []
   );
   const userId = useMemo(() => uniqueUserID(), []);
 
   const mode = useMemo(
     () => Number(new URLSearchParams(window.location.search).get("mode")),
-    [],
+    []
   );
 
   const starter = useMemo(
     () => Number(new URLSearchParams(window.location.search).get("starter")),
-    [],
+    []
   );
 
   const ruleStyle = useMemo(
     () => Number(new URLSearchParams(window.location.search).get("ruleStyle")),
-    [],
+    []
   );
   const [board, setBoard] = useState<number[][]>(emptyBoard(size));
   const [listMoves, setListMoves] = useState<string[]>([]);
@@ -64,7 +66,7 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
   const [hasPendingAction, setHasPendingAction] = useState<boolean>(false);
   const [nextAction, setNextAction] = useState<number>(0);
   const [suggestionBoard, setSuggestionsBoard] = useState<number[][][]>(
-    emptySuggestionBoard(size),
+    emptySuggestionBoard(size)
   );
 
   const updateBoard = useCallback((res: ActionResult) => {
@@ -87,15 +89,15 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
       }
       updateBoard(res);
       try {
-        if (res._players[res._nextPlayer].isAI) {
-          const newRes = await api.aiTurn(userId);
+        if (res._hasPendingAction) {
+          const newRes = await api.performPendingAction(userId);
           handleMoveResponse(newRes);
         }
       } catch (error: any) {
         console.error("Server error");
       }
     },
-    [userId, updateBoard],
+    [userId, updateBoard]
   );
 
   useEffect(() => {
@@ -105,7 +107,7 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
         input = prompt("swap? (Y/N)") || "";
       const swapActionResult = await api.swap(
         userId,
-        input.toLowerCase() === "y",
+        input.toLowerCase() === "y"
       );
       await handleMoveResponse(swapActionResult);
     };
@@ -121,7 +123,7 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
           mode,
           size,
           ruleStyle,
-          starter,
+          starter
         );
         handleMoveResponse(res);
       } catch (error) {
@@ -141,7 +143,7 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
         console.error("Server error");
       }
     },
-    [userId, handleMoveResponse],
+    [userId, handleMoveResponse]
   );
 
   const handleClick = async (row: number, col: number) => {

@@ -278,6 +278,13 @@ class OnlineRoom(GomokuRoom):
             raise RoomError("Not your turn")
         GomokuRoom.make_move(self, row, col)
 
+    def swap(self, ip, swap):
+        if not self.is_room_ready():
+            raise RoomError("Not all players have joined")
+        if ip != self.ip_addresses[self.get_next_player()]:
+            raise RoomError("Not your turn")
+        GomokuRoom.swap(self, swap)
+
     def connect(self, ip, player_id):
         if self.ip_addresses[player_id] not in ["", ip]:
             raise RoomError("Someone already took this role")

@@ -9,7 +9,7 @@ const MAKE_MOVE_URL = `${API_URL}/make_move`;
 const GET_SUGGESTION_URL = `${API_URL}/get_suggestion`;
 const REVERSE_MOVE_URL = `${API_URL}/reverse_move`;
 const REAPPLY_MOVE_URL = `${API_URL}/reapply_move`;
-const AI_TURN_URL = `${API_URL}/ai_turn`;
+const PENDING_ACTION_URL = `${API_URL}/pending_action`;
 const SWAP_URL = `${API_URL}/swap`;
 const CREATE_ONLINE_GAME_URL = `${API_URL}/create_online_room`;
 const GET_AVAILABLE_ROLES_URL = `${API_URL}/get_online_room_roles/`;
@@ -48,15 +48,17 @@ const createOnlineGame = async (
 
 const resetOnlineRoom = async (roomId: string): Promise<boolean> => {
   const response = await axios.post(RESET_ONLINE_GAME_URL, {
-    roomId: roomId
+    roomId: roomId,
   });
-  return response.data
-}
+  return response.data;
+};
 
-const getRooms = async (): Promise<{roomId: string; availableRoles: boolean[]}[]> => {
+const getRooms = async (): Promise<
+  { roomId: string; availableRoles: boolean[] }[]
+> => {
   const response = await axios.get(GET_ROOMS_URL);
   return response.data;
-}
+};
 
 const getAvailableRoles = async (roomId: string): Promise<boolean[]> => {
   const response = await axios.get(GET_AVAILABLE_ROLES_URL + roomId);
@@ -113,8 +115,8 @@ const reapplyMove = async (userId: string): Promise<ActionResult> => {
   return response.data;
 };
 
-const aiTurn = async (userId: string): Promise<ActionResult> => {
-  const response = await axios.post(AI_TURN_URL, {
+const performPendingAction = async (userId: string): Promise<ActionResult> => {
+  const response = await axios.post(PENDING_ACTION_URL, {
     user_id: userId,
   });
   return response.data;
@@ -132,7 +134,7 @@ const api = {
   reverseMove,
   reapplyMove,
   getRooms,
-  aiTurn,
+  performPendingAction,
 };
 
 export default api;

@@ -11,7 +11,9 @@ const GameSetting: React.FC = () => {
 
   const [size2, setSize2] = useState<number>(19);
   const [ruleStyle2, setRuleStyle2] = useState<number>(0);
-  const [rooms, setRooms] = useState<{roomId: string; availableRoles: boolean[]}[]>([]);
+  const [rooms, setRooms] = useState<
+    { roomId: string; availableRoles: boolean[] }[]
+  >([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +24,7 @@ const GameSetting: React.FC = () => {
       } catch (error: any) {
         console.error("Server error");
       }
-    }
+    };
 
     fetchRooms();
   }, []);
@@ -30,13 +32,13 @@ const GameSetting: React.FC = () => {
   const startGame = () => {
     // Redirect to the game page and pass the settings
     navigate(
-      `/game?mode=${mode}&size=${size}&starter=${starter}&ruleStyle=${ruleStyle}`,
+      `/game?mode=${mode}&size=${size}&starter=${starter}&ruleStyle=${ruleStyle}`
     );
   };
 
   const startOnlineGame = async () => {
     try {
-      const { roomId } = await api.createOnlineGame(size, ruleStyle);
+      const { roomId } = await api.createOnlineGame(size2, ruleStyle2);
       navigate(`/online_game?roomId=${roomId}`);
     } catch (error: any) {
       console.error("Server error");
@@ -119,8 +121,8 @@ const GameSetting: React.FC = () => {
             <input
               className="bg-gray-700 border-2 border-[#4affef] text-[#4affef] rounded w-full px-3 py-2 focus:outline-none"
               type="number"
-              value={size}
-              onChange={(e) => setSize(parseInt(e.target.value))}
+              value={size2}
+              onChange={(e) => setSize2(parseInt(e.target.value))}
               min="10"
               max="25"
             />
@@ -130,8 +132,8 @@ const GameSetting: React.FC = () => {
             <label className="block mb-2">Rule Style:</label>
             <select
               className="bg-gray-700 border-2 border-[#4affef] text-[#4affef] rounded w-full px-3 py-2 focus:outline-none"
-              value={ruleStyle}
-              onChange={(e) => setRuleStyle(parseInt(e.target.value))}
+              value={ruleStyle2}
+              onChange={(e) => setRuleStyle2(parseInt(e.target.value))}
             >
               <option value="0">Standard</option>
               <option value="1">Pro</option>
@@ -153,10 +155,17 @@ const GameSetting: React.FC = () => {
           </h2>
           <table className="w-full">
             <tbody>
-              {rooms.map(room => (
-                <tr key={room.roomId} onClick={() => navigate(`/online_game?roomId=${room.roomId}`)} className="hover:bg-gray-900">
+              {rooms.map((room) => (
+                <tr
+                  key={room.roomId}
+                  onClick={() => navigate(`/online_game?roomId=${room.roomId}`)}
+                  className="hover:bg-gray-900"
+                >
                   <td className="ps-4 py-2">{room.roomId}</td>
-                  <td className="flex justify-center gap-2 py-2"><PlayerAvailableStatus ready={!room.availableRoles[1]} /><PlayerAvailableStatus ready={!room.availableRoles[2]} /></td>
+                  <td className="flex justify-center gap-2 py-2">
+                    <PlayerAvailableStatus ready={!room.availableRoles[1]} />
+                    <PlayerAvailableStatus ready={!room.availableRoles[2]} />
+                  </td>
                 </tr>
               ))}
             </tbody>
