@@ -11,29 +11,21 @@ body {
 }
 
 .game-board {
-  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(
+    135deg,
+    #0f0c29,
+    #302b63,
+    #24243e
+  ); /* Dark background with a gradient */
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); /* Glowing effect */
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.75); /* Stronger cyan glowing effect */
   position: relative;
   overflow: hidden;
 }
 
-.game-board:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: linear-gradient(
-      90deg,
-      transparent 50%,
-      rgba(255, 255, 255, 0.05) 50%
-    ),
-    linear-gradient(transparent 50%, rgba(255, 255, 255, 0.05) 50%);
-  background-size: 10px 10px;
-  pointer-events: none;
+.game-board:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.9); /* Intensify the glow on hover for interactive feedback */
 }
 
 .game-info th,
@@ -44,8 +36,8 @@ body {
 }
 
 .score-board td {
-    text-align: center;
-    padding: 1rem 0;
+  text-align: center;
+  padding: 1rem 0;
 }
 
 .game-info th {

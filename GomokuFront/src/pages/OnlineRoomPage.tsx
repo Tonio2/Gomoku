@@ -71,10 +71,10 @@ const OnlineRoomPage: React.FC<{
     <div className="flex flex-col h-screen">
       <div className="bg-gray-800 text-white p-4">Menu</div>
 
-      <div className="flex-grow p-4 overflow-x-auto" id="content">
+      <div className="flex-grow p-8 overflow-x-auto" id="content">
         <div className="flex">
           <div className="flex-grow flex justify-center">
-            <div>{boardJSX}</div>
+            <div className="game-board">{boardJSX}</div>
           </div>
           {isVisible && (
             <div className="flex justify-start">
