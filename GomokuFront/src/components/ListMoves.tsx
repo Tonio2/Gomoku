@@ -21,10 +21,13 @@ const ListMoves: React.FC<IListMoves> = ({ moves, currentMove }) => {
     const ref = currentMove === i + 1 ? endOfListRef : null;
     formattedMoves.push(
       <tr key={i} ref={ref}>
-        <td className="text-left py-2" style={moveStyle(currentMove === i + 1)}>
+        <td
+          className="text-left py-4 px-8"
+          style={moveStyle(currentMove === i + 1)}
+        >
           {i + 1}. {firstMove}
         </td>
-      </tr>,
+      </tr>
     );
   }
 
@@ -36,7 +39,7 @@ const ListMoves: React.FC<IListMoves> = ({ moves, currentMove }) => {
   }, [moves, currentMove]); // Only re-run the effect if 'moves' changes
 
   return (
-    <div className="flex-grow overflow-y-auto shadow-blur custom-scrollbar">
+    <div className="flex-grow overflow-y-auto shadow-blur custom-scrollbar w-[450px]">
       <table className="border-separate border-spacing-0 w-full bg-[rgba(10,23,38,0.8)]">
         <tbody>{formattedMoves}</tbody>
       </table>
