@@ -8,6 +8,7 @@ import RoleModal from "../components/RoleModal";
 import ListMoves from "../components/ListMoves";
 import Player1 from "../components/Player1";
 import Player2 from "../components/Player2";
+import { status } from "../utils/utils";
 
 const OnlineRoomPage: React.FC<{
   notify: (msg: string, type: string) => void;
@@ -89,7 +90,23 @@ const OnlineRoomPage: React.FC<{
         </div>
       </div>
 
-      <div className="bg-gray-700 text-white p-4">Footer</div>
+      <div className="bg-gray-700 text-white p-4 flex justify-between">
+        <div className="flex justify-start">
+          <button
+            className="bg-gray-800 text-white p-2 rounded-md"
+            onClick={handleMenu}
+          >
+            Menu
+          </button>
+          <button
+            className="bg-gray-800 text-white p-2 rounded-md ms-2"
+            onClick={handleReset}
+          >
+            Reset game
+          </button>
+        </div>
+        <p className="py-2">{status(isGameOver, winnerId, nextPlayerId)}</p>
+      </div>
       <RoleModal
         onRoleSelected={onRoleSelected}
         roles={availableRoles}
