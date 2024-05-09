@@ -80,6 +80,7 @@ PYBIND11_MODULE(pygomoku, m)
         .def_readwrite("swap", &GameActionValue::swap);
     py::class_<GameAction>(m, "GameAction")
         .def_readwrite("player", &GameAction::player)
+        .def_readwrite("timestamp", &GameAction::timestamp)
         .def_readwrite("action_type", &GameAction::action_type)
         .def_readwrite("action_value", &GameAction::action_value);
     py::class_<GameActionResult>(m, "GameActionResult")
