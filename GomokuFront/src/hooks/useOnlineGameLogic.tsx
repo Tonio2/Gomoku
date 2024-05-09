@@ -20,8 +20,6 @@ type GameLogic = {
   isRoleModalVisible: boolean;
   playerId: number;
   handleClick: (row: number, col: number) => void;
-  handleReverse: () => void;
-  handleReapply: () => void;
   handleReset: () => void;
 };
 
@@ -155,10 +153,6 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
     play(row, col);
   };
 
-  const reverse = () => {};
-
-  const reapply = () => {};
-
   const reset = async () => {
     try {
       const res = await api.resetOnlineRoom(roomId);
@@ -181,8 +175,6 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
     isRoleModalVisible,
     playerId,
     handleClick: handleClick,
-    handleReverse: reverse,
-    handleReapply: reapply,
     handleReset: reset,
   };
 };

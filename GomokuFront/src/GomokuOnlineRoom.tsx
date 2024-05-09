@@ -44,8 +44,6 @@ const Game: React.FC<{notify: (msg: string, type: string) => void}> = ({notify})
     isRoleModalVisible,
     playerId,
     handleClick,
-    handleReverse,
-    handleReapply,
     handleReset,
   } = useGameLogic(notify);
   const navigate = useNavigate();
@@ -80,18 +78,6 @@ const Game: React.FC<{notify: (msg: string, type: string) => void}> = ({notify})
         </h1>
         <ScoreBoard players={players} />
         <ListMoves moves={listMoves} currentMove={currentMove} />
-        <div className="grid grid-cols-2 gap-4">
-          <Button
-            onClick={() => handleReverse()}
-            text="Reverse"
-            disabled={currentMove === 0}
-          />
-          <Button
-            onClick={() => handleReapply()}
-            text="Reapply"
-            disabled={currentMove === listMoves.length}
-          />
-        </div>
       </div>
       <RoleModal
         onRoleSelected={onRoleSelected}
