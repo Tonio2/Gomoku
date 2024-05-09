@@ -121,6 +121,24 @@ const useGameLogic = (
     };
   }, [roomId]);
 
+  useEffect(() => {
+    const handleSwapChoice = async () => {
+      let input = "";
+      while (input.toLowerCase() !== "y" && input.toLowerCase() !== "n")
+        input = prompt("swap? (Y/N)") || "";
+      socket.emit(
+        "swap",
+        { room_id: roomId, swap: input.toLowerCase() === "y" },
+        (success: boolean, message: string) => {
+          if (!success) notify(message, "error");
+        }
+      );
+    };
+
+    if (!hasPendingAction && nextAction === 1 && nextPlayerId == playerId - 1)
+      handleSwapChoice();
+  }, [hasPendingAction, nextAction, nextPlayerId, playerId]);
+
   const onRoleSelected = useCallback(
     (_playerId: number) => {
       socket.emit(

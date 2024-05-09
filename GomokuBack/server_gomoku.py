@@ -59,6 +59,8 @@ def create_online_room():
     room_id = generate_room_id()
     online_room = OnlineRoom(size, rule_style)
     online_rooms[room_id] = online_room
+    while online_room.has_pending_action():
+        online_room.perform_pending_action()
     return jsonify({"success": True, "roomId": room_id})
 
 
@@ -143,7 +145,18 @@ def on_make_move(data):
     return True, ""
 
 
-# TODO : Disconnect
+@socketio.on("swap")
+@handle_socket_exception
+def on_swap(data):
+    room_id = data["room_id"]
+    ip = request.sid
+    swap = data["swap"]
+    room = online_rooms.get(room_id)
+    if not room:
+        raise RoomError("Room not found")
+    room.swap(ip, swap)
+    emit("update", room.get_state(), to=room_id)
+    return True, ""
 
 
 @app.route("/create_room", methods=["POST"])
@@ -228,8 +241,8 @@ def reapply_move():
     return jsonify(state)
 
 
-@app.route("/ai_turn", methods=["POST"])
-def ai_turn():
+@app.route("/pending_action", methods=["POST"])
+def pending_action():
     user_id = request.json["user_id"]
     room = rooms.get(user_id)
     if not room:
