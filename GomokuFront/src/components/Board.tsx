@@ -22,7 +22,7 @@ const Board: React.FC<IBoard> = ({
   const [hoveredCell, setHoveredCell] = React.useState<[number, number]>([
     -1, -1,
   ]);
-  const innerHeight = height - 96;
+  const innerHeight = height - 62;
   const squareHeight = innerHeight / (board.length + 2);
   const heightString = squareHeight.toString();
   return (
