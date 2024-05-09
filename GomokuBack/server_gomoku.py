@@ -115,6 +115,7 @@ def on_join(data):
     return True, ""
 
 
+@socketio.on("disconnect_request")
 @socketio.on("disconnect")
 def test_disconnect():
     for room_id, room in online_rooms.items():
