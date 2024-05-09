@@ -9,6 +9,7 @@ interface IBoard {
   board: number[][];
   handleClick: (row: number, col: number) => void;
   suggestionBoard: number[][][];
+  height: number;
 }
 
 const Board: React.FC<IBoard> = ({
@@ -16,20 +17,33 @@ const Board: React.FC<IBoard> = ({
   board,
   handleClick,
   suggestionBoard,
+  height,
 }) => {
   const [hoveredCell, setHoveredCell] = React.useState<[number, number]>([
     -1, -1,
   ]);
+  const innerHeight = height - 32;
+  const squareHeight = innerHeight / 21;
+  const heightString = squareHeight.toString();
   return (
     <>
-      <div className="flex">
-        <div className="w-[40px] leading-[40px]"></div>{" "}
+      <div style={{ width: innerHeight }} className="flex">
+        <div
+          style={{
+            width: `${heightString}px`,
+            lineHeight: `${heightString}px`,
+          }}
+        ></div>{" "}
         {/* Placeholder for the top-left corner */}
         {board[0].map((_, col) => (
           <div
             key={col}
+            style={{
+              width: `${heightString}px`,
+              lineHeight: `${heightString}px`,
+            }}
             className={
-              "w-[40px] leading-[40px] text-center" +
+              "text-center" +
               (hoveredCell[1] === col ? " font-bold text-lg" : "")
             }
           >
@@ -38,11 +52,19 @@ const Board: React.FC<IBoard> = ({
         ))}
       </div>
       {board.map((row, i) => (
-        <div className="flex" key={formatCoordinate(i)}>
+        <div
+          style={{ width: innerHeight }}
+          className="flex"
+          key={formatCoordinate(i)}
+        >
           <div
+            style={{
+              width: `${heightString}px`,
+              height: `${heightString}`,
+              lineHeight: `${heightString}px`,
+            }}
             className={
-              "h-[40px] w-[40px] text-center leading-[40px]" +
-              (hoveredCell[0] === i ? " font-bold text-lg" : "")
+              "text-center" + (hoveredCell[0] === i ? " font-bold text-lg" : "")
             }
           >
             {formatCoordinate(i)}
@@ -58,26 +80,40 @@ const Board: React.FC<IBoard> = ({
               onMouseLeave={() => setHoveredCell([-1, -1])}
               horizontalHighlight={i === hoveredCell[0]}
               verticalHighlight={j === hoveredCell[1]}
+              height={squareHeight}
             />
           ))}
           <div
+            style={{
+              width: `${heightString}px`,
+              height: `${heightString}`,
+              lineHeight: `${heightString}px`,
+            }}
             className={
-              "h-[40px] w-[40px] text-center leading-[40px]" +
-              (hoveredCell[0] === i ? " font-bold text-lg" : "")
+              "text-center" + (hoveredCell[0] === i ? " font-bold text-lg" : "")
             }
           >
             {formatCoordinate(i)}
           </div>
         </div>
       ))}
-      <div className="flex">
-        <div className="w-[40px] leading-[40px]"></div>{" "}
+      <div style={{ width: innerHeight }} className="flex">
+        <div
+          style={{
+            width: `${heightString}px`,
+            lineHeight: `${heightString}px`,
+          }}
+        ></div>{" "}
         {/* Placeholder for the top-left corner */}
         {board[0].map((_, col) => (
           <div
             key={col}
+            style={{
+              width: `${heightString}px`,
+              lineHeight: `${heightString}px`,
+            }}
             className={
-              "w-[40px] leading-[40px] text-center" +
+              "text-center" +
               (hoveredCell[1] === col ? " font-bold text-lg" : "")
             }
           >

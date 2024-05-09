@@ -1,4 +1,7 @@
 import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { status } from "./utils/utils";
 
 import useGameLogic from "./hooks/useOnlineGameLogic";
 
@@ -7,29 +10,10 @@ import ListMoves from "./components/ListMoves";
 import Button from "./components/Button";
 import ScoreBoard from "./components/ScoreBoard";
 import RoleModal from "./components/RoleModal";
-import { useNavigate } from "react-router-dom";
 
-const status = (
-  isGameOver: boolean,
-  winnerId: number,
-  nextPlayerId: number,
-) => {
-  let status;
-  let next = (nextPlayerId + 1).toString();
-  let winner = (winnerId + 1).toString();
-  if (isGameOver) {
-    if (winnerId === -1) {
-      status = "Draw!";
-    } else {
-      status = "Player " + winner + " wins!";
-    }
-  } else {
-    status = "Waiting for Player " + next + "...";
-  }
-  return status;
-};
-
-const Game: React.FC<{notify: (msg: string, type: string) => void}> = ({notify}) => {
+const Game: React.FC<{ notify: (msg: string, type: string) => void }> = ({
+  notify,
+}) => {
   const {
     board,
     nextPlayerId,
@@ -59,6 +43,7 @@ const Game: React.FC<{notify: (msg: string, type: string) => void}> = ({notify})
         board={board}
         handleClick={handleClick}
         suggestionBoard={suggestionBoard}
+        height={40}
       />
     );
   }, [players, nextPlayerId, board, handleClick, suggestionBoard]);
