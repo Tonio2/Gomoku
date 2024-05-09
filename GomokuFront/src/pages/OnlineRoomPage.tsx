@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import useGameLogic from "../hooks/useOnlineGameLogic";
 
 import Board from "../components/Board";
 import RoleModal from "../components/RoleModal";
+import ListMoves from "../components/ListMoves";
 
 const OnlineRoomPage: React.FC<{
   notify: (msg: string, type: string) => void;
@@ -27,6 +28,7 @@ const OnlineRoomPage: React.FC<{
   } = useGameLogic(notify);
   const navigate = useNavigate();
   const [height, setHeight] = React.useState(40);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
 
   useEffect(() => {
     // Get height of div with id content
@@ -34,6 +36,10 @@ const OnlineRoomPage: React.FC<{
     if (content) {
       const contentHeight = content.clientHeight;
       setHeight(contentHeight);
+      const contentWidth = content.clientWidth;
+      if (contentWidth > contentHeight + 450) {
+        setIsVisible(true);
+      }
     }
   }, []);
 
@@ -66,7 +72,16 @@ const OnlineRoomPage: React.FC<{
       <div className="bg-gray-800 text-white p-4">Menu</div>
 
       <div className="flex-grow p-4 overflow-x-auto" id="content">
-        {boardJSX}
+        <div className="flex">
+          <div className="flex-grow flex justify-center">
+            <div>{boardJSX}</div>
+          </div>
+          {isVisible && (
+            <div className="flex justify-start">
+              <ListMoves moves={listMoves} currentMove={currentMove} />
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="bg-gray-700 text-white p-4">Footer</div>
