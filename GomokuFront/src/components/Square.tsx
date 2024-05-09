@@ -11,6 +11,7 @@ interface ISquare {
   onMouseLeave: () => void;
   horizontalHighlight: boolean;
   verticalHighlight: boolean;
+  height: number;
 }
 
 const Square: React.FC<ISquare> = ({
@@ -22,10 +23,16 @@ const Square: React.FC<ISquare> = ({
   onMouseLeave,
   horizontalHighlight,
   verticalHighlight,
+  height,
 }) => {
+  const heightString = height.toString();
   return (
     <div
-      className="group relative w-[40px] h-[40px]"
+      style={{
+        width: `${heightString}px`,
+        height: `${heightString}px`,
+      }}
+      className={`group relative`}
       onClick={onSquareClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -42,11 +49,12 @@ const Square: React.FC<ISquare> = ({
           (verticalHighlight ? "bg-[#0ff] shadow-strongBlur" : "")
         }
       ></div>
-      <Stone value={value} type={StoneType.Standard} />
+      <Stone value={value} type={StoneType.Standard} height={height} />
       {value === "" && (
         <Stone
           value={nextPlayerColor === 0 ? "X" : "O"}
           type={StoneType.Hover}
+          height={height}
         />
       )}
       {suggestion[1] > 0 && (
@@ -54,6 +62,7 @@ const Square: React.FC<ISquare> = ({
           value={["", "X", "O"][suggestion[1]]}
           type={StoneType.Suggestion}
           text={suggestion[0].toString()}
+          height={height}
         />
       )}
     </div>

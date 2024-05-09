@@ -18,6 +18,7 @@ const PlayerStats: React.FC<IPlayerStats> = ({ player }) => {
               <Stone
                 value={player.color === 0 ? "X" : "O"}
                 type={StoneType.Display}
+                height={40}
               />
             </div>
           </td>
