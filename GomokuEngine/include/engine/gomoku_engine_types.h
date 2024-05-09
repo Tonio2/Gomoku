@@ -22,6 +22,10 @@ enum Player : uint8_t
 
 std::ostream &operator<<(std::ostream &stream, Player player);
 
+typedef Matrix<Player>::Index GomokuCellIndex;
+
+bool operator==(const GomokuCellIndex &lhs, const GomokuCellIndex &rhs);
+
 enum StructureType : uint8_t
 {
     NONE = 0,
@@ -53,4 +57,7 @@ struct MoveResult
 
     int8_t white_score_change = 0;
     int8_t black_score_change = 0;
+
+    GomokuCellIndex previous_min_move;
+    GomokuCellIndex previous_max_move;
 };

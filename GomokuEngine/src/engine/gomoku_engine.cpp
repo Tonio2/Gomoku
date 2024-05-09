@@ -23,6 +23,11 @@ std::ostream &operator<<(std::ostream &stream, Player player)
     return stream;
 }
 
+bool operator==(const GomokuCellIndex &lhs, const GomokuCellIndex &rhs)
+{
+    return lhs.row == rhs.row && lhs.col == rhs.col;
+}
+
 std::ostream &operator<<(std::ostream &stream, StructureType structure_type)
 {
     stream << structure_names[structure_type];
@@ -32,6 +37,8 @@ std::ostream &operator<<(std::ostream &stream, StructureType structure_type)
 // Definitions of GomokuGame methods
 GomokuGame::GomokuGame(uint width, uint height, bool capture_enabled)
     : board(width, height),
+      _min_played(width, height),
+      _max_played(0, 0),
       empty_cells(width * height),
       current_player(X),
       players_scores({0, 0, 0}),
@@ -50,6 +57,8 @@ GomokuGame::GomokuGame(uint width, uint height, bool capture_enabled)
 
 GomokuGame::GomokuGame(const GomokuGame &copy)
     : board(copy.board),
+      _min_played(copy._min_played),
+      _max_played(copy._max_played),
       empty_cells(copy.empty_cells),
       current_player(copy.current_player),
       players_scores(copy.players_scores),
@@ -65,6 +74,8 @@ GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
     if (this != &copy)
     {
         board = copy.board;
+        _min_played = copy._min_played;
+        _max_played = copy._max_played;
         empty_cells = copy.empty_cells;
         current_player = copy.current_player;
         players_scores = copy.players_scores;
@@ -111,6 +122,27 @@ void GomokuGame::modify_player_score(Player player, int score)
     players_scores[player] += score;
 }
 
+std::pair<GomokuCellIndex, GomokuCellIndex> GomokuGame::get_played_bounds(int margin) const
+{
+    if (margin == 0)
+        return {_min_played, _max_played};
+
+    GomokuCellIndex min_played = GomokuCellIndex(
+        std::max(0, _min_played.row - margin),
+        std::max(0, _min_played.col - margin));
+
+    GomokuCellIndex max_played = GomokuCellIndex(
+        std::min(get_board_height() - 1, _max_played.row + margin),
+        std::min(get_board_width() - 1, _max_played.col + margin));
+
+    return {min_played, max_played};
+}
+
+const GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player) const
+{
+    return players_reconizers[player];
+}
+
 const std::vector<int> &GomokuGame::get_patterns_count(Player player)
 {
     TIMER
@@ -152,6 +184,9 @@ MoveResult GomokuGame::make_move(int row, int col)
 {
     TIMER
     MoveResult move_result;
+    move_result.previous_min_move = _min_played;
+    move_result.previous_max_move = _max_played;
+
     const int old_black_score = get_player_score(X);
     const int old_white_score = get_player_score(O);
 
@@ -166,16 +201,13 @@ MoveResult GomokuGame::make_move(int row, int col)
         throw std::invalid_argument("Cell is already occupied");
     }
 
-    bool captured = false;
+    const CellChange cell_change = set_board_value(row, col, current_player);
+    move_result.cell_changes.push_back(cell_change);
 
-    if (_capture_enabled)
-        captured = capture(row, col, current_player, move_result);
+    bool captured = capture(row, col, current_player, move_result);
 
     move_result.black_score_change = get_player_score(X) - old_black_score;
     move_result.white_score_change = get_player_score(O) - old_white_score;
-
-    const CellChange cell_change = set_board_value(row, col, current_player);
-    move_result.cell_changes.push_back(cell_change);
 
     players_reconizers[X].update_patterns_with_move(*this, move_result);
     players_reconizers[O].update_patterns_with_move(*this, move_result);
@@ -195,6 +227,15 @@ MoveResult GomokuGame::make_move(int row, int col)
     check_win(current_player);
 
     current_player = other_player(current_player);
+
+    if (row < _min_played.row)
+        _min_played.row = row;
+    if (row > _max_played.row)
+        _max_played.row = row;
+    if (col < _min_played.col)
+        _min_played.col = col;
+    if (col > _max_played.col)
+        _max_played.col = col;
 
     return move_result;
 }
@@ -217,6 +258,9 @@ void GomokuGame::reverse_move(const MoveResult &move)
 
     winner = E;
     is_game_over_flag = false;
+
+    _min_played = move.previous_min_move;
+    _max_played = move.previous_max_move;
 }
 
 void GomokuGame::reapply_move(const MoveResult &move)
@@ -235,6 +279,18 @@ void GomokuGame::reapply_move(const MoveResult &move)
     check_win(current_player);
 
     current_player = other_player(current_player);
+
+    const int8_t &row = move.cell_changes[0].row;
+    const int8_t &col = move.cell_changes[0].col;
+
+    if (row < _min_played.row)
+        _min_played.row = row;
+    if (row > _max_played.row)
+        _max_played.row = row;
+    if (col < _min_played.col)
+        _min_played.col = col;
+    if (col > _max_played.col)
+        _max_played.col = col;
 }
 
 bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result)

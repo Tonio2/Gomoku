@@ -75,8 +75,6 @@ struct PatternCellData
 
 std::ostream &operator<<(std::ostream &stream, const PatternCellData &cell_data);
 
-typedef Matrix<Player>::Index GomokuCellIndex;
-
 struct PatternCellIndex : public Matrix<PatternCellData>::Index
 {
     PatternCellIndex(int row, int col);
@@ -118,7 +116,8 @@ public:
     bool five_or_more_cant_be_captured(const GomokuGame &board);
     bool can_be_captured(const GomokuGame &board);
 
-    std::pair<StructureType, GomokuCellIndex> get_structure_at(GomokuCellIndex index, PatternDirection direction) const;
+    std::pair<StructureType, GomokuCellIndex> get_structure_at(GomokuCellIndex index, PatternDirection direction, int min_distance = 1) const;
+    bool has_structure_around(GomokuCellIndex index, int distance) const;
 
     const Matrix<PatternCellData> &get_pattern_cell_matrix(PatternDirection direction) const;
 
@@ -151,7 +150,6 @@ private:
      */
     void update_cell_direction(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
 
-    static std::pair<int, int> get_direction_offset(PatternDirection direction);
     static PatternCellIndex get_index_offset(PatternCellIndex index, PatternDirection direction, int distance = 1);
 
     void activate_tagging_mode();

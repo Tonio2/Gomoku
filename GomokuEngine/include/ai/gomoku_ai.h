@@ -32,20 +32,24 @@ private:
     GomokuAIData evaluation_data;
 
     MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
-    int pseudo_heuristic_evaluation(std::pair<int, int> move);
     int score_player(Player player);
 
-    std::vector<MoveHeuristic> find_relevant_moves() const;
+    void find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves) const;
+    bool is_cell_relevant(int row, int col) const;
+
+    int _heuristic_evaluation();
+    void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer);
 
 public:
-    void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int depth);
-
     int move_count;
     int move_evaluated_count;
     int evaluation_needed_count;
     GomokuAI(int depth, GomokuAIData data = GomokuAIData());
-    MoveEvaluation suggest_move(const GomokuGame &board, Player player); // TODO: SHould't we make a copy ? What if suggest_move is interrupted or something?
-    int heuristic_evaluation(const GomokuGame &board, Player heuristic_player);
+    MoveEvaluation suggest_move(const GomokuGame &board);
+
+    int get_heuristic_evaluation(const GomokuGame &board, Player player);
 
     const GomokuAIData &get_evaluation_data() const;
+
+    std::vector<MoveHeuristic> get_relevant_moves(const GomokuGame &board);
 };

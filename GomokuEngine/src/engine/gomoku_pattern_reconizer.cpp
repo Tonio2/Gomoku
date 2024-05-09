@@ -233,17 +233,21 @@ void GomokuPatternReconizer::update_patterns_with_move(const GomokuGame &board, 
 void GomokuPatternReconizer::print_patterns()
 {
     std::cout << "Pattern(" << _gomoku_player << "):" << std::endl;
+
+    std::cout << " Tagged:" << std::endl;
     for_each_tagged_structures(
         [](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
-        GomokuCellIndex game_index = index.to_game_index();
-        std::cout << "  " << direction << " " << data << " [" << int(game_index.row) << ';' << int(game_index.col) << "]" << std::endl; });
+            GomokuCellIndex game_index = index.to_game_index();
+            std::cout << "  " << direction << " " << data << " [" << int(game_index.row) << ';' << int(game_index.col) << "]" << std::endl;
+        });
 
-    std::cout << "  cached:" << std::endl;
+    std::cout << " Cached: {";
     for (size_t i = 0; i < _cached_pattern_count.size(); i++)
     {
-        std::cout << "    " << StructureType(i) << ':' << _cached_pattern_count[i] << std::endl;
+        std::cout << StructureType(i) << ':' << _cached_pattern_count[i] << (i == _cached_pattern_count.size() - 1 ? "" : ",");
     }
+    std::cout << "}" << std::endl;
 }
 
 const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const
@@ -307,13 +311,13 @@ bool GomokuPatternReconizer::can_be_captured(const GomokuGame &board)
     return capturable;
 }
 
-std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, PatternDirection direction) const
+std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_at(GomokuCellIndex index, PatternDirection direction, int min_distance) const
 {
     const Matrix<PatternCellData> &cell_matrix(_cell_matrices[direction]);
 
-    std::function<std::pair<StructureType, GomokuCellIndex>(PatternCellIndex, bool, bool)> find_structure;
+    std::function<std::pair<StructureType, GomokuCellIndex>(PatternCellIndex, int, bool, bool)> find_structure;
 
-    find_structure = [cell_matrix, &find_structure, direction](PatternCellIndex i, bool try_next, bool met_gap) -> std::pair<StructureType, GomokuCellIndex>
+    find_structure = [cell_matrix, &find_structure, direction](PatternCellIndex i, int distance, bool try_next, bool met_gap) -> std::pair<StructureType, GomokuCellIndex>
     {
         if (!i.is_valid(cell_matrix))
             return std::make_pair(StructureType::NONE, i.to_game_index());
@@ -323,7 +327,7 @@ std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_
 
         /** In case of stone, search the next cell */
         if (cell_data.sequence_length > 0)
-            return find_structure(next, false, met_gap);
+            return find_structure(next, distance - 1, false, met_gap);
 
         /** In case of hole or block, look for the length of the current structure */
         if (cell_data.structure_length > 0)
@@ -331,7 +335,7 @@ std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_
             /** case of possible three */
             if (!met_gap && (cell_data.structure_length == 1 || cell_data.structure_length == 2) && (!cell_data.is_gap_open_three))
             {
-                const std::pair<StructureType, GomokuCellIndex> next_structure = find_structure(next, false, true);
+                const std::pair<StructureType, GomokuCellIndex> next_structure = find_structure(next, distance - 1, false, true);
 
                 return next_structure.first != StructureType::NONE ? next_structure : std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());
             }
@@ -339,13 +343,34 @@ std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_
             return std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());
         }
 
-        if (try_next)
-            return find_structure(next, false, met_gap);
+        if (try_next || distance > 0)
+            return find_structure(next, distance - 1, false, met_gap);
 
         return std::make_pair(StructureType::NONE, i.to_game_index());
     };
 
-    return find_structure(PatternCellIndex(index), true, false);
+    return find_structure(PatternCellIndex(index), min_distance, true, false);
+}
+
+static void clamp(int8_t &value, int8_t min, int8_t max)
+{
+    if (value < min)
+        value = min;
+    else if (value > max)
+        value = max;
+}
+
+bool GomokuPatternReconizer::has_structure_around(GomokuCellIndex index, int distance) const
+{
+    for (int i = 0; i < PatternDirection::Count_PatternDirection; ++i)
+    {
+        PatternCellIndex offset = get_index_offset(PatternCellIndex(index), PatternDirection(i), -distance);
+        clamp(offset.row, 1, _cell_matrices[i].get_height() - 2);
+        clamp(offset.col, 1, _cell_matrices[i].get_width() - 2);
+        if (get_structure_at(offset.to_game_index(), PatternDirection(i), distance * 2 + 1).first != StructureType::NONE)
+            return true;
+    }
+    return false;
 }
 
 const Matrix<PatternCellData> &GomokuPatternReconizer::get_pattern_cell_matrix(PatternDirection direction) const
@@ -619,23 +644,6 @@ void GomokuPatternReconizer::update_cell_direction(const GomokuGame &board, Patt
         {
             update_cell_direction(board, next, direction, up_to_bound);
         }
-    }
-}
-
-std::pair<int, int> GomokuPatternReconizer::get_direction_offset(PatternDirection direction)
-{
-    switch (direction)
-    {
-    case PatternDirection::LeftToRight:
-        return std::make_pair(0, 1);
-    case PatternDirection::UpToDown:
-        return std::make_pair(1, 0);
-    case PatternDirection::UpleftToDownright:
-        return std::make_pair(1, 1);
-    case PatternDirection::UprightToDownleft:
-        return std::make_pair(1, -1);
-    default:
-        return std::make_pair(0, 0);
     }
 }
 

@@ -9,7 +9,7 @@ GomokuAI::GomokuAI(int depth, GomokuAIData data)
 {
 }
 
-void sortMovesUtil(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int depth)
+void sortMovesUtil(std::vector<MoveHeuristic> &moves, bool maximizingPlayer)
 {
     TIMER
 
@@ -32,7 +32,7 @@ void sortMovesUtil(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int
     std::sort(moves.begin(), moves.end(), compare);
 }
 
-void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, int depth)
+void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer)
 {
     TIMER
     for (MoveHeuristic &move : moves)
@@ -40,7 +40,7 @@ void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlaye
         try
         {
             MoveResult game_move = game.make_move(move.row, move.col);
-            move.score = heuristic_evaluation(game, ai_player);
+            move.score = _heuristic_evaluation();
             game.reverse_move(game_move);
         }
         catch (std::exception &e)
@@ -49,7 +49,7 @@ void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlaye
         }
     }
 
-    sortMovesUtil(moves, maximizingPlayer, depth);
+    sortMovesUtil(moves, maximizingPlayer);
 }
 
 MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
@@ -70,14 +70,16 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                 node.score = 0;
         }
         else
-            node.score = heuristic_evaluation(game, ai_player);
+            node.score = _heuristic_evaluation();
         return node;
     }
 
     // Else find all the relevant moves and sort them by their heuristic evaluation if the depth is not 1.
-    std::vector<MoveHeuristic> moves = find_relevant_moves();
+    std::vector<MoveHeuristic> moves;
+    find_relevant_moves(moves);
+
     if (depth > 1)
-        sortMoves(moves, maximizingPlayer, depth);
+        sortMoves(moves, maximizingPlayer);
     int moveIdx = 1;
     node.totalEvalCount = moves.size();
     node.evaluatedMoves = moves.size();
@@ -142,33 +144,35 @@ int GomokuAI::score_player(Player player)
     {
         score += patterns_count[i] * evaluation_data.value_of_structure(i);
     }
-    score += (game.get_patterns_count(player)[OPEN_THREE] + game.get_patterns_count(player)[FOUR] + game.get_patterns_count(player)[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
-    score += (game.get_patterns_count(player)[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
+    score += (patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
+    score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
     score += evaluation_data.value_of_captures(game.get_player_score(player));
     return score;
 }
 
-int GomokuAI::heuristic_evaluation(const GomokuGame &board, Player heuristic_player)
+int GomokuAI::_heuristic_evaluation()
 {
     TIMER
-    return score_player(heuristic_player) - score_player(board.other_player(heuristic_player));
+    return score_player(ai_player) - score_player(human_player);
 }
 
-int GomokuAI::pseudo_heuristic_evaluation(std::pair<int, int> move)
-{
-    return 0;
-}
-
-MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board, Player player)
+int GomokuAI::get_heuristic_evaluation(const GomokuGame &board, Player player)
 {
     TIMER
-#ifdef NOTIMER
-    Timer timer("suggest_move");
-#endif
 
     game = board;
     ai_player = player;
     human_player = board.other_player(player);
+    return _heuristic_evaluation();
+}
+
+MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board)
+{
+    TIMER
+
+    game = board;
+    ai_player = board.get_current_player();
+    human_player = board.other_player(ai_player);
     move_count = 0;
     move_evaluated_count = 0;
     evaluation_needed_count = 0;
@@ -176,47 +180,67 @@ MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board, Player player)
     return result;
 }
 
-std::vector<MoveHeuristic> GomokuAI::find_relevant_moves() const
+void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves) const
 {
     TIMER
-    std::vector<MoveHeuristic> relevantMoves;
 
-    // Directions to check around each cell (8 directions).
-    const std::vector<std::pair<int, int>> directions = {
-        {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+    auto [min, max] = game.get_played_bounds(2);
 
-    for (int row = 0; row < game.get_board_height(); ++row)
+    for (int row = min.row; row <= max.row; ++row)
     {
-        for (int col = 0; col < game.get_board_width(); ++col)
+        for (int col = min.col; col <= max.col; ++col)
         {
-            if (game.get_board_value(row, col) == E)
-            { // Empty cell
-                bool foundStone = false;
-                for (const auto &dir : directions)
-                {
-                    for (int step = 1; step <= 2; ++step)
-                    {
-                        int newRow = row + step * dir.first;
-                        int newCol = col + step * dir.second;
+            if (game.get_board_value(row, col) != E)
+                continue;
 
-                        if (game.coordinates_are_valid(newRow, newCol) && game.get_board_value(newRow, newCol) != E)
-                        {
-                            relevantMoves.push_back(
-                                MoveHeuristic{uint8_t(row), uint8_t(col), 0});
-                            foundStone = true;
-                            break; // No need to check further if one stone is found near this cell.
-                        }
-                    }
-                    if (foundStone)
-                    {
-                        break; // No need to check further if one stone is found near this cell.
-                    }
-                }
+            if (is_cell_relevant(row, col))
+            {
+                out_relevant_moves.push_back(
+                    MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+            }
+        }
+    }
+}
+
+static const std::vector<std::pair<int, int>> _directions_offsets = {
+    {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+
+bool GomokuAI::is_cell_relevant(int row, int col) const
+{
+    for (const auto &dir : _directions_offsets)
+    {
+        for (int step = 1; step <= 2; ++step)
+        {
+            int newRow = row + step * dir.first;
+            int newCol = col + step * dir.second;
+
+            if (game.coordinates_are_valid(newRow, newCol) && game.get_board_value(newRow, newCol) != E)
+            {
+                return true;
             }
         }
     }
 
-    return relevantMoves;
+    return false;
+
+    // if (game.get_pattern_reconizer(ai_player).has_structure_around(GomokuCellIndex(row, col), 2))
+    //     return true;
+
+    // if (game.get_pattern_reconizer(human_player).has_structure_around(GomokuCellIndex(row, col), 2))
+    //     return true;
+
+    // return false;
+}
+
+std::vector<MoveHeuristic> GomokuAI::get_relevant_moves(const GomokuGame &board)
+{
+    game = board;
+    ai_player = board.get_current_player();
+    human_player = board.other_player(ai_player);
+
+    std::vector<MoveHeuristic> moves;
+    find_relevant_moves(moves);
+    return moves;
 }
 
 const GomokuAIData &GomokuAI::get_evaluation_data() const

@@ -35,7 +35,7 @@ void test_problems()
         apply_moves(game, moves);
         GomokuAI AI(get_depth_from_env());
         // Suggest a move
-        MoveEvaluation moveEvalutation = AI.suggest_move(game, moves.size() % 2 == 0 ? X : O);
+        MoveEvaluation moveEvalutation = AI.suggest_move(game);
         // Get the best move
         std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
 
@@ -125,7 +125,7 @@ void test_problem(int problem_idx)
 
     GomokuAI AI(get_depth_from_env());
     // Suggest a move
-    MoveEvaluation moveEvalutation = AI.suggest_move(game, player);
+    MoveEvaluation moveEvalutation = AI.suggest_move(game);
     // Get the best move
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     // Print the best move
@@ -160,13 +160,18 @@ void test_eval(std::string moves_string)
 
     Player last_player = game.get_current_player();
     GomokuAI AI(get_depth_from_env());
-    int evaluation = AI.heuristic_evaluation(game, last_player);
+    int evaluation = AI.get_heuristic_evaluation(game, last_player);
 
     // Display moves
     std::cout << moves << std::endl;
 
     // Display the board
-    std::cout << to_string(game, true);
+    std::cout << to_string(game, true, 2);
+    auto bounds = game.get_played_bounds();
+    std::cout << "Played bounds:"
+              << "row[" << int(bounds.first.row) << "-" << int(bounds.second.row) << "]"
+              << "col[" << int(bounds.first.col) << "-" << int(bounds.second.col) << "]"
+              << std::endl;
 
     // Display if game is over and winner
     std::cout << "Is game over: " << game.is_game_over() << "\n";
@@ -181,6 +186,19 @@ void test_eval(std::string moves_string)
 
     // Display the evaluation
     std::cout << "Board evaluation for " << last_player << ": " << evaluation << std::endl;
+
+    // Display the suggested move
+    std::vector<MoveHeuristic> relevant_moves = AI.get_relevant_moves(game);
+    std::cout << "Relevant moves (" << relevant_moves.size() << "): [";
+    for (MoveHeuristic move : relevant_moves)
+    {
+        std::cout << "(" << int(move.row) << "," << int(move.col) << "),";
+    }
+    std::cout << "]" << std::endl;
+
+    MoveEvaluation moveEvaluation = AI.suggest_move(game);
+    std::pair<int, int> bestMove = getBestMove(moveEvaluation, true);
+    std::cout << "Suggested move: " << bestMove.first << "," << bestMove.second << std::endl;
 }
 
 std::ostream &operator<<(std::ostream &stream, std::vector<int> array)
@@ -238,9 +256,14 @@ void test_line(const std::string &line)
         char cell_state = (col > 0 && col <= int(line.size())) ? line[col - 1] : 'X';
 
         auto cell_pattern = reconizer.get_structure_at(GomokuCellIndex(0, col - 1), PatternDirection::LeftToRight);
+        bool has_struct[3];
+        for (int i = 0; i < 3; i++)
+            has_struct[i] = reconizer.has_structure_around(GomokuCellIndex(0, col - 1), i);
 
         std::cout << cell_state << " -> " << cell_data << " " << all_structures << " "
-                  << cell_pattern.first << "[" << int(cell_pattern.second.col) << "]" << std::endl;
+                  << "structat=" << cell_pattern.first << "[" << int(cell_pattern.second.col) << "]"
+                  << "\t" << has_struct[0] << " " << has_struct[1] << " " << has_struct[2]
+                  << std::endl;
     }
 }
 

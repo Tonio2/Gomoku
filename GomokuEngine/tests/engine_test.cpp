@@ -337,6 +337,275 @@ TEST(DrawTest, FillAllBoardShouldDraw_WidthBoard)
     ASSERT_EQ(game.get_winner(), Player::EMPTY);
 }
 
+TEST(MoveResultTest, ReverseMove)
+{
+    GomokuGame game(7, 7);
+
+    std::string move_str = "11,12,13,14,15,21,22";
+    apply_moves(game, move_str);
+
+    MoveResult result = game.make_move(3, 3);
+
+    ASSERT_EQ(to_string(game),
+              ".......\n"
+              ".XOXOX.\n"
+              ".OX....\n"
+              "...O...\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+
+    game.reverse_move(result);
+
+    EXPECT_EQ(to_string(game),
+              ".......\n"
+              ".XOXOX.\n"
+              ".OX....\n"
+              ".......\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+}
+
+TEST(MoveResultTest, ReapplyMove)
+{
+    GomokuGame game(7, 7);
+
+    std::string move_str = "11,12,13,14,15,21,22";
+    apply_moves(game, move_str);
+
+    MoveResult result = game.make_move(3, 3);
+
+    game.reverse_move(result);
+
+    ASSERT_EQ(to_string(game),
+              ".......\n"
+              ".XOXOX.\n"
+              ".OX....\n"
+              ".......\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+
+    game.reapply_move(result);
+
+    ASSERT_EQ(to_string(game),
+              ".......\n"
+              ".XOXOX.\n"
+              ".OX....\n"
+              "...O...\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+}
+
+TEST(MoveResultTest, ReapplyMultipleMoves)
+{
+    GomokuGame game(6, 6);
+
+    std::vector<MoveResult> results;
+    for (int r = 1; r < 5; r++)
+    {
+        for (int c = 1; c < 5; c++)
+        {
+            results.push_back(game.make_move(r, c));
+        }
+    }
+
+    ASSERT_EQ(to_string(game),
+              "......\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              "......\n");
+
+    for (int i = results.size() - 1; i >= 8; i--)
+    {
+        game.reverse_move(results[i]);
+    }
+
+    ASSERT_EQ(to_string(game),
+              "......\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              "......\n"
+              "......\n"
+              "......\n");
+
+    for (int i = 8; i < results.size(); i++)
+    {
+        game.reapply_move(results[i]);
+    }
+
+    ASSERT_EQ(to_string(game),
+              "......\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              ".XOXO.\n"
+              "......\n");
+
+    for (int i = results.size() - 1; i >= 0; i--)
+    {
+        game.reverse_move(results[i]);
+    }
+
+    ASSERT_EQ(to_string(game),
+              "......\n"
+              "......\n"
+              "......\n"
+              "......\n"
+              "......\n"
+              "......\n");
+}
+
+TEST(MoveResultTest, ReverseCapture)
+{
+    GomokuGame game(7, 7);
+
+    MoveResult moves[8];
+
+    moves[0] = game.make_move(1, 1);
+    moves[1] = game.make_move(2, 2);
+    moves[2] = game.make_move(2, 1);
+    moves[3] = game.make_move(3, 3);
+    moves[4] = game.make_move(4, 4);
+    moves[5] = game.make_move(0, 1);
+    moves[6] = game.make_move(3, 4);
+    moves[7] = game.make_move(3, 1);
+
+    ASSERT_EQ(to_string(game),
+              ".O.....\n"
+              ".......\n"
+              ".......\n"
+              ".O..X..\n"
+              "....X..\n"
+              ".......\n"
+              ".......\n");
+    ASSERT_EQ(game.get_player_score(Player::BLACK), 2);
+    ASSERT_EQ(game.get_player_score(Player::WHITE), 2);
+
+    game.reverse_move(moves[7]);
+
+    ASSERT_EQ(to_string(game),
+              ".O.....\n"
+              ".X.....\n"
+              ".X.....\n"
+              "....X..\n"
+              "....X..\n"
+              ".......\n"
+              ".......\n");
+    EXPECT_EQ(game.get_player_score(Player::BLACK), 2);
+    EXPECT_EQ(game.get_player_score(Player::WHITE), 0);
+
+    game.reverse_move(moves[6]);
+    game.reverse_move(moves[5]);
+    game.reverse_move(moves[4]);
+
+    EXPECT_EQ(to_string(game),
+              ".......\n"
+              ".X.....\n"
+              ".XO....\n"
+              "...O...\n"
+              ".......\n"
+              ".......\n"
+              ".......\n");
+    EXPECT_EQ(game.get_player_score(Player::BLACK), 0);
+    EXPECT_EQ(game.get_player_score(Player::WHITE), 0);
+
+    game.reapply_move(moves[4]);
+    game.reapply_move(moves[5]);
+    game.reapply_move(moves[6]);
+    game.reapply_move(moves[7]);
+
+    EXPECT_EQ(to_string(game),
+              ".O.....\n"
+              ".......\n"
+              ".......\n"
+              ".O..X..\n"
+              "....X..\n"
+              ".......\n"
+              ".......\n");
+    EXPECT_EQ(game.get_player_score(Player::BLACK), 2);
+    EXPECT_EQ(game.get_player_score(Player::WHITE), 2);
+}
+
+TEST(PlayedBounds, PlayedBounds)
+{
+    GomokuGame game(7, 7);
+
+    game.make_move(1, 1);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(1, 1));
+    EXPECT_EQ(game.get_played_bounds(1).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(1).second, GomokuCellIndex(2, 2));
+    EXPECT_EQ(game.get_played_bounds(2).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(2).second, GomokuCellIndex(3, 3));
+
+    game.make_move(3, 3);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 3));
+    EXPECT_EQ(game.get_played_bounds(1).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(1).second, GomokuCellIndex(4, 4));
+    EXPECT_EQ(game.get_played_bounds(2).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(2).second, GomokuCellIndex(5, 5));
+
+    game.make_move(2, 2);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 3));
+
+    game.make_move(0, 2);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(0, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 3));
+
+    game.make_move(2, 5);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(0, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 5));
+    EXPECT_EQ(game.get_played_bounds(1).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(1).second, GomokuCellIndex(4, 6));
+    EXPECT_EQ(game.get_played_bounds(2).first, GomokuCellIndex(0, 0));
+    EXPECT_EQ(game.get_played_bounds(2).second, GomokuCellIndex(5, 6));
+
+    for (int i = 3; i < 20; ++i)
+    {
+        EXPECT_EQ(game.get_played_bounds(i).first, GomokuCellIndex(0, 0));
+        EXPECT_EQ(game.get_played_bounds(i).second, GomokuCellIndex(6, 6));
+    }
+}
+
+TEST(PlayedBounds, PlayedBounds_ReverseMove)
+{
+    GomokuGame game(7, 7);
+
+    MoveResult moves[5];
+
+    moves[0] = game.make_move(1, 1);
+    moves[1] = game.make_move(3, 3);
+    moves[2] = game.make_move(2, 2);
+    moves[3] = game.make_move(0, 2);
+    moves[4] = game.make_move(2, 5);
+
+    ASSERT_EQ(game.get_played_bounds().first, GomokuCellIndex(0, 1));
+    ASSERT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 5));
+
+    game.reverse_move(moves[4]);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(0, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 3));
+
+    game.reverse_move(moves[3]);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 3));
+
+    game.reverse_move(moves[2]);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(3, 3));
+
+    game.reverse_move(moves[1]);
+    EXPECT_EQ(game.get_played_bounds().first, GomokuCellIndex(1, 1));
+    EXPECT_EQ(game.get_played_bounds().second, GomokuCellIndex(1, 1));
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
