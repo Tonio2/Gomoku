@@ -29,7 +29,7 @@ const OnlineRoomPage: React.FC<{
     handleReset,
   } = useGameLogic(notify);
   const navigate = useNavigate();
-  const [height, setHeight] = React.useState(40);
+  const [height, setHeight] = React.useState(820);
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ const OnlineRoomPage: React.FC<{
             <div className="game-board me-4 md:me-0">{boardJSX}</div>
           </div>
           {isVisible && (
-            <div className="flex justify-start">
+            <div className="flex justify-start" style={{ height: height - 32 }}>
               <ListMoves moves={listMoves} currentMove={currentMove} />
             </div>
           )}
