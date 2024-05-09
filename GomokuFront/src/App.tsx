@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import GameSetting from "./GameSettings";
-import GomokuGameBoard from "./GomokuGameBoard";
+import RoomPage from "./pages/RoomPage";
 import OnlineRoomPage from "./pages/OnlineRoomPage";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -21,7 +21,7 @@ const App: React.FC = () => {
     <Router>
       <Routes>
         <Route path="/" element={<GameSetting />} />
-        <Route path="/game" element={<GomokuGameBoard notify={notify} />} />
+        <Route path="/game" element={<RoomPage notify={notify} />} />
         <Route
           path="/online_game"
           element={<OnlineRoomPage notify={notify} />}
