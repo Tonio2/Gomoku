@@ -212,7 +212,10 @@ class GameRoom:
 
     def get_move_list(self) -> List[GomokuMove]:
         move_list = []
+        first_action_time = 0
         for action in self.room.get_actions_history():
+            if len(move_list) == 0:
+                first_action_time = action.timestamp
             if action.action_type == pygomoku.GameActionType.MOVE:
                 move = GomokuMove()
                 move.player = GomokuPlayer(
@@ -220,7 +223,7 @@ class GameRoom:
                 )
                 move.row = action.action_value.move.row
                 move.column = action.action_value.move.col
-                move.timestamp = datetime.now().timestamp()
+                move.timestamp = action.timestamp - first_action_time
                 move.move_result = action.action_value.move.result
                 move_list.append(move)
         return move_list

@@ -35,6 +35,6 @@ class GameMoveListWidget(Widget):
     def move_to_str(self, move: GomokuMove) -> str:
         room = self.get_room()
         if room is None:
-            return f"{move.row}:{move.column}"
+            return f"{move.row}:{move.column} ({"{:.2f}".format(move.timestamp)})"
 
-        return room.coordinates_name(move.row, move.column)
+        return f"{room.coordinates_name(move.row, move.column)} ({"{:.2f}".format(move.timestamp)})"
