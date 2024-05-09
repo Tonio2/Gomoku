@@ -204,7 +204,10 @@ MoveResult GomokuGame::make_move(int row, int col)
     const CellChange cell_change = set_board_value(row, col, current_player);
     move_result.cell_changes.push_back(cell_change);
 
-    bool captured = capture(row, col, current_player, move_result);
+    bool captured = false;
+    
+    if (_capture_enabled)
+        captured = capture(row, col, current_player, move_result);
 
     move_result.black_score_change = get_player_score(X) - old_black_score;
     move_result.white_score_change = get_player_score(O) - old_white_score;
