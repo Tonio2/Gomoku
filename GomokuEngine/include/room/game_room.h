@@ -40,6 +40,7 @@ struct GameActionValue
 struct GameAction
 {
     PlayerId player;
+    double timestamp;
 
     GameActionType action_type;
     GameActionValue action_value;
