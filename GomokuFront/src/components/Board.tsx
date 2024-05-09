@@ -23,7 +23,7 @@ const Board: React.FC<IBoard> = ({
     -1, -1,
   ]);
   const innerHeight = height - 32;
-  const squareHeight = innerHeight / 21;
+  const squareHeight = innerHeight / (board.length + 2);
   const heightString = squareHeight.toString();
   return (
     <>
