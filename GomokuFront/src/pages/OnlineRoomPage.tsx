@@ -6,6 +6,8 @@ import useGameLogic from "../hooks/useOnlineGameLogic";
 import Board from "../components/Board";
 import RoleModal from "../components/RoleModal";
 import ListMoves from "../components/ListMoves";
+import Player1 from "../components/Player1";
+import Player2 from "../components/Player2";
 
 const OnlineRoomPage: React.FC<{
   notify: (msg: string, type: string) => void;
@@ -69,12 +71,15 @@ const OnlineRoomPage: React.FC<{
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="bg-gray-800 text-white p-4">Menu</div>
+      <div className="bg-gray-800 text-white p-4 flex justify-center md:gap-8 gap-2">
+        <Player1 player={players[0]} highlighted={nextPlayerId == 0} />
+        <Player2 player={players[1]} highlighted={nextPlayerId == 1} />
+      </div>
 
-      <div className="flex-grow p-8 overflow-x-auto" id="content">
+      <div className="flex-grow p-4 overflow-x-auto" id="content">
         <div className="flex">
           <div className="flex-grow flex justify-center">
-            <div className="game-board">{boardJSX}</div>
+            <div className="game-board me-4 md:me-0">{boardJSX}</div>
           </div>
           {isVisible && (
             <div className="flex justify-start">
