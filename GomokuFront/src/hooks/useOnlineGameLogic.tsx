@@ -23,10 +23,12 @@ type GameLogic = {
   handleReset: () => void;
 };
 
-const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic => {
+const useGameLogic = (
+  notify: (msg: string, type: string) => void
+): GameLogic => {
   const roomId = useMemo(
     () => new URLSearchParams(window.location.search).get("roomId") || "",
-    [],
+    []
   );
   const [board, setBoard] = useState<number[][]>(emptyBoard(19));
   const [listMoves, setListMoves] = useState<string[]>([]);
@@ -59,7 +61,7 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
   const [playerId, setPlayerId] = useState<number>(0);
   const [isRoleModalVisible, setIsRoleModalVisible] = useState<boolean>(false);
   const [suggestionBoard, setSuggestionsBoard] = useState<number[][][]>(
-    emptySuggestionBoard(19),
+    emptySuggestionBoard(19)
   );
 
   const updateBoard = useCallback((res: OnlineActionResult) => {
@@ -95,7 +97,7 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
         success: boolean,
         message: string,
         _playerId: number,
-        _availableRoles: boolean[],
+        _availableRoles: boolean[]
       ) => {
         if (!success) notify(message, "error");
         else {
@@ -108,13 +110,14 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
             // If I haven't got a role and roles are available
             setIsRoleModalVisible(true);
         }
-      },
+      }
     );
 
     return () => {
       socket.off("update", updateBoard);
       socket.off("disconnected", onDisconnect);
       socket.off("connected", onConnect);
+      socket.emit("disconnect_request");
     };
   }, [roomId]);
 
@@ -130,10 +133,10 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
             setPlayerId(_playerId);
             setIsRoleModalVisible(false);
           }
-        },
+        }
       );
     },
-    [roomId],
+    [roomId]
   );
 
   const play = useCallback(
@@ -143,10 +146,10 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
         { room_id: roomId, row: row, col: col },
         (success: boolean, message: string) => {
           if (!success) notify(message, "error");
-        },
+        }
       );
     },
-    [roomId],
+    [roomId]
   );
 
   const handleClick = async (row: number, col: number) => {
@@ -156,7 +159,7 @@ const useGameLogic = (notify: (msg: string, type: string) => void): GameLogic =>
   const reset = async () => {
     try {
       const res = await api.resetOnlineRoom(roomId);
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Server error");
     }
   };
