@@ -19,11 +19,11 @@ public:
     float value_of_multiple_o4() const;
     float value_of_captures(int capture_count) const;
 
-private:
     static const int STC = StructureType::COUNT_STRUCTURE_TYPE;
     static const int VALUES_COUNT = STC + 5;
     float values[VALUES_COUNT];
 
+private:
     friend class GomokuAIDataMutator;
 
     friend std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data);

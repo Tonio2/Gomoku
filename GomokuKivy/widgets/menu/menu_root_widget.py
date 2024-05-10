@@ -39,6 +39,18 @@ class MenuRootWidget(Widget):
         print("is_p1_ai: ", shared_object.room_settings.get_is_p1_ai())
         print("is_p2_ai: ", shared_object.room_settings.get_is_p2_ai())
 
+    def get_ai_difficulties_list(self):
+        return SharedObject.get_instance().room_settings.get_ai_names_list()
+
+    def set_ai_difficulty(self, player: int, value: str):
+        shared_object = SharedObject.get_instance()
+        if player == 1:
+            shared_object.room_settings.set_p1_ai_name(value)
+            print("p1_name: ", shared_object.room_settings.get_p1_ai_name())
+        elif player == 2:
+            shared_object.room_settings.set_p2_ai_name(value)
+            print("p2_name: ", shared_object.room_settings.get_p2_ai_name())
+
     def set_rule_style(self, value):
         shared_object = SharedObject.get_instance()
         rule_style = GomokuRuleStyle.STANDARD

@@ -53,7 +53,6 @@ PYBIND11_MODULE(pygomoku, m)
         .def_readwrite("score", &MoveEvaluation::score)
         .def_readwrite("listMoves", &MoveEvaluation::listMoves);
     py::class_<GomokuAI>(m, "GomokuAI")
-        .def(py::init<int>())
         .def("suggest_move", &GomokuAI::suggest_move);
 
     /** Room */
@@ -90,7 +89,10 @@ PYBIND11_MODULE(pygomoku, m)
     py::class_<GameEntitySetting>(m, "GameEntitySetting")
         .def(py::init<>())
         .def_readwrite("is_ai", &GameEntitySetting::is_ai)
-        .def_readwrite("ai_depth", &GameEntitySetting::ai_depth);
+        .def_readwrite("ai_name", &GameEntitySetting::ai_name);
+
+    m.def("get_ai_names_list", &get_ai_names_list);
+
     py::class_<GameRoomSettings>(m, "GameRoomSettings")
         .def(py::init<>())
         .def_readwrite("width", &GameRoomSettings::width)
