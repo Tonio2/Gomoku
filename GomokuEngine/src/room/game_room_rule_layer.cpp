@@ -1,21 +1,12 @@
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
 
-#include <chrono>
-
 static GameActionResult make_action_result(bool success, const std::string &message)
 {
     GameActionResult r;
     r.success = success;
     r.message = message;
     return r;
-}
-
-static double get_current_timestamp()
-{
-    auto time = std::chrono::system_clock::now().time_since_epoch();
-    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time).count();
-    return static_cast<double>(milliseconds) / 1000.0f;
 }
 
 //  mmmm    m                      #                    #
@@ -38,7 +29,6 @@ GameActionResult GameRoom::GameRuleLayerStandard::perform_action_move(PlayerId p
 
     GameAction new_action;
     new_action.player = player;
-    new_action.timestamp = get_current_timestamp();
     new_action.action_type = GameActionType::MOVE;
     new_action.action_value.move.row = row;
     new_action.action_value.move.col = col;
@@ -98,8 +88,8 @@ GameActionResult GameRoom::GameRuleLayerStandard::perform_pending_action()
 
 PlayerId GameRoom::GameRuleLayerStandard::expected_player() const
 {
-    //if (_room._game.is_game_over())
-    //    return PlayerId(0);
+    // if (_room._game.is_game_over())
+    //     return PlayerId(0);
 
     return _room.id_from_gomoku_player(_room._game.get_current_player());
 }
@@ -202,7 +192,6 @@ GameActionResult GameRoom::GameRuleLayerSwap::perform_action_move(PlayerId playe
 
     GameAction new_action;
     new_action.player = player;
-    new_action.timestamp = get_current_timestamp();
     new_action.action_type = GameActionType::MOVE;
     new_action.action_value.move.row = row;
     new_action.action_value.move.col = col;
@@ -235,7 +224,6 @@ GameActionResult GameRoom::GameRuleLayerSwap::perform_action_swap(PlayerId playe
 
     GameAction new_action;
     new_action.player = player;
-    new_action.timestamp = get_current_timestamp();
     new_action.action_type = GameActionType::SWAP;
     new_action.action_value.swap.did_swap = do_the_swap;
     _room.append_action(new_action);
