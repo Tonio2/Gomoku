@@ -83,6 +83,21 @@ GameActionType GameRoom::expected_action() const
     return _rule_layer->expected_action();
 }
 
+double GameRoom::get_player_timer(PlayerId player) const
+{
+    double timer = 0;
+    for (int i = 1; i < _action_index; i++)
+    {
+        const GameAction action = _actions[i];
+        if (action.player == player)
+        {
+            const double diff = action.timestamp - _actions[i - 1].timestamp;
+            timer += diff;
+        }
+    }
+    return timer;
+}
+
 Player GameRoom::gomoku_player_from_id(PlayerId id) const
 {
     if (_players_swapped)
@@ -190,11 +205,4 @@ void GameRoom::append_action(GameAction &action)
     _action_index++;
     _actions.resize(_action_index + 1);
     _actions[_action_index] = action;
-
-    double diff = 0;
-    if (_action_index > -1)
-    {
-        diff = action.timestamp - _actions[_action_index - 1].timestamp;
-    }
-    timers[action.player] += diff;
 }
