@@ -55,10 +55,23 @@
                         font_size: '16sp'
                     
                     BoxLayout:
+                        orientation: 'horizontal'
+
                         Spinner:
-                            text: 'Human VS Ai'
+                            text: 'medium'
+                            values: root_widget.get_ai_difficulties_list()
+                            on_text: root_widget.set_ai_difficulty(1, self.text)
+
+                        Spinner:
+                            id: ai_mode_spinner
+                            text: 'Human VS AI'
                             values: ('Human VS Human', 'Human VS AI', 'AI VS Human', 'AI VS AI')
                             on_text: root_widget.set_ai_mode(self.text)
+
+                        Spinner:
+                            text: 'medium'
+                            values: root_widget.get_ai_difficulties_list()
+                            on_text: root_widget.set_ai_difficulty(2, self.text)
 
                 BoxLayout:
                     # multiple buttons but only one is active at a time

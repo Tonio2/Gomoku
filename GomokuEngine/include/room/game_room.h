@@ -65,31 +65,31 @@ struct GameActionResult
 
 struct GameEntitySetting
 {
-    bool is_ai;
-    int ai_depth;
+    bool is_ai = false;
+    std::string ai_name = "medium";
+
+    GomokuAI *make_ai() const;
 };
 
 /** Settings of a room */
 struct GameRoomSettings
 {
     /** Width of the board */
-    int width;
+    int width = 19;
     /** Height of the board */
-    int height;
+    int height = 19;
     /** Rule styles */
-    GameRoomRuleStyle rule_style;
+    GameRoomRuleStyle rule_style = GameRoomRuleStyle::STANDARD;
     /** Toggle capture */
-    bool capture;
+    bool capture = true;
 
     /** Is the first player an AI ? */
     GameEntitySetting p1;
     /** Is the second player an AI ? */
-    GameEntitySetting p2;
-
-    GameRoomSettings() : width(19), height(19), rule_style(GameRoomRuleStyle::STANDARD), capture(true), p1({false, 4}), p2({true, 4})
-    {
-    }
+    GameEntitySetting p2 = {true, "medium"};
 };
+
+std::vector<std::string> get_ai_names_list();
 
 class GameRoom
 {

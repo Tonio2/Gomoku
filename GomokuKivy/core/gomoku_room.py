@@ -92,17 +92,21 @@ class GameRoomSettings:
     def get_is_p2_ai(self) -> bool:
         return self.settings.p2.is_ai
 
-    def set_p1_ai_depth(self, depth: int):
-        self.settings.p1.ai_depth = depth
+    @staticmethod
+    def get_ai_names_list() -> List[str]:
+        return pygomoku.get_ai_names_list()
 
-    def get_p1_ai_depth(self) -> int:
-        return self.settings.p1.ai_depth
+    def set_p1_ai_name(self, name: str):
+        self.settings.p1.ai_name = name
 
-    def set_p2_ai_depth(self, depth: int):
-        self.settings.p2.ai_depth = depth
+    def get_p1_ai_name(self) -> str:
+        return self.settings.p1.ai_name
+    
+    def set_p2_ai_name(self, name: str):
+        self.settings.p2.ai_name = name
 
-    def get_p2_ai_depth(self) -> int:
-        return self.settings.p2.ai_depth
+    def get_p2_ai_name(self) -> str:
+        return self.settings.p2.ai_name
 
     def set_total_time(self, total_time: float):
         self.total_time = total_time
