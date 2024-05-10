@@ -40,18 +40,8 @@ GameRoom::GameRoom(const GameRoomSettings &settings)
     default:
         _rule_layer = new GameRuleLayerStandard(*this);
     }
-    if (settings.p1.is_ai)
-    {
-        GomokuAiSettings p1_settings;
-        p1_settings.depth = settings.p1.ai_depth;
-        _ai1 = new GomokuAI(p1_settings);
-    }
-    if (settings.p2.is_ai)
-    {
-        GomokuAiSettings p2_settings;
-        p2_settings.depth = settings.p2.ai_depth;
-        _ai2 = new GomokuAI(p2_settings);
-    }
+    _ai1 = settings.p1.make_ai();
+    _ai2 = settings.p2.make_ai();
 }
 
 GameRoom::~GameRoom()
