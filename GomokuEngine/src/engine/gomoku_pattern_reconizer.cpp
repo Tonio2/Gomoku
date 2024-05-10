@@ -341,7 +341,13 @@ std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_
             {
                 const std::pair<StructureType, GomokuCellIndex> next_structure = find_structure(next, distance - 1, false, true);
 
-                return next_structure.first != StructureType::NONE ? next_structure : std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());
+                /** If the next structure is a three or open three then it's possibly a continuation of this structure */
+                if (next_structure.first == StructureType::OPEN_THREE || next_structure.first == StructureType::THREE)
+                {
+                    /** If the next structure is itself a different length than three, then it's the second part of this structure */
+                    if (cell_matrix[PatternCellIndex(next_structure.second)].structure_length != 3)
+                        return next_structure;
+                }
             }
 
             return std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());
