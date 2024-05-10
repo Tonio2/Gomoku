@@ -190,4 +190,11 @@ void GameRoom::append_action(GameAction &action)
     _action_index++;
     _actions.resize(_action_index + 1);
     _actions[_action_index] = action;
+
+    double diff = 0;
+    if (_action_index > -1)
+    {
+        diff = action.timestamp - _actions[_action_index - 1].timestamp;
+    }
+    timers[action.player] += diff;
 }
