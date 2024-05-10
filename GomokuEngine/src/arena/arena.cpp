@@ -143,8 +143,13 @@ int Arena::play_game(const GomokuAIData &p1, const GomokuAIData &p2)
 {
     GomokuGame game(_game_width, _game_height);
 
-    GomokuAI ai1(get_depth_from_env(), p1);
-    GomokuAI ai2(get_depth_from_env(), p2);
+    GomokuAiSettings settings;
+    settings.depth = get_depth_from_env();
+
+    settings.data = p1;
+    GomokuAI ai1(settings);
+    settings.data = p2;
+    GomokuAI ai2(settings);
 
     game.make_move(9, 9);
 

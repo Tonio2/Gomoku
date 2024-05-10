@@ -53,7 +53,6 @@ PYBIND11_MODULE(pygomoku, m)
         .def_readwrite("score", &MoveEvaluation::score)
         .def_readwrite("listMoves", &MoveEvaluation::listMoves);
     py::class_<GomokuAI>(m, "GomokuAI")
-        .def(py::init<int>())
         .def("suggest_move", &GomokuAI::suggest_move);
 
     /** Room */

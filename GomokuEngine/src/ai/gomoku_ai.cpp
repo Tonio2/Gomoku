@@ -4,8 +4,8 @@
 #include <utility>
 #include <random>
 
-GomokuAI::GomokuAI(int depth, GomokuAIData data)
-    : game(0, 0), depth(depth), evaluation_data(data), move_count(0), move_evaluated_count(0)
+GomokuAI::GomokuAI(const GomokuAiSettings &settings)
+    : game(0, 0), depth(settings.depth), length(settings.length), evaluation_data(settings.data), move_count(0), move_evaluated_count(0)
 {
 }
 
@@ -184,7 +184,7 @@ void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_move
 {
     TIMER
 
-    auto [min, max] = game.get_played_bounds(2);
+    auto [min, max] = game.get_played_bounds(length);
 
     for (int row = min.row; row <= max.row; ++row)
     {
@@ -209,7 +209,7 @@ bool GomokuAI::is_cell_relevant(int row, int col) const
 {
     for (const auto &dir : _directions_offsets)
     {
-        for (int step = 1; step <= 2; ++step)
+        for (int step = 1; step <= length; ++step)
         {
             int newRow = row + step * dir.first;
             int newCol = col + step * dir.second;
@@ -222,14 +222,6 @@ bool GomokuAI::is_cell_relevant(int row, int col) const
     }
 
     return false;
-
-    // if (game.get_pattern_reconizer(ai_player).has_structure_around(GomokuCellIndex(row, col), 2))
-    //     return true;
-
-    // if (game.get_pattern_reconizer(human_player).has_structure_around(GomokuCellIndex(row, col), 2))
-    //     return true;
-
-    // return false;
 }
 
 std::vector<MoveHeuristic> GomokuAI::get_relevant_moves(const GomokuGame &board)
