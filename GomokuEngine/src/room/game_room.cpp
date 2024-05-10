@@ -41,9 +41,17 @@ GameRoom::GameRoom(const GameRoomSettings &settings)
         _rule_layer = new GameRuleLayerStandard(*this);
     }
     if (settings.p1.is_ai)
-        _ai1 = new GomokuAI(settings.p1.ai_depth);
+    {
+        GomokuAiSettings p1_settings;
+        p1_settings.depth = settings.p1.ai_depth;
+        _ai1 = new GomokuAI(p1_settings);
+    }
     if (settings.p2.is_ai)
-        _ai2 = new GomokuAI(settings.p2.ai_depth);
+    {
+        GomokuAiSettings p2_settings;
+        p2_settings.depth = settings.p2.ai_depth;
+        _ai2 = new GomokuAI(p2_settings);
+    }
 }
 
 GameRoom::~GameRoom()

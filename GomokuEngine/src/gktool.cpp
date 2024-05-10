@@ -33,7 +33,10 @@ void test_problems()
         std::vector<std::string> problem = split(line, ':');
         std::vector<std::string> moves = split(problem[0], ',');
         apply_moves(game, moves);
-        GomokuAI AI(get_depth_from_env());
+
+        GomokuAiSettings ai_settings;
+        ai_settings.depth = get_depth_from_env();
+        GomokuAI AI(ai_settings);
         // Suggest a move
         MoveEvaluation moveEvalutation = AI.suggest_move(game);
         // Get the best move
@@ -123,7 +126,9 @@ void test_problem(int problem_idx)
     GomokuGame game(19, 19);
     apply_moves(game, moves);
 
-    GomokuAI AI(get_depth_from_env());
+    GomokuAiSettings ai_settings;
+    ai_settings.depth = get_depth_from_env();
+    GomokuAI AI(ai_settings);
     // Suggest a move
     MoveEvaluation moveEvalutation = AI.suggest_move(game);
     // Get the best move
@@ -159,7 +164,9 @@ void test_eval(std::string moves_string)
     apply_moves(game, moves);
 
     Player last_player = game.get_current_player();
-    GomokuAI AI(get_depth_from_env());
+    GomokuAiSettings ai_settings;
+    ai_settings.depth = get_depth_from_env();
+    GomokuAI AI(ai_settings);
     int evaluation = AI.get_heuristic_evaluation(game, last_player);
 
     // Display moves

@@ -4,7 +4,12 @@
 
 TEST(AiTest, Creation)
 {
-    GomokuAI ai(3);
+    GomokuAiSettings settings;
+    settings.depth = 3;
+    settings.length = 2;
+    settings.data = GomokuAIData();
+
+    GomokuAI ai(settings);
 }
 
 int main(int argc, char **argv)
