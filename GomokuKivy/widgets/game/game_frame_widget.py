@@ -43,6 +43,9 @@ class GameFrameWidget(Widget):
     def update_widget_layouts(self):
 
         room = self.get_room()
+        if room is None:
+            return
+
         game_ratio = room.get_board_width() / room.get_board_height()
         frame_ratio = self.parent.width / self.parent.height
 
@@ -66,6 +69,9 @@ class GameFrameWidget(Widget):
         self.board_widget.draw_board()
 
         room = self.get_room()
+        if room is None:
+            return
+
         board_size_y, board_size_x = room.get_board_height(), room.get_board_width()
         cell_size_x = self.board_widget.width / board_size_x
         cell_size_y = self.board_widget.height / board_size_y
