@@ -2,6 +2,15 @@
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
 
+#include <chrono>
+
+static double get_current_timestamp()
+{
+    auto time = std::chrono::system_clock::now().time_since_epoch();
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time).count();
+    return static_cast<double>(milliseconds) / 1000.0f;
+}
+
 GameRoom::GameRoom(const GameRoomSettings &settings)
     : _room_id(new_room_id()),
       _settings(settings),
@@ -173,8 +182,13 @@ GomokuAI *GameRoom::get_player_ai(PlayerId id) const
     return nullptr;
 }
 
-void GameRoom::append_action(const GameAction &action)
+void GameRoom::append_action(GameAction &action)
 {
+    action.timestamp = get_current_timestamp();
+    if (_action_index == -1)
+        _first_action_timestamp = action.timestamp;
+    action.timestamp -= _first_action_timestamp;
+
     _action_index++;
     _actions.resize(_action_index + 1);
     _actions[_action_index] = action;

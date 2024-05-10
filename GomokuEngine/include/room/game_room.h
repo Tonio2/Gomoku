@@ -139,11 +139,13 @@ private:
     GomokuAI *_ai1 = nullptr;
     GomokuAI *_ai2 = nullptr;
 
+    double _first_action_timestamp = 0;
+
     static std::string new_room_id();
 
     GomokuAI *get_player_ai(PlayerId id) const;
 
-    void append_action(const GameAction &action);
+    void append_action(GameAction &action);
 
     class IGameRuleLayer
     {
