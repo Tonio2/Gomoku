@@ -40,10 +40,13 @@ add_test(test timer_tests)
 file(GLOB_RECURSE ENGINE_SOURCES "../src/engine/*.cpp" ${UTILITIES_SOURCES})
 
 add_executable(engine_tests engine_test.cpp ${ENGINE_SOURCES} ${TIMER_SOURCES} ${MATRIX_SOURCES})
+add_executable(structure_tests structure_test.cpp ${ENGINE_SOURCES} ${TIMER_SOURCES} ${MATRIX_SOURCES})
 
 target_link_libraries(engine_tests ${GTEST_LIBRARIES} pthread)
+target_link_libraries(structure_tests ${GTEST_LIBRARIES} pthread)
 
 add_test(test engine_tests)
+add_test(test structure_tests)
 
 ############ AI TESTS ############
 
