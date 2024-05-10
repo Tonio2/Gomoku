@@ -234,3 +234,12 @@ std::ostream &operator<<(std::ostream &stream, std::vector<std::string> moves)
     }
     return stream;
 }
+
+std::ostream &operator<<(std::ostream &stream, std::vector<Player> structure)
+{
+    for (const Player player : structure)
+    {
+        stream << player;
+    }
+    return stream;
+}
