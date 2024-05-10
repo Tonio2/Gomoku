@@ -87,7 +87,7 @@ static const GomokuAIData ai_data_cpu4 = []()
     return data;
 }();
 
-static const std::map<std::string, GomokuAiSettings>
+static const std::vector<std::pair<std::string, GomokuAiSettings>>
     ai_prefabs = {
         {"easy", {1, 1, ai_data_default}},
         {"medium", {2, 1, ai_data_default}},
@@ -99,27 +99,26 @@ static const std::map<std::string, GomokuAiSettings>
         {"cpu4", {3, 2, ai_data_cpu4}},
 };
 
-static const std::vector<std::string> ai_names = {
-    "easy",
-    "medium",
-    "hard",
-    "deep",
-    "cpu1",
-    "cpu2",
-    "cpu3",
-    "cpu4",
-};
+static const std::vector<std::string> ai_names = []
+{
+    std::vector<std::string> names;
+    for (const auto &[name, settings] : ai_prefabs)
+        names.push_back(name);
+    return names;
+}();
 
 GomokuAI *GameEntitySetting::make_ai() const
 {
     if (!is_ai)
         return nullptr;
 
-    auto it = ai_prefabs.find(ai_name);
-    if (it == ai_prefabs.end())
-        return nullptr;
+    for (const auto &[name, settings] : ai_prefabs)
+    {
+        if (name == ai_name)
+            return new GomokuAI(settings);
+    }
 
-    return new GomokuAI(it->second);
+    return nullptr;
 }
 
 std::vector<std::string> get_ai_names_list()
