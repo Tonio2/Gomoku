@@ -39,5 +39,13 @@ DEPTH=3 ./gktool
 ## Start unit tests
 
 ```bash
+make test
+```
+
+This action requires to have gtest installed locally.
+If it’s not the case and you cannot install it, then you can use the ready made docker files to build in a container with
+docker-compose up
+
+```bash
 docker compose up
 ```
