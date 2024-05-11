@@ -51,6 +51,12 @@ def generate_room_id():
     return room_id
 
 
+@app.route("/get_ai_names", methods=["GET"])
+@handle_exceptions
+def get_ai_names():
+    return jsonify(pygomoku.get_ai_names_list())
+
+
 @app.route("/create_online_room", methods=["POST"])
 @handle_exceptions
 def create_online_room():
@@ -167,9 +173,10 @@ def create_room():
     mode = request.json.get("mode", 0)
     rule_style = request.json.get("rule_style", 0)
     ai_player = request.json.get("ai_player", 2)
+    ai_name = request.json.get("ai_name", "medium")
     room = rooms.get(user_id)
     if not room:
-        room = GomokuRoom(size, mode, rule_style, ai_player)
+        room = GomokuRoom(size, mode, rule_style, ai_player, ai_name)
         rooms[user_id] = room
     state = room.get_state()
     state["success"] = True
