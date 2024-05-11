@@ -47,6 +47,9 @@ std::vector<std::vector<Player>> generate_flanked_structures(std::vector<Player>
                 }
             }
 
+            if (structure == std::vector<Player>{E, O, O, E, O, E} && flanks[i] == O)
+                push = false;
+
             if (push)
                 ret.push_back(flanked_struct);
         }
