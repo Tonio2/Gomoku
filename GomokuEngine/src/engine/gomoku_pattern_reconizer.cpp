@@ -122,7 +122,7 @@ void PatternCellData::get_structures_type_count(std::vector<int> &array, int fac
 std::ostream &operator<<(std::ostream &stream, const PatternCellData &c)
 {
     stream << "[" << static_cast<int>(c.sequence_length)
-           << (c.is_sequence_closed ? " X " : " O ")
+           << (c.is_sequence_closed ? "x " : "o ")
            << static_cast<int>(c.structure_length)
            << (c.is_structure_closed ? "x (" : "o (")
            << static_cast<int>(c.previous_structure_length)
@@ -317,7 +317,7 @@ std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_
 
     std::function<std::pair<StructureType, GomokuCellIndex>(PatternCellIndex, int, bool, bool)> find_structure;
 
-    find_structure = [cell_matrix, &find_structure, direction](PatternCellIndex i, int distance, bool try_next, bool met_gap) -> std::pair<StructureType, GomokuCellIndex>
+    find_structure = [&cell_matrix, &find_structure, direction](PatternCellIndex i, int distance, bool try_next, bool met_gap) -> std::pair<StructureType, GomokuCellIndex>
     {
         if (!i.is_valid(cell_matrix))
             return std::make_pair(StructureType::NONE, i.to_game_index());
@@ -332,12 +332,22 @@ std::pair<StructureType, GomokuCellIndex> GomokuPatternReconizer::get_structure_
         /** In case of hole or block, look for the length of the current structure */
         if (cell_data.structure_length > 0)
         {
+            /** If we're starting a new closed sequence, then it's a block. No need to go further */
+            if (cell_data.is_sequence_closed)
+                return std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());
+
             /** case of possible three */
             if (!met_gap && (cell_data.structure_length == 1 || cell_data.structure_length == 2) && (!cell_data.is_gap_open_three))
             {
                 const std::pair<StructureType, GomokuCellIndex> next_structure = find_structure(next, distance - 1, false, true);
 
-                return next_structure.first != StructureType::NONE ? next_structure : std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());
+                /** If the next structure is a three or open three then it's possibly a continuation of this structure */
+                if (next_structure.first == StructureType::OPEN_THREE || next_structure.first == StructureType::THREE)
+                {
+                    /** If the next structure is itself a different length than three, then it's the second part of this structure */
+                    if (cell_matrix[PatternCellIndex(next_structure.second)].structure_length != 3)
+                        return next_structure;
+                }
             }
 
             return std::make_pair(cell_data.get_relevant_structure(), i.to_game_index());

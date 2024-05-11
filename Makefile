@@ -24,10 +24,4 @@ fclean:
 
 re: fclean lib
 
-reTerm: re
-	cd GomokuKivy && ${PYTHON} gomokuTerminal.py
-
-startTerm:
-	cd GomokuKivy && ${PYTHON} gomokuTerminal.py
-
 .PHONY: all run lib re reTerm startTerm

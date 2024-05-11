@@ -7,6 +7,7 @@ const GameSetting: React.FC = () => {
   const [size, setSize] = useState<number>(19); // Default board size
   const [mode, setMode] = useState<number>(0); // Default mode: Human vs AI
   const [starter, setStarter] = useState<number>(0); // Default starter: Human
+  const [aiName, setAiName] = useState<string>("medium");
   const [ruleStyle, setRuleStyle] = useState<number>(0); // Default rule style: Standard
 
   const [size2, setSize2] = useState<number>(19);
@@ -14,6 +15,7 @@ const GameSetting: React.FC = () => {
   const [rooms, setRooms] = useState<
     { roomId: string; availableRoles: boolean[] }[]
   >([]);
+  const [aiNames, setAiNames] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,13 +28,23 @@ const GameSetting: React.FC = () => {
       }
     };
 
+    const fetchAINAmes = async () => {
+      try {
+        const _aiNames = await api.getAINames();
+        setAiNames(_aiNames);
+      } catch (error: any) {
+        console.error("Server error");
+      }
+    };
+
     fetchRooms();
+    fetchAINAmes();
   }, []);
 
   const startGame = () => {
     // Redirect to the game page and pass the settings
     navigate(
-      `/game?mode=${mode}&size=${size}&starter=${starter}&ruleStyle=${ruleStyle}`
+      `/game?mode=${mode}&size=${size}&starter=${starter}&ruleStyle=${ruleStyle}&aiName=${aiName}`
     );
   };
 
@@ -87,6 +99,23 @@ const GameSetting: React.FC = () => {
               >
                 <option value="0">Human</option>
                 <option value="1">AI</option>
+              </select>
+            </div>
+          )}
+
+          {mode === 0 && (
+            <div className="mb-6">
+              <label className="block mb-2">AI:</label>
+              <select
+                className="bg-gray-700 border-2 border-[#4affef] text-[#4affef] rounded w-full px-3 py-2 focus:outline-none"
+                value={aiName}
+                onChange={(e) => setAiName(e.target.value)}
+              >
+                {aiNames.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
               </select>
             </div>
           )}
