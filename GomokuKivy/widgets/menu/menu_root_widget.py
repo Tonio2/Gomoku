@@ -9,6 +9,9 @@ from core.gomoku_room import GomokuRuleStyle
 
 class MenuRootWidget(Widget):
 
+    p1_ai_name_spinner = ObjectProperty(None)
+    p2_ai_name_spinner = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(MenuRootWidget, self).__init__(**kwargs)
 
@@ -27,15 +30,23 @@ class MenuRootWidget(Widget):
         if value == "Human VS Human":
             shared_object.room_settings.set_is_p1_ai(False)
             shared_object.room_settings.set_is_p2_ai(False)
+            self.p1_ai_name_spinner.disabled = True
+            self.p2_ai_name_spinner.disabled = True
         elif value == "Human VS AI":
             shared_object.room_settings.set_is_p1_ai(False)
             shared_object.room_settings.set_is_p2_ai(True)
+            self.p1_ai_name_spinner.disabled = True
+            self.p2_ai_name_spinner.disabled = False
         elif value == "AI VS Human":
             shared_object.room_settings.set_is_p1_ai(True)
             shared_object.room_settings.set_is_p2_ai(False)
+            self.p1_ai_name_spinner.disabled = False
+            self.p2_ai_name_spinner.disabled = True
         elif value == "AI VS AI":
             shared_object.room_settings.set_is_p1_ai(True)
             shared_object.room_settings.set_is_p2_ai(True)
+            self.p1_ai_name_spinner.disabled = False
+            self.p2_ai_name_spinner.disabled = False
         print("is_p1_ai: ", shared_object.room_settings.get_is_p1_ai())
         print("is_p2_ai: ", shared_object.room_settings.get_is_p2_ai())
 
