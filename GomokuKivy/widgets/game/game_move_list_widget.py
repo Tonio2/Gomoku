@@ -16,6 +16,9 @@ class GameMoveListWidget(GridLayout):
         CallbackCenter.shared().add_callback(
             "GomokuGame.modified", self.on_game_modified
         )
+        CallbackCenter.shared().add_callback(
+            "GomokuGame.start", self.on_game_modified
+        )
         self.bind(minimum_height=self.setter("height"))
 
     def get_room(self) -> GameRoom:
@@ -30,7 +33,10 @@ class GameMoveListWidget(GridLayout):
         target_widget = None
 
         for index, move in enumerate(room.get_move_list()):
-            label = Label(text=self.move_to_str(move))
+            label = Label(text=self.move_to_str(move), size_hint_x=0.9)
+            label.halign = "left"
+            label.text_size = (self.width, None)
+            label.padding_x = 10
             is_target_widget = room.get_move_index() == index
             label.color = (
                 (0.9, 0.9, 0.9) if is_target_widget else (0.5, 0.5, 0.5)
@@ -44,7 +50,17 @@ class GameMoveListWidget(GridLayout):
 
     def move_to_str(self, move: GomokuMove) -> str:
         room = self.get_room()
-        if room is None:
-            return f"{move.row}:{move.column} ({move.timestamp})"
+        coord_name = room.coordinates_name(move.row, move.column) if room is not None else f"{move.row}:{move.column}"
+        player_name = f"{move.player.to_str()}" 
+        timestamp = time_to_str(move.timestamp)
 
-        return f"{room.coordinates_name(move.row, move.column)} ({move.timestamp})"
+        score_change = move.move_result.black_score_change if move.player == GomokuPlayer.BLACK else move.move_result.white_score_change
+        score_change_str = f"/x" if score_change != 0 else ""
+
+        return f"{timestamp} - {player_name} => {coord_name}{score_change_str}"
+
+def time_to_str(time: float) -> str:
+    minutes = int(time // 60)
+    seconds = int(time % 60)
+    milliseconds = int((time - int(time)) * 100)
+    return f"{minutes:02d}:{seconds:02d}.{milliseconds:02d}"
