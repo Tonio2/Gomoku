@@ -27,6 +27,14 @@ class GomokuPlayer(Enum):
                 return "White"
         return "None"
 
+    def to_pygomoku(self) -> pygomoku.Player:
+        match self:
+            case GomokuPlayer.EMPTY:
+                return pygomoku.Player.EMPTY
+            case GomokuPlayer.BLACK:
+                return pygomoku.Player.BLACK
+            case GomokuPlayer.WHITE:
+                return pygomoku.Player.WHITE
 
 class GomokuMove:
     player: GomokuPlayer
@@ -131,11 +139,9 @@ class GameRoom:
 
     room: pygomoku.GameRoom
 
+    time_since_start_turn: float
     players_time: Dict[GomokuPlayer, float]
-    players_time_since_start_turn: Dict[GomokuPlayer, float]
 
-    start_turn: datetime
-    start_game: datetime
     callback_removed: bool
 
     def __init__(self, settings: GameRoomSettings):
@@ -144,12 +150,7 @@ class GameRoom:
             GomokuPlayer.WHITE: 0,
             GomokuPlayer.BLACK: 0,
         }
-        self.start_turn = datetime.now()
-        self.start_game = datetime.now()
-        self.players_time_since_start_turn = {
-            GomokuPlayer.WHITE: 0,
-            GomokuPlayer.BLACK: 0,
-        }
+        self.time_since_start_turn = 0
         Clock.schedule_interval(self.update_time, 1 / 20)
         self.pending_action_task = None
         CallbackCenter.shared().add_callback(
@@ -193,12 +194,7 @@ class GameRoom:
         return self.coordinate_index_name(row) + self.coordinate_index_name(col)
 
     def get_player_score(self, player: GomokuPlayer) -> int:
-        player = (
-            pygomoku.Player.BLACK
-            if player == GomokuPlayer.BLACK
-            else pygomoku.Player.WHITE
-        )
-        return self.room.get_color_score(player)
+        return self.room.get_color_score(player.to_pygomoku())
 
     def get_winner(self) -> GomokuPlayer:
         if self.room.get_game().is_game_over():
@@ -206,13 +202,12 @@ class GameRoom:
         return GomokuPlayer.EMPTY
 
     def update_time(self, dt: float):
-        self.players_time_since_start_turn[self.get_current_player()] = (
-            datetime.now() - self.start_turn
-        ).total_seconds()
+        self.time_since_start_turn += dt
         CallbackCenter.shared().send_message("GomokuGame.time", self)
 
     def get_player_time(self, player: GomokuPlayer) -> float:
-        return self.players_time[player] + self.players_time_since_start_turn[player]
+        turn_time = self.time_since_start_turn if player == self.get_current_player() else 0
+        return self.players_time[player] + turn_time
 
     def get_move_list(self) -> List[GomokuMove]:
         move_list = []
@@ -272,6 +267,13 @@ class GameRoom:
         expected.action_type = self.room.expected_action()
         CallbackCenter.shared().send_message("GomokuGame.expected_action", self)
         print("We expect ", expected.player, " to ", expected.action_type)
+        self.time_since_start_turn = 0
+        black_player_id = self.room.id_from_gomoku_player(GomokuPlayer.BLACK.to_pygomoku())
+        white_player_id = self.room.id_from_gomoku_player(GomokuPlayer.WHITE.to_pygomoku())
+        self.players_time = {
+            GomokuPlayer.BLACK: self.room.get_player_timer(black_player_id),
+            GomokuPlayer.WHITE: self.room.get_player_timer(white_player_id),
+        }
 
     def perform_pending_actions(self):
 
