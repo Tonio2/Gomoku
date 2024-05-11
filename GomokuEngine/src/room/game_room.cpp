@@ -86,9 +86,9 @@ GameActionType GameRoom::expected_action() const
 double GameRoom::get_player_timer(PlayerId player) const
 {
     double timer = 0;
-    for (int i = 1; i < _action_index; i++)
+    for (int i = 1; i <= _action_index; i++)
     {
-        const GameAction action = _actions[i];
+        const GameAction &action = _actions[i];
         if (action.player == player)
         {
             const double diff = action.timestamp - _actions[i - 1].timestamp;
