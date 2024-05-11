@@ -162,22 +162,15 @@
                     pos_hint: {'center_x': 0.5}
 
                 ScrollView:
-                    do_scroll_x: False
+                    id: game_move_list_scroll_view
+                    size: self.size
 
-                    BoxLayout:
-                        orientation: 'vertical'
+                    GameMoveListWidget:
+                        id: game_move_list_widget
+                        scroll_view: game_move_list_scroll_view
                         size_hint_y: None
-
-                        GameMoveListWidget:
-                            id: game_move_list_widget
-                            grid_widget: grid_layout
-
-                            GridLayout:
-                                id: grid_layout
-                                cols: 2
-                                size_hint: None, None
-                                size: game_move_list_widget.width, 0
-                                spacing: dp(10)
+                        cols: 1
+                        row_default_height: '20dp'
 
                 GameInfosWidget:
                     id: game_infos_widget
