@@ -202,7 +202,8 @@ class GameRoom:
         return GomokuPlayer.EMPTY
 
     def update_time(self, dt: float):
-        self.time_since_start_turn += dt
+        if self.room.get_action_index() >= 0:
+            self.time_since_start_turn += dt
         CallbackCenter.shared().send_message("GomokuGame.time", self)
 
     def get_player_time(self, player: GomokuPlayer) -> float:
