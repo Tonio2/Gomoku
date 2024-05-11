@@ -42,7 +42,7 @@ class GameInfosWidget(Widget):
             return
 
         def time_to_string(time: float) -> str:
-            return "{:.1f}".format(time)
+            return "{:.2f}".format(time)
 
         black_time = room.get_player_time(GomokuPlayer.BLACK)
         self.time_marker_black.text = time_to_string(black_time)
