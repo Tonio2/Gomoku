@@ -122,30 +122,30 @@ def format_actions_history(actions_history, players):
     return actions
 
 
-def room_settings(size, mode, rule_style, ai_player):
+def room_settings(size, mode, rule_style, ai_player, ai_name):
     player = {
         "is_ai": False,
-        "depth": 0,
+        "ai_name": "medium",
     }
     players = [player, player.copy()]
     if mode == MODE_PVAI:
         players[ai_player]["is_ai"] = True
-        players[ai_player]["depth"] = 3
+        players[ai_player]["ai_name"] = ai_name
     game_room_settings = pygomoku.GameRoomSettings()
     game_room_settings.width = size
     game_room_settings.height = size
     game_room_settings.rule_style = pygomoku.GameRoomRuleStyle(rule_style)
     game_room_settings.p1 = pygomoku.GameEntitySetting()
     game_room_settings.p1.is_ai = players[0]["is_ai"]
-    game_room_settings.p1.ai_depth = players[0]["depth"]
+    game_room_settings.p1.ai_name = players[0]["ai_name"]
     game_room_settings.p2 = pygomoku.GameEntitySetting()
     game_room_settings.p2.is_ai = players[1]["is_ai"]
-    game_room_settings.p2.ai_depth = players[1]["depth"]
+    game_room_settings.p2.ai_name = players[1]["ai_name"]
     return game_room_settings
 
 
 class GomokuRoom:
-    def __init__(self, size, mode, rule_style, ai_player):
+    def __init__(self, size, mode, rule_style, ai_player, ai_name):
         """Init room
         Parameters:
         size (int): Between 10 and 25
@@ -171,8 +171,11 @@ class GomokuRoom:
         self.mode = mode
         self.rule_style = pygomoku.GameRoomRuleStyle(rule_style)
         self.ai_player = ai_player
+        self.ai_name = ai_name
 
-        self.room = pygomoku.GameRoom(room_settings(size, mode, rule_style, ai_player))
+        self.room = pygomoku.GameRoom(
+            room_settings(size, mode, rule_style, ai_player, ai_name)
+        )
 
     def reset(self):
         self.room = pygomoku.GameRoom(

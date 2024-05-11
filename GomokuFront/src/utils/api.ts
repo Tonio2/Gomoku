@@ -20,7 +20,8 @@ const createGame = async (
   mode: number,
   size: number,
   ruleStyle: number,
-  starter: number
+  starter: number,
+  aiName: string
 ): Promise<ActionResult> => {
   const response = await axios.post(CREATE_GAME_URL, {
     userId: userId,
@@ -28,6 +29,7 @@ const createGame = async (
     size: size,
     rule_style: ruleStyle,
     ai_player: 1 - starter,
+    ai_name: aiName,
   });
   return response.data;
 };
@@ -57,6 +59,11 @@ const getRooms = async (): Promise<
   { roomId: string; availableRoles: boolean[] }[]
 > => {
   const response = await axios.get(GET_ROOMS_URL);
+  return response.data;
+};
+
+const getAINames = async (): Promise<string[]> => {
+  const response = await axios.get(`${API_URL}/get_ai_names`);
   return response.data;
 };
 
@@ -134,6 +141,7 @@ const api = {
   reverseMove,
   reapplyMove,
   getRooms,
+  getAINames,
   performPendingAction,
 };
 
