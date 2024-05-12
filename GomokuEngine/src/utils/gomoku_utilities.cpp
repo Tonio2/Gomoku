@@ -150,6 +150,24 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int dept
     }
 }
 
+void writeNode(std::ostream &out, const Node &root, int depth)
+{
+    std::string indent(depth * 4, ' '); // 4 spaces for each level of depth
+
+    out << indent << "Move: " << coordinate_to_char(root.move.row) << coordinate_to_char(root.move.col) << " | " << root.score << "\n";
+
+    if (!root.children.empty())
+    {
+        out << indent << "ListMoves:\n";
+
+        for (const auto &child : root.children)
+        {
+            // Increase the indentation for each level
+            writeNode(out, *child, depth + 1);
+        }
+    }
+}
+
 void logMoveEvaluation(const MoveEvaluation &eval)
 {
     std::ofstream out("log.txt");
@@ -161,6 +179,28 @@ void logMoveEvaluation(const MoveEvaluation &eval)
 
     writeMoveEvaluation(out, eval);
     out.close();
+}
+
+void logNode(const Node &root)
+{
+    std::ofstream out("log_test.txt");
+    if (!out.is_open())
+    {
+        std::cerr << "Failed to open log.txt" << std::endl;
+        return;
+    }
+
+    writeNode(out, root);
+    out.close();
+}
+
+void ft_free(Node &root)
+{
+    for (Node *child : root.children)
+    {
+        ft_free(*child);
+        delete child;
+    }
 }
 
 void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth)

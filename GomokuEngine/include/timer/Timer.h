@@ -12,8 +12,10 @@
 
 #ifndef NOTIMER
 #define TIMER Timer timer(__FUNCTION__);
+#define SOLOTIMER
 #else
 #define TIMER
+#define SOLOTIMER Timer timer(__FUNCTION__);
 #endif
 
 std::string getColor(int depth);

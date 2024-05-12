@@ -1,6 +1,7 @@
 
 #include "engine/gomoku_engine.h"
 #include "ai/gomoku_ai.h"
+#include "ai/test_ai.h"
 #include "arena/arena.h"
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
@@ -38,9 +39,9 @@ void test_problems()
         ai_settings.depth = get_depth_from_env();
         GomokuAI AI(ai_settings);
         // Suggest a move
-        MoveEvaluation moveEvalutation = AI.suggest_move(game);
+        MoveEvaluation moveEvaluation = AI.suggest_move(game);
         // Get the best move
-        std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
+        std::pair<int, int> bestMove = getBestMove(moveEvaluation, true);
 
         std::vector<std::string> expected_moves_string;
         std::vector<std::string> expected_moves;
@@ -77,11 +78,11 @@ void test_problems()
         }
         std::cout << line << std::endl;
         std::cout << "Best move: " << best_move_string << std::endl;
-        std::cout << "Total move count: " << AI.move_count << std::endl;
-        std::cout << "Total move evaluated count: " << AI.move_evaluated_count << std::endl;
-        std::cout << "Total evaluation needed count: " << AI.evaluation_needed_count << std::endl;
-        std::cout << "Percentage of moves evaluated: " << (AI.move_evaluated_count * 100) / AI.move_count << "%" << std::endl;
-        std::cout << "Percentage of evaluations needed: " << (AI.evaluation_needed_count * 100) / AI.move_evaluated_count << "%" << std::endl;
+        // std::cout << "Total move count: " << AI.move_count << std::endl;
+        // std::cout << "Total move evaluated count: " << AI.move_evaluated_count << std::endl;
+        // std::cout << "Total evaluation needed count: " << AI.evaluation_needed_count << std::endl;
+        // std::cout << "Percentage of moves evaluated: " << (AI.move_evaluated_count * 100) / AI.move_count << "%" << std::endl;
+        // std::cout << "Percentage of evaluations needed: " << (AI.evaluation_needed_count * 100) / AI.move_evaluated_count << "%" << std::endl;
         totalTime += Timer::getAccumulatedTime("suggest_move");
         problemCount++;
         Timer::printAccumulatedTimes();
@@ -138,6 +139,67 @@ void test_problem(int problem_idx)
     std::cout << "Best move for player " << player << ": " << coordinate_to_char(bestMove.first) << coordinate_to_char(bestMove.second) << std::endl;
     logMoveEvaluation(moveEvalutation);
     logTooManyEvaluationsList(moveEvalutation);
+    Timer::printAccumulatedTimes();
+
+    std::vector<int> X_patterns = game.get_patterns_count(X);
+    std::vector<int> O_patterns = game.get_patterns_count(O);
+    std::cout << "X patterns: ";
+    for (int pattern : X_patterns)
+    {
+        std::cout << pattern << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "O patterns: ";
+    for (int pattern : O_patterns)
+    {
+        std::cout << pattern << " ";
+    }
+    std::cout << std::endl;
+}
+
+void test_problem_ai_test(int problem_idx)
+{
+    if (problem_idx <= 0)
+        return;
+
+    std::ifstream in("problems.txt");
+    if (!in.is_open())
+    {
+        std::cerr << "Failed to open problems.txt" << std::endl;
+        return;
+    }
+
+    // Loop over each line
+    std::string line;
+    while (std::getline(in, line))
+    {
+        if (line[0] != '#')
+        {
+            if (problem_idx == 1)
+            {
+                break;
+            }
+            problem_idx--;
+        }
+    }
+    if (problem_idx != 1)
+        return;
+    std::vector<std::string> problem = split(line, ':');
+    std::vector<std::string> moves = split(problem[0], ',');
+    std::cout << moves << std::endl;
+    Player player = moves.size() % 2 ? O : X;
+
+    GomokuGame game(19, 19);
+    apply_moves(game, moves);
+
+    GomokuAiSettings ai_settings;
+    ai_settings.depth = get_depth_from_env();
+    TestAI AI(ai_settings);
+    // Suggest a move
+    std::pair<int, int> bestMove = AI.suggest_move(game);
+    // Print the best move
+    std::cout << to_string(game, true);
+    std::cout << "Best move for player " << player << ": " << coordinate_to_char(bestMove.first) << coordinate_to_char(bestMove.second) << std::endl;
     Timer::printAccumulatedTimes();
 
     std::vector<int> X_patterns = game.get_patterns_count(X);
@@ -300,6 +362,10 @@ int main(int argc, char *argv[])
     else if (arg1 == "arena")
     {
         Arena().play(argc, argv);
+    }
+    else if (arg1 == "test_ai")
+    {
+        test_problem_ai_test(atoi(argv[2]));
     }
     else
     {

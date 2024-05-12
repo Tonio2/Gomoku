@@ -4,6 +4,25 @@
 #include "engine/gomoku_engine.h"
 #include "ai/gomoku_ai.h"
 
+struct Move
+{
+  uint8_t row;
+  uint8_t col;
+
+  Move(uint8_t row, uint8_t col) : row(row), col(col) {}
+};
+
+class Node
+{
+public:
+  GomokuGame game;
+  Move move;
+  int score;
+  std::vector<Node *> children;
+
+  Node(GomokuGame &game, const uint8_t row = -1, const uint8_t col = -1);
+};
+
 std::vector<std::string> split(const std::string &str, char delimiter);
 
 int char_to_coordinate(char coordinate);
@@ -19,6 +38,12 @@ int get_depth_from_env(int default_depth = 3);
 void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int depth = 0);
 
 void logMoveEvaluation(const MoveEvaluation &eval);
+
+void writeNode(std::ostream &out, const Node &root, int depth = 0);
+
+void logNode(const Node &root);
+
+void ft_free(Node &root);
 
 void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth = 0);
 
