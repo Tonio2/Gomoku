@@ -393,16 +393,18 @@ PatternCellState GomokuPatternReconizer::cell_state_at(const GomokuGame &board, 
 
     const GomokuCellIndex game_index = index.to_game_index();
 
-    if (!board.coordinates_are_valid(game_index.row, game_index.col))
+    try
+    {
+        Player player = Player(board.get_board_value(game_index.row, game_index.col));
+        if (player == _gomoku_player)
+            return PatternCellState::Stoned;
+        if (player == Player::EMPTY)
+            return PatternCellState::Empty;
+    }
+    catch (std::exception &e)
+    {
         return PatternCellState::Blocked;
-
-    Player player = Player(board.get_board_value(game_index.row, game_index.col));
-
-    if (player == _gomoku_player)
-        return PatternCellState::Stoned;
-    if (player == Player::EMPTY)
-        return PatternCellState::Empty;
-    return PatternCellState::Blocked;
+    }
 }
 
 PatternCellData GomokuPatternReconizer::cell_data_following(const PatternCellData &cell, PatternCellState state) const

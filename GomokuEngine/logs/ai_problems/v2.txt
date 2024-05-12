@@ -1,0 +1,164 @@
+[1;32m# 1. Find win by open 4 -> 5 in a row...OK[0m
+44,64,45,65,46,66,47,67:48,43
+Best move: 48
+Total move count: 1922
+Total move evaluated count: 82
+Total evaluation needed count: 41
+Percentage of moves evaluated: 4%
+Percentage of evaluations needed: 50%
+1 suggest_move: 3 ms
+[1;32m# 2. Find win by closed 4 -> 5 in a row...OK[0m
+44,64,45,65,46,66,47,48:43
+Best move: 43
+Total move count: 4500
+Total move evaluated count: 2353
+Total evaluation needed count: 931
+Percentage of moves evaluated: 52%
+Percentage of evaluations needed: 39%
+1 suggest_move: 8 ms
+[1;32m# 3. Find win by capture...OK[0m
+24,23,25,26,54,53,55,56,84,83,85,86,B4,B3,B5,2C,2D,5C,5D,9C,2E,EC,5E:B6,2F,5F
+Best move: 2F
+Total move count: 113441
+Total move evaluated count: 46189
+Total evaluation needed count: 28792
+Percentage of moves evaluated: 40%
+Percentage of evaluations needed: 62%
+1 suggest_move: 109 ms
+[1;32m# 4. Block closed 4 even if able to make an open 3 or make a 4th capture...OK[0m
+44,64,45,65,46,43,47:48
+Best move: 48
+Total move count: 6793
+Total move evaluated count: 946
+Total evaluation needed count: 802
+Percentage of moves evaluated: 13%
+Percentage of evaluations needed: 84%
+1 suggest_move: 3 ms
+[1;32m# 5. Create an open 3 with capture rather than without...OK[0m
+74,63,75,53,43,00,42,0I:73
+Best move: 73
+Total move count: 9089
+Total move evaluated count: 5138
+Total evaluation needed count: 3860
+Percentage of moves evaluated: 56%
+Percentage of evaluations needed: 75%
+1 suggest_move: 10 ms
+[1;31m# 6. Block open 3...NOK[0m
+44,64,45,65,46:47,43
+Best move: 62
+Total move count: 5119
+Total move evaluated count: 1995
+Total evaluation needed count: 1291
+Percentage of moves evaluated: 38%
+Percentage of evaluations needed: 64%
+1 suggest_move: 3 ms
+[1;32m# 7. Capture a stone to remove an open 3 rather than blocking it...OK[0m
+44,55,45,00,35,40,46:25
+Best move: 25
+Total move count: 6609
+Total move evaluated count: 2644
+Total evaluation needed count: 949
+Percentage of moves evaluated: 40%
+Percentage of evaluations needed: 35%
+1 suggest_move: 4 ms
+[1;32m# 8. Don't block open 3 if able make an open 4 first...OK[0m
+66,86,67,87,68,88:65,69
+Best move: 69
+Total move count: 5133
+Total move evaluated count: 2534
+Total evaluation needed count: 1389
+Percentage of moves evaluated: 49%
+Percentage of evaluations needed: 54%
+1 suggest_move: 4 ms
+[1;32m# 9. Don't block open 3 if able to make a 4th capture that will turn into a 5th capture next turn...OK[0m
+44,45,74,75,1G,A4,4G,A5,7G,46,AG,76,DG,DF,GG,DE,HD,AF,DD,AE,AD,7F,G7,7E,7D,A6,04,05,G0,06:47,77,07
+Best move: 47
+Total move count: 300091
+Total move evaluated count: 74745
+Total evaluation needed count: 40311
+Percentage of moves evaluated: 24%
+Percentage of evaluations needed: 53%
+1 suggest_move: 143 ms
+[1;32m# 10. Create open 3 if possible...OK[0m
+66,A6,67,A7:65,68
+Best move: 65
+Total move count: 9115
+Total move evaluated count: 3960
+Total evaluation needed count: 2191
+Percentage of moves evaluated: 43%
+Percentage of evaluations needed: 55%
+1 suggest_move: 6 ms
+[1;32m# 11. Create a double closed 4 if possible and opponent not about to win...OK[0m
+66,65,67,A9,68,DC,79,GF,89,3E,99,DD,8D,GG,8E,3F:69
+Best move: 69
+Total move count: 57750
+Total move evaluated count: 24360
+Total evaluation needed count: 10728
+Percentage of moves evaluated: 42%
+Percentage of evaluations needed: 44%
+1 suggest_move: 46 ms
+[1;32m# 12. Create a closed 4 and an open 3 if possible...OK[0m
+75,D6,76,D7,77,74,89,GA,9A,GB:78
+Best move: 78
+Total move count: 32122
+Total move evaluated count: 12309
+Total evaluation needed count: 4991
+Percentage of moves evaluated: 38%
+Percentage of evaluations needed: 40%
+1 suggest_move: 27 ms
+[1;32m# 13. Create a double 3 by capturing if possible...OK[0m
+66,69,67,6A,78,D8,88,D9,6B,FF:68
+Best move: 68
+Total move count: 24151
+Total move evaluated count: 9839
+Total evaluation needed count: 3241
+Percentage of moves evaluated: 40%
+Percentage of evaluations needed: 32%
+1 suggest_move: 19 ms
+[1;32m# 14. Do not create a double 3 if no capture is possible...OK[0m
+66,B6,67,EA,78,FE,88,AE:77
+Best move: 77
+Total move count: 53823
+Total move evaluated count: 15646
+Total evaluation needed count: 7182
+Percentage of moves evaluated: 29%
+Percentage of evaluations needed: 45%
+1 suggest_move: 29 ms
+[1;31m# 15. Make a 4th capture if possible (open 4 > 4th capture > open 3) (supposed to be wrong)...NOK[0m
+32,33,62,63,A2,A3,E2,E3,4D,34,4E,64,EE,A4,HG,E4,35,EF,65,G9,A5,CA:E5
+Best move: 64
+Total move count: 104537
+Total move evaluated count: 39555
+Total evaluation needed count: 26389
+Percentage of moves evaluated: 37%
+Percentage of evaluations needed: 66%
+1 suggest_move: 75 ms
+[1;32m# 16. Make an open 4 and not a 4th capture (open 4 > 4th capture > open 3)...OK[0m
+32,33,62,63,A2,A3,E2,E3,4D,34,4E,64,EE,A4,HG,E4,35,EF,65,G9,A5,CA,4F,BF:4G,4C
+Best move: 4G
+Total move count: 163437
+Total move evaluated count: 57233
+Total evaluation needed count: 22697
+Percentage of moves evaluated: 35%
+Percentage of evaluations needed: 39%
+1 suggest_move: 106 ms
+[1;31m# 17. Make a 3rd capture if no open 3 or better are possible...NOK[0m
+32,33,62,63,A2,A3,E2,E3,4D,34,EE,64,HF,A4,35,8F,65,1G:A5
+Best move: 54
+Total move count: 78043
+Total move evaluated count: 31526
+Total evaluation needed count: 20060
+Percentage of moves evaluated: 40%
+Percentage of evaluations needed: 63%
+1 suggest_move: 60 ms
+[1;31m# 18. Create 5 in a row even if capturable (supposed to be wrong)...NOK[0m
+86,D6,87,D7,88,D8,89,68,78,15,2D,HD,2E,HE:8A
+Best move: 85
+Total move count: 30470
+Total move evaluated count: 15739
+Total evaluation needed count: 7301
+Percentage of moves evaluated: 51%
+Percentage of evaluations needed: 46%
+1 suggest_move: 32 ms
+Total time: 697.71 ms
+Average time: 38.7617 ms
