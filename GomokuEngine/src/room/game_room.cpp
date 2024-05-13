@@ -42,6 +42,11 @@ GameRoom::GameRoom(const GameRoomSettings &settings)
     }
     _ai1 = settings.p1.make_ai();
     _ai2 = settings.p2.make_ai();
+    const GameEntitySetting &setting = {
+        true,
+        "helper",
+    };
+    _ai_helper = setting.make_ai();
 }
 
 GameRoom::~GameRoom()
@@ -164,6 +169,11 @@ void GameRoom::reapply_last_action()
             _players_swapped = !_players_swapped;
         break;
     }
+}
+
+MoveEvaluation GameRoom::suggest_move()
+{
+    return _ai_helper->suggest_move(_game);
 }
 
 std::string GameRoom::new_room_id()

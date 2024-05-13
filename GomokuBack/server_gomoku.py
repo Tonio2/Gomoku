@@ -90,7 +90,6 @@ def get_online_rooms():
         for room_id, room in online_rooms.items()
     ]
 
-
 @socketio.on("whoami")
 @handle_socket_exception
 def whoami(data):
@@ -286,5 +285,5 @@ def get_suggestion():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    move_evaluation = room.get_suggestion(3, 3)
+    move_evaluation = room.get_suggestion()
     return jsonify({"success": True, "moveEvaluation": move_evaluation})

@@ -97,6 +97,7 @@ static const std::vector<std::pair<std::string, GomokuAiSettings>>
         {"cpu2", {3, 2, ai_data_cpu2}},
         {"cpu3", {3, 2, ai_data_cpu3}},
         {"cpu4", {3, 2, ai_data_cpu4}},
+        {"helper", {4, 2, ai_data_cpu2}},
 };
 
 static const std::vector<std::string> ai_names = []

@@ -4,14 +4,13 @@ import { useNavigate } from "react-router-dom";
 import useGameLogic from "../hooks/useGameLogic";
 
 import Board from "../components/Board";
-import RoleModal from "../components/RoleModal";
 import ListMoves from "../components/ListMoves";
 import Player1 from "../components/Player1";
 import Player2 from "../components/Player2";
 import { status } from "../utils/utils";
 import Button from "../components/Button";
 
-const OnlineRoomPage: React.FC<{
+const RoomPage: React.FC<{
   notify: (msg: string, type: string) => void;
 }> = ({ notify }) => {
   const {
@@ -23,6 +22,7 @@ const OnlineRoomPage: React.FC<{
     isGameOver,
     players,
     suggestionBoard,
+    getSuggestionBoard,
     handleClick,
     handleReverse,
     handleReapply,
@@ -75,7 +75,6 @@ const OnlineRoomPage: React.FC<{
         <Player1 player={players[0]} highlighted={nextPlayerId == 0} />
         <Player2 player={players[1]} highlighted={nextPlayerId == 1} />
       </div>
-
       <div className="flex-grow p-4 overflow-x-auto" id="content">
         <div className="flex">
           <div className="flex-grow flex justify-center">
@@ -103,7 +102,6 @@ const OnlineRoomPage: React.FC<{
           )}
         </div>
       </div>
-
       <div className="bg-gray-700 text-white p-4 flex justify-between">
         <div className="flex justify-start">
           <button
@@ -116,7 +114,13 @@ const OnlineRoomPage: React.FC<{
             className="bg-gray-800 text-white p-2 rounded-md ms-2"
             onClick={handleReset}
           >
-            Reset game
+            Reset
+          </button>
+          <button
+            className="bg-gray-800 text-white p-2 rounded-md ms-2"
+            onClick={getSuggestionBoard}
+          >
+            ?
           </button>
         </div>
         <p className="py-2">{status(isGameOver, winnerId, nextPlayerId)}</p>
@@ -125,4 +129,4 @@ const OnlineRoomPage: React.FC<{
   );
 };
 
-export default OnlineRoomPage;
+export default RoomPage;
