@@ -133,10 +133,13 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int dept
     std::string indent(depth * 4, ' '); // 4 spaces for each level of depth
 
     out << indent << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score << "\n";
+
+#ifndef NDEBUG
     if (depth < get_depth_from_env())
     {
         out << indent << "Evals: " << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << "\n";
     }
+#endif
 
     if (not eval.listMoves.empty())
     {
@@ -170,10 +173,12 @@ void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int 
         return;
     }
 
+#ifndef NDEBUG
     if (eval.neededEvalCount != eval.evaluatedMoves)
     {
         out << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << "\n";
     }
+#endif
 
     if (not eval.listMoves.empty())
     {
