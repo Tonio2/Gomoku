@@ -197,20 +197,21 @@ void logTooManyEvaluationsList(const MoveEvaluation &eval)
     out.close();
 }
 
-std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlayer)
+size_t getBestMoveIndex(const MoveEvaluation &eval, bool maximizingPlayer)
 {
     int bestScore = std::numeric_limits<int>::min();
     int worstScore = std::numeric_limits<int>::max();
-    std::pair<int, int> bestMove = {-1, -1};
+    size_t bestIndex = -1;
 
-    for (const auto &move : eval.listMoves)
+    for (size_t i = 0; i < eval.listMoves.size(); i++)
     {
+        const auto &move = eval.listMoves[i];
         if (maximizingPlayer)
         {
             if (move.score > bestScore)
             {
                 bestScore = move.score;
-                bestMove = move.move;
+                bestIndex = i;
             }
         }
         else
@@ -218,12 +219,17 @@ std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlaye
             if (move.score < worstScore)
             {
                 worstScore = move.score;
-                bestMove = move.move;
+                bestIndex = i;
             }
         }
     }
 
-    return bestMove;
+    return bestIndex;
+}
+
+std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlayer)
+{
+    return eval.listMoves[getBestMoveIndex(eval, maximizingPlayer)].move;
 }
 
 std::ostream &operator<<(std::ostream &stream, std::vector<std::string> moves)

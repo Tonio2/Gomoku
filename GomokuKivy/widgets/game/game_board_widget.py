@@ -10,7 +10,7 @@ from core.callback_center import CallbackCenter
 
 GRID_COLOR = (0.5, 0.3, 0.1)
 LIGHT_COLOR = (0.7, 0.7, 0.7)
-DARK_COLOR = (0.5, 0.5, 0.5)
+GREY_COLOR = (0.5, 0.5, 0.5)
 
 WHITE_COLOR = (0.9, 0.9, 0.9)
 BLACK_COLOR = (0.1, 0.1, 0.1)
@@ -18,15 +18,26 @@ BLACK_COLOR = (0.1, 0.1, 0.1)
 
 class GameBoardWidget(Widget):
 
+    suggested_move = None
+
     def __init__(self, **kwargs):
         super(GameBoardWidget, self).__init__(**kwargs)
         CallbackCenter.shared().add_callback(
             "GomokuGame.modified", self.on_gomokugame_modified
         )
+        CallbackCenter.shared().add_callback(
+            "GameRoom.suggestion", self.on_suggestion
+        )
         Window.bind(mouse_pos=self.on_mouse_pos)
 
     def get_room(self) -> GameRoom:
         return SharedObject.get_instance().get_room()
+
+    def on_suggestion(self, _, room: GameRoom):
+        self.suggested_move = room.suggested_move
+        if room == self.get_room():
+            self.draw_board()
+        self.suggested_move = None
 
     def on_gomokugame_modified(self, _, room: GameRoom):
         if room == self.get_room():
@@ -81,6 +92,17 @@ class GameBoardWidget(Widget):
                                 ),
                                 size=(cell_size_x, cell_size_y),
                             )
+
+            # Draw the suggested move
+            if self.suggested_move is not None:
+                Color(*GREY_COLOR)
+                Ellipse(
+                    pos=(
+                        self.x + self.suggested_move[1] * cell_size_x + cell_size_x * 0.1,
+                        self.y + (board_size_y - self.suggested_move[0] - 1) * cell_size_y + cell_size_y * 0.1,
+                    ),
+                    size=(cell_size_x * 0.8, cell_size_y * 0.8),
+                )
 
     def on_touch_down(self, touch):
 

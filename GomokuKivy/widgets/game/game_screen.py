@@ -22,6 +22,9 @@ class GameScreen(Screen):
         self.manager.current = "menu"
         SharedObject.get_instance().clear_room()
 
+    def suggest_move(self):
+        SharedObject.get_instance().get_room().suggest_move()
+
     def on_enter(self):
         CallbackCenter.shared().send_message("Application.draw", None)
 

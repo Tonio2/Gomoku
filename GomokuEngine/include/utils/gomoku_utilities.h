@@ -24,6 +24,7 @@ void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int 
 
 void logTooManyEvaluationsList(const MoveEvaluation &eval);
 
+size_t getBestMoveIndex(const MoveEvaluation &eval, bool maximizingPlayer = true);
 std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlayer = true);
 
 std::ostream &operator<<(std::ostream &stream, std::vector<std::string> moves);
