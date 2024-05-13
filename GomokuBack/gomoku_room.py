@@ -188,7 +188,7 @@ class GomokuRoom:
 
     def reset(self):
         self.room = pygomoku.GameRoom(
-            room_settings(self.size, self.mode, self.rule_style, self.ai_player)
+            room_settings(self.size, self.mode, self.rule_style, self.ai_player, self.ai_name)
         )
 
     def get_players(self):
