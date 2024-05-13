@@ -6,21 +6,21 @@
 
 struct Move
 {
-  uint8_t row;
-  uint8_t col;
+    uint8_t row;
+    uint8_t col;
 
-  Move(uint8_t row, uint8_t col) : row(row), col(col) {}
+    Move(uint8_t row, uint8_t col) : row(row), col(col) {}
 };
 
 class Node
 {
 public:
-  GomokuGame game;
-  Move move;
-  int score;
-  std::vector<Node *> children;
+    GomokuGame game;
+    Move move;
+    int score;
+    std::vector<Node *> children;
 
-  Node(GomokuGame &game, const uint8_t row = -1, const uint8_t col = -1);
+    Node(GomokuGame &game, const uint8_t row = -1, const uint8_t col = -1);
 };
 
 std::vector<std::string> split(const std::string &str, char delimiter);
@@ -28,7 +28,7 @@ std::vector<std::string> split(const std::string &str, char delimiter);
 int char_to_coordinate(char coordinate);
 char coordinate_to_char(int coordinate);
 
-std::string to_string(const GomokuGame &game, bool with_coordinates = false, int empty_cell_structure_distance = -1);
+std::string to_string(GomokuGame &game, bool with_coordinates = false, int empty_cell_structure_distance = -1);
 
 void apply_moves(GomokuGame &game, std::vector<std::string> moves);
 void apply_moves(GomokuGame &game, std::string move_str);

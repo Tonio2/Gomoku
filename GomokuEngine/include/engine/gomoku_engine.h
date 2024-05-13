@@ -16,7 +16,8 @@ private:
     std::vector<int> players_scores;
     bool is_game_over_flag;
     Player winner;
-    std::vector<GomokuPatternReconizer> players_reconizers;
+    GomokuPatternReconizer players_reconizersX;
+    GomokuPatternReconizer players_reconizersO;
     bool _capture_enabled;
 
     /** Capture */
@@ -53,7 +54,7 @@ public:
     CellChange set_board_value(int row, int col, Player value);
 
     std::pair<GomokuCellIndex, GomokuCellIndex> get_played_bounds(int margin = 0) const;
-    const GomokuPatternReconizer &get_pattern_reconizer(Player player) const;
+    GomokuPatternReconizer &get_pattern_reconizer(Player player);
     const std::vector<int> &get_patterns_count(Player player);
     void print_patterns();
     std::vector<std::vector<int>> get_board() const;

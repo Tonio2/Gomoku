@@ -25,7 +25,7 @@ char coordinate_to_char(int coordinate)
 
     return '?';
 }
-std::string to_string(const GomokuGame &game, bool with_coordinates, int distance)
+std::string to_string(GomokuGame &game, bool with_coordinates, int distance)
 {
     std::stringstream ss;
 

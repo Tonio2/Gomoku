@@ -44,15 +44,12 @@ GomokuGame::GomokuGame(uint width, uint height, bool capture_enabled)
       players_scores({0, 0, 0}),
       is_game_over_flag(false),
       winner(E),
-      players_reconizers({
-          GomokuPatternReconizer(E),
-          GomokuPatternReconizer(X),
-          GomokuPatternReconizer(O),
-      }),
+      players_reconizersX(X),
+      players_reconizersO(O),
       _capture_enabled(capture_enabled)
 {
-    players_reconizers[X].find_patterns_in_board(*this);
-    players_reconizers[O].find_patterns_in_board(*this);
+    players_reconizersX.find_patterns_in_board(*this);
+    players_reconizersO.find_patterns_in_board(*this);
 }
 
 GomokuGame::GomokuGame(const GomokuGame &copy)
@@ -64,7 +61,8 @@ GomokuGame::GomokuGame(const GomokuGame &copy)
       players_scores(copy.players_scores),
       is_game_over_flag(copy.is_game_over_flag),
       winner(copy.winner),
-      players_reconizers(copy.players_reconizers),
+      players_reconizersX(copy.players_reconizersX),
+      players_reconizersO(copy.players_reconizersO),
       _capture_enabled(copy._capture_enabled)
 {
 }
@@ -81,7 +79,8 @@ GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
         players_scores = copy.players_scores;
         is_game_over_flag = copy.is_game_over_flag;
         winner = copy.winner;
-        players_reconizers = copy.players_reconizers;
+        players_reconizersX = copy.players_reconizersX;
+        players_reconizersO = copy.players_reconizersO;
         _capture_enabled = copy._capture_enabled;
     }
     return *this;
@@ -138,21 +137,23 @@ std::pair<GomokuCellIndex, GomokuCellIndex> GomokuGame::get_played_bounds(int ma
     return {min_played, max_played};
 }
 
-const GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player) const
+GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player)
 {
-    return players_reconizers[player];
+    if (player == X)
+        return players_reconizersX;
+    return players_reconizersO;
 }
 
 const std::vector<int> &GomokuGame::get_patterns_count(Player player)
 {
     TIMER
-    return players_reconizers[player].get_pattern_count();
+    return get_pattern_reconizer(player).get_pattern_count();
 }
 
 void GomokuGame::print_patterns()
 {
-    players_reconizers[X].print_patterns();
-    players_reconizers[O].print_patterns();
+    players_reconizersX.print_patterns();
+    players_reconizersO.print_patterns();
 }
 
 std::vector<std::vector<int>> GomokuGame::get_board() const
@@ -190,7 +191,7 @@ MoveResult GomokuGame::make_move(int row, int col)
     const int old_black_score = get_player_score(X);
     const int old_white_score = get_player_score(O);
 
-    const int old_open_three_count = players_reconizers[current_player].get_pattern_count()[StructureType::OPEN_THREE];
+    const int old_open_three_count = get_pattern_reconizer(current_player).get_pattern_count()[StructureType::OPEN_THREE];
 
     if (!coordinates_are_valid(row, col))
     {
@@ -205,19 +206,19 @@ MoveResult GomokuGame::make_move(int row, int col)
     move_result.cell_changes.push_back(cell_change);
 
     bool captured = false;
-    
+
     if (_capture_enabled)
         captured = capture(row, col, current_player, move_result);
 
     move_result.black_score_change = get_player_score(X) - old_black_score;
     move_result.white_score_change = get_player_score(O) - old_white_score;
 
-    players_reconizers[X].update_patterns_with_move(*this, move_result);
-    players_reconizers[O].update_patterns_with_move(*this, move_result);
+    players_reconizersX.update_patterns_with_move(*this, move_result);
+    players_reconizersO.update_patterns_with_move(*this, move_result);
 
     if (!captured)
     {
-        const int new_open_three_count = players_reconizers[current_player].get_pattern_count()[StructureType::OPEN_THREE];
+        const int new_open_three_count = get_pattern_reconizer(current_player).get_pattern_count()[StructureType::OPEN_THREE];
         if (new_open_three_count - old_open_three_count > 1)
         {
             Player p = current_player;
@@ -256,8 +257,8 @@ void GomokuGame::reverse_move(const MoveResult &move)
         set_board_value(cell_change.row, cell_change.col, cell_change.old_value);
     }
 
-    players_reconizers[X].update_patterns_with_move(*this, move);
-    players_reconizers[O].update_patterns_with_move(*this, move);
+    players_reconizersX.update_patterns_with_move(*this, move);
+    players_reconizersO.update_patterns_with_move(*this, move);
 
     winner = E;
     is_game_over_flag = false;
@@ -276,8 +277,8 @@ void GomokuGame::reapply_move(const MoveResult &move)
         set_board_value(cell_change.row, cell_change.col, cell_change.new_value);
     }
 
-    players_reconizers[X].update_patterns_with_move(*this, move);
-    players_reconizers[O].update_patterns_with_move(*this, move);
+    players_reconizersX.update_patterns_with_move(*this, move);
+    players_reconizersO.update_patterns_with_move(*this, move);
 
     check_win(current_player);
 
@@ -369,10 +370,10 @@ void GomokuGame::check_win(Player player)
         return;
     }
 
-    if (players_reconizers[player].get_pattern_count()
+    if (get_pattern_reconizer(player).get_pattern_count()
             [StructureType::FIVE_OR_MORE] > 0)
     {
-        if (not _capture_enabled || players_reconizers[player].five_or_more_cant_be_captured(*this))
+        if (not _capture_enabled || get_pattern_reconizer(player).five_or_more_cant_be_captured(*this))
         {
             is_game_over_flag = true;
             winner = current_player;
@@ -382,7 +383,7 @@ void GomokuGame::check_win(Player player)
 
     if (get_player_score(other_player(player)) == 8)
     {
-        if (players_reconizers[player].can_be_captured(*this))
+        if (get_pattern_reconizer(player).can_be_captured(*this))
         {
             is_game_over_flag = true;
             winner = other_player(player);
