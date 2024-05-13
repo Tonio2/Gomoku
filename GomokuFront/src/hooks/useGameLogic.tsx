@@ -16,6 +16,7 @@ type GameLogic = {
   suggestionBoard: number[][][]; // store [currentMove, value] for each cell
   handleClick: (row: number, col: number) => void;
   getSuggestionBoard: () => void;
+  fetchingSuggestions: boolean;
   handleReverse: () => void;
   handleReapply: () => void;
   handleReset: () => void;
@@ -74,6 +75,8 @@ const useGameLogic = (
   const [suggestionBoard, setSuggestionsBoard] = useState<number[][][]>(
     emptySuggestionBoard(size)
   );
+  const [fetchingSuggestions, setFetchingSuggestions] =
+    useState<boolean>(false);
 
   const updateBoard = useCallback((res: ActionResult) => {
     setBoard(res._board);
@@ -185,6 +188,7 @@ const useGameLogic = (
 
   const getAISuggestion = async () => {
     try {
+      setFetchingSuggestions(true);
       let { moveEvaluation } = await api.getSuggestion(userId);
       const newSuggestionBoard = emptySuggestionBoard(size);
       let maximizing = true;
@@ -204,6 +208,8 @@ const useGameLogic = (
       setSuggestionsBoard(newSuggestionBoard);
     } catch (error: any) {
       console.error("Server error");
+    } finally {
+      setFetchingSuggestions(false);
     }
   };
 
@@ -244,6 +250,7 @@ const useGameLogic = (
     players,
     suggestionBoard,
     getSuggestionBoard: getAISuggestion,
+    fetchingSuggestions,
     handleClick: handleClick,
     handleReverse: reverse,
     handleReapply: reapply,
