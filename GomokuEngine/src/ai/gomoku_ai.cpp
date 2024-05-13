@@ -192,7 +192,10 @@ MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board)
     evaluation_needed_count = 0;
 #endif
     MoveEvaluation result;
-    minimax(result, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
+    if (board.has_player_bounds())
+        minimax(result, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
+    else
+        result.listMoves.push_back(MoveEvaluation{{game.get_board_height() / 2, game.get_board_width() / 2}, 1});
     return result;
 }
 
