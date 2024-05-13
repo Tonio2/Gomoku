@@ -168,7 +168,7 @@ int GomokuAI::get_heuristic_evaluation(const GomokuGame &board, Player player)
 
 MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board)
 {
-    TIMER
+    Timer timer(__FUNCTION__);
 
     game = board;
     ai_player = board.get_current_player();
