@@ -34,3 +34,5 @@
 32,33,62,63,A2,A3,E2,E3,4D,34,EE,64,HF,A4,35,8F,65,1G:A5
 # 18. Create 5 in a row even if capturable (supposed to be wrong)
 86,D6,87,D7,88,D8,89,68,78,15,2D,HD,2E,HE:8A
+# 19. Why so long ?
+89,8A,AC,AB,BB:99

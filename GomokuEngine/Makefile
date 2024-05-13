@@ -1,63 +1,63 @@
 -include .env
 export
 
-EXECUTABLE_FILE=gktool
-PY_LIBRARY_FILE=pygomoku.so
+# Directories
+SRCDIR = src
+INCDIR = include
+OBJDIR = obj
 
-ifeq ($(BUILD_TYPE),DEBUG)
-	BUILT_EXEC_FILE := $(EXECUTABLE_FILE)-debug
+# Compiler settings
+CXX = g++
+CXXFLAGS = -Wall -I$(INCDIR) -DDEPTH=$(DEPTH) -std=c++17
+
+# Mode configuration: Default is performance (PERF)
+MODE ?= PERF
+ifeq ($(MODE),DEBUG)
+	CXXFLAGS += -pg -g # Debug flags
 else
-	BUILT_EXEC_FILE := $(EXECUTABLE_FILE)
+	CXXFLAGS += -O3 -DNDEBUG # Optimize for performance
 endif
 
+# Timer configuration: Disabled by default
+TIMER ?= OFF
 ifeq ($(TIMER),OFF)
-	CXXFLAGS += -DNOTIMER
+	CXXFLAGS += -DNOTIMER # Define NOTIMER to disable timing functionality
 endif
 
+# Source and object files
+SRCFILES = 	ai/test_ai.cpp \
+						ai/gomoku_ai.cpp \
+						ai/gomoku_ai_data.cpp \
+						gktool.cpp \
+						utils/gomoku_utilities.cpp \
+						matrix/Matrix.cpp \
+						room/game_room_ai.cpp \
+						room/game_room.cpp \
+						room/game_room_rule_layer.cpp \
+						engine/gomoku_pattern_reconizer.cpp \
+						engine/gomoku_engine.cpp \
+						timer/Timer.cpp \
+						arena/ai_data_mutator.cpp \
+						arena/arena.cpp 
+SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
+OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
-TEST_BINS = $(wildcard ./build/tests/*_tests)
+# Define the executable file 
+MAIN = main
 
+all: $(MAIN)
+	echo "Successfully compiled $(MAIN) executable in $(MODE) mode with timer $(TIMER)."
 
+$(MAIN): $(OBJDIR) $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(MAIN) $(OBJS)
 
-all: $(EXECUTABLE_FILE) $(PY_LIBRARY_FILE)
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(EXECUTABLE_FILE): submodule cmake
-	cp -f ./build/$(BUILT_EXEC_FILE) $(EXECUTABLE_FILE)
-
-$(PY_LIBRARY_FILE): submodule cmake
-	cp -f $(shell find ./build/ -name "PyGomoku.*.so" -type f | xargs ls -t1 | head -n 1) $(PY_LIBRARY_FILE)
-
-build:
-	mkdir -p build
-
-submodule:
-	git submodule update --init --recursive
-
-cmake: build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make
-
-install:
-	# brew install googletest
-	# apt-get install libgtest-dev
-
-	# brew install python@3.12
-	# apt-get install python3-dev
-
-run: $(EXECUTABLE_FILE)
-	./$(EXECUTABLE_FILE)
-
-test: cmake $(TEST_BINS)
-
-$(TEST_BINS):
-	./$@
+$(OBJDIR):
+	mkdir -p $(OBJDIR)/ai $(OBJDIR)/matrix $(OBJDIR)/room $(OBJDIR)/engine $(OBJDIR)/timer $(OBJDIR)/arena $(OBJDIR)/utils
 
 clean:
-	rm -rf build
+	$(RM) $(OBJS) $(MAIN)
 
-fclean: clean
-	rm -rf $(EXECUTABLE_FILE)
-	rm -rf $(PY_LIBRARY_FILE)
-
-re: fclean all
-
-.PHONY: all submodule cmake install run test $(TEST_BINS) clean
+re: clean all
