@@ -6,8 +6,8 @@ from kivy.clock import Clock
 
 import sys
 
-sys.path.append("../lib")
-import pygomoku
+sys.path.append("lib")
+import pygomoku # type: ignore
 
 from core.callback_center import CallbackCenter
 

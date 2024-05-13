@@ -39,3 +39,13 @@ node_modules/
 
 # AI data
 *.gkd
+
+# Python executables
+/GomokuKivy/Gomoku
+/GomokuKivy/gomoku.spec
+/GomokuKivy/dist/
+/GomokuKivy/build/
+/resources/
+
+# C++ executables
+/Gomoku

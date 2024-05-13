@@ -14,3 +14,4 @@ python-socketio==5.11.1
 simple-websocket==1.0.0
 Werkzeug==3.0.1
 wsproto==1.2.0
+pyinstaller>=6.6.0
