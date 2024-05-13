@@ -138,6 +138,11 @@ std::pair<GomokuCellIndex, GomokuCellIndex> GomokuGame::get_played_bounds(int ma
     return {min_played, max_played};
 }
 
+bool GomokuGame::has_player_bounds() const
+{
+    return _min_played.row > _max_played.row || _min_played.col > _max_played.col;
+}
+
 const GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player) const
 {
     return players_reconizers[player];
@@ -205,7 +210,7 @@ MoveResult GomokuGame::make_move(int row, int col)
     move_result.cell_changes.push_back(cell_change);
 
     bool captured = false;
-    
+
     if (_capture_enabled)
         captured = capture(row, col, current_player, move_result);
 
