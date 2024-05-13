@@ -45,6 +45,7 @@ PYBIND11_MODULE(pygomoku, m)
     /** Utils */
     m.def("char_to_coordinate", &char_to_coordinate);
     m.def("coordinate_to_char", &coordinate_to_char);
+    m.def("getBestMoveIndex", &getBestMoveIndex);
 
     /** Ai */
     py::class_<MoveEvaluation>(m, "MoveEvaluation")

@@ -57,11 +57,13 @@ class GameRoomSettings:
     settings: pygomoku.GameRoomSettings
     total_time: float
     turn_time: float
+    suggested_move: List[int]
 
     def __init__(self):
         self.settings = pygomoku.GameRoomSettings()
         self.total_time = -1
         self.turn_time = -1
+        self.suggested_move = []
 
     def set_width(self, width: int):
         self.settings.width = width
@@ -260,6 +262,7 @@ class GameRoom:
         return self.room.get_action_index()
 
     def broadcast_expected_action(self, _, __):
+        self.suggested_move = []
         expected = ExpectedAction()
         expected.player_id = self.room.expected_player()
         expected.player = GomokuPlayer(
@@ -275,6 +278,16 @@ class GameRoom:
             GomokuPlayer.BLACK: self.room.get_player_timer(black_player_id),
             GomokuPlayer.WHITE: self.room.get_player_timer(white_player_id),
         }
+
+    def suggest_move(self):
+        eval = self.room.suggest_move()
+        bestIndex = pygomoku.getBestMoveIndex(eval, True)
+        if bestIndex < 0:
+            print("No move suggested")
+            return
+        self.suggested_move = eval.listMoves[bestIndex].move
+        print("Suggested move: ", self.suggested_move[0], self.suggested_move[1])
+        CallbackCenter.shared().send_message("GameRoom.suggestion", self)
 
     def perform_pending_actions(self):
 
