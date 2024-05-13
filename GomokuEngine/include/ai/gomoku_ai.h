@@ -14,11 +14,13 @@ struct GomokuAiSettings
 struct MoveEvaluation
 {
     std::pair<int, int> move;
-    int score;
-    int neededEvalCount;
-    int totalEvalCount;
-    int evaluatedMoves;
-    std::vector<MoveEvaluation> listMoves;
+    int score = 0;
+#ifndef NDEBUG
+    int neededEvalCount = 0;
+    int totalEvalCount = 0;
+    int evaluatedMoves = 0;
+#endif
+    std::vector<MoveEvaluation> listMoves = {};
 };
 
 struct MoveHeuristic
@@ -49,9 +51,11 @@ private:
     void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer);
 
 public:
-    int move_count;
-    int move_evaluated_count;
-    int evaluation_needed_count;
+#ifndef NDEBUG
+    int move_count = 0;
+    int move_evaluated_count = 0;
+    int evaluation_needed_count = 0;
+#endif
 
     GomokuAI(const GomokuAiSettings &settings);
     MoveEvaluation suggest_move(const GomokuGame &board);

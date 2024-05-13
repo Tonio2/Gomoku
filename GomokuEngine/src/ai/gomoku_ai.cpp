@@ -5,7 +5,7 @@
 #include <random>
 
 GomokuAI::GomokuAI(const GomokuAiSettings &settings)
-    : game(0, 0), depth(settings.depth), length(settings.length), evaluation_data(settings.data), move_count(0), move_evaluated_count(0)
+    : game(0, 0), depth(settings.depth), length(settings.length), evaluation_data(settings.data)
 {
 }
 
@@ -56,7 +56,7 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 {
     TIMER
 
-    MoveEvaluation node = {{row, col}, 0, 0, 0, {}};
+    MoveEvaluation node = {{row, col}};
 
     if (depth == 0 || game.is_game_over())
     {
@@ -81,8 +81,11 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
     if (depth > 1)
         sortMoves(moves, maximizingPlayer);
     int moveIdx = 1;
+
+#ifndef NDEBUG
     node.totalEvalCount = moves.size();
     node.evaluatedMoves = moves.size();
+#endif
 
     // For each move, make the move, call minimax recursively and reverse the move.
     int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
@@ -101,7 +104,9 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                     extremeEval = evalNode.score;
                     node.score = extremeEval;
                     alpha = std::max(alpha, evalNode.score);
+#ifndef NDEBUG
                     node.neededEvalCount = moveIdx;
+#endif
                 }
             }
             else
@@ -111,7 +116,9 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
                     extremeEval = evalNode.score;
                     node.score = extremeEval;
                     beta = std::min(beta, evalNode.score);
+#ifndef NDEBUG
                     node.neededEvalCount = moveIdx;
+#endif
                 }
             }
 
@@ -119,19 +126,25 @@ MoveEvaluation GomokuAI::minimax(int depth, int alpha, int beta, bool maximizing
 
             if (beta <= alpha)
             {
+#ifndef NDEBUG
                 node.evaluatedMoves = moveIdx;
+#endif
                 break;
             }
             moveIdx++;
         }
         catch (std::exception &e)
         {
+#ifndef NDEBUG
             move_count--;
+#endif
         }
     }
+#ifndef NDEBUG
     move_count += moves.size();
     move_evaluated_count += node.evaluatedMoves;
     evaluation_needed_count += node.neededEvalCount;
+#endif
     return node;
 }
 
@@ -168,14 +181,16 @@ int GomokuAI::get_heuristic_evaluation(const GomokuGame &board, Player player)
 
 MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board)
 {
-    TIMER
+    Timer timer(__FUNCTION__);
 
     game = board;
     ai_player = board.get_current_player();
     human_player = board.other_player(ai_player);
+#ifndef NDEBUG
     move_count = 0;
     move_evaluated_count = 0;
     evaluation_needed_count = 0;
+#endif
     MoveEvaluation result = minimax(depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
     return result;
 }

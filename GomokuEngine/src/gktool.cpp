@@ -77,11 +77,13 @@ void test_problems()
         }
         std::cout << line << std::endl;
         std::cout << "Best move: " << best_move_string << std::endl;
+#ifndef NDEBUG
         std::cout << "Total move count: " << AI.move_count << std::endl;
         std::cout << "Total move evaluated count: " << AI.move_evaluated_count << std::endl;
         std::cout << "Total evaluation needed count: " << AI.evaluation_needed_count << std::endl;
         std::cout << "Percentage of moves evaluated: " << (AI.move_evaluated_count * 100) / AI.move_count << "%" << std::endl;
         std::cout << "Percentage of evaluations needed: " << (AI.evaluation_needed_count * 100) / AI.move_evaluated_count << "%" << std::endl;
+#endif
         totalTime += Timer::getAccumulatedTime("suggest_move");
         problemCount++;
         Timer::printAccumulatedTimes();
