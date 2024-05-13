@@ -191,7 +191,7 @@ void test_eval(std::string moves_string)
     game.print_patterns();
 
     // Display player's to play next move
-    std::cout << "Next move to: " << game.other_player(last_player) << std::endl;
+    std::cout << "Next move to: " << last_player << std::endl;
 
     // Display the evaluation
     std::cout << "Board evaluation for " << last_player << ": " << evaluation << std::endl;
