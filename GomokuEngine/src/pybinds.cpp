@@ -52,7 +52,13 @@ PYBIND11_MODULE(pygomoku, m)
         .def_readwrite("move", &MoveEvaluation::move)
         .def_readwrite("score", &MoveEvaluation::score)
         .def_readwrite("listMoves", &MoveEvaluation::listMoves);
+    py::class_<GomokuAiSettings>(m, "GomokuAiSettings")
+        .def(py::init<>())
+        .def_readwrite("depth", &GomokuAiSettings::depth)
+        .def_readwrite("length", &GomokuAiSettings::length)
+        .def_readwrite("data", &GomokuAiSettings::data);
     py::class_<GomokuAI>(m, "GomokuAI")
+        .def(py::init<const GomokuAiSettings &>())
         .def("suggest_move", &GomokuAI::suggest_move);
 
     /** Room */
