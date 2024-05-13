@@ -41,7 +41,7 @@ private:
     Player human_player;
     GomokuAIData evaluation_data; // heuristic evaluation data
 
-    MoveEvaluation minimax(int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
+    void minimax(MoveEvaluation &eval, int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
     int score_player(Player player);
 
     void find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves) const;
