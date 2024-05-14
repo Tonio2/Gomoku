@@ -265,9 +265,9 @@ void test_line(const std::string &line)
         char cell_state = (col > 0 && col <= int(line.size())) ? line[col - 1] : 'X';
 
         auto cell_pattern = reconizer.get_structure_at(GomokuCellIndex(0, col - 1), PatternDirection::LeftToRight);
-        bool has_struct[3];
+        StructureType has_struct[3];
         for (int i = 0; i < 3; i++)
-            has_struct[i] = reconizer.has_structure_around(GomokuCellIndex(0, col - 1), i);
+            has_struct[i] = reconizer.highest_structure_around(GomokuCellIndex(0, col - 1), i);
 
         std::cout << cell_state << " -> " << cell_data << " " << all_structures << " "
                   << "structat=" << cell_pattern.first << "[" << int(cell_pattern.second.col) << "]"

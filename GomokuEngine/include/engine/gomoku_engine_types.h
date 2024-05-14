@@ -41,6 +41,7 @@ enum StructureType : uint8_t
     COUNT_STRUCTURE_TYPE,
 };
 
+bool compare_structure_type(StructureType lhs, StructureType rhs);
 std::ostream &operator<<(std::ostream &stream, StructureType structure_type);
 
 struct CellChange
