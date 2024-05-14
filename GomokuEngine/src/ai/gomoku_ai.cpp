@@ -79,9 +79,61 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
     std::vector<MoveHeuristic> moves;
     find_relevant_moves(moves);
 
+    int moveIdx = 1;
+    int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+    try
+    {
+        MoveResult game_move = game.make_move(moves[0].row, moves[0].col);
+        eval.listMoves.push_back(MoveEvaluation());
+        MoveEvaluation &evalNode = eval.listMoves.back();
+        minimax(evalNode, depth - 1, alpha, beta, !maximizingPlayer, moves[0].row, moves[0].col);
+        game.reverse_move(game_move);
+
+        if (maximizingPlayer)
+        {
+            if (evalNode.score > extremeEval)
+            {
+                extremeEval = evalNode.score;
+                eval.score = extremeEval;
+                alpha = std::max(alpha, evalNode.score);
+#ifndef NDEBUG
+                eval.neededEvalCount = moveIdx;
+#endif
+            }
+        }
+        else
+        {
+            if (evalNode.score < extremeEval)
+            {
+                extremeEval = evalNode.score;
+                eval.score = extremeEval;
+                beta = std::min(beta, evalNode.score);
+#ifndef NDEBUG
+                eval.neededEvalCount = moveIdx;
+#endif
+            }
+        }
+
+        if (beta <= alpha)
+        {
+#ifndef NDEBUG
+            eval.evaluatedMoves = moveIdx;
+#endif
+            return;
+        }
+        moveIdx++;
+    }
+    catch (std::exception &e)
+    {
+#ifndef NDEBUG
+        move_count--;
+#endif
+    }
+
+    moves.erase(moves.begin());
+
     if (depth > 1)
         sortMoves(moves, maximizingPlayer);
-    int moveIdx = 1;
 
 #ifndef NDEBUG
     eval.totalEvalCount = moves.size();
@@ -89,7 +141,7 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
 #endif
 
     // For each move, make the move, call minimax recursively and reverse the move.
-    int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+    std::pair<int, int> best_move = {-1, -1};
     for (const MoveHeuristic &move : moves)
     {
         try
@@ -110,6 +162,7 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
                     extremeEval = evalNode.score;
                     eval.score = extremeEval;
                     alpha = std::max(alpha, evalNode.score);
+                    best_move = {move.row, move.col};
 #ifndef NDEBUG
                     eval.neededEvalCount = moveIdx;
 #endif
@@ -122,6 +175,7 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
                     extremeEval = evalNode.score;
                     eval.score = extremeEval;
                     beta = std::min(beta, evalNode.score);
+                    best_move = {move.row, move.col};
 #ifndef NDEBUG
                     eval.neededEvalCount = moveIdx;
 #endif
@@ -143,6 +197,10 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
             move_count--;
 #endif
         }
+    }
+    if (best_move.first != -1 && best_move.second != -1)
+    {
+        killer_move = {best_move.first, best_move.second};
     }
 #ifndef NDEBUG
     move_count += moves.size();
@@ -217,8 +275,11 @@ void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_move
 
             if (is_cell_relevant(row, col))
             {
-                out_relevant_moves.push_back(
-                    MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+                if (killer_move == std::pair<int, int>(row, col))
+                    out_relevant_moves.insert(out_relevant_moves.begin(), MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+                else
+                    out_relevant_moves.push_back(
+                        MoveHeuristic{uint8_t(row), uint8_t(col), 0});
             }
         }
     }

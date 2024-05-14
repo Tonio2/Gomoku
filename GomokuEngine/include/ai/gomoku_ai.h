@@ -30,6 +30,11 @@ struct MoveHeuristic
     uint8_t col;
 
     int score;
+
+    bool operator==(const MoveHeuristic &other) const
+    {
+        return (row == other.row && col == other.col && score == other.score);
+    }
 };
 
 class GomokuAI
@@ -41,6 +46,8 @@ private:
     Player ai_player;
     Player human_player;
     GomokuAIData evaluation_data; // heuristic evaluation data
+
+    std::pair<int, int> killer_move;
 
     void minimax(MoveEvaluation &eval, int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
     int score_player(Player player);

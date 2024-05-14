@@ -28,7 +28,7 @@
 66,B6,67,EA,78,FE,88,AE:77
 # 15. Make a 4th capture if possible (open 4 > 4th capture > open 3) (supposed to be wrong)
 32,33,62,63,A2,A3,E2,E3,4D,34,4E,64,EE,A4,HG,E4,35,EF,65,G9,A5,CA:E5
-# 16. Make an open 4 and not a 4th capture (open 4 > 4th capture > open 3)
+# 16. Make an open 4 and not a 4th capture (open 4 > 4th capture > open 3) (will be wrong at depth=5)
 32,33,62,63,A2,A3,E2,E3,4D,34,4E,64,EE,A4,HG,E4,35,EF,65,G9,A5,CA,4F,BF:4G,4C
 # 17. Make a 3rd capture if no open 3 or better are possible
 32,33,62,63,A2,A3,E2,E3,4D,34,EE,64,HF,A4,35,8F,65,1G:A5
