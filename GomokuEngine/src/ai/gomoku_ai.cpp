@@ -91,7 +91,7 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
 
         if (maximizingPlayer)
         {
-            if (evalNode.score > extremeEval)
+            if (evalNode.score >= extremeEval)
             {
                 extremeEval = evalNode.score;
                 eval.score = extremeEval;
@@ -103,7 +103,7 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
         }
         else
         {
-            if (evalNode.score < extremeEval)
+            if (evalNode.score <= extremeEval)
             {
                 extremeEval = evalNode.score;
                 eval.score = extremeEval;
