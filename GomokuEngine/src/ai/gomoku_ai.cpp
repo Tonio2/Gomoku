@@ -64,9 +64,9 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
         if (game.is_game_over())
         {
             if (game.get_winner() == ai_player)
-                eval.score = std::numeric_limits<int>::max() - 1;
+                eval.score = std::numeric_limits<int>::max();
             else if (game.get_winner() == human_player)
-                eval.score = std::numeric_limits<int>::min() + 1;
+                eval.score = std::numeric_limits<int>::min();
             else
                 eval.score = 0;
         }
@@ -105,25 +105,27 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
 
             if (maximizingPlayer)
             {
-                if (evalNode.score > extremeEval)
+                if (evalNode.score >= extremeEval)
                 {
                     extremeEval = evalNode.score;
                     eval.score = extremeEval;
                     alpha = std::max(alpha, evalNode.score);
 #ifndef NDEBUG
-                    eval.neededEvalCount = moveIdx;
+                    if (evalNode.score > extremeEval)
+                        eval.neededEvalCount = moveIdx;
 #endif
                 }
             }
             else
             {
-                if (evalNode.score < extremeEval)
+                if (evalNode.score <= extremeEval)
                 {
                     extremeEval = evalNode.score;
                     eval.score = extremeEval;
                     beta = std::min(beta, evalNode.score);
 #ifndef NDEBUG
-                    eval.neededEvalCount = moveIdx;
+                    if (evalNode.score < extremeEval)
+                        eval.neededEvalCount = moveIdx;
 #endif
                 }
             }
