@@ -11,8 +11,8 @@ CXX = g++
 CXXFLAGS = -Wall -I$(INCDIR) -DDEPTH=$(DEPTH) -std=c++17
 
 # Mode configuration: Default is performance (PERF)
-MODE ?= PERF
-ifeq ($(MODE),DEBUG)
+BUILD_TYPE ?= PERF
+ifeq ($(BUILD_TYPE),DEBUG)
 	CXXFLAGS += -pg -g # Debug flags
 else
 	CXXFLAGS += -O3 -DNDEBUG # Optimize for performance
@@ -25,20 +25,19 @@ ifeq ($(TIMER),OFF)
 endif
 
 # Source and object files
-SRCFILES = 	ai/test_ai.cpp \
-						ai/gomoku_ai.cpp \
-						ai/gomoku_ai_data.cpp \
-						gktool.cpp \
-						utils/gomoku_utilities.cpp \
-						matrix/Matrix.cpp \
-						room/game_room_ai.cpp \
-						room/game_room.cpp \
-						room/game_room_rule_layer.cpp \
-						engine/gomoku_pattern_reconizer.cpp \
-						engine/gomoku_engine.cpp \
-						timer/Timer.cpp \
-						arena/ai_data_mutator.cpp \
-						arena/arena.cpp 
+SRCFILES = 	ai/gomoku_ai.cpp \
+			ai/gomoku_ai_data.cpp \
+			gktool.cpp \
+			utils/gomoku_utilities.cpp \
+			matrix/Matrix.cpp \
+			room/game_room_ai.cpp \
+			room/game_room.cpp \
+			room/game_room_rule_layer.cpp \
+			engine/gomoku_pattern_reconizer.cpp \
+			engine/gomoku_engine.cpp \
+			timer/Timer.cpp \
+			arena/ai_data_mutator.cpp \
+			arena/arena.cpp 
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
