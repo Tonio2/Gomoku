@@ -46,6 +46,7 @@ public:
     int get_board_width() const;
     int get_board_height() const;
     bool coordinates_are_valid(int row, int col) const;
+    bool pattern_coordinate_is_valid(const PatternCellIndex &index) const;
 
     Player other_player(Player player) const;
     Player get_current_player() const;

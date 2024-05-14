@@ -34,6 +34,40 @@ std::ostream &operator<<(std::ostream &stream, StructureType structure_type)
     return stream;
 }
 
+static int score_from_structure(StructureType type)
+{
+    switch (type)
+    {
+    case NONE:
+        return 0;
+    case ONE:
+        return 1;
+    case OPEN_ONE:
+        return 2;
+    case TWO:
+        return 3;
+    case OPEN_TWO:
+        return 4;
+    case THREE:
+        return 5;
+    case OPEN_THREE:
+        return 6;
+    case FOUR:
+        return 7;
+    case OPEN_FOUR:
+        return 8;
+    case FIVE_OR_MORE:
+        return 9;
+    default:
+        return 0;
+    }
+}
+
+bool compare_structure_type(StructureType lhs, StructureType rhs)
+{
+    return score_from_structure(lhs) < score_from_structure(rhs);
+}
+
 // Definitions of GomokuGame methods
 GomokuGame::GomokuGame(uint width, uint height, bool capture_enabled)
     : board(width, height),
@@ -183,6 +217,11 @@ bool GomokuGame::is_game_over() const
 bool GomokuGame::coordinates_are_valid(int row, int col) const
 {
     return board.is_in_bound(row, col);
+}
+
+bool GomokuGame::pattern_coordinate_is_valid(const PatternCellIndex &index) const
+{
+    return coordinates_are_valid(index.row - 1, index.col - 1);
 }
 
 MoveResult GomokuGame::make_move(int row, int col)

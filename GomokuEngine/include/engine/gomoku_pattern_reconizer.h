@@ -79,8 +79,6 @@ struct PatternCellIndex : public Matrix<PatternCellData>::Index
 {
     PatternCellIndex(int row, int col);
     PatternCellIndex(GomokuCellIndex gomoku_index);
-
-    GomokuCellIndex to_game_index() const;
 };
 
 enum PatternDirection : uint8_t
@@ -116,8 +114,8 @@ public:
     bool five_or_more_cant_be_captured(const GomokuGame &board);
     bool can_be_captured(const GomokuGame &board);
 
-    std::pair<StructureType, GomokuCellIndex> get_structure_at(GomokuCellIndex index, PatternDirection direction, int min_distance = 1) const;
-    bool has_structure_around(GomokuCellIndex index, int distance) const;
+    std::pair<StructureType, PatternCellIndex> get_structure_at(PatternCellIndex index, PatternDirection direction, int min_distance = 1) const;
+    StructureType highest_structure_around(PatternCellIndex index, int distance) const;
 
     const Matrix<PatternCellData> &get_pattern_cell_matrix(PatternDirection direction) const;
 
