@@ -24,35 +24,109 @@ std::ostream &operator<<(std::ostream &stream, PatternCellState cell_state)
 
 /** PatternCellData */
 
+PatternCellData::PatternCellData(uint16_t data) : _data(data)
+{
+    assert((_data & 0b1100000000000000) == 0);
+}
+
+PatternCellData::PatternCellData(uint8_t sequence_length,
+                                 bool is_sequence_closed,
+                                 uint8_t structure_length,
+                                 bool is_structure_closed,
+                                 uint8_t previous_structure_length,
+                                 bool is_previous_structure_closed,
+                                 bool is_gap_open_three,
+                                 bool is_gap_open_three_closed)
+    : _data(0)
+{
+    _data |= std::min(sequence_length, uint8_t(15));
+    _data |= is_sequence_closed ? 0b10000 : 0;
+    _data |= std::min(structure_length, uint8_t(7)) << 5;
+    _data |= is_structure_closed ? 0b100000000 : 0;
+    _data |= std::min(previous_structure_length, uint8_t(3)) << 9;
+    _data |= is_previous_structure_closed ? 0b100000000000 : 0;
+    _data |= is_gap_open_three ? 0b1000000000000 : 0;
+    _data |= is_gap_open_three_closed ? 0b10000000000000 : 0;
+
+    assert((_data & 0b1100000000000000) == 0);
+}
+
+/*
+ * IsClosGop(1) | IsGop(1) | PrevStructClos(1) | PrevStructLen(2) | StructClos(1) | StructLen(3) | SeqClos(1) | SeqLen(4)
+ * 0              0          0                   00                 0               000            0            0000
+ *  0  0  0 00 0 000 0 0000
+ * 13 12 11  9 8   5 4    0
+ */
+
+uint8_t PatternCellData::sequence_length() const
+{
+    return _data & 0b1111;
+}
+
+bool PatternCellData::is_sequence_closed() const
+{
+    return (_data & 0b10000) != 0;
+}
+
+uint8_t PatternCellData::structure_length() const
+{
+    return (_data & 0b11100000) >> 5;
+}
+
+bool PatternCellData::is_structure_closed() const
+{
+    return (_data & 0b100000000) != 0;
+}
+
+uint8_t PatternCellData::previous_structure_length() const
+{
+    return (_data & 0b11000000000) >> 9;
+}
+
+bool PatternCellData::is_previous_structure_closed() const
+{
+    return (_data & 0b100000000000) != 0;
+}
+
+bool PatternCellData::is_gap_open_three() const
+{
+    return (_data & 0b1000000000000) != 0;
+}
+
+bool PatternCellData::is_gap_open_three_closed() const
+{
+    return (_data & 0b10000000000000) != 0;
+}
+
 bool PatternCellData::operator!=(const PatternCellData &comp) const
 {
-    return sequence_length != comp.sequence_length || is_sequence_closed != comp.is_sequence_closed || structure_length != comp.structure_length || is_structure_closed != comp.is_structure_closed || previous_structure_length != comp.previous_structure_length || is_previous_structure_closed != comp.is_previous_structure_closed || is_gap_open_three != comp.is_gap_open_three;
+    return _data != comp._data;
 }
 
 PatternCellData PatternCellData::pre_bound_element()
 {
-    return PatternCellData{0, true, 0, false, 0, false, false};
+    return PatternCellData(0, true, 0, false, 0, false, false, false);
 }
 
 bool PatternCellData::contains_structure() const
 {
-    return structure_length > 0 || is_gap_open_three;
+    return structure_length() > 0 || is_gap_open_three();
 }
 
 StructureType PatternCellData::get_relevant_structure() const
 {
-    if (is_gap_open_three)
+    if (is_gap_open_three())
     {
-        return is_gap_open_three_closed ? StructureType::THREE : StructureType::OPEN_THREE;
+        return is_gap_open_three_closed() ? StructureType::THREE : StructureType::OPEN_THREE;
     }
 
-    if (structure_length >= 5)
+    if (structure_length() >= 5)
         return StructureType::FIVE_OR_MORE;
 
-    if (structure_length > 0)
+    if (structure_length() > 0)
     {
-        int type_index = structure_length * 2;
-        type_index += is_structure_closed ? 1 : 0;
+        int type_index = structure_length() * 2;
+        type_index += is_structure_closed() ? 1 : 0;
         return StructureType(type_index);
     }
 
@@ -61,26 +135,26 @@ StructureType PatternCellData::get_relevant_structure() const
 
 void PatternCellData::get_structures_type_count(std::vector<int> &array, int factor) const
 {
-    if (structure_length > 0 && structure_length < 5)
+    if (structure_length() > 0 && structure_length() < 5)
     {
-        int index = structure_length * 2;
-        index += is_structure_closed ? 1 : 0;
+        int index = structure_length() * 2;
+        index += is_structure_closed() ? 1 : 0;
         array[index] += factor;
     }
 
-    if (structure_length >= 5)
+    if (structure_length() >= 5)
         array[StructureType::FIVE_OR_MORE] += factor;
 
-    if (is_gap_open_three)
+    if (is_gap_open_three())
     {
-        if (is_gap_open_three_closed)
+        if (is_gap_open_three_closed())
         {
             array[StructureType::THREE] += factor;
 
-            if (is_structure_closed)
+            if (is_structure_closed())
             {
                 // Closed open three because of previous structure
-                if (structure_length == 1)
+                if (structure_length() == 1)
                 {
                     // closed 1 + open 2
                     array[StructureType::ONE] -= factor;
@@ -95,7 +169,7 @@ void PatternCellData::get_structures_type_count(std::vector<int> &array, int fac
             }
             else
             {
-                if (structure_length == 2)
+                if (structure_length() == 2)
                 {
                     // closed 1 + open 2
                     array[StructureType::ONE] -= factor;
@@ -119,17 +193,22 @@ void PatternCellData::get_structures_type_count(std::vector<int> &array, int fac
     }
 }
 
+uint16_t PatternCellData::data() const
+{
+    return _data;
+}
+
 std::ostream &operator<<(std::ostream &stream, const PatternCellData &c)
 {
-    stream << "[" << static_cast<int>(c.sequence_length)
-           << (c.is_sequence_closed ? "x " : "o ")
-           << static_cast<int>(c.structure_length)
-           << (c.is_structure_closed ? "x (" : "o (")
-           << static_cast<int>(c.previous_structure_length)
-           << (c.is_previous_structure_closed ? "x" : "o")
+    stream << "[" << static_cast<int>(c.sequence_length())
+           << (c.is_sequence_closed() ? "x " : "o ")
+           << static_cast<int>(c.structure_length())
+           << (c.is_structure_closed() ? "x (" : "o (")
+           << static_cast<int>(c.previous_structure_length())
+           << (c.is_previous_structure_closed() ? "x" : "o")
            << ")";
-    if (c.is_gap_open_three)
-        stream << "-G3" << (c.is_gap_open_three_closed ? "x" : "o");
+    if (c.is_gap_open_three())
+        stream << "-G3" << (c.is_gap_open_three_closed() ? "x" : "o");
     else
         stream << "    ";
 
@@ -256,9 +335,10 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
     for_each_tagged_structures(
         [this, &capturable, board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
-            if (data.structure_length >= 5)
+            const uint8_t length = data.structure_length();
+            if (length >= 5)
             {
-                for (uint8_t i = 1; i <= data.structure_length; ++i)
+                for (uint8_t i = 1; i <= length; ++i)
                 {
                     PatternCellIndex struct_index = get_index_offset(index, direction, -i);
 
@@ -320,18 +400,18 @@ std::pair<StructureType, PatternCellIndex> GomokuPatternReconizer::get_structure
         const PatternCellIndex next = get_index_offset(i, direction, 1);
 
         /** In case of stone, search the next cell */
-        if (cell_data.sequence_length > 0)
+        if (cell_data.sequence_length() > 0)
             return find_structure(next, distance - 1, false, met_gap);
 
         /** In case of hole or block, look for the length of the current structure */
-        if (cell_data.structure_length > 0)
+        if (cell_data.structure_length() > 0)
         {
             /** If we're starting a new closed sequence, then it's a block. No need to go further */
-            if (cell_data.is_sequence_closed)
+            if (cell_data.is_sequence_closed())
                 return std::make_pair(cell_data.get_relevant_structure(), i);
 
             /** case of possible three */
-            if (!met_gap && (cell_data.structure_length == 1 || cell_data.structure_length == 2) && (!cell_data.is_gap_open_three))
+            if (!met_gap && (cell_data.structure_length() == 1 || cell_data.structure_length() == 2) && (!cell_data.is_gap_open_three()))
             {
                 const std::pair<StructureType, PatternCellIndex> next_structure = find_structure(next, distance - 1, false, true);
 
@@ -339,7 +419,7 @@ std::pair<StructureType, PatternCellIndex> GomokuPatternReconizer::get_structure
                 if (next_structure.first == StructureType::OPEN_THREE || next_structure.first == StructureType::THREE)
                 {
                     /** If the next structure is itself a different length than three, then it's the second part of this structure */
-                    if (cell_matrix[PatternCellIndex(next_structure.second)].structure_length != 3)
+                    if (cell_matrix[PatternCellIndex(next_structure.second)].structure_length() != 3)
                         return next_structure;
                 }
             }
@@ -422,107 +502,95 @@ PatternCellState GomokuPatternReconizer::cell_state_at(const GomokuGame &board, 
 
 PatternCellData GomokuPatternReconizer::cell_data_following(const PatternCellData &cell, PatternCellState state) const
 {
-    PatternCellData result;
+    uint8_t sequence_length;
+    bool is_sequence_closed;
+    uint8_t structure_length;
+    bool is_structure_closed;
+    uint8_t previous_structure_length;
+    bool is_previous_structure_closed;
+    bool is_gap_open_three;
+    bool is_gap_open_three_closed;
 
     switch (state)
     {
     case Empty:
-        result.sequence_length = 0;
-        result.is_sequence_closed = false;
-        result.structure_length = cell.sequence_length;
-        result.is_structure_closed = cell.is_sequence_closed;
-        result.previous_structure_length = result.structure_length;
-        result.is_previous_structure_closed = result.is_structure_closed;
-        result.is_gap_open_three =
-            (cell.previous_structure_length == 2 && result.structure_length == 1) || (cell.previous_structure_length == 1 && result.structure_length == 2);
-        result.is_gap_open_three_closed =
-            result.is_gap_open_three ? cell.is_previous_structure_closed : false;
+        sequence_length = 0;
+        is_sequence_closed = false;
+        structure_length = cell.sequence_length();
+        is_structure_closed = cell.is_sequence_closed();
+        previous_structure_length = structure_length;
+        is_previous_structure_closed = is_structure_closed;
+        is_gap_open_three =
+            (cell.previous_structure_length() == 2 && structure_length == 1) || (cell.previous_structure_length() == 1 && structure_length == 2);
+        is_gap_open_three_closed =
+            is_gap_open_three ? cell.is_previous_structure_closed() : false;
         break;
     case Stoned:
-        result.sequence_length = cell.sequence_length + 1;
-        result.is_sequence_closed = cell.is_sequence_closed;
-        result.structure_length = 0;
-        result.is_structure_closed = 0;
-        result.previous_structure_length = cell.previous_structure_length;
-        result.is_previous_structure_closed = cell.is_previous_structure_closed;
-        result.is_gap_open_three = false;
-        result.is_gap_open_three_closed = false;
+        sequence_length = cell.sequence_length() + 1;
+        is_sequence_closed = cell.is_sequence_closed();
+        structure_length = 0;
+        is_structure_closed = 0;
+        previous_structure_length = cell.previous_structure_length();
+        is_previous_structure_closed = cell.is_previous_structure_closed();
+        is_gap_open_three = false;
+        is_gap_open_three_closed = false;
         break;
     case Blocked:
-        result.sequence_length = 0;
-        result.is_sequence_closed = true;
-        const bool structure_present = (!cell.is_sequence_closed && cell.sequence_length > 0) || cell.sequence_length >= 5;
-        result.structure_length = structure_present ? cell.sequence_length : 0;
-        result.is_structure_closed = structure_present;
-        result.previous_structure_length = 0;
-        result.is_previous_structure_closed = 0;
-        result.is_gap_open_three = !cell.is_previous_structure_closed && ((cell.previous_structure_length == 2 && result.structure_length == 1) || (cell.previous_structure_length == 1 && result.structure_length == 2));
-        result.is_gap_open_three_closed = result.is_gap_open_three;
+        sequence_length = 0;
+        is_sequence_closed = true;
+        const bool structure_present = (!cell.is_sequence_closed() && cell.sequence_length() > 0) || cell.sequence_length() >= 5;
+        structure_length = structure_present ? cell.sequence_length() : 0;
+        is_structure_closed = structure_present;
+        previous_structure_length = 0;
+        is_previous_structure_closed = 0;
+        is_gap_open_three = !cell.is_previous_structure_closed() && ((cell.previous_structure_length() == 2 && structure_length == 1) || (cell.previous_structure_length() == 1 && structure_length == 2));
+        is_gap_open_three_closed = is_gap_open_three;
         break;
     };
 
-    if (result.is_gap_open_three)
+    if (is_gap_open_three)
     {
-        result.previous_structure_length = 0;
-        result.is_previous_structure_closed = false;
+        previous_structure_length = 0;
+        is_previous_structure_closed = false;
     }
 
-    return result;
+    return PatternCellData(sequence_length,
+                           is_sequence_closed,
+                           structure_length,
+                           is_structure_closed,
+                           previous_structure_length,
+                           is_previous_structure_closed,
+                           is_gap_open_three,
+                           is_gap_open_three_closed);
+}
+
+static uint16_t cell_and_state_to_index(PatternCellData cell, PatternCellState state)
+{
+    return (static_cast<uint16_t>(cell.data()) << 2) | static_cast<uint16_t>(state);
 }
 
 const PatternCellData &GomokuPatternReconizer::cell_data_following_memoized(const PatternCellData &cell, PatternCellState state) const
 {
-    const int max_seq_len = 10;
-    const int max_prev_len = 3;
-    static PatternCellData cell_values[3][max_seq_len][2][max_prev_len][2];
+    const int combinaisons_count = 1 << 16;
+    static PatternCellData cell_values[combinaisons_count];
     static bool initialized = false;
 
     if (!initialized)
     {
-        PatternCellData prev;
-        prev.structure_length = 0;
-        prev.is_structure_closed = false;
-        prev.is_gap_open_three = false;
-        prev.is_gap_open_three_closed = false;
-        for (int s = 0; s < 3; ++s)
+        for (uint16_t d = 0; d < 0b100000000000000; ++d)
         {
-            for (int seq_len = 0; seq_len < max_seq_len; ++seq_len)
+            PatternCellData cell_data(d);
+            for (int state = 0; state <= 2; ++state)
             {
-                for (int seq_closed = 0; seq_closed < 2; ++seq_closed)
-                {
-                    for (int prev_len = 0; prev_len < max_prev_len; ++prev_len)
-                    {
-                        for (int prev_closed = 0; prev_closed < 2; ++prev_closed)
-                        {
-                            prev.sequence_length = seq_len;
-                            prev.is_sequence_closed = bool(seq_closed);
-                            prev.previous_structure_length = prev_len;
-                            prev.is_previous_structure_closed = bool(prev_closed);
-
-                            PatternCellState ss = static_cast<PatternCellState>(s);
-                            PatternCellData current = cell_data_following(prev, ss);
-
-                            cell_values[ss]
-                                       [seq_len]
-                                       [seq_closed]
-                                       [prev_len]
-                                       [prev_closed] = current;
-                        }
-                    }
-                }
+                PatternCellState ss = static_cast<PatternCellState>(state);
+                PatternCellData current = cell_data_following(cell_data, ss);
+                cell_values[cell_and_state_to_index(cell_data, ss)] = current;
             }
         }
         initialized = true;
     }
 
-    return cell_values
-        [state]
-        [cell.sequence_length]
-        // [cell.sequence_length >= max_seq_len ? max_seq_len : cell.sequence_length]
-        [cell.is_sequence_closed]
-        // [cell.previous_structure_length >= max_prev_len ? max_prev_len : cell.previous_structure_length]
-        [cell.previous_structure_length]
-        [cell.is_previous_structure_closed];
+    return cell_values[cell_and_state_to_index(cell, state)];
 }
 
 bool GomokuPatternReconizer::adjust_matrices_size(const GomokuGame &board)
@@ -716,10 +784,12 @@ void GomokuPatternReconizer::activate_tagging_mode()
 
 bool GomokuPatternReconizer::is_relevant_to_tag(const PatternCellData &data) const
 {
-    if (data.structure_length >= 5)
+    uint8_t length = data.structure_length();
+
+    if (length >= 5)
         return true;
 
-    if (data.structure_length == 2 && data.is_structure_closed)
+    if (length == 2 && data.is_structure_closed())
         return true;
 
     return false;
@@ -764,7 +834,7 @@ void GomokuPatternReconizer::for_each_tagged_structures(std::function<void(Patte
 
 bool GomokuPatternReconizer::is_structure_capturable(const GomokuGame &board, PatternCellIndex index, const PatternCellData &data, PatternDirection direction) const
 {
-    if (data.structure_length == 2 && data.is_structure_closed)
+    if (data.structure_length() == 2 && data.is_structure_closed())
     {
         const bool index_is_valid = board.pattern_coordinate_is_valid(index);
         if (index_is_valid)

@@ -34,33 +34,46 @@ std::ostream &operator<<(std::ostream &stream, PatternCellState cell_state);
  */
 struct PatternCellData
 {
-    /** Length of the potential sequence we're doing */
-    uint8_t sequence_length;
-    /** Define if the sequence bounded by an obstable at the begining */
-    bool is_sequence_closed;
+    PatternCellData() = default;
 
-    /** Size of the structure ending on this cell.
+    PatternCellData(uint16_t data);
+
+    PatternCellData(uint8_t sequence_length,
+                    bool is_sequence_closed,
+                    uint8_t structure_length,
+                    bool is_structure_closed,
+                    uint8_t previous_structure_length,
+                    bool is_previous_structure_closed,
+                    bool is_gap_open_three,
+                    bool is_gap_open_three_closed);
+
+    /** [0-15] Length of the potential sequence we're doing */
+    uint8_t sequence_length() const;
+    /** Define if the sequence bounded by an obstable at the begining */
+    bool is_sequence_closed() const;
+
+    /** [0-7] Size of the structure ending on this cell.
      * 0 means no structure
      */
-    uint8_t structure_length;
+    uint8_t structure_length() const;
     /** Define if the structure is closed from one side.
      * If the structure is closed on both sides, it's not a structure.
      */
-    bool is_structure_closed;
+    bool is_structure_closed() const;
 
-    /** Size of the structure that we're directly following.
+    /** [0-3] Size of the structure that we're directly following.
      * This case is relevant to check for open three with gaps.
      */
-    uint8_t previous_structure_length;
+    uint8_t previous_structure_length() const;
     /** Is the previous structure closed */
-    bool is_previous_structure_closed;
+    bool is_previous_structure_closed() const;
 
     /** Is gaped open three.
      * Handle niche case where we have sequence of open one and two
      */
-    bool is_gap_open_three;
+    bool is_gap_open_three() const;
     /** Is the gaped open three closed. */
-    bool is_gap_open_three_closed;
+    bool is_gap_open_three_closed() const;
 
     bool operator!=(const PatternCellData &comp) const;
 
@@ -71,6 +84,11 @@ struct PatternCellData
     StructureType get_relevant_structure() const;
 
     void get_structures_type_count(std::vector<int> &array, int factor = 1) const;
+
+    uint16_t data() const;
+
+private:
+    uint16_t _data = 0;
 };
 
 std::ostream &operator<<(std::ostream &stream, const PatternCellData &cell_data);
