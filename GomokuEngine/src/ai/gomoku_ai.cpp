@@ -99,6 +99,9 @@ void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, boo
             MoveEvaluation &evalNode = eval.listMoves.back();
             minimax(evalNode, depth - 1, alpha, beta, !maximizingPlayer, move.row, move.col);
             game.reverse_move(game_move);
+#ifndef NDEBUG
+            evalNode.initialScore = move.score;
+#endif
 
             if (maximizingPlayer)
             {

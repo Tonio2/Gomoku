@@ -19,6 +19,7 @@ struct MoveEvaluation
     int neededEvalCount = 0;
     int totalEvalCount = 0;
     int evaluatedMoves = 0;
+    int initialScore = 0;
 #endif
     std::vector<MoveEvaluation> listMoves = {};
 };
