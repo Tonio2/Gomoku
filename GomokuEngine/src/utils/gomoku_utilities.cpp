@@ -127,17 +127,22 @@ int get_depth_from_env(int default_depth)
     return default_depth;
 }
 
-void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int depth)
+void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int depth, int i)
 {
     // Create indentation based on the depth
     std::string indent(depth * 4, ' '); // 4 spaces for each level of depth
 
-    out << indent << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score << "\n";
+    out << indent;
+    if (i >= 0)
+    {
+        out << i << ": ";
+    }
+    out << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score << "\n";
 
 #ifndef NDEBUG
     if (depth < get_depth_from_env())
     {
-        out << indent << "Evals: " << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << "\n";
+        out << indent << "Evals: " << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << " | initial score: " << eval.initialScore << "\n";
     }
 #endif
 
@@ -145,10 +150,11 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int dept
     {
         out << indent << "ListMoves:\n";
 
-        for (const auto &move : eval.listMoves)
+        for (int i = 0; i < eval.listMoves.size(); i++)
         {
+            const auto &move = eval.listMoves[i];
             // Increase the indentation for each level
-            writeMoveEvaluation(out, move, depth + 1);
+            writeMoveEvaluation(out, move, depth + 1, i);
         }
     }
 }
