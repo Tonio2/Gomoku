@@ -710,16 +710,19 @@ bool GomokuPatternReconizer::update_cell_direction(
     old_data.get_structures_type_count(_cached_pattern_count, -1);
     new_data.get_structures_type_count(_cached_pattern_count, 1);
 
-    const bool old_data_relevant = is_relevant_to_tag(old_data);
-    const bool new_data_relevant = is_relevant_to_tag(new_data);
+    if (_tagging_mode)
+    {
+        const bool old_data_relevant = is_relevant_to_tag(old_data);
+        const bool new_data_relevant = is_relevant_to_tag(new_data);
 
-    if (old_data_relevant && !new_data_relevant)
-        untag_celldata_structure(index, direction);
+        if (old_data_relevant && !new_data_relevant)
+            untag_celldata_structure(index, direction);
+
+        if (!old_data_relevant && new_data_relevant)
+            tag_celldata_structure(index, direction);
+    }
 
     cell_matrix[index] = new_data;
-
-    if (!old_data_relevant && new_data_relevant)
-        tag_celldata_structure(index, direction);
 
     return old_data != new_data;
 }
@@ -864,14 +867,12 @@ bool GomokuPatternReconizer::is_relevant_to_tag(const PatternCellData &data) con
 
 void GomokuPatternReconizer::untag_celldata_structure(PatternCellIndex index, PatternDirection direction)
 {
-    if (_tagging_mode)
-        _structure_maps[direction][index.row].erase(index.col);
+    _structure_maps[direction][index.row].erase(index.col);
 }
 
 void GomokuPatternReconizer::tag_celldata_structure(PatternCellIndex index, PatternDirection direction)
 {
-    if (_tagging_mode)
-        _structure_maps[direction][index.row].insert(index.col);
+    _structure_maps[direction][index.row].insert(index.col);
 }
 
 void GomokuPatternReconizer::for_each_tagged_structures(std::function<void(PatternCellIndex, const PatternCellData &, PatternDirection, bool &should_continue)> lambda)
