@@ -164,7 +164,11 @@ private:
      * up_to_bound: Should we update everything until the end or stop when
      * we find identical results.
      */
-    void update_cell_direction(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, bool up_to_bound = false);
+    bool update_cell_direction(const GomokuGame &board, PatternCellIndex index, PatternDirection direction, PatternCellState new_state);
+    void update_cell_left_to_right(const GomokuGame &board, PatternCellIndex index, bool up_to_bound = false);
+    void update_cell_up_to_down(const GomokuGame &board, PatternCellIndex index, bool up_to_bound = false);
+    void update_cell_upleft_to_downright(const GomokuGame &board, PatternCellIndex index, bool up_to_bound = false);
+    void update_cell_upright_to_downleft(const GomokuGame &board, PatternCellIndex index, bool up_to_bound = false);
 
     static PatternCellIndex get_index_offset(PatternCellIndex index, PatternDirection direction, int distance = 1);
 
