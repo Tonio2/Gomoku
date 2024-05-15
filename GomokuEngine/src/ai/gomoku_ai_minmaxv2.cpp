@@ -164,11 +164,11 @@ namespace AI::MinMaxV2
         if (_depth > 1)
             sortMoves(moves, maximizingPlayer);
 
-        for (const MoveHeuristic &move : moves)
+        for (int moveId = 0; moveId < moves.size() / 2; moveId++)
         {
             try
             {
-                evaluateNode(move, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
+                evaluateNode(moves[moveId], _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
 
                 if (beta <= alpha)
                 {
