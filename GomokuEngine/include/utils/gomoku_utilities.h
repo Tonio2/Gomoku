@@ -24,7 +24,7 @@ void writeSurplusEvaluation(std::ofstream &out, const AI::MinMaxV2::MoveEvaluati
 
 void logTooManyEvaluationsList(const AI::MinMaxV2::MoveEvaluation &eval);
 
-size_t getBestMoveIndex(const AI::MinMaxV2::MoveEvaluation &eval, bool maximizingPlayer = true);
+int getBestMoveIndex(const AI::MinMaxV2::MoveEvaluation &eval, bool maximizingPlayer = true);
 std::pair<int, int> getBestMove(const AI::MinMaxV2::MoveEvaluation &eval, bool maximizingPlayer = true);
 AI::MinMaxV2::MoveEvaluation &getBestMoveEvaluation(AI::MinMaxV2::MoveEvaluation &eval, bool maximizingPlayer = true);
 
