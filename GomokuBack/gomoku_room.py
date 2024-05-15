@@ -5,6 +5,7 @@ import pygomoku  # type: ignore
 
 MODE_PVAI = 0
 MODE_PVP = 1
+MODE_AIVAI = 2
 
 RULE_STANDARD = 0
 RULE_PRO = 1
@@ -122,7 +123,7 @@ def format_actions_history(actions_history, players):
     return actions
 
 
-def room_settings(size, mode, rule_style, ai_player, ai_name):
+def room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2):
     player = {
         "is_ai": False,
         "ai_name": "medium",
@@ -131,6 +132,11 @@ def room_settings(size, mode, rule_style, ai_player, ai_name):
     if mode == MODE_PVAI:
         players[ai_player]["is_ai"] = True
         players[ai_player]["ai_name"] = ai_name
+    if mode == MODE_AIVAI:
+        players[0]["is_ai"] = True
+        players[0]["ai_name"] = ai_name
+        players[1]["is_ai"] = True
+        players[1]["ai_name"] = ai_name2
     game_room_settings = pygomoku.GameRoomSettings()
     game_room_settings.width = size
     game_room_settings.height = size
@@ -154,7 +160,7 @@ def format_move_evaluation(move_evaluation):
     return ret
 
 class GomokuRoom:
-    def __init__(self, size, mode, rule_style, ai_player, ai_name):
+    def __init__(self, size, mode, rule_style, ai_player, ai_name, ai_name2):
         """Init room
         Parameters:
         size (int): Between 10 and 25
@@ -170,8 +176,8 @@ class GomokuRoom:
         """
         if size < 10 or size > 25:
             raise RoomError("Size must be betwwen 10 and 25")
-        if not mode in [0, 1]:
-            raise RoomError("Mode must be Human vs AI or Human vs Human")
+        if not mode in [0, 1, 2]:
+            raise RoomError("Mode must be Human vs AI or Human vs Human or AI vs AI")
         if not rule_style in [0, 1, 2, 3, 4]:
             raise RoomError("Rule style must be Standard, Pro, Long Pro, Swap or Swap2")
         if mode == 0 and not ai_player in [0, 1]:
@@ -181,14 +187,15 @@ class GomokuRoom:
         self.rule_style = pygomoku.GameRoomRuleStyle(rule_style)
         self.ai_player = ai_player
         self.ai_name = ai_name
+        self.ai_name2 = ai_name2
 
         self.room = pygomoku.GameRoom(
-            room_settings(size, mode, rule_style, ai_player, ai_name)
+            room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2)
         )
 
     def reset(self):
         self.room = pygomoku.GameRoom(
-            room_settings(self.size, self.mode, self.rule_style, self.ai_player, self.ai_name)
+            room_settings(self.size, self.mode, self.rule_style, self.ai_player, self.ai_name, self.ai_name2)
         )
 
     def get_players(self):
@@ -212,7 +219,20 @@ class GomokuRoom:
         return self.room.get_game().get_board()
 
     def is_game_over(self):
-        return self.room.get_game().is_game_over()
+        is_game_over = self.room.get_game().is_game_over()
+        if is_game_over:
+            players = self.get_players()
+            cur_move = self.get_current_move()
+            print(cur_move)
+            player1_move_count = cur_move // 2 + cur_move % 2
+            player2_move_count = cur_move // 2
+            player1_time = players[PLAYER_1]["time"]
+            player2_time = players[PLAYER_2]["time"]
+            player1_avg_time = player1_time / player1_move_count
+            player2_avg_time = player2_time / player2_move_count
+            print("Player 1 time average: ", player1_avg_time)
+            print("Player 2 time average: ", player2_avg_time)
+        return is_game_over
 
     def get_winner_id(self):
         winner_color = self.room.get_game().get_winner()
