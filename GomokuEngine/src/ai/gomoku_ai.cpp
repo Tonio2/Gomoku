@@ -242,7 +242,7 @@ int GomokuAI::get_heuristic_evaluation(const GomokuGame &board, Player player)
     return _heuristic_evaluation();
 }
 
-MoveEvaluation GomokuAI::suggest_move(const GomokuGame &board)
+MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)
 {
     Timer timer(__FUNCTION__);
 

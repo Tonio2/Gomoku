@@ -173,7 +173,7 @@ void GameRoom::reapply_last_action()
 
 MoveEvaluation GameRoom::suggest_move()
 {
-    return _ai_helper->suggest_move(_game);
+    return _ai_helper->suggest_move_evaluation(_game);
 }
 
 std::string GameRoom::new_room_id()

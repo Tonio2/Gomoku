@@ -66,7 +66,7 @@ public:
 #endif
 
     GomokuAI(const GomokuAiSettings &settings);
-    MoveEvaluation suggest_move(const GomokuGame &board);
+    MoveEvaluation suggest_move_evaluation(const GomokuGame &board);
 
     int get_heuristic_evaluation(const GomokuGame &board, Player player);
 

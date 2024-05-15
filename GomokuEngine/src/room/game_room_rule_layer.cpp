@@ -80,7 +80,7 @@ GameActionResult GameRoom::GameRuleLayerStandard::perform_pending_action()
         return perform_action_move(player_id, _room._game.get_board_height() / 2, _room._game.get_board_width() / 2);
     }
 
-    MoveEvaluation evaluation = ai->suggest_move(_room._game);
+    MoveEvaluation evaluation = ai->suggest_move_evaluation(_room._game);
     std::pair<int, int> best_move = getBestMove(evaluation);
 
     return perform_action_move(player_id, best_move.first, best_move.second);
@@ -254,7 +254,7 @@ GameActionResult GameRoom::GameRuleLayerSwap::perform_pending_action()
 
     if (player_id != GameRuleLayerStandard::expected_player())
     {
-        MoveEvaluation evaluation = ai->suggest_move(_room._game);
+        MoveEvaluation evaluation = ai->suggest_move_evaluation(_room._game);
         std::pair<int, int> best_move = getBestMove(evaluation);
         return perform_action_move(player_id, best_move.first, best_move.second);
     }

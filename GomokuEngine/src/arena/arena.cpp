@@ -157,7 +157,7 @@ int Arena::play_game(const GomokuAIData &p1, const GomokuAIData &p2)
     {
         GomokuAI *current_ai = game.get_current_player() == X ? &ai1 : &ai2;
 
-        MoveEvaluation moves = current_ai->suggest_move(game);
+        MoveEvaluation moves = current_ai->suggest_move_evaluation(game);
 
         auto best_move = std::max_element(moves.listMoves.begin(), moves.listMoves.end(), [](const MoveEvaluation &a, const MoveEvaluation &b)
                                           { return a.score < b.score; });

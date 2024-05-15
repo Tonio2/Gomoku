@@ -38,7 +38,7 @@ void test_problems()
         ai_settings.depth = get_depth_from_env();
         GomokuAI AI(ai_settings);
         // Suggest a move
-        MoveEvaluation moveEvalutation = AI.suggest_move(game);
+        MoveEvaluation moveEvalutation = AI.suggest_move_evaluation(game);
         // Get the best move
         std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
 
@@ -84,7 +84,7 @@ void test_problems()
         std::cout << "Percentage of moves evaluated: " << (AI.move_evaluated_count * 100) / AI.move_count << "%" << std::endl;
         std::cout << "Percentage of evaluations needed: " << (AI.evaluation_needed_count * 100) / AI.move_evaluated_count << "%" << std::endl;
 #endif
-        totalTime += Timer::getAccumulatedTime("suggest_move");
+        totalTime += Timer::getAccumulatedTime("suggest_move_evaluation");
         problemCount++;
         Timer::printAccumulatedTimes();
         Timer::reset();
@@ -132,7 +132,7 @@ void test_problem(int problem_idx)
     ai_settings.depth = get_depth_from_env();
     GomokuAI AI(ai_settings);
     // Suggest a move
-    MoveEvaluation moveEvalutation = AI.suggest_move(game);
+    MoveEvaluation moveEvalutation = AI.suggest_move_evaluation(game);
     // Get the best move
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     // Print the best move
@@ -205,7 +205,7 @@ void test_eval(std::string moves_string)
     }
     std::cout << "]" << std::endl;
 
-    MoveEvaluation moveEvaluation = AI.suggest_move(game);
+    MoveEvaluation moveEvaluation = AI.suggest_move_evaluation(game);
     std::pair<int, int> bestMove = getBestMove(moveEvaluation, true);
     std::cout << "Suggested move: " << bestMove.first << "," << bestMove.second << std::endl;
 }
