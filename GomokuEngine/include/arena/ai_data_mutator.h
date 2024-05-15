@@ -9,7 +9,7 @@ class GomokuAIDataMutator
 public:
     GomokuAIDataMutator();
 
-    void mutate_data(GomokuAIData &data) const;
+    void mutate_data(AI::MinMaxV2::GomokuAIData &data) const;
 
     void increase_impact();
 

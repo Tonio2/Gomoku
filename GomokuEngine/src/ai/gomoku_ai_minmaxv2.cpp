@@ -1,8 +1,28 @@
-#include "ai/gomoku_ai.h"
+#include "ai/gomoku_ai_minmaxv2.h"
 #include <algorithm>
 #include <limits>
 #include <utility>
 #include <random>
+
+#include "utils/gomoku_utilities.h"
+
+namespace AI::MinMaxV2
+{
+
+Move GomokuAI::suggest_move(const GomokuGame &board)
+{
+    MoveEvaluation result = suggest_move_evaluation(board);
+    auto [row, col] = getBestMove(result);
+    return Move(row, col);
+}
+
+std::vector<Move> GomokuAI::suggest_move_sequence(const GomokuGame &board)
+{
+    std::vector<Move> moves;
+    moves.push_back(suggest_move(board));
+    // TODO: Assign the rest of the moves
+    return moves;
+}
 
 GomokuAI::GomokuAI(const GomokuAiSettings &settings)
     : game(0, 0), depth(settings.depth), length(settings.length), evaluation_data(settings.data)
@@ -324,3 +344,5 @@ const GomokuAIData &GomokuAI::get_evaluation_data() const
 {
     return evaluation_data;
 }
+
+} // namespace AI::MinMaxV2

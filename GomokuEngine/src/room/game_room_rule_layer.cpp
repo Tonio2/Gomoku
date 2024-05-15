@@ -68,7 +68,7 @@ GameActionResult GameRoom::GameRuleLayerStandard::perform_pending_action()
     Player current_player = _room._game.get_current_player();
     PlayerId player_id = _room.id_from_gomoku_player(current_player);
 
-    GomokuAI *ai = _room.get_player_ai(player_id);
+    AI::IGomokuAI *ai = _room.get_player_ai(player_id);
 
     if (ai == nullptr)
     {
@@ -80,10 +80,9 @@ GameActionResult GameRoom::GameRuleLayerStandard::perform_pending_action()
         return perform_action_move(player_id, _room._game.get_board_height() / 2, _room._game.get_board_width() / 2);
     }
 
-    MoveEvaluation evaluation = ai->suggest_move_evaluation(_room._game);
-    std::pair<int, int> best_move = getBestMove(evaluation);
+    AI::Move ai_move = ai->suggest_move(_room._game);
 
-    return perform_action_move(player_id, best_move.first, best_move.second);
+    return perform_action_move(player_id, ai_move.row, ai_move.col);
 }
 
 PlayerId GameRoom::GameRuleLayerStandard::expected_player() const
@@ -238,7 +237,7 @@ GameActionResult GameRoom::GameRuleLayerSwap::perform_action_swap(PlayerId playe
 GameActionResult GameRoom::GameRuleLayerSwap::perform_pending_action()
 {
     PlayerId player_id = expected_player();
-    GomokuAI *ai = _room.get_player_ai(player_id);
+    AI::IGomokuAI *ai = _room.get_player_ai(player_id);
 
     if (ai == nullptr)
     {
@@ -254,9 +253,8 @@ GameActionResult GameRoom::GameRuleLayerSwap::perform_pending_action()
 
     if (player_id != GameRuleLayerStandard::expected_player())
     {
-        MoveEvaluation evaluation = ai->suggest_move_evaluation(_room._game);
-        std::pair<int, int> best_move = getBestMove(evaluation);
-        return perform_action_move(player_id, best_move.first, best_move.second);
+        AI::Move ai_move = ai->suggest_move(_room._game);
+        return perform_action_move(player_id, ai_move.row, ai_move.col);
     }
 
     return GameRuleLayerStandard::perform_pending_action();

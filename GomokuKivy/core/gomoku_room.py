@@ -280,12 +280,11 @@ class GameRoom:
         }
 
     def suggest_move(self):
-        eval = self.room.suggest_move()
-        bestIndex = pygomoku.getBestMoveIndex(eval, True)
-        if bestIndex < 0:
+        moves = self.room.suggest_move()
+        if len(moves) == 0:
             print("No move suggested")
             return
-        self.suggested_move = eval.listMoves[bestIndex].move
+        self.suggested_move = [moves[0].row, moves[0].col]
         print("Suggested move: ", self.suggested_move[0], self.suggested_move[1])
         CallbackCenter.shared().send_message("GameRoom.suggestion", self)
 

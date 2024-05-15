@@ -56,6 +56,8 @@ GameRoom::~GameRoom()
         delete _ai1;
     if (_ai2)
         delete _ai2;
+    if (_ai_helper)
+        delete _ai_helper;
 }
 
 GameActionResult GameRoom::perform_action_move(PlayerId player, int row, int col)
@@ -171,9 +173,9 @@ void GameRoom::reapply_last_action()
     }
 }
 
-MoveEvaluation GameRoom::suggest_move()
+std::vector<AI::Move> GameRoom::suggest_move()
 {
-    return _ai_helper->suggest_move_evaluation(_game);
+    return _ai_helper->suggest_move_sequence(_game);
 }
 
 std::string GameRoom::new_room_id()
@@ -193,7 +195,7 @@ std::string GameRoom::new_room_id()
     return new_id;
 }
 
-GomokuAI *GameRoom::get_player_ai(PlayerId id) const
+AI::IGomokuAI *GameRoom::get_player_ai(PlayerId id) const
 {
     switch (id)
     {

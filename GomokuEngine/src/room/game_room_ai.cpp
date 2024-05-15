@@ -1,5 +1,7 @@
 #include "room/game_room.h"
-#include "ai/gomoku_ai.h"
+#include "ai/gomoku_ai_minmaxv2.h"
+
+using AI::MinMaxV2::GomokuAIData;
 
 static const GomokuAIData ai_data_default = GomokuAIData();
 
@@ -87,36 +89,81 @@ static const GomokuAIData ai_data_cpu4 = []()
     return data;
 }();
 
-static const std::vector<std::pair<std::string, GomokuAiSettings>>
-    ai_prefabs = {
-        {"easy", {1, 1, ai_data_default}},
-        {"medium", {2, 1, ai_data_default}},
-        {"hard", {3, 2, ai_data_default}},
-        {"deep", {5, 1, ai_data_default}},
-        {"cpu1", {3, 2, ai_data_cpu1}},
-        {"cpu2", {3, 2, ai_data_cpu2}},
-        {"cpu3", {3, 2, ai_data_cpu3}},
-        {"cpu4", {3, 2, ai_data_cpu4}},
-        {"helper", {4, 2, ai_data_cpu2}},
+AI::IGomokuAI *create_easy_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({1, 1, ai_data_default});
+}
+
+AI::IGomokuAI *create_medium_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({2, 1, ai_data_default});
+}
+
+AI::IGomokuAI *create_hard_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_deep_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({5, 1, ai_data_default});
+}
+
+AI::IGomokuAI *create_cpu1_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_cpu1});
+}
+
+AI::IGomokuAI *create_cpu2_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_cpu2});
+}
+
+AI::IGomokuAI *create_cpu3_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_cpu3});
+}
+
+AI::IGomokuAI *create_cpu4_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_cpu4});
+}
+
+AI::IGomokuAI *create_helper_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({4, 2, ai_data_cpu2});
+}
+
+static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>>>
+    ai_makers = {
+        {"easy", create_easy_ai},
+        {"medium", create_medium_ai},
+        {"hard", create_hard_ai},
+        {"deep", create_deep_ai},
+        {"cpu1", create_cpu1_ai},
+        {"cpu2", create_cpu2_ai},
+        {"cpu3", create_cpu3_ai},
+        {"cpu4", create_cpu4_ai},
+        {"helper", create_helper_ai},
 };
 
 static const std::vector<std::string> ai_names = []
 {
     std::vector<std::string> names;
-    for (const auto &[name, settings] : ai_prefabs)
+    for (const auto &[name, _] : ai_makers)
         names.push_back(name);
     return names;
 }();
 
-GomokuAI *GameEntitySetting::make_ai() const
+AI::IGomokuAI *GameEntitySetting::make_ai() const
 {
     if (!is_ai)
         return nullptr;
 
-    for (const auto &[name, settings] : ai_prefabs)
+    for (const auto &[name, maker] : ai_makers)
     {
         if (name == ai_name)
-            return new GomokuAI(settings);
+            return maker();
     }
 
     return nullptr;

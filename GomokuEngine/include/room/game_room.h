@@ -2,7 +2,7 @@
 #pragma once
 
 #include "engine/gomoku_engine.h"
-#include "ai/gomoku_ai.h"
+#include "ai/gomoku_ai_interface.h"
 
 /** Identifier attributed to each players. The player id will never change.
  * The case of swap will only change the player's corresponding gomoku player */
@@ -68,7 +68,7 @@ struct GameEntitySetting
     bool is_ai = false;
     std::string ai_name = "medium";
 
-    GomokuAI *make_ai() const;
+    AI::IGomokuAI *make_ai() const;
 };
 
 /** Settings of a room */
@@ -128,7 +128,7 @@ public:
     bool can_reapply_last_action() const;
     void reapply_last_action();
 
-    MoveEvaluation suggest_move();
+    std::vector<AI::Move> suggest_move();
 
 private:
     std::string _room_id;
@@ -139,15 +139,15 @@ private:
     int _action_index;
     bool _players_swapped;
 
-    GomokuAI *_ai1 = nullptr;
-    GomokuAI *_ai2 = nullptr;
-    GomokuAI *_ai_helper = nullptr;
+    AI::IGomokuAI *_ai1 = nullptr;
+    AI::IGomokuAI *_ai2 = nullptr;
+    AI::IGomokuAI *_ai_helper = nullptr;
 
     double _first_action_timestamp = 0;
 
     static std::string new_room_id();
 
-    GomokuAI *get_player_ai(PlayerId id) const;
+    AI::IGomokuAI *get_player_ai(PlayerId id) const;
 
     void append_action(GameAction &action);
 

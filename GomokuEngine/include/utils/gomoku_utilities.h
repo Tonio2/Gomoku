@@ -2,7 +2,7 @@
 #pragma once
 
 #include "engine/gomoku_engine.h"
-#include "ai/gomoku_ai.h"
+#include "ai/gomoku_ai_minmaxv2.h"
 
 std::vector<std::string> split(const std::string &str, char delimiter);
 
@@ -16,16 +16,16 @@ void apply_moves(GomokuGame &game, std::string move_str);
 
 int get_depth_from_env(int default_depth = 3);
 
-void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int depth = 0, int i = -1);
+void writeMoveEvaluation(std::ostream &out, const AI::MinMaxV2::MoveEvaluation &eval, int depth = 0, int i = -1);
 
-void logMoveEvaluation(const MoveEvaluation &eval);
+void logMoveEvaluation(const AI::MinMaxV2::MoveEvaluation &eval);
 
-void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth = 0);
+void writeSurplusEvaluation(std::ofstream &out, const AI::MinMaxV2::MoveEvaluation &eval, int depth = 0);
 
-void logTooManyEvaluationsList(const MoveEvaluation &eval);
+void logTooManyEvaluationsList(const AI::MinMaxV2::MoveEvaluation &eval);
 
-size_t getBestMoveIndex(const MoveEvaluation &eval, bool maximizingPlayer = true);
-std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlayer = true);
+size_t getBestMoveIndex(const AI::MinMaxV2::MoveEvaluation &eval, bool maximizingPlayer = true);
+std::pair<int, int> getBestMove(const AI::MinMaxV2::MoveEvaluation &eval, bool maximizingPlayer = true);
 
 std::ostream &operator<<(std::ostream &stream, std::vector<std::string> moves);
 

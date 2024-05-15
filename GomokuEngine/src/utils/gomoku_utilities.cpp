@@ -127,6 +127,8 @@ int get_depth_from_env(int default_depth)
     return default_depth;
 }
 
+using AI::MinMaxV2::MoveEvaluation;
+
 void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int depth, int i)
 {
     // Create indentation based on the depth

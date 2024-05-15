@@ -2,7 +2,7 @@
 #include "arena/arena.h"
 #include "arena/ai_data_mutator.h"
 #include "engine/gomoku_engine.h"
-#include "ai/gomoku_ai.h"
+#include "ai/gomoku_ai_minmaxv2.h"
 #include "utils/gomoku_utilities.h"
 #include <filesystem>
 #include <iostream>
@@ -14,8 +14,8 @@ Arena::Arena() : _game_width(19), _game_height(19)
 
 void Arena::play(int argc, char *argv[])
 {
-    GomokuAIData p1;
-    GomokuAIData p2;
+    AI::MinMaxV2::GomokuAIData p1;
+    AI::MinMaxV2::GomokuAIData p2;
 
     if (argc > 2)
         p1.load_from_file(argv[2]);
@@ -57,14 +57,28 @@ void Arena::play(int argc, char *argv[])
 
     while (true)
     {
-        int first_winner = play_game(p1, p2);
-        int second_winner = play_game(p2, p1);
+        AI::MinMaxV2::GomokuAiSettings settings;
+        settings.depth = get_depth_from_env();
+
+        settings.data = p1;
+        AI::MinMaxV2::GomokuAI ai1(settings);
+        settings.data = p2;
+        AI::MinMaxV2::GomokuAI ai2(settings);
+
+        int first_winner = play_game(ai1, ai2);
+        int second_winner = play_game(ai2, ai1);
         second_winner = second_winner == 0 ? 0 : 3 - second_winner;
 
         int p1_wins = (first_winner == 1) + (second_winner == 1);
         int p2_wins = (first_winner == 2) + (second_winner == 2);
 
-        auto player_win = [&mutator, &streaker_index, &last_file](std::string winner_name, GomokuAIData &winner_data, int &winner_streak, std::string loser_name, GomokuAIData &loser_data, int &loser_streak)
+        auto player_win = [&mutator, &streaker_index, &last_file](
+                              std::string winner_name,
+                              AI::MinMaxV2::GomokuAIData &winner_data,
+                              int &winner_streak,
+                              std::string loser_name,
+                              AI::MinMaxV2::GomokuAIData &loser_data,
+                              int &loser_streak)
         {
             // mutator.decrease_impact();
             std::cout << winner_name << " win ~" << loser_name << std::endl;
@@ -139,30 +153,19 @@ void Arena::play(int argc, char *argv[])
     }
 }
 
-int Arena::play_game(const GomokuAIData &p1, const GomokuAIData &p2)
+int Arena::play_game(AI::IGomokuAI &ai1, AI::IGomokuAI &ai2)
 {
     GomokuGame game(_game_width, _game_height);
-
-    GomokuAiSettings settings;
-    settings.depth = get_depth_from_env();
-
-    settings.data = p1;
-    GomokuAI ai1(settings);
-    settings.data = p2;
-    GomokuAI ai2(settings);
 
     game.make_move(9, 9);
 
     while (!game.is_game_over())
     {
-        GomokuAI *current_ai = game.get_current_player() == X ? &ai1 : &ai2;
+        AI::IGomokuAI *current_ai = game.get_current_player() == X ? &ai1 : &ai2;
 
-        MoveEvaluation moves = current_ai->suggest_move_evaluation(game);
+        AI::Move move = current_ai->suggest_move(game);
 
-        auto best_move = std::max_element(moves.listMoves.begin(), moves.listMoves.end(), [](const MoveEvaluation &a, const MoveEvaluation &b)
-                                          { return a.score < b.score; });
-
-        game.make_move(best_move->move.first, best_move->move.second);
+        game.make_move(move.row, move.col);
     }
 
     if (game.get_winner() == X)

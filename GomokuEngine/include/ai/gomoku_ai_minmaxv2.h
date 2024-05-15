@@ -1,8 +1,11 @@
 
 #pragma once
 
-#include "engine/gomoku_engine.h"
+#include "gomoku_ai_interface.h"
 #include "gomoku_ai_data.h"
+
+namespace AI::MinMaxV2
+{
 
 struct GomokuAiSettings
 {
@@ -37,8 +40,12 @@ struct MoveHeuristic
     }
 };
 
-class GomokuAI
+class GomokuAI : public IGomokuAI
 {
+public:
+    Move suggest_move(const GomokuGame &board) override;
+    std::vector<Move> suggest_move_sequence(const GomokuGame &board) override;
+
 private:
     GomokuGame game;
     int depth;  // min max depth algorithm
@@ -74,3 +81,5 @@ public:
 
     std::vector<MoveHeuristic> get_relevant_moves(const GomokuGame &board);
 };
+
+} // namespace AI::MinMaxV2

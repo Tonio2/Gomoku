@@ -1,15 +1,15 @@
 #include "gtest/gtest.h"
-#include "ai/gomoku_ai.h"
+#include "ai/gomoku_ai_minmaxv2.h"
 #include "engine/gomoku_engine.h"
 
-TEST(AiTest, Creation)
+TEST(AiTest_MinMaxV2, Creation)
 {
-    GomokuAiSettings settings;
+    AI::MinMaxV2::GomokuAiSettings settings;
     settings.depth = 3;
     settings.length = 2;
-    settings.data = GomokuAIData();
+    settings.data = AI::MinMaxV2::GomokuAIData();
 
-    GomokuAI ai(settings);
+    AI::MinMaxV2::GomokuAI ai(settings);
 }
 
 int main(int argc, char **argv)

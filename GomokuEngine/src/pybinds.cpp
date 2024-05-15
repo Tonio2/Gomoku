@@ -2,7 +2,7 @@
 #include <pybind11/stl.h>
 #include "engine/gomoku_pattern_reconizer.h"
 #include "engine/gomoku_engine.h"
-#include "ai/gomoku_ai.h"
+#include "ai/gomoku_ai_minmaxv2.h"
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
 
@@ -48,11 +48,10 @@ PYBIND11_MODULE(pygomoku, m)
     m.def("getBestMoveIndex", &getBestMoveIndex);
 
     /** Ai */
-    py::class_<MoveEvaluation>(m, "MoveEvaluation")
+    py::class_<AI::Move>(m, "AiMove")
         .def(py::init<>())
-        .def_readwrite("move", &MoveEvaluation::move)
-        .def_readwrite("score", &MoveEvaluation::score)
-        .def_readwrite("listMoves", &MoveEvaluation::listMoves);
+        .def_readwrite("row", &AI::Move::row)
+        .def_readwrite("col", &AI::Move::col);
 
     /** Room */
     py::enum_<GameActionType>(m, "GameActionType")
