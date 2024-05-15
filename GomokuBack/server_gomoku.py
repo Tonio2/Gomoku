@@ -173,9 +173,10 @@ def create_room():
     rule_style = request.json.get("rule_style", 0)
     ai_player = request.json.get("ai_player", 2)
     ai_name = request.json.get("ai_name", "medium")
+    ai_name2 = request.json.get("ai_name2", "medium")
     room = rooms.get(user_id)
     if not room:
-        room = GomokuRoom(size, mode, rule_style, ai_player, ai_name)
+        room = GomokuRoom(size, mode, rule_style, ai_player, ai_name, ai_name2)
         rooms[user_id] = room
     state = room.get_state()
     state["success"] = True
