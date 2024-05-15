@@ -34,6 +34,7 @@ namespace AI::MinMaxV2
     GomokuAI::GomokuAI(const GomokuAiSettings &settings)
         : game(0, 0), depth(settings.depth), length(settings.length), evaluation_data(settings.data)
     {
+        killer_moves = std::vector<std::pair<int, int>>(depth, {-1, -1});
     }
 
     void sortMovesUtil(std::vector<MoveHeuristic> &moves, bool maximizingPlayer)
@@ -80,12 +81,12 @@ namespace AI::MinMaxV2
         sortMovesUtil(moves, maximizingPlayer);
     }
 
-    void GomokuAI::evaluateNode(const MoveHeuristic &move, int depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremeEval, std::pair<int, int> &best_move, bool isFirstMove)
+    void GomokuAI::evaluateNode(const MoveHeuristic &move, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremeEval, std::pair<int, int> &best_move, bool isFirstMove)
     {
         MoveResult game_move = game.make_move(move.row, move.col);
         eval.listMoves.push_back(MoveEvaluation());
         MoveEvaluation &evalNode = eval.listMoves.back();
-        minimax(evalNode, depth - 1, alpha, beta, !maximizingPlayer, move.row, move.col);
+        minimax(evalNode, _depth - 1, alpha, beta, !maximizingPlayer, move.row, move.col);
         game.reverse_move(game_move);
 
         if (maximizingPlayer)
@@ -110,14 +111,14 @@ namespace AI::MinMaxV2
         }
     }
 
-    void GomokuAI::minimax(MoveEvaluation &eval, int depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
+    void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
     {
         TIMER
 
         eval.move.first = row;
         eval.move.second = col;
 
-        if (depth == 0 || game.is_game_over())
+        if (_depth == 0 || game.is_game_over())
         {
             if (game.is_game_over())
             {
@@ -134,17 +135,18 @@ namespace AI::MinMaxV2
         }
 
         std::vector<MoveHeuristic> moves;
-        find_relevant_moves(moves);
+        find_relevant_moves(moves, _depth);
 
         bool isFirstMove = true;
         int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
         std::pair<int, int> best_move = {-1, -1};
 
+        const std::pair<int, int> &killer_move = killer_moves[depth - _depth];
         if (killer_move.first == moves[0].row && killer_move.second == moves[0].col)
         {
             try
             {
-                evaluateNode(moves[0], depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
+                evaluateNode(moves[0], _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
 
                 if (beta <= alpha)
                 {
@@ -159,14 +161,14 @@ namespace AI::MinMaxV2
             moves.erase(moves.begin());
         }
 
-        if (depth > 1)
+        if (_depth > 1)
             sortMoves(moves, maximizingPlayer);
 
         for (const MoveHeuristic &move : moves)
         {
             try
             {
-                evaluateNode(move, depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
+                evaluateNode(move, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
 
                 if (beta <= alpha)
                 {
@@ -179,7 +181,7 @@ namespace AI::MinMaxV2
             }
         }
 
-        killer_move = {best_move.first, best_move.second};
+        killer_moves[depth - _depth] = {best_move.first, best_move.second};
     }
 
     int GomokuAI::_heuristic_evaluation()
@@ -229,7 +231,7 @@ namespace AI::MinMaxV2
         return result;
     }
 
-    void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves) const
+    void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const
     {
         TIMER
 
@@ -244,7 +246,7 @@ namespace AI::MinMaxV2
 
                 if (is_cell_relevant(row, col))
                 {
-                    if (killer_move == std::pair<int, int>(row, col))
+                    if (killer_moves[depth - _depth] == std::pair<int, int>(row, col))
                         out_relevant_moves.insert(out_relevant_moves.begin(), MoveHeuristic{uint8_t(row), uint8_t(col), 0});
                     else
                         out_relevant_moves.push_back(
@@ -283,7 +285,7 @@ namespace AI::MinMaxV2
         human_player = board.other_player(ai_player);
 
         std::vector<MoveHeuristic> moves;
-        find_relevant_moves(moves);
+        find_relevant_moves(moves, depth);
         return moves;
     }
 
