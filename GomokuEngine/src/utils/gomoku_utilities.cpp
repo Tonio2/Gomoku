@@ -245,6 +245,11 @@ std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlaye
     return eval.listMoves[getBestMoveIndex(eval, maximizingPlayer)].move;
 }
 
+MoveEvaluation &getBestMoveEvaluation(MoveEvaluation &eval, bool maximizingPlayer)
+{
+    return eval.listMoves[getBestMoveIndex(eval, maximizingPlayer)];
+}
+
 std::ostream &operator<<(std::ostream &stream, std::vector<std::string> moves)
 {
     for (const std::string &move : moves)
