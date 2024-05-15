@@ -5,6 +5,7 @@
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
 #include <fstream>
+#include "ai/gomoku_ai_data.h"
 
 void test_problems()
 {
@@ -158,6 +159,27 @@ void test_problem(int problem_idx)
     std::cout << std::endl;
 }
 
+const AI::MinMaxV2::GomokuAIData ai_data = []()
+{
+    AI::MinMaxV2::GomokuAIData data;
+    data.values[0] = 0;
+    data.values[1] = 1.18881e+09;
+    data.values[2] = 175.305;
+    data.values[3] = 0.488359;
+    data.values[4] = 22.639;
+    data.values[5] = 1.59943;
+    data.values[6] = 375669;
+    data.values[7] = 21.7746;
+    data.values[8] = 5684.55;
+    data.values[9] = 16355.2;
+    data.values[10] = 7501.18;
+    data.values[11] = 758.142;
+    data.values[12] = 0.00172756;
+    data.values[13] = 7.01941;
+    data.values[14] = 74.5009;
+    return data;
+}();
+
 void test_eval(std::string moves_string)
 {
     GomokuGame game(19, 19);
@@ -166,9 +188,10 @@ void test_eval(std::string moves_string)
     apply_moves(game, moves);
 
     Player last_player = game.get_current_player();
-    AI::MinMaxV2::GomokuAiSettings ai_settings;
-    ai_settings.depth = get_depth_from_env();
-    AI::MinMaxV2::GomokuAI AI(ai_settings);
+    // AI::MinMaxV2::GomokuAiSettings ai_settings;
+    // ai_settings.depth = get_depth_from_env();
+    // AI::MinMaxV2::GomokuAI AI(ai_settings);
+    AI::MinMaxV2::GomokuAI AI({4, 2, ai_data_cpu2});
     int evaluation = AI.get_heuristic_evaluation(game, last_player);
 
     // Display moves
@@ -206,6 +229,7 @@ void test_eval(std::string moves_string)
     std::cout << "]" << std::endl;
 
     AI::MinMaxV2::MoveEvaluation moveEvaluation = AI.suggest_move_evaluation(game);
+    logMoveEvaluation(moveEvaluation);
     std::pair<int, int> bestMove = getBestMove(moveEvaluation, true);
     std::cout << "Suggested move: " << bestMove.first << "," << bestMove.second << std::endl;
 }
