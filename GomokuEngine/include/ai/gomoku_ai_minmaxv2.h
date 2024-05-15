@@ -48,14 +48,14 @@ namespace AI::MinMaxV2
         Player human_player;
         GomokuAIData evaluation_data; // heuristic evaluation data
 
-        std::pair<int, int> killer_move;
+        std::vector<std::pair<int, int>> killer_moves;
 
-        void evaluateNode(const MoveHeuristic &move, int depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
+        void evaluateNode(const MoveHeuristic &move, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
 
-        void minimax(MoveEvaluation &eval, int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
+        void minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
         int score_player(Player player);
 
-        void find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves) const;
+        void find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const;
         bool is_cell_relevant(int row, int col) const;
 
         int _heuristic_evaluation();
