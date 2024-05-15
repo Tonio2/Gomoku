@@ -18,12 +18,6 @@ namespace AI::MinMaxV2
     {
         std::pair<int, int> move;
         int score = 0;
-
-        int neededEvalCount = 0;
-        int totalEvalCount = 0;
-        int evaluatedMoves = 0;
-        int initialScore = 0;
-
         std::vector<MoveEvaluation> listMoves = {};
     };
 
@@ -56,7 +50,7 @@ namespace AI::MinMaxV2
 
         std::pair<int, int> killer_move;
 
-        void evaluateNode(MoveHeuristic &move, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, int moveIdx);
+        void evaluateNode(const MoveHeuristic &move, int depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
 
         void minimax(MoveEvaluation &eval, int depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
         int score_player(Player player);
@@ -68,10 +62,6 @@ namespace AI::MinMaxV2
         void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer);
 
     public:
-        int move_count = 0;
-        int move_evaluated_count = 0;
-        int evaluation_needed_count = 0;
-
         GomokuAI(const GomokuAiSettings &settings);
         MoveEvaluation suggest_move_evaluation(const GomokuGame &board);
 

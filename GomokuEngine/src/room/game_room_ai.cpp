@@ -109,6 +109,11 @@ AI::IGomokuAI *create_hardcore_ai()
     return new AI::MinMaxV2::GomokuAI({4, 2, ai_data_default});
 }
 
+AI::IGomokuAI *create_ultra_hardcore_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({5, 2, ai_data_default});
+}
+
 AI::IGomokuAI *create_deep_ai()
 {
     return new AI::MinMaxV2::GomokuAI({5, 1, ai_data_default});
@@ -145,6 +150,7 @@ static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>
         {"medium", create_medium_ai},
         {"hard", create_hard_ai},
         {"hardcore", create_hardcore_ai},
+        {"ultra_hardcore", create_ultra_hardcore_ai},
         {"deep", create_deep_ai},
         {"cpu1", create_cpu1_ai},
         {"cpu2", create_cpu2_ai},
