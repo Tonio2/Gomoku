@@ -8,6 +8,7 @@ const GameSetting: React.FC = () => {
   const [mode, setMode] = useState<number>(0); // Default mode: Human vs AI
   const [starter, setStarter] = useState<number>(0); // Default starter: Human
   const [aiName, setAiName] = useState<string>("medium");
+  const [aiName2, setAiName2] = useState<string>("medium");
   const [ruleStyle, setRuleStyle] = useState<number>(0); // Default rule style: Standard
 
   const [size2, setSize2] = useState<number>(19);
@@ -44,7 +45,7 @@ const GameSetting: React.FC = () => {
   const startGame = () => {
     // Redirect to the game page and pass the settings
     navigate(
-      `/game?mode=${mode}&size=${size}&starter=${starter}&ruleStyle=${ruleStyle}&aiName=${aiName}`
+      `/game?mode=${mode}&size=${size}&starter=${starter}&ruleStyle=${ruleStyle}&aiName=${aiName}&aiName2=${aiName2}`
     );
   };
 
@@ -86,6 +87,7 @@ const GameSetting: React.FC = () => {
             >
               <option value="0">Human vs AI</option>
               <option value="1">Human vs Human</option>
+              <option value="2">AI vs AI </option>
             </select>
           </div>
 
@@ -103,7 +105,7 @@ const GameSetting: React.FC = () => {
             </div>
           )}
 
-          {mode === 0 && (
+          {mode === 0 || mode === 2 && (
             <div className="mb-6">
               <label className="block mb-2">AI:</label>
               <select
@@ -120,6 +122,23 @@ const GameSetting: React.FC = () => {
             </div>
           )}
 
+          {mode === 2 && (
+            <div className="mb-6">
+              <label className="block mb-2">AI:</label>
+              <select
+                className="bg-gray-700 border-2 border-[#4affef] text-[#4affef] rounded w-full px-3 py-2 focus:outline-none"
+                value={aiName2}
+                onChange={(e) => setAiName2(e.target.value)}
+              >
+                {aiNames.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          
           <div className="mb-8">
             <label className="block mb-2">Rule Style:</label>
             <select

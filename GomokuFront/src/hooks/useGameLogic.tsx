@@ -46,6 +46,11 @@ const useGameLogic = (
     []
   );
 
+  const aiName2 = useMemo(
+    () => new URLSearchParams(window.location.search).get("aiName2") || "medium",
+    []
+  );
+
   const ruleStyle = useMemo(
     () => Number(new URLSearchParams(window.location.search).get("ruleStyle")),
     []
@@ -159,7 +164,8 @@ const useGameLogic = (
           size,
           ruleStyle,
           starter,
-          aiName
+          aiName,
+          aiName2
         );
         handleMoveResponse(res);
       } catch (error) {
