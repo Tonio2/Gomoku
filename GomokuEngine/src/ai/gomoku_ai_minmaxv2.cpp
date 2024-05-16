@@ -12,8 +12,10 @@ namespace AI::MinMaxV2
     Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
     {
         MoveEvaluation result = suggest_move_evaluation(board);
+#ifdef LOGGING
         std::string filename = "/tmp/move_evaluation/" + std::to_string(currentMove) + ".txt";
         logMoveEvaluation(result, filename);
+#endif
         auto [row, col] = getBestMove(result);
         return Move(row, col);
     }
@@ -87,7 +89,9 @@ namespace AI::MinMaxV2
             catch (std::exception &e)
             {
                 it = moves.erase(it); // erase returns the next iterator
+#ifdef LOGGING
                 eval.totalEvalCount--;
+#endif
             }
         }
 
@@ -101,9 +105,9 @@ namespace AI::MinMaxV2
         MoveEvaluation &evalNode = eval.listMoves.back();
         minimax(evalNode, _depth - 1, alpha, beta, !maximizingPlayer, move.row, move.col);
         game.reverse_move(game_move);
-
+#ifdef LOGGING
         evalNode.initialScore = move.score;
-
+#endif
         if (maximizingPlayer)
         {
             if (evalNode.score > extremeEval || isFirstMove)
@@ -112,7 +116,9 @@ namespace AI::MinMaxV2
                 eval.score = extremeEval;
                 alpha = std::max(alpha, evalNode.score);
                 best_move = {move.row, move.col};
+#ifdef LOGGING
                 eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
+#endif
             }
         }
         else
@@ -123,7 +129,9 @@ namespace AI::MinMaxV2
                 eval.score = extremeEval;
                 beta = std::min(beta, evalNode.score);
                 best_move = {move.row, move.col};
+#ifdef LOGGING
                 eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
+#endif
             }
         }
     }
@@ -153,7 +161,9 @@ namespace AI::MinMaxV2
 
         std::vector<MoveHeuristic> moves;
         find_relevant_moves(moves, _depth);
+#ifdef LOGGING
         eval.totalEvalCount = moves.size();
+#endif
 
         bool isFirstMove = true;
         int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
@@ -175,8 +185,9 @@ namespace AI::MinMaxV2
             catch (std::exception &e)
             {
             }
-
+#ifdef LOGGING
             eval.killerMoveHasBeenEvaluated = 1;
+#endif
             moves.erase(moves.begin());
         }
 
@@ -201,8 +212,9 @@ namespace AI::MinMaxV2
             }
             moveId++;
         }
-
+#ifdef LOGGING
         eval.evaluatedEvalCount = std::min((int)moves.size(), moveId + 1) + eval.killerMoveHasBeenEvaluated;
+#endif
 
         killer_moves[depth - _depth] = {best_move.first, best_move.second};
     }

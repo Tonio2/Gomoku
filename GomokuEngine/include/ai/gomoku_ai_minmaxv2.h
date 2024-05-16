@@ -20,11 +20,13 @@ namespace AI::MinMaxV2
         int score = 0;
         std::vector<MoveEvaluation> listMoves = {};
 
+#ifdef LOGGING
         int neededEvalCount = 1;
         int evaluatedEvalCount = 1;
         int totalEvalCount = 1;
         int initialScore = 0;
         int killerMoveHasBeenEvaluated = 0;
+#endif
     };
 
     struct MoveHeuristic
