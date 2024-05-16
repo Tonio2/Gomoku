@@ -18,16 +18,14 @@ ifeq ($(LOGGING),ON)
 	CXXFLAGS += -DLOGGING
 endif
 
-
 TEST_BINS = $(wildcard ./build/tests/*_tests)
 
+all: $(EXECUTABLE_FILE) lib
 
-all: $(EXECUTABLE_FILE) $(PY_LIBRARY_FILE)
-
-$(EXECUTABLE_FILE): submodule cmake
+$(EXECUTABLE_FILE): submodule cmake_gktool
 	cp -f ./build/$(EXECUTABLE_FILE) $(EXECUTABLE_FILE)
 
-$(PY_LIBRARY_FILE): submodule cmake
+lib: submodule cmake_pygomoku
 	cp -f $(shell find ./build/ -name "PyGomoku.*.so" -type f | xargs ls -t1 | head -n 1) $(PY_LIBRARY_FILE)
 
 build:
@@ -36,13 +34,15 @@ build:
 submodule:
 	git submodule update --init --recursive
 
-cmake: build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make
+cmake_gktool: build
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make $(EXECUTABLE_FILE)
+
+cmake_pygomoku: build
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make PyGomoku
 
 install:
 	# brew install googletest
 	# apt-get install libgtest-dev
-
 	# brew install python@3.12
 	# apt-get install python3-dev
 
@@ -63,4 +63,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all submodule cmake install run test $(TEST_BINS) clean
+.PHONY: all submodule cmake_gktool cmake_pygomoku install run test $(TEST_BINS) clean fclean re

@@ -9,7 +9,7 @@ run: resources
 	python GomokuKivy/gomoku.py
 
 GomokuEngine/pygomoku.so:
-	make -C GomokuEngine pygomoku.so
+	make -C GomokuEngine lib
 
 lib:
 	mkdir -p lib
