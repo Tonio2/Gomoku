@@ -5,24 +5,27 @@ EXECUTABLE_FILE=gktool
 PY_LIBRARY_FILE=pygomoku.so
 
 ifeq ($(BUILD_TYPE),DEBUG)
-	BUILT_EXEC_FILE := $(EXECUTABLE_FILE)-debug
+	CXXFLAGS += -pg
 else
-	BUILT_EXEC_FILE := $(EXECUTABLE_FILE)
+	# CXXFLAGS += -march=native -msse4.2
 endif
 
 ifeq ($(TIMER),OFF)
 	CXXFLAGS += -DNOTIMER
 endif
 
+ifeq ($(LOGGING),ON)
+	CXXFLAGS += -DLOGGING
+endif
+
 
 TEST_BINS = $(wildcard ./build/tests/*_tests)
-
 
 
 all: $(EXECUTABLE_FILE) $(PY_LIBRARY_FILE)
 
 $(EXECUTABLE_FILE): submodule cmake
-	cp -f ./build/$(BUILT_EXEC_FILE) $(EXECUTABLE_FILE)
+	cp -f ./build/$(EXECUTABLE_FILE) $(EXECUTABLE_FILE)
 
 $(PY_LIBRARY_FILE): submodule cmake
 	cp -f $(shell find ./build/ -name "PyGomoku.*.so" -type f | xargs ls -t1 | head -n 1) $(PY_LIBRARY_FILE)

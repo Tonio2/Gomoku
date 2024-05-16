@@ -39,18 +39,6 @@ pybind11_add_module(PyGomoku ${PYBINDFILE} ${GOMOKU_SOURCES})
 
 add_executable(gktool ${GKTOOLFILE} ${GOMOKU_SOURCES} ${ARENA_SOURCES} ${UTILITIES_SOURCES})
 
-# Toggle between release and debug mode
-if(CMAKE_BUILD_TYPE MATCHES "DEBUG")
-    # Add debug flags
-    message("Building in Debug mode")
-    target_compile_options(gktool PRIVATE -pg -g)
-    set_property(TARGET gktool PROPERTY DEBUG_POSTFIX "-debug")
-else()
-    # Add release flags
-    message("Building in Release mode")
-    target_compile_options(gktool PRIVATE -O3 -DNDEBUG -march=native)
-endif()
-
 find_package(GTest)
 
 # Add tests if GTest is found
