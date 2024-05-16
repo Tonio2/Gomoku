@@ -139,8 +139,15 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, std::vec
     {
         out << i << ": ";
     }
-    out << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score << " | Initial score: " << eval.initialScore << "\n";
+    out << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score;
 
+#ifdef LOGGING
+    out << " | Initial score: " << eval.initialScore << "\n";
+#else
+    out << "\n";
+#endif
+
+#ifdef LOGGING
     if (eval.listMoves.size() > 0)
     {
         out << indent << "Stats: Best: " << eval.neededEvalCount << " | Evaluated: " << eval.evaluatedEvalCount << " | Total: " << eval.totalEvalCount << "\n";
@@ -150,6 +157,7 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, std::vec
         }
         csvData[depth].push_back(std::to_string(eval.neededEvalCount) + "," + std::to_string(eval.evaluatedEvalCount) + "," + std::to_string(eval.totalEvalCount) + ",");
     }
+#endif
 
     if (not eval.listMoves.empty())
     {
