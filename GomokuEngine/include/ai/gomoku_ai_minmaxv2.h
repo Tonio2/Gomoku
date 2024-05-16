@@ -58,16 +58,16 @@ namespace AI::MinMaxV2
 
         std::vector<std::pair<int, int>> killer_moves;
 
-        void evaluateNode(const MoveHeuristic &move, int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
+        void evaluateNode(int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, bool isFirstMove);
 
         void minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
         int score_player(Player player);
 
-        void find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const;
+        void find_relevant_moves(MoveEvaluation &eval, bool maximizingPlayer);
         bool is_cell_relevant(int row, int col) const;
 
         int _heuristic_evaluation();
-        void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval);
+        // void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval);
 
     public:
         GomokuAI(const GomokuAiSettings &settings);
@@ -77,7 +77,7 @@ namespace AI::MinMaxV2
 
         const GomokuAIData &get_evaluation_data() const;
 
-        std::vector<MoveHeuristic> get_relevant_moves(const GomokuGame &board);
+        // std::vector<MoveHeuristic> get_relevant_moves(const GomokuGame &board);
     };
 
 } // namespace AI::MinMaxV2

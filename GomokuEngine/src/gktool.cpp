@@ -220,13 +220,13 @@ void test_eval(std::string moves_string)
     std::cout << "Board evaluation for " << last_player << ": " << evaluation << std::endl;
 
     // Display the suggested move
-    std::vector<AI::MinMaxV2::MoveHeuristic> relevant_moves = AI.get_relevant_moves(game);
-    std::cout << "Relevant moves (" << relevant_moves.size() << "): [";
-    for (auto move : relevant_moves)
-    {
-        std::cout << "(" << int(move.row) << "," << int(move.col) << "),";
-    }
-    std::cout << "]" << std::endl;
+    // std::vector<AI::MinMaxV2::MoveHeuristic> relevant_moves = AI.get_relevant_moves(game);
+    // std::cout << "Relevant moves (" << relevant_moves.size() << "): [";
+    // for (auto move : relevant_moves)
+    // {
+    //     std::cout << "(" << int(move.row) << "," << int(move.col) << "),";
+    // }
+    // std::cout << "]" << std::endl;
 
     AI::MinMaxV2::MoveEvaluation moveEvaluation = AI.suggest_move_evaluation(game);
     logMoveEvaluation(moveEvaluation, "log.txt");
