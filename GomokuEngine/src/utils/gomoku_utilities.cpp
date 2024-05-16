@@ -139,14 +139,12 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int dept
     {
         out << i << ": ";
     }
-    out << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score << "\n";
+    out << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score << " | Initial score: " << eval.initialScore << "\n";
 
-#ifndef NDEBUG
-    if (depth < get_depth_from_env())
+    if (eval.listMoves.size() > 0)
     {
-        out << indent << "Evals: " << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << " | initial score: " << eval.initialScore << "\n";
+        out << indent << "Stats: Best: " << eval.neededEvalCount << " | Evaluated: " << eval.evaluatedEvalCount << " | Total: " << eval.totalEvalCount << "\n";
     }
-#endif
 
     if (not eval.listMoves.empty())
     {
@@ -156,17 +154,17 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int dept
         {
             const auto &move = eval.listMoves[i];
             // Increase the indentation for each level
-            writeMoveEvaluation(out, move, depth + 1, i);
+            writeMoveEvaluation(out, move, depth + 1, i + 1);
         }
     }
 }
 
-void logMoveEvaluation(const MoveEvaluation &eval)
+void logMoveEvaluation(const MoveEvaluation &eval, std::string filename)
 {
-    std::ofstream out("log.txt");
+    std::ofstream out(filename);
     if (!out.is_open())
     {
-        std::cerr << "Failed to open log.txt" << std::endl;
+        std::cerr << "Failed to open " << filename << std::endl;
         return;
     }
 
@@ -180,13 +178,6 @@ void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int 
     {
         return;
     }
-
-#ifndef NDEBUG
-    if (eval.neededEvalCount != eval.evaluatedMoves)
-    {
-        out << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << "\n";
-    }
-#endif
 
     if (not eval.listMoves.empty())
     {

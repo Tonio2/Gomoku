@@ -23,6 +23,7 @@ __pycache__/
 GomokuKivy/minimax_output.json
 GomokuEngine/log.txt
 GomokuEngine/surplusEval.txt
+GomokuBack/move_evaluation/
 
 # c++ object files
 *.o
