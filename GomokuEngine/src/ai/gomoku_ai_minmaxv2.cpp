@@ -9,9 +9,11 @@
 namespace AI::MinMaxV2
 {
 
-    Move GomokuAI::suggest_move(const GomokuGame &board)
+    Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
     {
         MoveEvaluation result = suggest_move_evaluation(board);
+        std::string filename = "/tmp/move_evaluation/" + std::to_string(currentMove) + ".txt";
+        logMoveEvaluation(result, filename);
         auto [row, col] = getBestMove(result);
         return Move(row, col);
     }
@@ -60,7 +62,7 @@ namespace AI::MinMaxV2
         std::sort(moves.begin(), moves.end(), compare);
     }
 
-    void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer)
+    void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval)
     {
         TIMER
         for (auto it = moves.begin(); it != moves.end();) // no icrement here
@@ -68,26 +70,39 @@ namespace AI::MinMaxV2
             try
             {
                 MoveResult game_move = game.make_move(it->row, it->col);
-                it->score = _heuristic_evaluation();
+                if (game.is_game_over())
+                {
+                    if (game.get_winner() == ai_player)
+                        it->score = std::numeric_limits<int>::max();
+                    else if (game.get_winner() == human_player)
+                        it->score = std::numeric_limits<int>::min();
+                    else
+                        it->score = 0;
+                }
+                else
+                    it->score = _heuristic_evaluation();
                 game.reverse_move(game_move);
                 ++it; // Only increment here if the move was successful
             }
             catch (std::exception &e)
             {
                 it = moves.erase(it); // erase returns the next iterator
+                eval.totalEvalCount--;
             }
         }
 
         sortMovesUtil(moves, maximizingPlayer);
     }
 
-    void GomokuAI::evaluateNode(const MoveHeuristic &move, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremeEval, std::pair<int, int> &best_move, bool isFirstMove)
+    void GomokuAI::evaluateNode(const MoveHeuristic &move, int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremeEval, std::pair<int, int> &best_move, bool isFirstMove)
     {
         MoveResult game_move = game.make_move(move.row, move.col);
         eval.listMoves.push_back(MoveEvaluation());
         MoveEvaluation &evalNode = eval.listMoves.back();
         minimax(evalNode, _depth - 1, alpha, beta, !maximizingPlayer, move.row, move.col);
         game.reverse_move(game_move);
+
+        evalNode.initialScore = move.score;
 
         if (maximizingPlayer)
         {
@@ -97,6 +112,7 @@ namespace AI::MinMaxV2
                 eval.score = extremeEval;
                 alpha = std::max(alpha, evalNode.score);
                 best_move = {move.row, move.col};
+                eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
             }
         }
         else
@@ -107,6 +123,7 @@ namespace AI::MinMaxV2
                 eval.score = extremeEval;
                 beta = std::min(beta, evalNode.score);
                 best_move = {move.row, move.col};
+                eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
             }
         }
     }
@@ -136,6 +153,7 @@ namespace AI::MinMaxV2
 
         std::vector<MoveHeuristic> moves;
         find_relevant_moves(moves, _depth);
+        eval.totalEvalCount = moves.size();
 
         bool isFirstMove = true;
         int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
@@ -146,7 +164,7 @@ namespace AI::MinMaxV2
         {
             try
             {
-                evaluateNode(moves[0], _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
+                evaluateNode(moves[0], 1, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
 
                 if (beta <= alpha)
                 {
@@ -158,17 +176,19 @@ namespace AI::MinMaxV2
             {
             }
 
+            eval.killerMoveHasBeenEvaluated = 1;
             moves.erase(moves.begin());
         }
 
         if (_depth > 1)
-            sortMoves(moves, maximizingPlayer);
+            sortMoves(moves, maximizingPlayer, eval);
 
-        for (int moveId = 0; moveId < moves.size() / 2; moveId++)
+        int moveId = 0;
+        while (moveId < moves.size())
         {
             try
             {
-                evaluateNode(moves[moveId], _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
+                evaluateNode(moves[moveId], moveId, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
 
                 if (beta <= alpha)
                 {
@@ -179,7 +199,10 @@ namespace AI::MinMaxV2
             catch (std::exception &e)
             {
             }
+            moveId++;
         }
+
+        eval.evaluatedEvalCount = moveId + eval.killerMoveHasBeenEvaluated;
 
         killer_moves[depth - _depth] = {best_move.first, best_move.second};
     }

@@ -19,6 +19,12 @@ namespace AI::MinMaxV2
         std::pair<int, int> move;
         int score = 0;
         std::vector<MoveEvaluation> listMoves = {};
+
+        int neededEvalCount = 1;
+        int evaluatedEvalCount = 1;
+        int totalEvalCount = 1;
+        int initialScore = 0;
+        int killerMoveHasBeenEvaluated = 0;
     };
 
     struct MoveHeuristic
@@ -37,7 +43,7 @@ namespace AI::MinMaxV2
     class GomokuAI : public IGomokuAI
     {
     public:
-        Move suggest_move(const GomokuGame &board) override;
+        Move suggest_move(const GomokuGame &board, int currentMove = 0) override;
         std::vector<Move> suggest_move_sequence(const GomokuGame &board) override;
 
     private:
@@ -50,7 +56,7 @@ namespace AI::MinMaxV2
 
         std::vector<std::pair<int, int>> killer_moves;
 
-        void evaluateNode(const MoveHeuristic &move, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
+        void evaluateNode(const MoveHeuristic &move, int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
 
         void minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
         int score_player(Player player);
@@ -59,7 +65,7 @@ namespace AI::MinMaxV2
         bool is_cell_relevant(int row, int col) const;
 
         int _heuristic_evaluation();
-        void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer);
+        void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval);
 
     public:
         GomokuAI(const GomokuAiSettings &settings);
