@@ -244,6 +244,12 @@ TEST(FiveInRowTest, TestShouldWinIfFiveInRowAndOpponentWinByCaptureNextTurn)
     test_game_status(move_str, true, Player::BLACK);
 }
 
+TEST(WinByCapture, ShouldWinIfA5thCaptureIsAvailable)
+{
+    std::string move_str = "99,89,BB,88,8A,A8,87,7B,99,6B,AA,88,BA,5B,8B,98,DD,CC,B8,B9,97,CA,9A,CD,CB,78,68,9B,9A,7C,7A,DB,EC,A9,CE,9A,AB,A7,77,8B,8D,59,95";
+    test_game_status(move_str, true, Player::WHITE);
+}
+
 TEST(DoubleThreeTest, TestMakeDoubleThreeThrowError)
 {
     GomokuGame game(19, 19);
