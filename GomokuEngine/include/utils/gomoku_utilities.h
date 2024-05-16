@@ -16,7 +16,7 @@ void apply_moves(GomokuGame &game, std::string move_str);
 
 int get_depth_from_env(int default_depth = 3);
 
-void writeMoveEvaluation(std::ostream &out, const AI::MinMaxV2::MoveEvaluation &eval, int depth = 0, int i = -1);
+void writeMoveEvaluation(std::ostream &out, const AI::MinMaxV2::MoveEvaluation &eval, std::vector<std::vector<std::string>> &csvData, int depth = 0, int i = -1);
 
 void logMoveEvaluation(const AI::MinMaxV2::MoveEvaluation &eval, std::string filename);
 
