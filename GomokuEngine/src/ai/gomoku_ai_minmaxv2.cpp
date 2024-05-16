@@ -164,7 +164,7 @@ namespace AI::MinMaxV2
         {
             try
             {
-                evaluateNode(moves[0], 1, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
+                evaluateNode(moves[0], 0, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
 
                 if (beta <= alpha)
                 {
@@ -202,7 +202,7 @@ namespace AI::MinMaxV2
             moveId++;
         }
 
-        eval.evaluatedEvalCount = moveId + eval.killerMoveHasBeenEvaluated;
+        eval.evaluatedEvalCount = std::min((int)moves.size(), moveId + 1) + eval.killerMoveHasBeenEvaluated;
 
         killer_moves[depth - _depth] = {best_move.first, best_move.second};
     }
