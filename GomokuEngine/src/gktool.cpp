@@ -139,7 +139,7 @@ void test_problem(int problem_idx)
     // Print the best move
     std::cout << to_string(game, true);
     std::cout << "Best move for player " << player << ": " << coordinate_to_char(bestMove.first) << coordinate_to_char(bestMove.second) << std::endl;
-    logMoveEvaluation(moveEvalutation, "log.txt");
+    logMoveEvaluation(moveEvalutation, "logs/log.txt");
     logTooManyEvaluationsList(moveEvalutation);
     Timer::printAccumulatedTimes();
 
@@ -229,7 +229,7 @@ void test_eval(std::string moves_string)
     // std::cout << "]" << std::endl;
 
     AI::MinMaxV2::MoveEvaluation moveEvaluation = AI.suggest_move_evaluation(game);
-    logMoveEvaluation(moveEvaluation, "log.txt");
+    logMoveEvaluation(moveEvaluation, "logs/log.txt");
     std::pair<int, int> bestMove = getBestMove(moveEvaluation, true);
     std::cout << "Suggested move: " << bestMove.first << "," << bestMove.second << std::endl;
 }

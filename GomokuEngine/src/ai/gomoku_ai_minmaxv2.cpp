@@ -13,7 +13,7 @@ namespace AI::MinMaxV2
     {
         MoveEvaluation result = suggest_move_evaluation(board);
 #ifdef LOGGING
-        std::string filename = "/tmp/move_evaluation/" + std::to_string(currentMove) + ".txt";
+        std::string filename = "./move_evaluation/" + std::to_string(currentMove) + ".txt";
         logMoveEvaluation(result, filename);
 #endif
         auto [row, col] = getBestMove(result);
@@ -179,6 +179,10 @@ namespace AI::MinMaxV2
         if (eval.listMoves.size() == 0)
             find_relevant_moves(eval, maximizingPlayer, _depth);
 
+#ifdef LOGGING
+        eval.totalEvalCount = eval.listMoves.size();
+#endif
+
         int moveId = 0;
         int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
         std::pair<int, int> bestMove = {-1, -1};
@@ -194,9 +198,6 @@ namespace AI::MinMaxV2
                 return;
             }
         }
-#ifdef LOGGING
-        eval.totalEvalCount = eval.listMoves.size();
-#endif
 
         if (_depth > 1)
             sortMovesUtil(eval.listMoves, maximizingPlayer, moveId);
@@ -257,6 +258,8 @@ namespace AI::MinMaxV2
         ai_player = board.get_current_player();
         human_player = board.other_player(ai_player);
 
+        killer_moves = std::vector<std::pair<int, int>>(1, {-1, -1});
+
         MoveEvaluation result;
         if (board.has_player_bounds())
         {
@@ -271,7 +274,7 @@ namespace AI::MinMaxV2
                 auto current_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = current_time - start_time;
 
-                if (current_depth >= 4 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
+                if (current_depth >= 5 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
                 {
                     break;
                 }
