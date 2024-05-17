@@ -40,7 +40,7 @@ namespace AI::MinMaxV2
     {
     }
 
-    void sortMovesUtil(std::vector<MoveEvaluation> &moves, bool maximizingPlayer)
+    void sortMovesUtil(std::vector<MoveEvaluation> &moves, bool maximizingPlayer, int moveId)
     {
         TIMER
 
@@ -60,7 +60,7 @@ namespace AI::MinMaxV2
                 return a.score < b.score;
             };
         }
-        std::sort(moves.begin(), moves.end(), compare);
+        std::sort(moves.begin() + moveId, moves.end(), compare);
     }
 
     //     void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval)
@@ -199,7 +199,7 @@ namespace AI::MinMaxV2
 #endif
 
         if (_depth > 1)
-            sortMovesUtil(eval.listMoves, maximizingPlayer);
+            sortMovesUtil(eval.listMoves, maximizingPlayer, moveId);
 
         while (moveId < eval.listMoves.size())
         {
@@ -271,7 +271,7 @@ namespace AI::MinMaxV2
                 auto current_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = current_time - start_time;
 
-                if (elapsed.count() > 0.2 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
+                if (current_depth >= 4 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
                 {
                     break;
                 }

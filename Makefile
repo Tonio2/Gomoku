@@ -38,4 +38,8 @@ fclean:
 
 re: fclean $(NAME)
 
+re_lib: lib
+	make -C GomokuEngine re_lib
+	cp -f GomokuEngine/pygomoku.so lib/pygomoku.so
+
 .PHONY: all run lib re reTerm startTerm
