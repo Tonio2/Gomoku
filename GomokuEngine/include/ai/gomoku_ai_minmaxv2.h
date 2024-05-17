@@ -58,12 +58,12 @@ namespace AI::MinMaxV2
 
         std::vector<std::pair<int, int>> killer_moves;
 
-        void evaluateNode(int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, bool isFirstMove);
+        bool evaluateNode(int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &bestMove, bool isFirstMove);
 
         void minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer);
         int score_player(Player player);
 
-        void find_relevant_moves(MoveEvaluation &eval, bool maximizingPlayer);
+        void find_relevant_moves(MoveEvaluation &eval, bool maximizingPlayer, int _depth);
         bool is_cell_relevant(int row, int col) const;
 
         int _heuristic_evaluation();

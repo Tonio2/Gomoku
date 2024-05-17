@@ -109,7 +109,7 @@ namespace AI::MinMaxV2
     //         sortMovesUtil(moves, maximizingPlayer);
     //     }
 
-    void GomokuAI::evaluateNode(int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremeEval, bool isFirstMove)
+    bool GomokuAI::evaluateNode(int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremeEval, std::pair<int, int> &bestMove, bool isFirstMove)
     {
         try
         {
@@ -128,6 +128,7 @@ namespace AI::MinMaxV2
                     extremeEval = evalNode.score;
                     eval.score = extremeEval;
                     alpha = std::max(alpha, evalNode.score);
+                    bestMove = evalNode.move;
 #ifdef LOGGING
                     eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
 #endif
@@ -140,6 +141,7 @@ namespace AI::MinMaxV2
                     extremeEval = evalNode.score;
                     eval.score = extremeEval;
                     beta = std::min(beta, evalNode.score);
+                    bestMove = evalNode.move;
 #ifdef LOGGING
                     eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
 #endif
@@ -149,7 +151,9 @@ namespace AI::MinMaxV2
         catch (std::exception &e)
         {
             eval.listMoves.erase(eval.listMoves.begin() + moveId);
+            return false;
         }
+        return true;
     }
 
     void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer)
@@ -172,8 +176,24 @@ namespace AI::MinMaxV2
             return;
         }
 
-        if (_depth == 1)
-            find_relevant_moves(eval, maximizingPlayer);
+        if (eval.listMoves.size() == 0)
+            find_relevant_moves(eval, maximizingPlayer, _depth);
+
+        int moveId = 0;
+        int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+        std::pair<int, int> bestMove = {-1, -1};
+
+        const std::pair<int, int> &killer_move = killer_moves[_depth];
+        if (killer_move.first == eval.listMoves[0].move.first && killer_move.second == eval.listMoves[0].move.second)
+        {
+            if (evaluateNode(moveId, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, bestMove, moveId == 0))
+                moveId++;
+
+            if (beta <= alpha)
+            {
+                return;
+            }
+        }
 #ifdef LOGGING
         eval.totalEvalCount = eval.listMoves.size();
 #endif
@@ -181,18 +201,18 @@ namespace AI::MinMaxV2
         if (_depth > 1)
             sortMovesUtil(eval.listMoves, maximizingPlayer);
 
-        int moveId = 0;
-        int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
         while (moveId < eval.listMoves.size())
         {
-            evaluateNode(moveId, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, moveId == 0);
+            if (evaluateNode(moveId, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, bestMove, moveId == 0))
+                moveId++;
 
             if (beta <= alpha)
             {
+                killer_moves[_depth] = bestMove;
                 break;
             }
-            moveId++;
         }
+        killer_moves[_depth] = bestMove;
 #ifdef LOGGING
         eval.evaluatedEvalCount = std::min((int)eval.listMoves.size(), moveId + 1) + eval.killerMoveHasBeenEvaluated;
 #endif
@@ -245,12 +265,14 @@ namespace AI::MinMaxV2
             while (true)
             {
                 std::cout << "Depth: " << current_depth << std::endl;
+                while (killer_moves.size() <= current_depth)
+                    killer_moves.push_back({-1, -1});
                 minimax(result, current_depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true);
 
                 auto current_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = current_time - start_time;
 
-                if (current_depth > 4 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
+                if (current_depth > 3 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
                 {
                     break;
                 }
@@ -263,7 +285,7 @@ namespace AI::MinMaxV2
         return result;
     }
 
-    void GomokuAI::find_relevant_moves(MoveEvaluation &eval, bool maximizingPlayer)
+    void GomokuAI::find_relevant_moves(MoveEvaluation &eval, bool maximizingPlayer, int _depth)
     {
         TIMER
 
@@ -279,8 +301,12 @@ namespace AI::MinMaxV2
 
                 if (is_cell_relevant(row, col))
                 {
-                    eval.listMoves.push_back(
-                        MoveEvaluation{{uint8_t(row), uint8_t(col)}, extremEval});
+                    if (killer_moves[_depth] == std::pair<int, int>{row, col})
+                        eval.listMoves.insert(eval.listMoves.begin(),
+                                              MoveEvaluation{{uint8_t(row), uint8_t(col)}, extremEval});
+                    else
+                        eval.listMoves.push_back(
+                            MoveEvaluation{{uint8_t(row), uint8_t(col)}, extremEval});
                 }
             }
         }
