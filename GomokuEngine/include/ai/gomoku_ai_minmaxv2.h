@@ -60,7 +60,7 @@ namespace AI::MinMaxV2
 
         void evaluateNode(int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, bool isFirstMove);
 
-        void minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
+        void minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer);
         int score_player(Player player);
 
         void find_relevant_moves(MoveEvaluation &eval, bool maximizingPlayer);

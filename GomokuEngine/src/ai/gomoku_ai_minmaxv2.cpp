@@ -111,41 +111,48 @@ namespace AI::MinMaxV2
 
     void GomokuAI::evaluateNode(int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremeEval, bool isFirstMove)
     {
-        MoveEvaluation &evalNode = eval.listMoves[moveId];
-#ifdef LOGGING
-        evalNode.initialScore = evalNode.score;
-#endif
-        MoveResult game_move = game.make_move(evalNode.move.first, evalNode.move.second);
-        minimax(evalNode, _depth - 1, alpha, beta, !maximizingPlayer, evalNode.move.first, evalNode.move.second);
-        game.reverse_move(game_move);
-
-        if (maximizingPlayer)
+        try
         {
-            if (evalNode.score > extremeEval || isFirstMove)
-            {
-                extremeEval = evalNode.score;
-                eval.score = extremeEval;
-                alpha = std::max(alpha, evalNode.score);
+            MoveEvaluation &evalNode = eval.listMoves[moveId];
 #ifdef LOGGING
-                eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
+            evalNode.initialScore = evalNode.score;
 #endif
+            MoveResult game_move = game.make_move(evalNode.move.first, evalNode.move.second);
+            minimax(evalNode, _depth - 1, alpha, beta, !maximizingPlayer);
+            game.reverse_move(game_move);
+
+            if (maximizingPlayer)
+            {
+                if (evalNode.score > extremeEval || isFirstMove)
+                {
+                    extremeEval = evalNode.score;
+                    eval.score = extremeEval;
+                    alpha = std::max(alpha, evalNode.score);
+#ifdef LOGGING
+                    eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
+#endif
+                }
+            }
+            else
+            {
+                if (evalNode.score < extremeEval || isFirstMove)
+                {
+                    extremeEval = evalNode.score;
+                    eval.score = extremeEval;
+                    beta = std::min(beta, evalNode.score);
+#ifdef LOGGING
+                    eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
+#endif
+                }
             }
         }
-        else
+        catch (std::exception &e)
         {
-            if (evalNode.score < extremeEval || isFirstMove)
-            {
-                extremeEval = evalNode.score;
-                eval.score = extremeEval;
-                beta = std::min(beta, evalNode.score);
-#ifdef LOGGING
-                eval.neededEvalCount = moveId + 1 + eval.killerMoveHasBeenEvaluated;
-#endif
-            }
+            eval.listMoves.erase(eval.listMoves.begin() + moveId);
         }
     }
 
-    void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer, int row, int col)
+    void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer)
     {
         TIMER
 
@@ -178,17 +185,11 @@ namespace AI::MinMaxV2
         int extremeEval = maximizingPlayer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
         while (moveId < eval.listMoves.size())
         {
-            try
-            {
-                evaluateNode(moveId, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, moveId == 0);
+            evaluateNode(moveId, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, moveId == 0);
 
-                if (beta <= alpha)
-                {
-                    break;
-                }
-            }
-            catch (std::exception &e)
+            if (beta <= alpha)
             {
+                break;
             }
             moveId++;
         }
@@ -244,14 +245,12 @@ namespace AI::MinMaxV2
             while (true)
             {
                 std::cout << "Depth: " << current_depth << std::endl;
-                if (killer_moves.size() <= current_depth)
-                    killer_moves.push_back({-1, -1});
-                minimax(result, current_depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
+                minimax(result, current_depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true);
 
                 auto current_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = current_time - start_time;
 
-                if (elapsed.count() >= 0.2 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
+                if (current_depth > 4 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
                 {
                     break;
                 }
