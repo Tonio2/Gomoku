@@ -188,10 +188,10 @@ void test_eval(std::string moves_string)
     apply_moves(game, moves);
 
     Player last_player = game.get_current_player();
-    // AI::MinMaxV2::GomokuAiSettings ai_settings;
-    // ai_settings.depth = get_depth_from_env();
-    // AI::MinMaxV2::GomokuAI AI(ai_settings);
-    AI::MinMaxV2::GomokuAI AI({4, 2, ai_data});
+    AI::MinMaxV2::GomokuAiSettings ai_settings;
+    ai_settings.depth = get_depth_from_env();
+    AI::MinMaxV2::GomokuAI AI(ai_settings);
+    // AI::MinMaxV2::GomokuAI AI({4, 2, ai_data});
     int evaluation = AI.get_heuristic_evaluation(game, last_player);
 
     // Display moves

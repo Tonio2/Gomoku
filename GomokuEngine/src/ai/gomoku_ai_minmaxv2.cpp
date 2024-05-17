@@ -264,7 +264,6 @@ namespace AI::MinMaxV2
             int current_depth = 1;
             while (true)
             {
-                std::cout << "Depth: " << current_depth << std::endl;
                 while (killer_moves.size() <= current_depth)
                     killer_moves.push_back({-1, -1});
                 minimax(result, current_depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true);
@@ -272,7 +271,7 @@ namespace AI::MinMaxV2
                 auto current_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = current_time - start_time;
 
-                if (current_depth > 3 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
+                if (elapsed.count() > 0.2 || result.score == std::numeric_limits<int>::max() || result.score == std::numeric_limits<int>::min())
                 {
                     break;
                 }
