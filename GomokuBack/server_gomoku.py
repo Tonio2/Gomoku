@@ -257,6 +257,9 @@ def pending_action():
 
     if not room.has_pending_action():
         return jsonify({"success": False, "message": "not AI's turn"})
+    
+    if room.computing:
+        return jsonify({"success": False, "message": "AI is already computing"})
 
     room.perform_pending_action()
     state = room.get_state()

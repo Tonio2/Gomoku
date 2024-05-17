@@ -188,6 +188,7 @@ class GomokuRoom:
         self.ai_player = ai_player
         self.ai_name = ai_name
         self.ai_name2 = ai_name2
+        self.computing = False
 
         self.room = pygomoku.GameRoom(
             room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2)
@@ -302,10 +303,13 @@ class GomokuRoom:
         self.room.reapply_last_action()
 
     def perform_pending_action(self):
+        self.computing = True
         action_result = self.room.perform_pending_action()
         if not action_result.success:
+            self.computing = False
             raise RoomError(action_result.message)
         self.display_move_history()
+        self.computing = False
 
 
 class OnlineRoom(GomokuRoom):
