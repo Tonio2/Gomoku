@@ -160,7 +160,7 @@ def format_move_evaluation(move_evaluation):
     return ret
 
 class GomokuRoom:
-    def __init__(self, size, mode, rule_style, ai_player, ai_name, ai_name2):
+    def __init__(self, size, mode, rule_style, ai_player, ai_name, ai_name2, init_moves=""):
         """Init room
         Parameters:
         size (int): Between 10 and 25
@@ -192,6 +192,17 @@ class GomokuRoom:
         self.room = pygomoku.GameRoom(
             room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2)
         )
+        
+        if init_moves != "":
+            moves = init_moves.split(",")
+            for move in moves:
+                if len(move) != 2:
+                    raise RoomError("Invalid move")
+                row = BOARD_COORDINATES.index(move[0])
+                col = BOARD_COORDINATES.index(move[1])
+                action_result = self.room.perform_action_move(self.get_next_player(), row, col)
+                if not action_result.success:
+                    raise RoomError(action_result.message)
 
     def reset(self):
         self.room = pygomoku.GameRoom(
