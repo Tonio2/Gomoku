@@ -18,16 +18,30 @@ ifeq ($(LOGGING),ON)
 	CXXFLAGS += -DLOGGING
 endif
 
+ifeq ($(OS),Windows_NT)
+	detected_OS := Windows
+else
+	detected_OS := $(shell uname)
+endif
+
+ifeq ($(detected_OS),Linux)
+	JOBS := $(shell nproc)
+else ifeq ($(detected_OS),Darwin)  # macOS, typically
+	JOBS := $(shell sysctl -n hw.ncpu)
+else
+	JOBS := 1
+endif
+
 
 TEST_BINS = $(wildcard ./build/tests/*_tests)
 
 
-all: $(EXECUTABLE_FILE) $(PY_LIBRARY_FILE)
+all: $(EXECUTABLE_FILE) lib
 
-$(EXECUTABLE_FILE): submodule cmake
+$(EXECUTABLE_FILE): submodule cmake_gktool
 	cp -f ./build/$(EXECUTABLE_FILE) $(EXECUTABLE_FILE)
 
-$(PY_LIBRARY_FILE): submodule cmake
+lib: submodule cmake_pygomoku
 	cp -f $(shell find ./build/ -name "PyGomoku.*.so" -type f | xargs ls -t1 | head -n 1) $(PY_LIBRARY_FILE)
 
 build:
@@ -36,8 +50,11 @@ build:
 submodule:
 	git submodule update --init --recursive
 
-cmake: build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make
+cmake_gktool: build
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make -j$(JOBS) $(EXECUTABLE_FILE)
+
+cmake_pygomoku: build
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make -j$(JOBS) PyGomoku
 
 install:
 	# brew install googletest
@@ -62,5 +79,14 @@ fclean: clean
 	rm -rf $(PY_LIBRARY_FILE)
 
 re: fclean all
+
+fclean_lib: clean
+	rm -rf $(PY_LIBRARY_FILE)
+
+re_lib: fclean lib
+
+fclean_gktool: fclean $(EXECUTABLE_FILE)
+
+re_gktool: fclean $(EXECUTABLE_FILE)
 
 .PHONY: all submodule cmake install run test $(TEST_BINS) clean
