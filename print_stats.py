@@ -90,8 +90,8 @@ def save_data(depth_dict, output_directory):
         plt.close()
 
 # Main script
-directory = '/tmp/move_evaluation'  # Change to the directory where your CSV files are stored
-output_directory = './plots'
+directory = '/tmp/evals'  # Change to the directory where your CSV files are stored
+output_directory = './tmp'
 data = read_csv_files(directory)
 depth_dict = process_data(data)
 # plot_data(depth_dict)

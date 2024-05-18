@@ -2,7 +2,7 @@ import os
 import re
 
 def parse_files(directory):
-    results = []
+    results = [[] for _ in range(10)]
     for filename in os.listdir(directory):
         if filename.endswith('.txt'):
             filepath = os.path.join(directory, filename)
@@ -15,16 +15,24 @@ def parse_files(directory):
                         if match:
                             best = int(match.group(1))
                             total = int(match.group(3))
+                            num_spaces = len(line) - len(line.lstrip())
                             if total > 0 and (best / total) > 0.95:
-                                results.append((filename, line_num, line.strip()))
+                                results[num_spaces // 4].append((filename, line_num, line.strip()))
     return results
 
 def main():
-    directory = "/tmp/move_evaluation"  # Change this to the path where your files are located if necessary
+    directory = "/tmp/evals"  # Change this to the path where your files are located if necessary
+    
+    if not os.path.exists(directory):
+        print(f"Directory {directory} does not exist.")
+        return
+    
     occurrences = parse_files(directory)
     
-    for occurrence in occurrences:
-        print(f"File: {occurrence[0]}, Line: {occurrence[1]}, Content: {occurrence[2]}")
+    for depth, depth_occurrences in enumerate(occurrences):
+        print(f"Found {len(depth_occurrences)} occurrences at depth {depth}:")
+        for occurrence in depth_occurrences:
+            print(f"File: {occurrence[0]}, Line: {occurrence[1]}, Content: {occurrence[2]}")
 
 if __name__ == "__main__":
     main()
