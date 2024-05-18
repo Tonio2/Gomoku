@@ -129,6 +129,7 @@ public:
     void reapply_last_action();
 
     std::vector<AI::Move> suggest_move();
+    int get_heuristic_evaluation();
 
 private:
     std::string _room_id;

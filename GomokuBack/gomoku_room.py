@@ -302,6 +302,7 @@ class GomokuRoom:
         if not action_result.success:
             raise RoomError(action_result.message)
         self.display_move_history()
+        print("Move evaluation for next player: ", self.room.get_heuristic_evaluation())
 
     def swap(self, swap):
         self.room.perform_action_swap(self.get_next_player(), swap)

@@ -47,6 +47,7 @@ namespace AI::MinMaxV2
     public:
         Move suggest_move(const GomokuGame &board, int currentMove = 0) override;
         std::vector<Move> suggest_move_sequence(const GomokuGame &board) override;
+        int get_heuristic_evaluation(const GomokuGame &board, Player player) override;
 
     private:
         GomokuGame game;
@@ -72,8 +73,6 @@ namespace AI::MinMaxV2
     public:
         GomokuAI(const GomokuAiSettings &settings);
         MoveEvaluation suggest_move_evaluation(const GomokuGame &board);
-
-        int get_heuristic_evaluation(const GomokuGame &board, Player player);
 
         const GomokuAIData &get_evaluation_data() const;
 

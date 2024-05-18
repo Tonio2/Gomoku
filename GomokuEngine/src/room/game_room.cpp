@@ -44,7 +44,7 @@ GameRoom::GameRoom(const GameRoomSettings &settings)
     _ai2 = settings.p2.make_ai();
     const GameEntitySetting &setting = {
         true,
-        "helper",
+        "hardcore",
     };
     _ai_helper = setting.make_ai();
 }
@@ -176,6 +176,11 @@ void GameRoom::reapply_last_action()
 std::vector<AI::Move> GameRoom::suggest_move()
 {
     return _ai_helper->suggest_move_sequence(_game);
+}
+
+int GameRoom::get_heuristic_evaluation()
+{
+    return _ai_helper->get_heuristic_evaluation(_game, gomoku_player_from_id(expected_player()));
 }
 
 std::string GameRoom::new_room_id()
