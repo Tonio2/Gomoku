@@ -10,130 +10,130 @@
 namespace AI::MinMaxV2
 {
 
-GomokuAIData::GomokuAIData()
-{
-    values[0] = 0;
-    values[1] = 100000;
-    values[2] = 10;
-    values[3] = 5;
-    values[4] = 100;
-    values[5] = 50;
-    values[6] = 1000;
-    values[7] = 500;
-    values[8] = 10000;
-    values[9] = 1000;
-    values[10] = 9000;
-    values[11] = 9000;
-    values[12] = 10;
-    values[13] = 1;
-    values[14] = 1;
-}
+    GomokuAIData::GomokuAIData()
+    {
+        values[StructureType::NONE] = 0;
+        values[StructureType::FIVE_OR_MORE] = 100000;
+        values[StructureType::OPEN_ONE] = 10;
+        values[StructureType::ONE] = 5;
+        values[StructureType::OPEN_TWO] = 100;
+        values[StructureType::TWO] = 50;
+        values[StructureType::OPEN_THREE] = 1000;
+        values[StructureType::THREE] = 500;
+        values[StructureType::OPEN_FOUR] = 10000;
+        values[StructureType::FOUR] = 1000;
+        values[10] = 9000;
+        values[11] = 9000;
+        values[12] = 10;
+        values[13] = 1;
+        values[14] = 1;
+    }
 
-GomokuAIData::GomokuAIData(const GomokuAIData &copy)
-{
-    for (int i = 0; i < VALUES_COUNT; i++)
-        values[i] = copy.values[i];
-}
-
-GomokuAIData &GomokuAIData::operator=(const GomokuAIData &copy)
-{
-    if (this != &copy)
+    GomokuAIData::GomokuAIData(const GomokuAIData &copy)
     {
         for (int i = 0; i < VALUES_COUNT; i++)
             values[i] = copy.values[i];
     }
-    return *this;
-}
 
-GomokuAIData::~GomokuAIData()
-{
-}
-
-void GomokuAIData::save_to_file(std::string filename) const
-{
-    namespace fs = std::filesystem;
-    fs::path filepath(filename);
-    std::string directory = filepath.parent_path().string();
-
-    if (!directory.empty() && !fs::exists(directory))
+    GomokuAIData &GomokuAIData::operator=(const GomokuAIData &copy)
     {
-        if (!fs::create_directories(directory))
+        if (this != &copy)
         {
-            throw std::runtime_error("Error: Unable to create directory: " + directory);
+            for (int i = 0; i < VALUES_COUNT; i++)
+                values[i] = copy.values[i];
         }
+        return *this;
     }
 
-    std::ofstream file(filename);
-    if (!file.is_open())
+    GomokuAIData::~GomokuAIData()
     {
-        throw std::runtime_error("Error: Unable to open file for writing: " + filename);
     }
 
-    file << *this << std::endl;
-
-    file.close();
-}
-
-void GomokuAIData::load_from_file(std::string filename)
-{
-    std::ifstream file(filename);
-    if (!file.is_open())
+    void GomokuAIData::save_to_file(std::string filename) const
     {
-        throw std::runtime_error("Error: Unable to open file for reading: " + filename);
-    }
+        namespace fs = std::filesystem;
+        fs::path filepath(filename);
+        std::string directory = filepath.parent_path().string();
 
-    std::string line;
-    if (std::getline(file, line))
-    {
-        std::stringstream ss(line);
-        std::string cell;
-        int i = 0;
-        while (std::getline(ss, cell, ',') && i < VALUES_COUNT)
+        if (!directory.empty() && !fs::exists(directory))
         {
-            values[i++] = std::stof(cell);
+            if (!fs::create_directories(directory))
+            {
+                throw std::runtime_error("Error: Unable to create directory: " + directory);
+            }
         }
+
+        std::ofstream file(filename);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("Error: Unable to open file for writing: " + filename);
+        }
+
+        file << *this << std::endl;
+
+        file.close();
     }
-    else
+
+    void GomokuAIData::load_from_file(std::string filename)
     {
-        throw std::runtime_error("Error: File is empty: " + filename);
+        std::ifstream file(filename);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("Error: Unable to open file for reading: " + filename);
+        }
+
+        std::string line;
+        if (std::getline(file, line))
+        {
+            std::stringstream ss(line);
+            std::string cell;
+            int i = 0;
+            while (std::getline(ss, cell, ',') && i < VALUES_COUNT)
+            {
+                values[i++] = std::stof(cell);
+            }
+        }
+        else
+        {
+            throw std::runtime_error("Error: File is empty: " + filename);
+        }
+
+        file.close();
     }
 
-    file.close();
-}
-
-float GomokuAIData::value_of_structure(int structure_type) const
-{
-    return values[structure_type];
-}
-
-float GomokuAIData::value_of_multiple_forced() const
-{
-    return values[STC + 0];
-}
-
-float GomokuAIData::value_of_multiple_o4() const
-{
-    return values[STC + 1];
-}
-
-float GomokuAIData::value_of_captures(int capture_count) const
-{
-    const float a = values[STC + 2];
-    const float b = values[STC + 3];
-    const float c = values[STC + 4];
-
-    return a * (capture_count * capture_count) + b * (capture_count) + c;
-}
-
-std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data)
-{
-    for (int i = 0; i < GomokuAIData::VALUES_COUNT; ++i)
+    float GomokuAIData::value_of_structure(int structure_type) const
     {
-        stream << ai_data.values[i];
-        if (i < GomokuAIData::VALUES_COUNT - 1)
-            stream << ",";
+        return values[structure_type];
     }
-    return stream;
-}
+
+    float GomokuAIData::value_of_multiple_forced() const
+    {
+        return values[STC + 0];
+    }
+
+    float GomokuAIData::value_of_multiple_o4() const
+    {
+        return values[STC + 1];
+    }
+
+    float GomokuAIData::value_of_captures(int capture_count) const
+    {
+        const float a = values[STC + 2];
+        const float b = values[STC + 3];
+        const float c = values[STC + 4];
+
+        return a * (capture_count * capture_count) + b * (capture_count) + c;
+    }
+
+    std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data)
+    {
+        for (int i = 0; i < GomokuAIData::VALUES_COUNT; ++i)
+        {
+            stream << ai_data.values[i];
+            if (i < GomokuAIData::VALUES_COUNT - 1)
+                stream << ",";
+        }
+        return stream;
+    }
 
 } // namespace AI::MinMaxV2
