@@ -119,5 +119,6 @@ PYBIND11_MODULE(pygomoku, m)
         .def("reverse_last_action", &GameRoom::reverse_last_action)
         .def("can_reapply_last_action", &GameRoom::can_reapply_last_action)
         .def("reapply_last_action", &GameRoom::reapply_last_action)
-        .def("suggest_move", &GameRoom::suggest_move);
+        .def("suggest_move", &GameRoom::suggest_move)
+        .def("get_heuristic_evaluation", &GameRoom::get_heuristic_evaluation);
 }
