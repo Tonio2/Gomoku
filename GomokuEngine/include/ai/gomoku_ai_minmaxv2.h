@@ -19,6 +19,7 @@ namespace AI::MinMaxV2
         std::pair<int, int> move;
         int score = 0;
         std::vector<MoveEvaluation> listMoves = {};
+        bool isThreat = false;
 
 #ifdef LOGGING
         int neededEvalCount = 1;
@@ -35,6 +36,7 @@ namespace AI::MinMaxV2
         uint8_t col;
 
         int score;
+        bool isThreat = false;
 
         bool operator==(const MoveHeuristic &other) const
         {
@@ -62,12 +64,12 @@ namespace AI::MinMaxV2
         void evaluateNode(const MoveHeuristic &move, int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
 
         void minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
-        int score_player(Player player);
+        bool score_player(Player player, int &score, int multiplier);
 
         void find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const;
         bool is_cell_relevant(int row, int col) const;
 
-        int _heuristic_evaluation();
+        bool _heuristic_evaluation(int &score, int maximizingPlayer);
         void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval);
 
     public:

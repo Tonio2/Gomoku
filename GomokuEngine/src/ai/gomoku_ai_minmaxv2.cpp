@@ -13,7 +13,7 @@ namespace AI::MinMaxV2
     {
         MoveEvaluation result = suggest_move_evaluation(board);
 #ifdef LOGGING
-        std::string filename = "/tmp/move_evaluation/" + std::to_string(currentMove) + ".txt";
+        std::string filename = "/tmp/evals/" + std::to_string(currentMove) + ".txt";
         logMoveEvaluation(result, filename);
 #endif
         auto [row, col] = getBestMove(result);
@@ -82,7 +82,7 @@ namespace AI::MinMaxV2
                         it->score = 0;
                 }
                 else
-                    it->score = _heuristic_evaluation();
+                    it->isThreat = _heuristic_evaluation(it->score, maximizingPlayer);
                 game.reverse_move(game_move);
                 ++it; // Only increment here if the move was successful
             }
@@ -108,6 +108,7 @@ namespace AI::MinMaxV2
 #ifdef LOGGING
         evalNode.initialScore = move.score;
 #endif
+        evalNode.isThreat = move.isThreat;
         if (maximizingPlayer)
         {
             if (evalNode.score > extremeEval || isFirstMove)
@@ -155,7 +156,7 @@ namespace AI::MinMaxV2
                     eval.score = 0;
             }
             else
-                eval.score = _heuristic_evaluation();
+                eval.isThreat = _heuristic_evaluation(eval.score, maximizingPlayer);
             return;
         }
 
@@ -219,25 +220,28 @@ namespace AI::MinMaxV2
         killer_moves[depth - _depth] = {best_move.first, best_move.second};
     }
 
-    int GomokuAI::_heuristic_evaluation()
+    bool GomokuAI::_heuristic_evaluation(int &score, int maximizingPlayer)
     {
         TIMER
-        return score_player(ai_player) - score_player(human_player);
+        bool threatening = score_player(ai_player, score, 1);
+        bool threatened = score_player(human_player, score, -1);
+        return maximizingPlayer ? threatening : threatened;
     }
 
-    int GomokuAI::score_player(Player player)
+    bool GomokuAI::score_player(Player player, int &score, int multiplier)
     {
-        int score = 0;
         const std::vector<int> &patterns_count = game.get_patterns_count(player);
 
         for (int i = 0; i < StructureType::COUNT_STRUCTURE_TYPE; i++)
         {
-            score += patterns_count[i] * evaluation_data.value_of_structure(i);
+            score += multiplier * (patterns_count[i] * evaluation_data.value_of_structure(i));
         }
-        score += (patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
-        score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
-        score += evaluation_data.value_of_captures(game.get_player_score(player));
-        return score;
+        score += multiplier * ((patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0);
+        score += multiplier * ((patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0));
+        int capture_score = game.get_player_score(player);
+        score += multiplier * (evaluation_data.value_of_captures(capture_score));
+
+        return patterns_count[FOUR] > 0 || patterns_count[OPEN_FOUR] > 0 || patterns_count[OPEN_THREE] > 0 || (capture_score == 8 && patterns_count[TWO] > 0);
     }
 
     int GomokuAI::get_heuristic_evaluation(const GomokuGame &board, Player player)
@@ -247,7 +251,10 @@ namespace AI::MinMaxV2
         game = board;
         ai_player = player;
         human_player = board.other_player(player);
-        return _heuristic_evaluation();
+        MoveEvaluation eval;
+        int score = 0;
+        _heuristic_evaluation(score, true);
+        return score;
     }
 
     MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)

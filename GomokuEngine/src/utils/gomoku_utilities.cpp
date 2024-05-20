@@ -142,7 +142,12 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, std::vec
     out << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score;
 
 #ifdef LOGGING
-    out << " | Initial score: " << eval.initialScore << "\n";
+    out << " | Initial score: " << eval.initialScore;
+    if (eval.isThreat)
+    {
+        out << " | Is threat";
+    }
+    out << "\n";
 #else
     out << "\n";
 #endif
