@@ -65,10 +65,13 @@ namespace AI::MinMaxV2
         int score_player(Player player);
 
         void find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const;
+        void find_relevant_moves_for_deep_sorting(std::vector<MoveHeuristic> &out_relevant_moves) const;
         bool is_cell_relevant(int row, int col) const;
 
         int _heuristic_evaluation();
         void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval);
+        void sortMovesWithDepth2(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval);
+
 
     public:
         GomokuAI(const GomokuAiSettings &settings);

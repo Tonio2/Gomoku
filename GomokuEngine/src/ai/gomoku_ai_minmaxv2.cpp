@@ -13,7 +13,7 @@ Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
 {
     MoveEvaluation result = suggest_move_evaluation(board);
 #ifdef LOGGING
-    std::string filename = "/tmp/move_evaluation/" + std::to_string(currentMove) + ".txt";
+    std::string filename = "/tmp/evals/" + std::to_string(currentMove) + ".txt";
     logMoveEvaluation(result, filename);
 #endif
     auto [row, col] = getBestMove(result);
@@ -62,6 +62,89 @@ void sortMovesUtil(std::vector<MoveHeuristic> &moves, bool maximizingPlayer)
         };
     }
     std::sort(moves.begin(), moves.end(), compare);
+}
+
+void GomokuAI::sortMovesWithDepth2(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval)
+{
+    TIMER
+    for (auto it = moves.begin(); it != moves.end();) // no increment here
+    {
+        try
+        {
+            MoveResult parent_move = game.make_move(it->row, it->col);
+            if (game.is_game_over())
+            {
+                if (game.get_winner() == ai_player)
+                    it->score = std::numeric_limits<int>::max();
+                else if (game.get_winner() == human_player)
+                    it->score = std::numeric_limits<int>::min();
+                else
+                    it->score = 0;
+            }
+            else
+            {
+                std::vector<MoveHeuristic> child_moves;
+                find_relevant_moves_for_deep_sorting(child_moves);
+
+                for (auto child_it = child_moves.begin(); child_it != child_moves.end();)
+                {
+                    try
+                    {
+                        MoveResult game_child_move = game.make_move(child_it->row, child_it->col);
+                        if (game.is_game_over())
+                        {
+                            if (game.get_winner() == ai_player)
+                                child_it->score = std::numeric_limits<int>::max();
+                            else if (game.get_winner() == human_player)
+                                child_it->score = std::numeric_limits<int>::min();
+                            else
+                                child_it->score = 0;
+                        }
+                        else
+                        {
+                            child_it->score = _heuristic_evaluation();
+                        }
+                        game.reverse_move(game_child_move);
+                    }
+                    catch (std::exception &e)
+                    {
+                        // If making the child move throws an exception, skip it
+                        child_it = child_moves.erase(child_it);
+                    }
+                    ++child_it;
+                }
+
+                if (!child_moves.empty())
+                {
+                    if (!maximizingPlayer)
+                    {
+                        it->score = std::max_element(child_moves.begin(), child_moves.end(), 
+                                                     [](const MoveHeuristic &a, const MoveHeuristic &b) { return a.score < b.score; })->score;
+                    }
+                    else
+                    {
+                        it->score = std::min_element(child_moves.begin(), child_moves.end(), 
+                                                     [](const MoveHeuristic &a, const MoveHeuristic &b) { return a.score < b.score; })->score;
+                    }
+                }
+                else
+                {
+                    it->score = _heuristic_evaluation();
+                }
+            }
+            game.reverse_move(parent_move);
+            ++it; // Only increment here if the move was successful
+        }
+        catch (std::exception &e)
+        {
+            it = moves.erase(it); // erase returns the next iterator
+#ifdef LOGGING
+            eval.totalEvalCount--;
+#endif
+        }
+    }
+
+    sortMovesUtil(moves, maximizingPlayer);
 }
 
 void GomokuAI::sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval)
@@ -191,7 +274,9 @@ void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bo
         moves.erase(moves.begin());
     }
 
-    if (_depth > 1)
+    if (_depth > 2)
+        sortMovesWithDepth2(moves, maximizingPlayer, eval);
+    else if (_depth > 1)
         sortMoves(moves, maximizingPlayer, eval);
 
     int moveId = 0;
@@ -268,6 +353,52 @@ MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)
 
 static const std::vector<std::pair<int, int>> _directions_offsets = {
     {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+
+void GomokuAI::find_relevant_moves_for_deep_sorting(std::vector<MoveHeuristic> &out_relevant_moves) const
+{
+    auto [min, max] = game.get_played_bounds(length);
+
+    // Pre-calculate the relevant cells
+    std::vector<std::vector<bool>> relevant_cells(max.row - min.row + 1, std::vector<bool>(max.col - min.col + 1, false));
+    
+    for (int row = min.row; row <= max.row; ++row)
+    {
+        for (int col = min.col; col <= max.col; ++col)
+        {
+            if (game.get_board_value(row, col) != E)
+            {
+                for (const auto &dir : _directions_offsets)
+                {
+                    for (int step = 1; step <= length; ++step)
+                    {
+                        int newRow = row + step * dir.first;
+                        int newCol = col + step * dir.second;
+
+                        if (game.coordinates_are_valid(newRow, newCol) && game.get_board_value(newRow, newCol) == E)
+                        {
+                            int relRow = newRow - min.row;
+                            int relCol = newCol - min.col;
+                            relevant_cells[relRow][relCol] = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for (int row = min.row; row <= max.row; ++row)
+    {
+        for (int col = min.col; col <= max.col; ++col)
+        {
+            int relRow = row - min.row;
+            int relCol = col - min.col;
+            if (!relevant_cells[relRow][relCol])
+                continue;
+            out_relevant_moves.emplace_back(MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+        }
+    }
+}
+
 
 void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const
 {
