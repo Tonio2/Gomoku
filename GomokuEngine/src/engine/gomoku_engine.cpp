@@ -83,7 +83,8 @@ GomokuGame::GomokuGame(uint width, uint height, bool capture_enabled)
           GomokuPatternReconizer(X),
           GomokuPatternReconizer(O),
       }),
-      _capture_enabled(capture_enabled)
+      _capture_enabled(capture_enabled),
+      relevantMoves(width * height)
 {
     players_reconizers[X].find_patterns_in_board(*this);
     players_reconizers[O].find_patterns_in_board(*this);
@@ -99,7 +100,8 @@ GomokuGame::GomokuGame(const GomokuGame &copy)
       is_game_over_flag(copy.is_game_over_flag),
       winner(copy.winner),
       players_reconizers(copy.players_reconizers),
-      _capture_enabled(copy._capture_enabled)
+      _capture_enabled(copy._capture_enabled),
+      relevantMoves(copy.relevantMoves)
 {
 }
 
@@ -117,6 +119,7 @@ GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
         winner = copy.winner;
         players_reconizers = copy.players_reconizers;
         _capture_enabled = copy._capture_enabled;
+        relevantMoves = copy.relevantMoves;
     }
     return *this;
 }
@@ -224,6 +227,9 @@ bool GomokuGame::pattern_coordinate_is_valid(const PatternCellIndex &index) cons
     return coordinates_are_valid(index.row - 1, index.col - 1);
 }
 
+static const std::vector<std::pair<int, int>> _directions_offsets = {
+    {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}};
+
 MoveResult GomokuGame::make_move(int row, int col)
 {
     TIMER
@@ -246,6 +252,23 @@ MoveResult GomokuGame::make_move(int row, int col)
     }
 
     const CellChange cell_change = set_board_value(row, col, current_player);
+
+    for (const auto &offset : _directions_offsets)
+    {
+        for (int i = 1; i < 2; i++)
+        {
+            const int new_row = row + offset.first * i;
+            const int new_col = col + offset.second * i;
+
+            if (coordinates_are_valid(new_row, new_col) && get_board_value(new_row, new_col) == E)
+            {
+                if (relevantMoves.insert({new_row, new_col}).second)
+                {
+                    move_result.new_relevant_moves.push_back({new_row, new_col});
+                }
+            }
+        }
+    }
     move_result.cell_changes.push_back(cell_change);
 
     bool captured = false;
@@ -300,6 +323,16 @@ void GomokuGame::reverse_move(const MoveResult &move)
         set_board_value(cell_change.row, cell_change.col, cell_change.old_value);
     }
 
+    for (const std::pair<int, int> &index : move.new_relevant_moves)
+    {
+        relevantMoves.erase(index);
+    }
+
+    for (const std::pair<int, int> &index : move.removed_relevant_moves)
+    {
+        relevantMoves.insert(index);
+    }
+
     players_reconizers[X].update_patterns_with_move(*this, move);
     players_reconizers[O].update_patterns_with_move(*this, move);
 
@@ -318,6 +351,16 @@ void GomokuGame::reapply_move(const MoveResult &move)
     for (const CellChange &cell_change : move.cell_changes)
     {
         set_board_value(cell_change.row, cell_change.col, cell_change.new_value);
+    }
+
+    for (const std::pair<int, int> &index : move.new_relevant_moves)
+    {
+        relevantMoves.insert(index);
+    }
+
+    for (const std::pair<int, int> &index : move.removed_relevant_moves)
+    {
+        relevantMoves.erase(index);
     }
 
     players_reconizers[X].update_patterns_with_move(*this, move);
@@ -340,9 +383,72 @@ void GomokuGame::reapply_move(const MoveResult &move)
         _max_played.col = col;
 }
 
-bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result)
+bool GomokuGame::is_cell_relevant(int row, int col) const
+{
+    for (const auto &dir : _directions_offsets)
+    {
+        for (int step = 1; step <= 2; ++step)
+        {
+            int newRow = row + step * dir.first;
+            int newCol = col + step * dir.second;
+
+            if (coordinates_are_valid(newRow, newCol) && get_board_value(newRow, newCol) != E)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+void GomokuGame::remove_relevant_moves(int row, int col, MoveResult &move_result)
+{
+    if (!is_cell_relevant(row, col))
+    {
+        relevantMoves.erase({col, row});
+        move_result.removed_relevant_moves.push_back({row, col});
+    }
+}
+
+void GomokuGame::update_relevant_moves_after_capture(int row, int col, int dir_offset_index, MoveResult &move_result)
+{
+    const int new_row_dir1 = _directions_offsets[(dir_offset_index + 2) % 8].first;
+    const int new_row_dir2 = _directions_offsets[(dir_offset_index + 3) % 8].first;
+    const int new_row_dir3 = _directions_offsets[(dir_offset_index + 5) % 8].first;
+    const int new_row_dir4 = _directions_offsets[(dir_offset_index + 6) % 8].first;
+
+    const int new_col_dir1 = _directions_offsets[(dir_offset_index + 2) % 8].second;
+    const int new_col_dir2 = _directions_offsets[(dir_offset_index + 3) % 8].second;
+    const int new_col_dir3 = _directions_offsets[(dir_offset_index + 5) % 8].second;
+    const int new_col_dir4 = _directions_offsets[(dir_offset_index + 6) % 8].second;
+
+    const int x1 = row + 2 * new_row_dir1;
+    const int y1 = col + 2 * new_col_dir1;
+
+    remove_relevant_moves(x1, y1, move_result);
+
+    const int x2 = row + 2 * new_row_dir2;
+    const int y2 = col + 2 * new_col_dir2;
+
+    remove_relevant_moves(x2, y2, move_result);
+
+    const int x3 = row + 2 * new_row_dir3;
+    const int y3 = col + 2 * new_col_dir3;
+
+    remove_relevant_moves(x3, y3, move_result);
+
+    const int x4 = row + 2 * new_row_dir4;
+    const int y4 = col + 2 * new_col_dir4;
+
+    remove_relevant_moves(x4, y4, move_result);
+}
+
+bool GomokuGame::try_direction_for_capture(int row, int col, int dir_offset_index, Player player, MoveResult &move_result)
 {
     const Player otherPlayer = other_player(player);
+    int row_dir = _directions_offsets[dir_offset_index].first;
+    int col_dir = _directions_offsets[dir_offset_index].second;
 
     const int x1 = row + row_dir;
     const int y1 = col + col_dir;
@@ -357,8 +463,12 @@ bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int co
     move_result.cell_changes.push_back(
         set_board_value(row + row_dir, col + col_dir, E));
 
+    update_relevant_moves_after_capture(row + row_dir, col + col_dir, dir_offset_index, move_result);
+
     move_result.cell_changes.push_back(
         set_board_value(row + 2 * row_dir, col + 2 * col_dir, E));
+
+    update_relevant_moves_after_capture(row + 2 * row_dir, col + 2 * col_dir, dir_offset_index, move_result);
 
     modify_player_score(player, 2);
     return true;
@@ -369,27 +479,27 @@ bool GomokuGame::capture(int row, int col, Player player, MoveResult &move_resul
     bool ret = false;
     if (row < board.get_height() - 3)
     {
-        ret |= try_direction_for_capture(row, col, 1, 0, player, move_result);
+        ret |= try_direction_for_capture(row, col, 5, player, move_result);
         if (col < board.get_width() - 3)
-            ret |= try_direction_for_capture(row, col, 1, 1, player, move_result);
+            ret |= try_direction_for_capture(row, col, 4, player, move_result);
     }
     if (row > 2)
     {
-        ret |= try_direction_for_capture(row, col, -1, 0, player, move_result);
+        ret |= try_direction_for_capture(row, col, 1, player, move_result);
         if (col > 2)
-            ret |= try_direction_for_capture(row, col, -1, -1, player, move_result);
+            ret |= try_direction_for_capture(row, col, 0, player, move_result);
     }
     if (col < board.get_width() - 3)
     {
-        ret |= try_direction_for_capture(row, col, 0, 1, player, move_result);
+        ret |= try_direction_for_capture(row, col, 3, player, move_result);
         if (row > 2)
-            ret |= try_direction_for_capture(row, col, -1, 1, player, move_result);
+            ret |= try_direction_for_capture(row, col, 2, player, move_result);
     }
     if (col > 2)
     {
-        ret |= try_direction_for_capture(row, col, 0, -1, player, move_result);
+        ret |= try_direction_for_capture(row, col, 7, player, move_result);
         if (row < board.get_height() - 3)
-            ret |= try_direction_for_capture(row, col, 1, -1, player, move_result);
+            ret |= try_direction_for_capture(row, col, 6, player, move_result);
     }
     return ret;
 }

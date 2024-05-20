@@ -3,11 +3,13 @@
 
 #include <string>
 #include <vector>
+#include <unordered_set>
 #include <iostream>
 #include <cstddef>
 #include <cstdint>
 #include "timer/Timer.h"
 #include "matrix/Matrix.hpp"
+#include <functional> // For std::hash
 
 #define X Player::BLACK
 #define O Player::WHITE
@@ -19,6 +21,19 @@ enum Player : uint8_t
     BLACK = 1,
     WHITE = 2,
 };
+
+namespace std
+{
+    template <>
+    struct hash<std::pair<int, int>>
+    {
+        std::size_t operator()(const std::pair<int, int> &p) const
+        {
+            // Compute individual hash values for two data members and combine them using XOR and bit shifting
+            return std::hash<int>()(p.first) ^ (std::hash<int>()(p.second) << 1);
+        }
+    };
+}
 
 std::ostream &operator<<(std::ostream &stream, Player player);
 
@@ -55,6 +70,8 @@ struct CellChange
 struct MoveResult
 {
     std::vector<CellChange> cell_changes;
+    std::vector<std::pair<int, int>> new_relevant_moves;
+    std::vector<std::pair<int, int>> removed_relevant_moves;
 
     int8_t white_score_change = 0;
     int8_t black_score_change = 0;

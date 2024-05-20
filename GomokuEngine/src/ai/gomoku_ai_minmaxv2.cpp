@@ -296,25 +296,36 @@ namespace AI::MinMaxV2
     {
         Timer timer(__FUNCTION__);
 
-        auto [min, max] = game.get_played_bounds(length);
+        std::unordered_set<std::pair<int, int>> relevantMoves = game.get_relevant_moves();
 
-        for (int row = min.row; row <= max.row; ++row)
+        for (const auto &move : relevantMoves)
         {
-            for (int col = min.col; col <= max.col; ++col)
-            {
-                if (game.get_board_value(row, col) != E)
-                    continue;
-
-                if (is_cell_relevant(row, col))
-                {
-                    if (killer_moves[_depth] == std::pair<int, int>(row, col))
-                        out_relevant_moves.insert(out_relevant_moves.begin(), MoveHeuristic{uint8_t(row), uint8_t(col), 0});
-                    else
-                        out_relevant_moves.push_back(
-                            MoveHeuristic{uint8_t(row), uint8_t(col), 0});
-                }
-            }
+            if (killer_moves[_depth] == std::pair<int, int>(move.first, move.second))
+                out_relevant_moves.insert(out_relevant_moves.begin(), MoveHeuristic{uint8_t(move.first), uint8_t(move.second), 0});
+            else
+                out_relevant_moves.push_back(
+                    MoveHeuristic{uint8_t(move.first), uint8_t(move.second), 0});
         }
+
+        // auto [min, max] = game.get_played_bounds(length);
+
+        // for (int row = min.row; row <= max.row; ++row)
+        // {
+        //     for (int col = min.col; col <= max.col; ++col)
+        //     {
+        //         if (game.get_board_value(row, col) != E)
+        //             continue;
+
+        //         if (is_cell_relevant(row, col))
+        //         {
+        //             if (killer_moves[_depth] == std::pair<int, int>(row, col))
+        //                 out_relevant_moves.insert(out_relevant_moves.begin(), MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+        //             else
+        //                 out_relevant_moves.push_back(
+        //                     MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+        //         }
+        //     }
+        // }
     }
 
     static const std::vector<std::pair<int, int>> _directions_offsets = {
