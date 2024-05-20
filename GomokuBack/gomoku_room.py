@@ -319,6 +319,7 @@ class GomokuRoom:
         if not action_result.success:
             raise RoomError(action_result.message)
         self.display_move_history()
+        self.room.print_accumulated_time()
 
 
 class OnlineRoom(GomokuRoom):

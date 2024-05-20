@@ -131,6 +131,8 @@ public:
     std::vector<AI::Move> suggest_move();
     int get_heuristic_evaluation();
 
+    void print_accumulated_time();
+
 private:
     std::string _room_id;
     GameRoomSettings _settings;

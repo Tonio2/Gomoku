@@ -105,6 +105,11 @@ double GameRoom::get_player_timer(PlayerId player) const
     return timer;
 }
 
+void GameRoom::print_accumulated_time()
+{
+    Timer::printAccumulatedTimes();
+}
+
 Player GameRoom::gomoku_player_from_id(PlayerId id) const
 {
     if (_players_swapped)

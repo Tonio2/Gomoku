@@ -275,7 +275,7 @@ namespace AI::MinMaxV2
 
     void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const
     {
-        TIMER
+        Timer timer(__FUNCTION__);
 
         auto [min, max] = game.get_played_bounds(length);
 

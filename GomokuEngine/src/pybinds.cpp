@@ -121,5 +121,6 @@ PYBIND11_MODULE(pygomoku, m)
         .def("can_reapply_last_action", &GameRoom::can_reapply_last_action)
         .def("reapply_last_action", &GameRoom::reapply_last_action)
         .def("suggest_move", &GameRoom::suggest_move)
-        .def("get_heuristic_evaluation", &GameRoom::get_heuristic_evaluation);
+        .def("get_heuristic_evaluation", &GameRoom::get_heuristic_evaluation)
+        .def("print_accumulated_time", &GameRoom::print_accumulated_time);
 }
