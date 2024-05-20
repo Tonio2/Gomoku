@@ -330,6 +330,8 @@ const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const
 
 bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &board)
 {
+    if (_cached_pattern_count[StructureType::TWO] <= 0)
+        return true;
     bool capturable = false;
 
     for_each_tagged_structures(
