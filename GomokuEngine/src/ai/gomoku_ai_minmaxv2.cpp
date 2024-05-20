@@ -266,33 +266,61 @@ MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)
     return result;
 }
 
+static const std::vector<std::pair<int, int>> _directions_offsets = {
+    {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+
 void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const
 {
     TIMER
 
     auto [min, max] = game.get_played_bounds(length);
 
+    // Pre-calculate the relevant cells
+    std::vector<std::vector<bool>> relevant_cells(max.row - min.row + 1, std::vector<bool>(max.col - min.col + 1, false));
+    
     for (int row = min.row; row <= max.row; ++row)
     {
         for (int col = min.col; col <= max.col; ++col)
         {
             if (game.get_board_value(row, col) != E)
+            {
+                for (const auto &dir : _directions_offsets)
+                {
+                    for (int step = 1; step <= length; ++step)
+                    {
+                        int newRow = row + step * dir.first;
+                        int newCol = col + step * dir.second;
+
+                        if (game.coordinates_are_valid(newRow, newCol) && game.get_board_value(newRow, newCol) == E)
+                        {
+                            int relRow = newRow - min.row;
+                            int relCol = newCol - min.col;
+                            relevant_cells[relRow][relCol] = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for (int row = min.row; row <= max.row; ++row)
+    {
+        for (int col = min.col; col <= max.col; ++col)
+        {
+            int relRow = row - min.row;
+            int relCol = col - min.col;
+            if (!relevant_cells[relRow][relCol])
                 continue;
 
-            if (is_cell_relevant(row, col))
-            {
-                if (killer_moves[depth - _depth] == std::pair<int, int>(row, col))
-                    out_relevant_moves.insert(out_relevant_moves.begin(), MoveHeuristic{uint8_t(row), uint8_t(col), 0});
-                else
-                    out_relevant_moves.push_back(
-                        MoveHeuristic{uint8_t(row), uint8_t(col), 0});
-            }
+            if (killer_moves[depth - _depth] == std::pair<int, int>(row, col))
+                out_relevant_moves.emplace(out_relevant_moves.begin(), MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+            else
+                out_relevant_moves.emplace_back(MoveHeuristic{uint8_t(row), uint8_t(col), 0});
         }
     }
 }
 
-static const std::vector<std::pair<int, int>> _directions_offsets = {
-    {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+
 
 bool GomokuAI::is_cell_relevant(int row, int col) const
 {
