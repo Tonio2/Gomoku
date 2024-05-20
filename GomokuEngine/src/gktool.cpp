@@ -188,10 +188,10 @@ void test_eval(std::string moves_string)
     apply_moves(game, moves);
 
     Player last_player = game.get_current_player();
-    // AI::MinMaxV2::GomokuAiSettings ai_settings;
-    // ai_settings.depth = get_depth_from_env();
-    // AI::MinMaxV2::GomokuAI AI(ai_settings);
-    AI::MinMaxV2::GomokuAI AI({4, 2, ai_data});
+    AI::MinMaxV2::GomokuAiSettings ai_settings;
+    ai_settings.depth = get_depth_from_env();
+    AI::MinMaxV2::GomokuAI AI(ai_settings);
+    // AI::MinMaxV2::GomokuAI AI({4, 2, ai_data});
     int evaluation = AI.get_heuristic_evaluation(game, last_player);
 
     // Display moves
@@ -300,6 +300,25 @@ void test_line(const std::string &line)
     }
 }
 
+void fight(std::string ai_name1, std::string ai_name2)
+{
+    GameRoomSettings settings;
+    settings.p1.ai_name = ai_name1;
+    settings.p2.ai_name = ai_name2;
+    settings.p1.is_ai = true;
+    settings.p2.is_ai = true;
+
+    GameRoom room(settings);
+    while (room.has_pending_action())
+    {
+        room.perform_pending_action();
+        std::cout << to_string(room.get_game(), true, 2);
+    }
+
+    std::cout << "Game over" << std::endl;
+    std::cout << "Winner: " << room.get_game().get_winner() << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
     // If no arguments are given, run the test_problems function
@@ -326,6 +345,10 @@ int main(int argc, char *argv[])
     else if (arg1 == "arena")
     {
         Arena().play(argc, argv);
+    }
+    else if (arg1 == "fight")
+    {
+        fight(argv[2], argv[3]);
     }
     else
     {
