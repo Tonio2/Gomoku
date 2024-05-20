@@ -20,7 +20,7 @@ namespace AI::MinMaxV2
         float value_of_structure(int structure_type) const;
         float value_of_multiple_forced() const;
         float value_of_multiple_o4() const;
-        float value_of_captures(int capture_count, int half_open_two_count) const;
+        float value_of_captures(int capture_count) const;
 
         static const int STC = StructureType::COUNT_STRUCTURE_TYPE;
         static const int VALUES_COUNT = STC + 5;

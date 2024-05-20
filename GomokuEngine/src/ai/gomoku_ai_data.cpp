@@ -13,14 +13,14 @@ namespace AI::MinMaxV2
     GomokuAIData::GomokuAIData()
     {
         values[StructureType::NONE] = 0;
-        values[StructureType::FIVE_OR_MORE] = 3000;
-        values[StructureType::OPEN_ONE] = 500;
-        values[StructureType::ONE] = 250;
-        values[StructureType::OPEN_TWO] = 666;
-        values[StructureType::TWO] = 333;
+        values[StructureType::FIVE_OR_MORE] = 100000;
+        values[StructureType::OPEN_ONE] = 10;
+        values[StructureType::ONE] = 5;
+        values[StructureType::OPEN_TWO] = 100;
+        values[StructureType::TWO] = 50;
         values[StructureType::OPEN_THREE] = 1000;
         values[StructureType::THREE] = 500;
-        values[StructureType::OPEN_FOUR] = 2000;
+        values[StructureType::OPEN_FOUR] = 10000;
         values[StructureType::FOUR] = 1000;
         values[10] = 9000;
         values[11] = 9000;
@@ -116,13 +116,13 @@ namespace AI::MinMaxV2
         return values[STC + 1];
     }
 
-    float GomokuAIData::value_of_captures(int capture_count, int half_open_two_count) const
+    float GomokuAIData::value_of_captures(int capture_count) const
     {
-        int a = 4 - capture_count;
-        int b = 10 - 2 * capture_count;
-        int c = 5 - capture_count;
+        const float a = values[STC + 2];
+        const float b = values[STC + 3];
+        const float c = values[STC + 4];
 
-        return 1000 * (std::min(half_open_two_count - a, 1) / std::max(b - half_open_two_count, c));
+        return a * (capture_count * capture_count) + b * (capture_count) + c;
     }
 
     std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data)
