@@ -1,10 +1,10 @@
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include "engine/gomoku_pattern_reconizer.h"
-#include "engine/gomoku_engine.h"
 #include "ai/gomoku_ai_minmaxv2.h"
+#include "engine/gomoku_engine.h"
+#include "engine/gomoku_pattern_reconizer.h"
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 

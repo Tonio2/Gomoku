@@ -1,17 +1,13 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <iostream>
+#include "matrix/Matrix.hpp"
+#include "timer/Timer.h"
 #include <cstddef>
 #include <cstdint>
-#include "timer/Timer.h"
-#include "matrix/Matrix.hpp"
-
-#define X Player::BLACK
-#define O Player::WHITE
-#define E Player::EMPTY
+#include <iostream>
+#include <string>
+#include <vector>
 
 enum Player : uint8_t
 {
@@ -19,6 +15,10 @@ enum Player : uint8_t
     BLACK = 1,
     WHITE = 2,
 };
+
+#define X BLACK
+#define O WHITE
+#define E EMPTY
 
 std::ostream &operator<<(std::ostream &stream, Player player);
 
