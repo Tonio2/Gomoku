@@ -330,10 +330,11 @@ const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const
 
 bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &board)
 {
-    bool capturable = false;
+    int five_count = get_pattern_count()[StructureType::FIVE_OR_MORE];
+    int five_capturables = 0;
 
     for_each_tagged_structures(
-        [this, &capturable, &board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
+        [this, &five_capturables, &board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
             const uint8_t length = data.structure_length();
             if (length >= 5)
@@ -352,8 +353,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
                         const PatternCellData &cell_data = _cell_matrices[dir][PatternCellIndex(structure.second)];
                         if (is_structure_capturable(board, structure.second, cell_data, PatternDirection(dir)))
                         {
-                            capturable = true;
-                            should_continue = false;
+                            ++five_capturables;
                             return;
                         }
                     }
@@ -361,7 +361,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
             }
         });
 
-    return !capturable;
+    return five_count > five_capturables;
 }
 
 bool GomokuPatternReconizer::can_be_captured(const GomokuGame &board)
