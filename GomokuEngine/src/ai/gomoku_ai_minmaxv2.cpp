@@ -13,7 +13,7 @@ Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
 {
     MoveEvaluation result = suggest_move_evaluation(board);
 #ifdef LOGGING
-    std::string filename = "/tmp/move_evaluation/" + std::to_string(currentMove) + ".txt";
+    std::string filename = "/tmp/evals/" + std::to_string(currentMove) + ".txt";
     logMoveEvaluation(result, filename);
 #endif
     auto [row, col] = getBestMove(result);
