@@ -59,6 +59,9 @@ cmake_gktool: cmake
 cmake_pygomoku: cmake
 	cd build && make -j$(JOBS) PyGomoku
 
+cmake_test: cmake
+	cd build && make -j$(JOBS)
+
 install:
 	# brew install googletest
 	# apt-get install libgtest-dev
@@ -69,7 +72,8 @@ install:
 run: $(EXECUTABLE_FILE)
 	./$(EXECUTABLE_FILE)
 
-test: cmake $(TEST_BINS)
+test: cmake_test
+	@make $(TEST_BINS)
 
 $(TEST_BINS):
 	./$@

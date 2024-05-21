@@ -5,6 +5,7 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q dist-upgrade -y \
     && apt-get -q install --no-install-recommends -y \
     build-essential \
+    git \
     cmake \
     g++ \
     python3-dev \
