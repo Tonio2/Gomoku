@@ -333,6 +333,15 @@ void fight(std::string ai_name1, std::string ai_name2)
     std::cout << "Game over" << std::endl;
     std::cout << "Winner: " << room.get_game().get_winner() << std::endl;
     Timer::printAccumulatedTimes();
+    const std::vector<GameAction> &actions = room.get_actions_history();
+    for (const GameAction &action : actions)
+    {
+        if (action.action_type == GameActionType::MOVE)
+        {
+            std::cout << coordinate_to_char(action.action_value.move.row) << "" << coordinate_to_char(action.action_value.move.col) << ",";
+        }
+    }
+    std::cout << std::endl;
 }
 
 int main(int argc, char *argv[])
