@@ -47,7 +47,8 @@ const useGameLogic = (
   );
 
   const aiName2 = useMemo(
-    () => new URLSearchParams(window.location.search).get("aiName2") || "medium",
+    () =>
+      new URLSearchParams(window.location.search).get("aiName2") || "medium",
     []
   );
 
@@ -55,6 +56,12 @@ const useGameLogic = (
     () => Number(new URLSearchParams(window.location.search).get("ruleStyle")),
     []
   );
+
+  const initMoves = useMemo(
+    () => new URLSearchParams(window.location.search).get("init") || "",
+    []
+  );
+
   const [board, setBoard] = useState<number[][]>(emptyBoard(size));
   const [listMoves, setListMoves] = useState<string[]>([]);
   const [currentMove, setCurrentMove] = useState<number>(0);
@@ -165,7 +172,8 @@ const useGameLogic = (
           ruleStyle,
           starter,
           aiName,
-          aiName2
+          aiName2,
+          initMoves
         );
         handleMoveResponse(res);
       } catch (error) {

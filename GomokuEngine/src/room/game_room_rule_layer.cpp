@@ -80,7 +80,7 @@ GameActionResult GameRoom::GameRuleLayerStandard::perform_pending_action()
         return perform_action_move(player_id, _room._game.get_board_height() / 2, _room._game.get_board_width() / 2);
     }
 
-    AI::Move ai_move = ai->suggest_move(_room._game);
+    AI::Move ai_move = ai->suggest_move(_room._game, _room._action_index);
 
     return perform_action_move(player_id, ai_move.row, ai_move.col);
 }

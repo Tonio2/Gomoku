@@ -5,6 +5,7 @@
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
 #include <fstream>
+#include "ai/gomoku_ai_data.h"
 
 void test_problems()
 {
@@ -77,13 +78,13 @@ void test_problems()
         }
         std::cout << line << std::endl;
         std::cout << "Best move: " << best_move_string << std::endl;
-#ifndef NDEBUG
-        std::cout << "Total move count: " << AI.move_count << std::endl;
-        std::cout << "Total move evaluated count: " << AI.move_evaluated_count << std::endl;
-        std::cout << "Total evaluation needed count: " << AI.evaluation_needed_count << std::endl;
-        std::cout << "Percentage of moves evaluated: " << (AI.move_evaluated_count * 100) / AI.move_count << "%" << std::endl;
-        std::cout << "Percentage of evaluations needed: " << (AI.evaluation_needed_count * 100) / AI.move_evaluated_count << "%" << std::endl;
-#endif
+        // #ifndef NDEBUG
+        //         std::cout << "Total move count: " << AI.move_count << std::endl;
+        //         std::cout << "Total move evaluated count: " << AI.move_evaluated_count << std::endl;
+        //         std::cout << "Total evaluation needed count: " << AI.evaluation_needed_count << std::endl;
+        //         std::cout << "Percentage of moves evaluated: " << (AI.move_evaluated_count * 100) / AI.move_count << "%" << std::endl;
+        //         std::cout << "Percentage of evaluations needed: " << (AI.evaluation_needed_count * 100) / AI.move_evaluated_count << "%" << std::endl;
+        // #endif
         totalTime += Timer::getAccumulatedTime("suggest_move_evaluation");
         problemCount++;
         Timer::printAccumulatedTimes();
@@ -138,7 +139,7 @@ void test_problem(int problem_idx)
     // Print the best move
     std::cout << to_string(game, true);
     std::cout << "Best move for player " << player << ": " << coordinate_to_char(bestMove.first) << coordinate_to_char(bestMove.second) << std::endl;
-    logMoveEvaluation(moveEvalutation);
+    logMoveEvaluation(moveEvalutation, "log.txt");
     logTooManyEvaluationsList(moveEvalutation);
     Timer::printAccumulatedTimes();
 
@@ -158,6 +159,27 @@ void test_problem(int problem_idx)
     std::cout << std::endl;
 }
 
+const AI::MinMaxV2::GomokuAIData ai_data = []()
+{
+    AI::MinMaxV2::GomokuAIData data;
+    data.values[0] = 0;
+    data.values[1] = 1.18881e+09;
+    data.values[2] = 175.305;
+    data.values[3] = 0.488359;
+    data.values[4] = 22.639;
+    data.values[5] = 1.59943;
+    data.values[6] = 375669;
+    data.values[7] = 21.7746;
+    data.values[8] = 5684.55;
+    data.values[9] = 16355.2;
+    data.values[10] = 7501.18;
+    data.values[11] = 758.142;
+    data.values[12] = 0.00172756;
+    data.values[13] = 7.01941;
+    data.values[14] = 74.5009;
+    return data;
+}();
+
 void test_eval(std::string moves_string)
 {
     GomokuGame game(19, 19);
@@ -166,9 +188,10 @@ void test_eval(std::string moves_string)
     apply_moves(game, moves);
 
     Player last_player = game.get_current_player();
-    AI::MinMaxV2::GomokuAiSettings ai_settings;
-    ai_settings.depth = get_depth_from_env();
-    AI::MinMaxV2::GomokuAI AI(ai_settings);
+    // AI::MinMaxV2::GomokuAiSettings ai_settings;
+    // ai_settings.depth = get_depth_from_env();
+    // AI::MinMaxV2::GomokuAI AI(ai_settings);
+    AI::MinMaxV2::GomokuAI AI({4, 2, ai_data});
     int evaluation = AI.get_heuristic_evaluation(game, last_player);
 
     // Display moves
@@ -206,6 +229,7 @@ void test_eval(std::string moves_string)
     std::cout << "]" << std::endl;
 
     AI::MinMaxV2::MoveEvaluation moveEvaluation = AI.suggest_move_evaluation(game);
+    logMoveEvaluation(moveEvaluation, "log.txt");
     std::pair<int, int> bestMove = getBestMove(moveEvaluation, true);
     std::cout << "Suggested move: " << bestMove.first << "," << bestMove.second << std::endl;
 }
@@ -276,6 +300,41 @@ void test_line(const std::string &line)
     }
 }
 
+void clearLastNLines(int n) {
+    for (int i = 0; i < n; ++i) {
+        // Move cursor up one line
+        std::cout << "\033[A";
+        // Clear the line
+        std::cout << "\033[2K";
+    }
+    // Move cursor to the beginning of the last cleared line
+    // std::cout << "\033[" << n << "A";
+}
+
+void fight(std::string ai_name1, std::string ai_name2)
+{
+    GameRoomSettings settings;
+    settings.p1.ai_name = ai_name1;
+    settings.p2.ai_name = ai_name2;
+    settings.p1.is_ai = true;
+    settings.p2.is_ai = true;
+
+    GameRoom room(settings);
+    bool isFirstMove = true;
+    while (room.has_pending_action())
+    {
+        room.perform_pending_action();
+        if (!isFirstMove)
+            clearLastNLines(20);
+        std::cout << to_string(room.get_game(), true, 2);
+        isFirstMove = false;
+    }
+
+    std::cout << "Game over" << std::endl;
+    std::cout << "Winner: " << room.get_game().get_winner() << std::endl;
+    Timer::printAccumulatedTimes();
+}
+
 int main(int argc, char *argv[])
 {
     // If no arguments are given, run the test_problems function
@@ -302,6 +361,10 @@ int main(int argc, char *argv[])
     else if (arg1 == "arena")
     {
         Arena().play(argc, argv);
+    }
+    else if (arg1 == "fight")
+    {
+        fight(argv[2], argv[3]);
     }
     else
     {

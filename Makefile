@@ -8,13 +8,11 @@ run: resources
 	@make lib/pygomoku.so
 	python GomokuKivy/gomoku.py
 
-GomokuEngine/pygomoku.so:
-	make -C GomokuEngine pygomoku.so
-
-lib:
+lib_dir:
 	mkdir -p lib
 
-lib/pygomoku.so: lib GomokuEngine/pygomoku.so
+lib: lib_dir
+	make -C GomokuEngine lib
 	cp -f GomokuEngine/pygomoku.so lib/pygomoku.so
 
 GomokuKivy/Gomoku: lib/pygomoku.so
@@ -37,5 +35,11 @@ fclean:
 	rm -f $(NAME)
 
 re: fclean $(NAME)
+
+re_lib:
+	rm -rf lib
+	mkdir -p lib
+	make -C GomokuEngine re_lib
+	cp -f GomokuEngine/pygomoku.so lib/pygomoku.so
 
 .PHONY: all run lib re reTerm startTerm

@@ -25,7 +25,7 @@ ifeq ($(TIMER),OFF)
 endif
 
 # Source and object files
-SRCFILES = 	ai/gomoku_ai.cpp \
+SRCFILES = 	ai/gomoku_ai_minmaxv2.cpp \
 			ai/gomoku_ai_data.cpp \
 			gktool.cpp \
 			utils/gomoku_utilities.cpp \

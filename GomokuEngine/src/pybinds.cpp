@@ -24,7 +24,8 @@ PYBIND11_MODULE(pygomoku, m)
         .def("get_current_player", &GomokuGame::get_current_player)
         .def("get_player_score", &GomokuGame::get_player_score)
         .def("reverse_move", &GomokuGame::reverse_move)
-        .def("reapply_move", &GomokuGame::reapply_move);
+        .def("reapply_move", &GomokuGame::reapply_move)
+        .def("print_patterns", &GomokuGame::print_patterns);
     py::class_<CellChange>(m, "CellChange")
         .def(py::init<>())
         .def_readwrite("row", &CellChange::row)
@@ -119,5 +120,6 @@ PYBIND11_MODULE(pygomoku, m)
         .def("reverse_last_action", &GameRoom::reverse_last_action)
         .def("can_reapply_last_action", &GameRoom::can_reapply_last_action)
         .def("reapply_last_action", &GameRoom::reapply_last_action)
-        .def("suggest_move", &GameRoom::suggest_move);
+        .def("suggest_move", &GameRoom::suggest_move)
+        .def("get_heuristic_evaluation", &GameRoom::get_heuristic_evaluation);
 }

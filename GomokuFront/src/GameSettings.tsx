@@ -105,7 +105,7 @@ const GameSetting: React.FC = () => {
             </div>
           )}
 
-          {mode === 0 || mode === 2 && (
+          {(mode === 0 || mode === 2) && (
             <div className="mb-6">
               <label className="block mb-2">AI:</label>
               <select
@@ -138,7 +138,7 @@ const GameSetting: React.FC = () => {
               </select>
             </div>
           )}
-          
+
           <div className="mb-8">
             <label className="block mb-2">Rule Style:</label>
             <select

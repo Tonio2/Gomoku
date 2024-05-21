@@ -12,16 +12,16 @@ namespace AI::MinMaxV2
 
 GomokuAIData::GomokuAIData()
 {
-    values[0] = 0;
-    values[1] = 100000;
-    values[2] = 10;
-    values[3] = 5;
-    values[4] = 100;
-    values[5] = 50;
-    values[6] = 1000;
-    values[7] = 500;
-    values[8] = 10000;
-    values[9] = 1000;
+    values[StructureType::NONE] = 0;
+    values[StructureType::FIVE_OR_MORE] = 100000;
+    values[StructureType::OPEN_ONE] = 10;
+    values[StructureType::ONE] = 5;
+    values[StructureType::OPEN_TWO] = 100;
+    values[StructureType::TWO] = 50;
+    values[StructureType::OPEN_THREE] = 1000;
+    values[StructureType::THREE] = 500;
+    values[StructureType::OPEN_FOUR] = 10000;
+    values[StructureType::FOUR] = 1000;
     values[10] = 9000;
     values[11] = 9000;
     values[12] = 10;

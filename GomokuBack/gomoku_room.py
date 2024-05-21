@@ -160,7 +160,7 @@ def format_move_evaluation(move_evaluation):
     return ret
 
 class GomokuRoom:
-    def __init__(self, size, mode, rule_style, ai_player, ai_name, ai_name2):
+    def __init__(self, size, mode, rule_style, ai_player, ai_name, ai_name2, init_moves=""):
         """Init room
         Parameters:
         size (int): Between 10 and 25
@@ -192,6 +192,17 @@ class GomokuRoom:
         self.room = pygomoku.GameRoom(
             room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2)
         )
+        
+        if init_moves != "":
+            moves = init_moves.split(",")
+            for move in moves:
+                if len(move) != 2:
+                    raise RoomError("Invalid move")
+                row = BOARD_COORDINATES.index(move[0])
+                col = BOARD_COORDINATES.index(move[1])
+                action_result = self.room.perform_action_move(self.get_next_player(), row, col)
+                if not action_result.success:
+                    raise RoomError(action_result.message)
 
     def reset(self):
         self.room = pygomoku.GameRoom(
@@ -223,7 +234,6 @@ class GomokuRoom:
         if is_game_over:
             players = self.get_players()
             cur_move = self.get_current_move()
-            print(cur_move)
             player1_move_count = cur_move // 2 + cur_move % 2
             player2_move_count = cur_move // 2
             player1_time = players[PLAYER_1]["time"]
@@ -263,6 +273,14 @@ class GomokuRoom:
         move_evaluation = self.room.suggest_move()
         return format_move_evaluation(move_evaluation)
 
+    def display_move_history(self):
+        moves = ""
+        actions = self.get_actions_history()
+        for action in actions:
+            if action.action_type == pygomoku.GameActionType.MOVE:
+                moves += BOARD_COORDINATES[action.action_value.move.row] + BOARD_COORDINATES[action.action_value.move.col] + ","
+        print(moves)
+
     def get_state(self):
         players = self.get_players()
         return {
@@ -283,6 +301,9 @@ class GomokuRoom:
         action_result = self.room.perform_action_move(self.get_next_player(), row, col)
         if not action_result.success:
             raise RoomError(action_result.message)
+        self.display_move_history()
+        print("Move evaluation for next player: ", self.room.get_heuristic_evaluation())
+        self.room.get_game().print_patterns()
 
     def swap(self, swap):
         self.room.perform_action_swap(self.get_next_player(), swap)
@@ -294,7 +315,10 @@ class GomokuRoom:
         self.room.reapply_last_action()
 
     def perform_pending_action(self):
-        self.room.perform_pending_action()
+        action_result = self.room.perform_pending_action()
+        if not action_result.success:
+            raise RoomError(action_result.message)
+        self.display_move_history()
 
 
 class OnlineRoom(GomokuRoom):

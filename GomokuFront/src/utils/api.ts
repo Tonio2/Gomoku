@@ -22,7 +22,8 @@ const createGame = async (
   ruleStyle: number,
   starter: number,
   aiName: string,
-  aiName2: string
+  aiName2: string,
+  initMoves: string
 ): Promise<ActionResult> => {
   const response = await axios.post(CREATE_GAME_URL, {
     userId: userId,
@@ -32,6 +33,7 @@ const createGame = async (
     ai_player: 1 - starter,
     ai_name: aiName,
     ai_name2: aiName2,
+    init: initMoves,
   });
   return response.data;
 };

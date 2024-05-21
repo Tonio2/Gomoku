@@ -129,7 +129,7 @@ int get_depth_from_env(int default_depth)
 
 using AI::MinMaxV2::MoveEvaluation;
 
-void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int depth, int i)
+void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, std::vector<std::vector<std::string>> &csvData, int depth, int i)
 {
     // Create indentation based on the depth
     std::string indent(depth * 4, ' '); // 4 spaces for each level of depth
@@ -139,12 +139,23 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int dept
     {
         out << i << ": ";
     }
-    out << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score << "\n";
+    out << "Move: " << coordinate_to_char(eval.move.first) << coordinate_to_char(eval.move.second) << " | " << eval.score;
 
-#ifndef NDEBUG
-    if (depth < get_depth_from_env())
+#ifdef LOGGING
+    out << " | Initial score: " << eval.initialScore << "\n";
+#else
+    out << "\n";
+#endif
+
+#ifdef LOGGING
+    if (eval.listMoves.size() > 0)
     {
-        out << indent << "Evals: " << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << " | initial score: " << eval.initialScore << "\n";
+        out << indent << "Stats: Best: " << eval.neededEvalCount << " | Evaluated: " << eval.evaluatedEvalCount << " | Total: " << eval.totalEvalCount << "\n";
+        if (csvData.size() <= depth)
+        {
+            csvData.resize(depth + 1);
+        }
+        csvData[depth].push_back(std::to_string(eval.neededEvalCount) + "," + std::to_string(eval.evaluatedEvalCount) + "," + std::to_string(eval.totalEvalCount) + ",");
     }
 #endif
 
@@ -156,22 +167,59 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, int dept
         {
             const auto &move = eval.listMoves[i];
             // Increase the indentation for each level
-            writeMoveEvaluation(out, move, depth + 1, i);
+            writeMoveEvaluation(out, move, csvData, depth + 1, i + 1);
         }
     }
 }
 
-void logMoveEvaluation(const MoveEvaluation &eval)
+void logMoveEvaluation(const MoveEvaluation &eval, std::string filename)
 {
-    std::ofstream out("log.txt");
+    std::ofstream out(filename);
     if (!out.is_open())
     {
-        std::cerr << "Failed to open log.txt" << std::endl;
+        std::cerr << "Failed to open " << filename << std::endl;
         return;
     }
 
-    writeMoveEvaluation(out, eval);
+    // new filename with csv instead of txt
+
+    std::vector<std::vector<std::string>> csvData(get_depth_from_env(), std::vector<std::string>());
+
+    writeMoveEvaluation(out, eval, csvData);
     out.close();
+
+    std::string csvFilename = filename.substr(0, filename.size() - 4) + ".csv";
+    std::ofstream csvOut(csvFilename);
+    if (!csvOut.is_open())
+    {
+        std::cerr << "Failed to open " << csvFilename << std::endl;
+        return;
+    }
+
+    bool continueLoop = true;
+    int line = 0;
+    while (continueLoop)
+    {
+        continueLoop = false;
+        for (int depth = 0; depth < csvData.size(); depth++)
+        {
+            if (line < csvData[depth].size())
+            {
+                csvOut << csvData[depth][line] << ",";
+                continueLoop = true;
+            }
+            else
+            {
+                csvOut << ",,,,";
+            }
+        }
+        if (continueLoop)
+        {
+            csvOut << "\n";
+        }
+        line++;
+    }
+    csvOut.close();
 }
 
 void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth)
@@ -180,13 +228,6 @@ void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int 
     {
         return;
     }
-
-#ifndef NDEBUG
-    if (eval.neededEvalCount != eval.evaluatedMoves)
-    {
-        out << eval.neededEvalCount << " / " << eval.evaluatedMoves << " / " << eval.totalEvalCount << "\n";
-    }
-#endif
 
     if (not eval.listMoves.empty())
     {

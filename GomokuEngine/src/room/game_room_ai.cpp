@@ -104,6 +104,41 @@ AI::IGomokuAI *create_hard_ai()
     return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_default});
 }
 
+AI::IGomokuAI *create_hardcore_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({4, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_ultra_hardcore_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({5, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_giga_hardcore_ai()
+{
+    return new AI::MinMaxV2::GomokuAI({6, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_deep7()
+{
+    return new AI::MinMaxV2::GomokuAI({7, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_deep8()
+{
+    return new AI::MinMaxV2::GomokuAI({8, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_deep9()
+{
+    return new AI::MinMaxV2::GomokuAI({9, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_deep10()
+{
+    return new AI::MinMaxV2::GomokuAI({10, 2, ai_data_default});
+}
+
 AI::IGomokuAI *create_deep_ai()
 {
     return new AI::MinMaxV2::GomokuAI({5, 1, ai_data_default});
@@ -139,6 +174,13 @@ static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>
         {"easy", create_easy_ai},
         {"medium", create_medium_ai},
         {"hard", create_hard_ai},
+        {"hardcore", create_hardcore_ai},
+        {"ultra_hardcore", create_ultra_hardcore_ai},
+        {"giga_hardcore", create_giga_hardcore_ai},
+        {"deep7", create_deep7},
+        {"deep8", create_deep8},
+        {"deep9", create_deep9},
+        {"deep10", create_deep10},
         {"deep", create_deep_ai},
         {"cpu1", create_cpu1_ai},
         {"cpu2", create_cpu2_ai},
