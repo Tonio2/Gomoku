@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
 #include "engine/gomoku_engine.h"
 #include "utils/gomoku_utilities.h"
+#include "gtest/gtest.h"
 
 void test_game_status(std::string move_str, bool expected_game_over, Player winner = Player::EMPTY)
 {
@@ -241,6 +241,14 @@ TEST(FiveInRowTest, TestFiveInRowWithPotentialCaptureBlockedByStone)
 TEST(FiveInRowTest, TestShouldWinIfFiveInRowAndOpponentWinByCaptureNextTurn)
 {
     std::string move_str = "88,66,89,87,8A,65,67,76,64,65,98,78,A8,54,43,8B,69,79,96,B8,A9,78,7A,77,75,58,7A,6B,95,97,94,AA,B7,7B,5B,9B,AB,A6,B5,97,C6,A7,93,92,A4,D5,D7,A8,C6";
+    test_game_status(move_str, true, Player::BLACK);
+}
+
+TEST(FiveInRowTest, TestShouldWinIfSecondFiveInARowIsNotCapturable)
+{
+    std::string move_str = "64,73,74,83,84,93,94,82,85,92,A4,76,68,77,78,87,88,97,98,A7";
+    test_game_status(move_str, false, Player::EMPTY);
+    move_str += ",A8";
     test_game_status(move_str, true, Player::BLACK);
 }
 

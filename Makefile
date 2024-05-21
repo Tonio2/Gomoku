@@ -3,9 +3,7 @@ NAME = Gomoku
 
 all: $(NAME)
 
-run: resources
-	@rm -f lib/pygomoku.so && make -C GomokuEngine pygomoku.so
-	@make lib/pygomoku.so
+run: resources lib
 	python GomokuKivy/gomoku.py
 
 lib_dir:
