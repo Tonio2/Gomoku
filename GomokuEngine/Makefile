@@ -50,11 +50,14 @@ build:
 submodule:
 	git submodule update --init --recursive
 
-cmake_gktool: build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make -j$(JOBS) $(EXECUTABLE_FILE)
+cmake: build
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) ..
 
-cmake_pygomoku: build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. && make -j$(JOBS) PyGomoku
+cmake_gktool: cmake
+	cd build && make -j$(JOBS) $(EXECUTABLE_FILE)
+
+cmake_pygomoku: cmake
+	cd build && make -j$(JOBS) PyGomoku
 
 install:
 	# brew install googletest
