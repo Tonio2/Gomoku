@@ -229,14 +229,15 @@ int GomokuAI::score_player(Player player)
 {
     int score = 0;
     const std::vector<int> &patterns_count = game.get_patterns_count(player);
+    const std::vector<int> &opponents_patterns_count = game.get_patterns_count(game.other_player(player));
 
     for (int i = 0; i < StructureType::COUNT_STRUCTURE_TYPE; i++)
     {
         score += patterns_count[i] * evaluation_data.value_of_structure(i);
     }
     score += (patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
-    score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
-    score += evaluation_data.value_of_captures(game.get_player_score(player));
+    // score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
+    score += (int)evaluation_data.value_of_captures(game.get_player_score(player), opponents_patterns_count[TWO]);
     return score;
 }
 

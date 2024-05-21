@@ -192,6 +192,28 @@ void GomokuGame::print_patterns()
 {
     players_reconizers[X].print_patterns();
     players_reconizers[O].print_patterns();
+    
+    const std::vector<int> current_reconizer = players_reconizers[other_player(current_player)].get_pattern_count();
+
+    const int cur_score = get_player_score(other_player(current_player));
+    const std::string c1 = cur_score == 2 ? "1" : "0";
+    const std::string c2 = cur_score == 4 ? "1" : "0";
+    const std::string c3 = cur_score == 6 ? "1" : "0";
+    const std::string c4 = cur_score == 8 ? "1" : "0";
+
+    std::cout << c1 << ", " << c2 << ", " << c3 << ", " << c4 << ", ";
+    std::cout << current_reconizer[StructureType::ONE] << ", " << current_reconizer[StructureType::OPEN_ONE] << ", " << current_reconizer[StructureType::TWO] << ", " << current_reconizer[StructureType::OPEN_TWO] << ", " << current_reconizer[StructureType::THREE] << ", " << current_reconizer[StructureType::OPEN_THREE] << ", " << current_reconizer[StructureType::FOUR] << ", " << current_reconizer[StructureType::OPEN_FOUR] << ", " << current_reconizer[StructureType::FIVE_OR_MORE] << ",, ";
+
+    const std::vector<int> other_reconizer = players_reconizers[current_player].get_pattern_count();
+
+    const int other_score = get_player_score(current_player);
+    const std::string oc1 = other_score == 2 ? "1" : "0";
+    const std::string oc2 = other_score == 4 ? "1" : "0";
+    const std::string oc3 = other_score == 6 ? "1" : "0";
+    const std::string oc4 = other_score == 8 ? "1" : "0";
+
+    std::cout << oc1 << ", " << oc2 << ", " << oc3 << ", " << oc4 << ", ";
+    std::cout << other_reconizer[StructureType::ONE] << ", " << other_reconizer[StructureType::OPEN_ONE] << ", " << other_reconizer[StructureType::TWO] << ", " << other_reconizer[StructureType::OPEN_TWO] << ", " << other_reconizer[StructureType::THREE] << ", " << other_reconizer[StructureType::OPEN_THREE] << ", " << other_reconizer[StructureType::FOUR] << ", " << other_reconizer[StructureType::OPEN_FOUR] << ", " << other_reconizer[StructureType::FIVE_OR_MORE] << std::endl;
 }
 
 std::vector<std::vector<int>> GomokuGame::get_board() const

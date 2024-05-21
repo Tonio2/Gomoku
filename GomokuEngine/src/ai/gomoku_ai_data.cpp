@@ -116,13 +116,11 @@ float GomokuAIData::value_of_multiple_o4() const
     return values[STC + 1];
 }
 
-float GomokuAIData::value_of_captures(int capture_count) const
+float GomokuAIData::value_of_captures(int capture_count, int opponent_two_count) const
 {
-    const float a = values[STC + 2];
-    const float b = values[STC + 3];
-    const float c = values[STC + 4];
-
-    return a * (capture_count * capture_count) + b * (capture_count) + c;
+    int values[4] = {10,100,1000,10000};
+    float weights[4] = {0.1,0.2,0.3,0.5};
+    return values[capture_count] * (1 + weights[capture_count] * opponent_two_count);
 }
 
 std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data)
