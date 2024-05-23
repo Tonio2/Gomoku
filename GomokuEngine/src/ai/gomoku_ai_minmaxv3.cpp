@@ -1,4 +1,4 @@
-#include "ai/gomoku_ai_minmaxv2.h"
+#include "ai/gomoku_ai_minmaxv3.h"
 #include <algorithm>
 #include <limits>
 #include <utility>
@@ -6,7 +6,7 @@
 
 #include "utils/gomoku_utilities.h"
 
-namespace AI::MinMaxV2
+namespace AI::MinMaxV3
 {
 
 Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
@@ -32,7 +32,7 @@ std::vector<Move> GomokuAI::suggest_move_sequence(const GomokuGame &board)
     MoveEvaluation *currentMove = &result;
     while (currentMove->listMoves.size() > 0)
     {
-        int bestIndex = getBestMoveIndexV2(*currentMove, maximizing);
+        int bestIndex = getBestMoveIndexV3(*currentMove, maximizing);
         currentMove = &currentMove->listMoves[bestIndex];
         moves.push_back(Move(currentMove->move.first, currentMove->move.second));
         maximizing = !maximizing;
@@ -109,11 +109,10 @@ void GomokuAI::evaluateNode(const MoveHeuristic &move, int moveId, int _depth, M
     MoveResult game_move = game.make_move(move.row, move.col);
     eval.listMoves.push_back(MoveEvaluation());
     MoveEvaluation &evalNode = eval.listMoves.back();
+    evalNode.initialScore = move.score;
     minimax(evalNode, _depth - 1, alpha, beta, !maximizingPlayer, move.row, move.col);
     game.reverse_move(game_move);
-#ifdef LOGGING
-    evalNode.initialScore = move.score;
-#endif
+    
     if (maximizingPlayer)
     {
         if (evalNode.score > extremeEval || isFirstMove)
@@ -182,6 +181,15 @@ void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bo
         {
             evaluateNode(moves[0], 0, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
 
+            if (maximizingPlayer)
+            {
+                if (eval.listMoves[0].score > eval.initialScore) return;
+            }
+            else
+            {
+                if (eval.listMoves[0].score < eval.initialScore) return;
+            }
+
             if (beta <= alpha)
             {
                 return;
@@ -206,6 +214,15 @@ void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bo
         try
         {
             evaluateNode(moves[moveId], moveId, _depth, eval, alpha, beta, maximizingPlayer, extremeEval, best_move, isFirstMove);
+
+            if (maximizingPlayer)
+            {
+                if (eval.listMoves.back().score > eval.initialScore) break;
+            }
+            else
+            {
+                if (eval.listMoves.back().score < eval.initialScore) break;
+            }
 
             if (beta <= alpha)
             {

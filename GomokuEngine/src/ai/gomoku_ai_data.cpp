@@ -7,8 +7,6 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace AI::MinMaxV2
-{
 
 GomokuAIData::GomokuAIData()
 {
@@ -136,4 +134,3 @@ std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data)
     return stream;
 }
 
-} // namespace AI::MinMaxV2

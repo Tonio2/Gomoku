@@ -1,7 +1,6 @@
 #include "ai/gomoku_ai_minmaxv2.h"
+#include "ai/gomoku_ai_minmaxv3.h"
 #include "room/game_room.h"
-
-using AI::MinMaxV2::GomokuAIData;
   
 static const GomokuAIData ai_data_default = GomokuAIData();
 
@@ -149,6 +148,7 @@ static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>
         {"cpu4_d4", create_cpu4_d4_ai},
         {"cpu4_d5", create_cpu4_d5_ai},
         {"cpu4_d6", create_cpu4_d6_ai},
+        {"test", []() { return new AI::MinMaxV3::GomokuAI({6, 2, ai_data_default}); }},
 };
 
 static const std::vector<std::string> ai_names = []
