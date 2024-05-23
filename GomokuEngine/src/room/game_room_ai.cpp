@@ -1,5 +1,5 @@
-#include "room/game_room.h"
 #include "ai/gomoku_ai_minmaxv2.h"
+#include "room/game_room.h"
 
 using AI::MinMaxV2::GomokuAIData;
 
@@ -89,104 +89,67 @@ static const GomokuAIData ai_data_cpu4 = []()
     return data;
 }();
 
-AI::IGomokuAI *create_easy_ai()
+// Function to create AI
+AI::IGomokuAI *create_ai(int depth, int version, const GomokuAIData &data)
 {
-    return new AI::MinMaxV2::GomokuAI({1, 1, ai_data_default});
+    return new AI::MinMaxV2::GomokuAI({depth, version, data});
 }
 
-AI::IGomokuAI *create_medium_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({2, 1, ai_data_default});
-}
+// Helper macros to simplify AI creation functions
+#define CREATE_AI_FUNC(name, depth, version, data) \
+    AI::IGomokuAI *create_##name##_ai()            \
+    {                                              \
+        return create_ai(depth, version, data);    \
+    }
 
-AI::IGomokuAI *create_hard_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_default});
-}
+CREATE_AI_FUNC(default, 3, 2, ai_data_default)
+CREATE_AI_FUNC(default_d4, 4, 2, ai_data_default)
+CREATE_AI_FUNC(default_d5, 5, 2, ai_data_default)
+CREATE_AI_FUNC(default_d6, 6, 2, ai_data_default)
 
-AI::IGomokuAI *create_hardcore_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({4, 2, ai_data_default});
-}
+CREATE_AI_FUNC(cpu1, 3, 2, ai_data_cpu1)
+CREATE_AI_FUNC(cpu1_d4, 4, 2, ai_data_cpu1)
+CREATE_AI_FUNC(cpu1_d5, 5, 2, ai_data_cpu1)
+CREATE_AI_FUNC(cpu1_d6, 6, 2, ai_data_cpu1)
 
-AI::IGomokuAI *create_ultra_hardcore_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({5, 2, ai_data_default});
-}
+CREATE_AI_FUNC(cpu2, 3, 2, ai_data_cpu2)
+CREATE_AI_FUNC(cpu2_d4, 4, 2, ai_data_cpu2)
+CREATE_AI_FUNC(cpu2_d5, 5, 2, ai_data_cpu2)
+CREATE_AI_FUNC(cpu2_d6, 6, 2, ai_data_cpu2)
 
-AI::IGomokuAI *create_giga_hardcore_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({6, 2, ai_data_default});
-}
+CREATE_AI_FUNC(cpu3, 3, 2, ai_data_cpu3)
+CREATE_AI_FUNC(cpu3_d4, 4, 2, ai_data_cpu3)
+CREATE_AI_FUNC(cpu3_d5, 5, 2, ai_data_cpu3)
+CREATE_AI_FUNC(cpu3_d6, 6, 2, ai_data_cpu3)
 
-AI::IGomokuAI *create_deep7()
-{
-    return new AI::MinMaxV2::GomokuAI({7, 2, ai_data_default});
-}
-
-AI::IGomokuAI *create_deep8()
-{
-    return new AI::MinMaxV2::GomokuAI({8, 2, ai_data_default});
-}
-
-AI::IGomokuAI *create_deep9()
-{
-    return new AI::MinMaxV2::GomokuAI({9, 2, ai_data_default});
-}
-
-AI::IGomokuAI *create_deep10()
-{
-    return new AI::MinMaxV2::GomokuAI({10, 2, ai_data_default});
-}
-
-AI::IGomokuAI *create_deep_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({5, 1, ai_data_default});
-}
-
-AI::IGomokuAI *create_cpu1_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_cpu1});
-}
-
-AI::IGomokuAI *create_cpu2_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_cpu2});
-}
-
-AI::IGomokuAI *create_cpu3_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_cpu3});
-}
-
-AI::IGomokuAI *create_cpu4_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({3, 2, ai_data_cpu4});
-}
-
-AI::IGomokuAI *create_helper_ai()
-{
-    return new AI::MinMaxV2::GomokuAI({4, 2, ai_data_cpu2});
-}
+CREATE_AI_FUNC(cpu4, 3, 2, ai_data_cpu4)
+CREATE_AI_FUNC(cpu4_d4, 4, 2, ai_data_cpu4)
+CREATE_AI_FUNC(cpu4_d5, 5, 2, ai_data_cpu4)
+CREATE_AI_FUNC(cpu4_d6, 6, 2, ai_data_cpu4)
 
 static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>>>
     ai_makers = {
-        {"easy", create_easy_ai},
-        {"medium", create_medium_ai},
-        {"hard", create_hard_ai},
-        {"hardcore", create_hardcore_ai},
-        {"ultra_hardcore", create_ultra_hardcore_ai},
-        {"giga_hardcore", create_giga_hardcore_ai},
-        {"deep7", create_deep7},
-        {"deep8", create_deep8},
-        {"deep9", create_deep9},
-        {"deep10", create_deep10},
-        {"deep", create_deep_ai},
+        {"default", create_default_ai},
+        {"default_d4", create_default_d4_ai},
+        {"default_d5", create_default_d5_ai},
+        {"default_d6", create_default_d6_ai},
         {"cpu1", create_cpu1_ai},
+        {"cpu1_d4", create_cpu1_d4_ai},
+        {"cpu1_d5", create_cpu1_d5_ai},
+        {"cpu1_d6", create_cpu1_d6_ai},
         {"cpu2", create_cpu2_ai},
+        {"cpu2_d4", create_cpu2_d4_ai},
+        {"cpu2_d5", create_cpu2_d5_ai},
+        {"cpu2_d6", create_cpu2_d6_ai},
         {"cpu3", create_cpu3_ai},
+        {"cpu3_d4", create_cpu3_d4_ai},
+        {"cpu3_d5", create_cpu3_d5_ai},
+        {"cpu3_d6", create_cpu3_d6_ai},
         {"cpu4", create_cpu4_ai},
-        {"helper", create_helper_ai},
+        {"cpu4_d4", create_cpu4_d4_ai},
+        {"cpu4_d5", create_cpu4_d5_ai},
+        {"cpu4_d6", create_cpu4_d6_ai},
+        {"helper", create_cpu2_d4_ai},
 };
 
 static const std::vector<std::string> ai_names = []

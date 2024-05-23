@@ -1,0 +1,5 @@
+Results for cpu2_d6
+default_d6 : -25 -21
+cpu1_d6 : -19 26
+cpu3_d6 : -24 21
+cpu4_d6 : 20 24

@@ -1,0 +1,5 @@
+Results for cpu2
+default : -13 -8
+cpu1 : 28 -5
+cpu3 : -7 -17
+cpu4 : 17 -5

@@ -1,0 +1,5 @@
+Results for default_d4
+cpu1_d4 : 20 -20
+cpu2_d4 : 19 -22
+cpu3_d4 : -15 -22
+cpu4_d4 : -23 -19

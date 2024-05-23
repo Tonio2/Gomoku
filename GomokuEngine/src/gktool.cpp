@@ -1,11 +1,11 @@
 
-#include "engine/gomoku_engine.h"
+#include "ai/gomoku_ai_data.h"
 #include "ai/gomoku_ai_minmaxv2.h"
 #include "arena/arena.h"
+#include "engine/gomoku_engine.h"
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
 #include <fstream>
-#include "ai/gomoku_ai_data.h"
 
 void test_problems()
 {
@@ -300,8 +300,10 @@ void test_line(const std::string &line)
     }
 }
 
-void clearLastNLines(int n) {
-    for (int i = 0; i < n; ++i) {
+void clearLastNLines(int n)
+{
+    for (int i = 0; i < n; ++i)
+    {
         // Move cursor up one line
         std::cout << "\033[A";
         // Clear the line
@@ -311,7 +313,14 @@ void clearLastNLines(int n) {
     // std::cout << "\033[" << n << "A";
 }
 
-void fight(std::string ai_name1, std::string ai_name2)
+struct MatchResult
+{
+    int moveCount1;
+    int moveCount2;
+    std::string opponentName;
+};
+
+int fight(std::string ai_name1, std::string ai_name2)
 {
     GameRoomSettings settings;
     settings.p1.ai_name = ai_name1;
@@ -331,8 +340,52 @@ void fight(std::string ai_name1, std::string ai_name2)
     }
 
     std::cout << "Game over" << std::endl;
-    std::cout << "Winner: " << room.get_game().get_winner() << std::endl;
+    Player winner = room.get_game().get_winner();
+    std::cout << "Winner: " << winner << std::endl;
     Timer::printAccumulatedTimes();
+    int multiplier = winner == 1 ? 1 : -1;
+    int actionIndex = room.get_action_index();
+    int moveCount = actionIndex / 2 + actionIndex % 2;
+    return multiplier * moveCount;
+}
+
+std::vector<MatchResult> iq_benchmark(std::string aiName, std::string suffix = "")
+{
+    std::vector<MatchResult> matchResults;
+    std::vector<std::string> aiNames = {"default", "cpu1", "cpu2", "cpu3", "cpu4"};
+
+    for (int opponentIndex = 0; opponentIndex < aiNames.size(); opponentIndex++)
+    {
+        const std::string &opponentName = aiNames[opponentIndex] + suffix;
+        if (aiName + suffix == opponentName)
+            continue;
+        MatchResult matchResult;
+        matchResult.opponentName = opponentName;
+        matchResult.moveCount1 = fight(aiName + suffix, opponentName);
+        matchResult.moveCount2 = -1 * fight(opponentName, aiName + suffix);
+        matchResults.push_back(matchResult);
+    }
+
+    return matchResults;
+}
+
+void print_match_results(const std::string ai_name, const std::vector<MatchResult> &matchResults)
+{
+
+    // Open file iq_benchmarks/ai_name.txt
+    std::ofstream out("iq_benchmarks/" + ai_name + ".txt");
+    if (!out.is_open())
+    {
+        std::cerr << "Failed to open iq_benchmarks/" << ai_name << ".txt" << std::endl;
+        return;
+    }
+    out << "Results for " << ai_name << std::endl;
+    for (const MatchResult &matchResult : matchResults)
+    {
+        const std::string &opponentName = matchResult.opponentName;
+        out << opponentName << " : " << matchResult.moveCount1 << " " << matchResult.moveCount2 << std::endl;
+    }
+    out.close();
 }
 
 int main(int argc, char *argv[])
@@ -365,6 +418,13 @@ int main(int argc, char *argv[])
     else if (arg1 == "fight")
     {
         fight(argv[2], argv[3]);
+    }
+    else if (arg1 == "iq_benchmark")
+    {
+        const std::string &aiName = argv[2];
+        const std::string suffix = argc > 3 ? std::string(argv[3]) : "";
+        const std::vector<MatchResult> matchResults = iq_benchmark(aiName, suffix);
+        print_match_results(aiName + suffix, matchResults);
     }
     else
     {

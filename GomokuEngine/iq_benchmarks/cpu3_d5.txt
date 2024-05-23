@@ -1,0 +1,5 @@
+Results for cpu3_d5
+default_d5 : 20 -20
+cpu1_d5 : 18 12
+cpu2_d5 : -16 -12
+cpu4_d5 : 9 13
