@@ -13,7 +13,7 @@ Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
 {
     MoveEvaluation result = suggest_move_evaluation(board);
 #ifdef LOGGING
-    std::string filename = "/tmp/move_evaluation/" + std::to_string(currentMove) + ".txt";
+    std::string filename = "/tmp/evals/" + std::to_string(currentMove) + ".txt";
     logMoveEvaluation(result, filename);
 #endif
     auto [row, col] = getBestMove(result);
@@ -24,11 +24,17 @@ std::vector<Move> GomokuAI::suggest_move_sequence(const GomokuGame &board)
 {
     std::vector<Move> moves;
     MoveEvaluation result = suggest_move_evaluation(board);
+#ifdef LOGGING
+    std::string filename = "/tmp/evals/help.txt";
+    logMoveEvaluation(result, filename);
+#endif
     bool maximizing = true;
-    while (result.listMoves.size() > 0)
+    MoveEvaluation *currentMove = &result;
+    while (currentMove->listMoves.size() > 0)
     {
-        result = getBestMoveEvaluation(result, maximizing);
-        moves.push_back(Move(result.move.first, result.move.second));
+        int bestIndex = getBestMoveIndex(*currentMove, maximizing);
+        currentMove = &currentMove->listMoves[bestIndex];
+        moves.push_back(Move(currentMove->move.first, currentMove->move.second));
         maximizing = !maximizing;
     }
 

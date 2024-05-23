@@ -173,9 +173,17 @@ void GameRoom::reapply_last_action()
     }
 }
 
-std::vector<AI::Move> GameRoom::suggest_move()
+std::vector<std::pair<int, int>> GameRoom::suggest_move()
 {
-    return _ai_helper->suggest_move_sequence(_game);
+    std::vector<std::pair<int, int>> ret;
+
+    std::vector<AI::Move> moves = _ai_helper->suggest_move_sequence(_game);
+
+    for (const AI::Move &move : moves) {
+        ret.push_back({move.row, move.col});
+    }
+
+    return ret;
 }
 
 int GameRoom::get_heuristic_evaluation()

@@ -128,7 +128,7 @@ public:
     bool can_reapply_last_action() const;
     void reapply_last_action();
 
-    std::vector<AI::Move> suggest_move();
+    std::vector<std::pair<int, int>> suggest_move();
     int get_heuristic_evaluation();
 
 private:

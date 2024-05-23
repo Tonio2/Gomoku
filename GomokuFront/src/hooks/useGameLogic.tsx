@@ -203,19 +203,17 @@ const useGameLogic = (
   const getAISuggestion = async () => {
     try {
       setFetchingSuggestions(true);
-      let { moveEvaluation } = await api.getSuggestion(userId);
+      let { moveSequence } = await api.getSuggestion(userId);
       const newSuggestionBoard = emptySuggestionBoard(size);
       let maximizing = true;
       let index = 1;
-      while (moveEvaluation.listMoves && moveEvaluation.listMoves.length > 0) {
-        const bestEval = getBestEval(moveEvaluation, maximizing);
+      while (index < moveSequence.length) {
         const nextColor = players[nextPlayerId].color + 1;
         const otherColor = nextColor === 1 ? 2 : 1;
-        newSuggestionBoard[bestEval.move[0]][bestEval.move[1]] = [
+        newSuggestionBoard[moveSequence[index][0]][moveSequence[index][1]] = [
           currentMove + index,
           maximizing ? nextColor : otherColor,
         ];
-        moveEvaluation = bestEval;
         maximizing = !maximizing;
         index++;
       }
