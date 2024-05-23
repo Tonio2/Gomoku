@@ -206,7 +206,7 @@ const useGameLogic = (
       let { moveSequence } = await api.getSuggestion(userId);
       const newSuggestionBoard = emptySuggestionBoard(size);
       let maximizing = true;
-      let index = 1;
+      let index = 0;
       while (index < moveSequence.length) {
         const nextColor = players[nextPlayerId].color + 1;
         const otherColor = nextColor === 1 ? 2 : 1;
