@@ -44,7 +44,7 @@ GameRoom::GameRoom(const GameRoomSettings &settings)
     _ai2 = settings.p2.make_ai();
     const GameEntitySetting &setting = {
         true,
-        "hardcore",
+        "default_d6",
     };
     _ai_helper = setting.make_ai();
 }
