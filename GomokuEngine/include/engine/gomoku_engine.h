@@ -30,7 +30,11 @@ private:
 
     /** Relevancy */
     void update_relevancy(int8_t row, int8_t col, bool is_new_empty_cell);
-    void update_relevancy_direction(int8_t row, int8_t col, int8_t row_dir, int8_t col_dir, bool is_new_empty_cell);
+    void update_relevancy_lefttoright(int8_t row, int8_t col, int8_t modify);
+    void update_relevancy_uptodown(int8_t row, int8_t col, int8_t modify);
+    void update_relevancy_uplefttodownright(int8_t row, int8_t col, int8_t modify);
+    void update_relevancy_uprighttodownleft(int8_t row, int8_t col, int8_t modify);
+    void modify_cell_relevancy(int8_t row, int8_t col, int8_t modify);
 
     /** Capture */
     bool try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result);
