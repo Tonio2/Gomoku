@@ -348,7 +348,7 @@ void fight(std::string ai_name1, std::string ai_name2)
         room.perform_pending_action();
         if (!isFirstMove)
             clearLastNLines(20);
-        std::cout << to_string(room.get_game(), true, 2);
+        std::cout << to_string(room.get_game(), true, -1);
         isFirstMove = false;
     }
 
