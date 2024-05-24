@@ -183,11 +183,7 @@ void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bo
 
             if (maximizingPlayer)
             {
-                if (eval.listMoves[0].score > eval.initialScore) return;
-            }
-            else
-            {
-                if (eval.listMoves[0].score < eval.initialScore) return;
+                if (eval.listMoves[0].score >= eval.initialScore) return;
             }
 
             if (beta <= alpha)
@@ -217,11 +213,7 @@ void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bo
 
             if (maximizingPlayer)
             {
-                if (eval.listMoves.back().score > eval.initialScore) break;
-            }
-            else
-            {
-                if (eval.listMoves.back().score < eval.initialScore) break;
+                if (eval.listMoves.back().score >= eval.initialScore) break;
             }
 
             if (beta <= alpha)
@@ -282,6 +274,7 @@ MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)
     human_player = board.other_player(ai_player);
 
     MoveEvaluation result;
+    result.initialScore = _heuristic_evaluation();
     if (board.has_player_bounds())
         minimax(result, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true, -1, -1);
     else
