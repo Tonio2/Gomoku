@@ -362,91 +362,149 @@ void GomokuGame::reapply_move(const MoveResult &move)
 
 void GomokuGame::update_relevancy(int8_t row, int8_t col, bool is_new_empty_cell)
 {
-    // Left to right
-    update_relevancy_direction(row, col - RELEVANCY_LENGTH, 0, 1, is_new_empty_cell);
-    // Up to down
-    update_relevancy_direction(row - RELEVANCY_LENGTH, col, 1, 0, is_new_empty_cell);
-    // UpLeft to DownRight
-    update_relevancy_direction(row - RELEVANCY_LENGTH, col - RELEVANCY_LENGTH, 1, 1, is_new_empty_cell);
-    // UpRight to DownLeft
-    update_relevancy_direction(row - RELEVANCY_LENGTH, col + RELEVANCY_LENGTH, 1, -1, is_new_empty_cell);
+    int8_t modify = is_new_empty_cell ? -1 : 1;
+    update_relevancy_lefttoright(row, col, modify);
+    update_relevancy_uptodown(row, col, modify);
+    update_relevancy_uplefttodownright(row, col, modify);
+    update_relevancy_uprighttodownleft(row, col, modify);
 }
 
-static void clamp_to_board(int8_t &row, int8_t &col, int8_t &end,
-                           int8_t row_dir, int8_t col_dir,
-                           int8_t width, int8_t height);
-
-void GomokuGame::update_relevancy_direction(int8_t row, int8_t col, int8_t row_dir, int8_t col_dir, bool is_new_empty_cell)
+void GomokuGame::update_relevancy_lefttoright(int8_t row, int8_t col, int8_t modify)
 {
-    int8_t ir = row;
-    int8_t ic = col;
+    int8_t col_start = col - RELEVANCY_LENGTH;
     int8_t end = 2 * RELEVANCY_LENGTH;
 
-    // clamp_to_board(ir, ic, end,
-    //                row_dir, col_dir,
-    //                board.get_width(), board.get_height());
+    if (col_start < 0)
+    {
+        end += col_start;
+        col_start = 0;
+    }
+    if (col_start + end >= board.get_width())
+    {
+        const int8_t offset = (col_start + end) - (board.get_width() - 1);
+        end -= offset;
+    }
 
     for (int8_t i = 0; i <= end; ++i)
     {
-        if (board.is_in_bound(ir, ic))
-        {
-            int8_t &relevancy = _relevancy_matrix(ir, ic);
-            const bool is_empty = board(ir, ic) == E;
-            const bool was_relevant = relevancy > 0 && is_empty;
-
-            relevancy += is_new_empty_cell ? -1 : 1;
-
-            const bool is_relevant = relevancy > 0 && is_empty;
-
-            if (!is_relevant)
-            {
-                _relevant_cells[ir].erase(ic);
-            }
-            else if (is_relevant)
-            {
-                _relevant_cells[ir].insert(ic);
-            }
-        }
-
-        ir += row_dir;
-        ic += col_dir;
+        modify_cell_relevancy(row, col_start + i, modify);
     }
 }
 
-// TODO: Handle edge cases
-static void clamp_to_board(int8_t &row, int8_t &col, int8_t &end,
-                           int8_t row_dir, int8_t col_dir,
-                           int8_t width, int8_t height)
+void GomokuGame::update_relevancy_uptodown(int8_t row, int8_t col, int8_t modify)
 {
-    if (row < 0)
+    int8_t row_start = row - RELEVANCY_LENGTH;
+    int8_t end = 2 * RELEVANCY_LENGTH;
+
+    if (row_start < 0)
     {
-        const int8_t offset = -row;
+        end += row_start;
+        row_start = 0;
+    }
+    if (row_start + end >= board.get_height())
+    {
+        const int8_t offset = (row_start + end) - (board.get_height() - 1);
         end -= offset;
-        row += offset * row_dir;
-        col += offset * col_dir;
     }
-    const int8_t row_end = row + end * row_dir;
-    if (row_end >= height)
+
+    for (int8_t i = 0; i <= end; ++i)
     {
-        const int8_t offset = height - 1 - row_end;
-        end += offset;
-        row += offset * row_dir;
-        col += offset * col_dir;
+        modify_cell_relevancy(row_start + i, col, modify);
     }
-    if (col < 0)
+}
+
+void GomokuGame::update_relevancy_uplefttodownright(int8_t row, int8_t col, int8_t modify)
+{
+    int8_t row_start = row - RELEVANCY_LENGTH;
+    int8_t col_start = col - RELEVANCY_LENGTH;
+    int8_t end = 2 * RELEVANCY_LENGTH;
+
+    if (row_start < 0)
     {
-        const int8_t offset = -col;
+        const int8_t offset = -row_start;
         end -= offset;
-        row += offset * row_dir;
-        col += offset * col_dir;
+        row_start += offset;
+        col_start += offset;
     }
-    const int8_t col_end = col + end * col_dir;
-    if (col_end >= width)
+    if (row_start + end >= board.get_height())
     {
-        const int8_t offset = width - 1 - col_end;
-        end += offset;
-        row += offset * row_dir;
-        col += offset * col_dir;
+        const int8_t offset = (row_start + end) - (board.get_height() - 1);
+        end -= offset;
+    }
+    if (col_start < 0)
+    {
+        const int8_t offset = -col_start;
+        end -= offset;
+        row_start += offset;
+        col_start += offset;
+    }
+    if (col_start + end >= board.get_width())
+    {
+        const int8_t offset = (col_start + end) - (board.get_width() - 1);
+        end -= offset;
+    }
+
+    for (int8_t i = 0; i <= end; ++i)
+    {
+        modify_cell_relevancy(row_start + i, col_start + i, modify);
+    }
+}
+
+void GomokuGame::update_relevancy_uprighttodownleft(int8_t row, int8_t col, int8_t modify)
+{
+    int8_t row_start = row - RELEVANCY_LENGTH;
+    int8_t col_start = col + RELEVANCY_LENGTH;
+    int8_t end = 2 * RELEVANCY_LENGTH;
+
+    if (row_start < 0)
+    {
+        const int8_t offset = -row_start;
+        end -= offset;
+        row_start += offset;
+        col_start -= offset;
+    }
+    if (row_start + end >= board.get_height())
+    {
+        const int8_t offset = (row_start + end) - (board.get_height() - 1);
+        end -= offset;
+    }
+    if (col_start >= board.get_width())
+    {
+        const int8_t offset = col_start - (board.get_width() - 1);
+        end -= offset;
+        row_start += offset;
+        col_start -= offset;
+    }
+    if (col_start - end < 0)
+    {
+        // const int8_t offset = -(col_start - end);
+        // end -= offset;
+        end = col_start;
+    }
+
+    for (int8_t i = 0; i <= end; ++i)
+    {
+        modify_cell_relevancy(row_start + i, col_start - i, modify);
+    }
+}
+
+void GomokuGame::modify_cell_relevancy(int8_t row, int8_t col, int8_t modify)
+{
+    int8_t &relevancy = _relevancy_matrix(row, col);
+    const bool is_empty = board(row, col) == E;
+    const bool was_relevant = relevancy > 0 && is_empty;
+
+    relevancy += modify;
+
+    const bool is_relevant = relevancy > 0 && is_empty;
+
+    if (!is_relevant)
+    {
+        _relevant_cells[row].erase(col);
+    }
+    else if (is_relevant)
+    {
+        _relevant_cells[row].insert(col);
     }
 }
 
