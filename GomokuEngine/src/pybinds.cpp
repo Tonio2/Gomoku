@@ -46,8 +46,7 @@ PYBIND11_MODULE(pygomoku, m)
     /** Utils */
     m.def("char_to_coordinate", &char_to_coordinate);
     m.def("coordinate_to_char", &coordinate_to_char);
-    m.def("getBestMoveIndexV2", static_cast<int (*)(const AI::MinMaxV2::MoveEvaluation&, bool)>(&getBestMoveIndexV2));
-    m.def("getBestMoveIndexV3", static_cast<int (*)(const AI::MinMaxV3::MoveEvaluation&, bool)>(&getBestMoveIndexV3));
+    m.def("getBestMoveIndex", &getBestMoveIndex);
 
     /** Ai */
     py::class_<AI::Move>(m, "AiMove")

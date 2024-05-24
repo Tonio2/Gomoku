@@ -1,5 +1,6 @@
 
 #include "utils/gomoku_utilities.h"
+#include "ai/gomoku_ai_interface.h"
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -127,7 +128,7 @@ int get_depth_from_env(int default_depth)
     return default_depth;
 }
 
-using AI::MinMaxV2::MoveEvaluation;
+using AI::MoveEvaluation;
 
 void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, std::vector<std::vector<std::string>> &csvData, int depth, int i)
 {
@@ -251,38 +252,7 @@ void logTooManyEvaluationsList(const MoveEvaluation &eval)
     out.close();
 }
 
-int getBestMoveIndexV2(const MoveEvaluation &eval, bool maximizingPlayer)
-{
-    int bestScore = std::numeric_limits<int>::min();
-    int worstScore = std::numeric_limits<int>::max();
-    int bestIndex = -1;
-
-    for (size_t i = 0; i < eval.listMoves.size(); i++)
-    {
-        const auto &move = eval.listMoves[i];
-        if (maximizingPlayer)
-        {
-            if (move.score > bestScore || bestIndex == -1)
-            {
-                bestScore = move.score;
-                bestIndex = static_cast<int>(i);
-            }
-        }
-        else
-        {
-            if (move.score < worstScore || bestIndex == -1)
-            {
-                worstScore = move.score;
-                bestIndex = static_cast<int>(i);
-            }
-        }
-    }
-
-    return bestIndex;
-}
-
-
-int getBestMoveIndexV3(const MoveEvaluation &eval, bool maximizingPlayer)
+int getBestMoveIndex(const MoveEvaluation &eval, bool maximizingPlayer)
 {
     int bestScore = std::numeric_limits<int>::min();
     int worstScore = std::numeric_limits<int>::max();
@@ -314,7 +284,7 @@ int getBestMoveIndexV3(const MoveEvaluation &eval, bool maximizingPlayer)
 
 std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlayer)
 {
-    int bestIndex = getBestMoveIndexV2(eval, maximizingPlayer);
+    int bestIndex = getBestMoveIndex(eval, maximizingPlayer);
     if (bestIndex == -1)
         return std::make_pair(-1, -1);
     return eval.listMoves[bestIndex].move;
@@ -322,7 +292,7 @@ std::pair<int, int> getBestMove(const MoveEvaluation &eval, bool maximizingPlaye
 
 MoveEvaluation &getBestMoveEvaluation(MoveEvaluation &eval, bool maximizingPlayer)
 {
-    return eval.listMoves[getBestMoveIndexV2(eval, maximizingPlayer)];
+    return eval.listMoves[getBestMoveIndex(eval, maximizingPlayer)];
 }
 
 std::ostream &operator<<(std::ostream &stream, std::vector<std::string> moves)

@@ -32,7 +32,7 @@ std::vector<Move> GomokuAI::suggest_move_sequence(const GomokuGame &board)
     MoveEvaluation *currentMove = &result;
     while (currentMove->listMoves.size() > 0)
     {
-        int bestIndex = getBestMoveIndexV3(*currentMove, maximizing);
+        int bestIndex = getBestMoveIndex(*currentMove, maximizing);
         currentMove = &currentMove->listMoves[bestIndex];
         moves.push_back(Move(currentMove->move.first, currentMove->move.second));
         maximizing = !maximizing;
