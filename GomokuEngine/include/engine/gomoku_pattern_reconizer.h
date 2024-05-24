@@ -3,9 +3,9 @@
 
 #include "gomoku_engine_types.h"
 #include "matrix/Matrix.hpp"
-#include <map>
-#include <set>
 #include <functional>
+#include <unordered_map>
+#include <unordered_set>
 
 class GomokuGame;
 
@@ -184,7 +184,7 @@ private:
 
     Player _gomoku_player;
     std::vector<Matrix<PatternCellData>> _cell_matrices;
-    std::vector<std::map<int, std::set<int>>> _structure_maps;
+    std::vector<std::unordered_map<int, std::unordered_set<int>>> _structure_maps;
     std::vector<int> _cached_pattern_count;
     bool _tagging_mode;
 };
