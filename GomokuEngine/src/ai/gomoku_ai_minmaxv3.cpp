@@ -3,7 +3,7 @@
 #include <limits>
 #include <utility>
 #include <random>
-
+#include <chrono>
 #include "utils/gomoku_utilities.h"
 
 namespace AI::MinMaxV3
@@ -11,10 +11,13 @@ namespace AI::MinMaxV3
 
 Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
 {
+    auto time = std::chrono::system_clock::now().time_since_epoch();
     MoveEvaluation result = suggest_move_evaluation(board);
+    auto time2 = std::chrono::system_clock::now().time_since_epoch();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time).count();
 #ifdef LOGGING
     std::string filename = "/tmp/evals/" + std::to_string(currentMove) + ".txt";
-    logMoveEvaluation(result, filename);
+    logMoveEvaluation(result, filename, duration);
 #endif
     auto [row, col] = getBestMove(result);
     return Move(row, col);

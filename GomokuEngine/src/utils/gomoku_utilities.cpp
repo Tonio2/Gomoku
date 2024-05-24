@@ -173,7 +173,7 @@ void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, std::vec
     }
 }
 
-void logMoveEvaluation(const MoveEvaluation &eval, std::string filename)
+void logMoveEvaluation(const MoveEvaluation &eval, std::string filename, int64_t duration)
 {
     std::ofstream out(filename);
     if (!out.is_open())
@@ -185,6 +185,8 @@ void logMoveEvaluation(const MoveEvaluation &eval, std::string filename)
     // new filename with csv instead of txt
 
     std::vector<std::vector<std::string>> csvData(get_depth_from_env(), std::vector<std::string>());
+
+    out << "Duration: " << duration << " ms\n";
 
     writeMoveEvaluation(out, eval, csvData);
     out.close();

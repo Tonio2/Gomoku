@@ -19,7 +19,7 @@ int get_depth_from_env(int default_depth = 3);
 
 void writeMoveEvaluation(std::ostream &out, const AI::MoveEvaluation &eval, std::vector<std::vector<std::string>> &csvData, int depth = 0, int i = -1);
 
-void logMoveEvaluation(const AI::MoveEvaluation &eval, std::string filename);
+void logMoveEvaluation(const AI::MoveEvaluation &eval, std::string filename, int64_t duration = 0);
 void writeSurplusEvaluation(std::ofstream &out, const AI::MoveEvaluation &eval, int depth = 0);
 void logTooManyEvaluationsList(const AI::MoveEvaluation &eval);
 int getBestMoveIndex(const AI::MoveEvaluation &eval, bool maximizingPlayer = true);
