@@ -1,11 +1,11 @@
 
-#include "engine/gomoku_engine.h"
+#include "ai/gomoku_ai_data.h"
 #include "ai/gomoku_ai_minmaxv2.h"
 #include "arena/arena.h"
+#include "engine/gomoku_engine.h"
 #include "room/game_room.h"
 #include "utils/gomoku_utilities.h"
 #include <fstream>
-#include "ai/gomoku_ai_data.h"
 
 void test_problems()
 {
@@ -300,8 +300,30 @@ void test_line(const std::string &line)
     }
 }
 
-void clearLastNLines(int n) {
-    for (int i = 0; i < n; ++i) {
+void test_board(const std::string &line)
+{
+    GomokuGame game(10, 10);
+
+    std::vector<std::string> moves = split(line, ',');
+    apply_moves(game, moves);
+
+    // Display the board
+    std::cout << to_string(game, true, -1);
+    std::cout << to_string(game, true, -2);
+    auto bounds = game.get_played_bounds();
+    std::cout << "Played bounds:"
+              << "row[" << int(bounds.first.row) << "-" << int(bounds.second.row) << "]"
+              << "col[" << int(bounds.first.col) << "-" << int(bounds.second.col) << "]"
+              << std::endl;
+
+    // Display patterns
+    game.print_patterns();
+}
+
+void clearLastNLines(int n)
+{
+    for (int i = 0; i < n; ++i)
+    {
         // Move cursor up one line
         std::cout << "\033[A";
         // Clear the line
@@ -351,6 +373,11 @@ int main(int argc, char *argv[])
     {
         std::string moves_string = std::string(argv[2]);
         test_eval(moves_string);
+    }
+    else if (arg1 == "board")
+    {
+        std::string line = std::string(argv[2]);
+        test_board(line);
     }
     else if (arg1 == "line")
     {

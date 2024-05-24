@@ -1,8 +1,8 @@
 
 #include "utils/gomoku_utilities.h"
-#include <sstream>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
 
 int char_to_coordinate(char coordinate)
 {
@@ -29,10 +29,12 @@ std::string to_string(const GomokuGame &game, bool with_coordinates, int distanc
 {
     std::stringstream ss;
 
-    auto print_at = [&ss, &game, distance](int row, int col)
+    const CellSet &relevant_cells = game.get_relevant_cells();
+
+    auto print_at = [&ss, &game, distance, &relevant_cells](int row, int col)
     {
         Player value = game.get_board_value(row, col);
-        if (value == E && distance >= 0)
+        if (distance > 0)
         {
             StructureType black_struct = game.get_pattern_reconizer(X)
                                              .highest_structure_around(GomokuCellIndex(row, col), distance);
@@ -43,9 +45,20 @@ std::string to_string(const GomokuGame &game, bool with_coordinates, int distanc
             else
                 ss << ".";
         }
-        else
+        else if (distance == 0)
         {
             ss << value;
+        }
+        else if (distance == -1)
+        {
+            if (cell_set_contains(relevant_cells, row, col))
+                ss << "*";
+            else
+                ss << value;
+        }
+        else if (distance == -2)
+        {
+            ss << static_cast<int>(game.get_cell_relevancy(row, col));
         }
     };
 

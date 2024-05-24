@@ -73,6 +73,8 @@ GomokuGame::GomokuGame(uint width, uint height, bool capture_enabled)
     : board(width, height),
       _min_played(width, height),
       _max_played(0, 0),
+      _relevancy_matrix(width, height),
+      _relevant_cells({}),
       empty_cells(width * height),
       current_player(X),
       players_scores({0, 0, 0}),
@@ -93,6 +95,8 @@ GomokuGame::GomokuGame(const GomokuGame &copy)
     : board(copy.board),
       _min_played(copy._min_played),
       _max_played(copy._max_played),
+      _relevancy_matrix(copy._relevancy_matrix),
+      _relevant_cells(copy._relevant_cells),
       empty_cells(copy.empty_cells),
       current_player(copy.current_player),
       players_scores(copy.players_scores),
@@ -110,6 +114,8 @@ GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
         board = copy.board;
         _min_played = copy._min_played;
         _max_played = copy._max_played;
+        _relevancy_matrix = copy._relevancy_matrix;
+        _relevant_cells = copy._relevant_cells;
         empty_cells = copy.empty_cells;
         current_player = copy.current_player;
         players_scores = copy.players_scores;
@@ -130,6 +136,9 @@ Player GomokuGame::get_board_value(int row, int col) const
 
 CellChange GomokuGame::set_board_value(int row, int col, Player value)
 {
+    assert(coordinates_are_valid(row, col));
+    assert(board(row, col) != value);
+
     CellChange cell_change;
 
     cell_change.row = row;
@@ -142,6 +151,7 @@ CellChange GomokuGame::set_board_value(int row, int col, Player value)
     // Assume that if the value is E, then the cell was occupied before because there is no situation in which you would empty an empty cell
     // and if the value is not E, then the cell was not occupied because you cannot turn a stone into another stone in Gomoku.
     empty_cells += (value == E) ? 1 : -1;
+    update_relevancy(row, col, value == E);
 
     return cell_change;
 }
@@ -175,6 +185,16 @@ std::pair<GomokuCellIndex, GomokuCellIndex> GomokuGame::get_played_bounds(int ma
 bool GomokuGame::has_player_bounds() const
 {
     return _min_played.row <= _max_played.row && _min_played.col <= _max_played.col;
+}
+
+const CellSet &GomokuGame::get_relevant_cells() const
+{
+    return _relevant_cells;
+}
+
+int8_t GomokuGame::get_cell_relevancy(int row, int col) const
+{
+    return _relevancy_matrix(row, col);
 }
 
 const GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player) const
@@ -340,6 +360,96 @@ void GomokuGame::reapply_move(const MoveResult &move)
         _max_played.col = col;
 }
 
+void GomokuGame::update_relevancy(int8_t row, int8_t col, bool is_new_empty_cell)
+{
+    // Left to right
+    update_relevancy_direction(row, col - RELEVANCY_LENGTH, 0, 1, is_new_empty_cell);
+    // Up to down
+    update_relevancy_direction(row - RELEVANCY_LENGTH, col, 1, 0, is_new_empty_cell);
+    // UpLeft to DownRight
+    update_relevancy_direction(row - RELEVANCY_LENGTH, col - RELEVANCY_LENGTH, 1, 1, is_new_empty_cell);
+    // UpRight to DownLeft
+    update_relevancy_direction(row - RELEVANCY_LENGTH, col + RELEVANCY_LENGTH, 1, -1, is_new_empty_cell);
+}
+
+static void clamp_to_board(int8_t &row, int8_t &col, int8_t &end,
+                           int8_t row_dir, int8_t col_dir,
+                           int8_t width, int8_t height);
+
+void GomokuGame::update_relevancy_direction(int8_t row, int8_t col, int8_t row_dir, int8_t col_dir, bool is_new_empty_cell)
+{
+    int8_t ir = row;
+    int8_t ic = col;
+    int8_t end = 2 * RELEVANCY_LENGTH;
+
+    // clamp_to_board(ir, ic, end,
+    //                row_dir, col_dir,
+    //                board.get_width(), board.get_height());
+
+    for (int8_t i = 0; i <= end; ++i)
+    {
+        if (board.is_in_bound(ir, ic))
+        {
+            int8_t &relevancy = _relevancy_matrix(ir, ic);
+            const bool is_empty = board(ir, ic) == E;
+            const bool was_relevant = relevancy > 0 && is_empty;
+
+            relevancy += is_new_empty_cell ? -1 : 1;
+
+            const bool is_relevant = relevancy > 0 && is_empty;
+
+            if (!is_relevant)
+            {
+                _relevant_cells[ir].erase(ic);
+            }
+            else if (is_relevant)
+            {
+                _relevant_cells[ir].insert(ic);
+            }
+        }
+
+        ir += row_dir;
+        ic += col_dir;
+    }
+}
+
+// TODO: Handle edge cases
+static void clamp_to_board(int8_t &row, int8_t &col, int8_t &end,
+                           int8_t row_dir, int8_t col_dir,
+                           int8_t width, int8_t height)
+{
+    if (row < 0)
+    {
+        const int8_t offset = -row;
+        end -= offset;
+        row += offset * row_dir;
+        col += offset * col_dir;
+    }
+    const int8_t row_end = row + end * row_dir;
+    if (row_end >= height)
+    {
+        const int8_t offset = height - 1 - row_end;
+        end += offset;
+        row += offset * row_dir;
+        col += offset * col_dir;
+    }
+    if (col < 0)
+    {
+        const int8_t offset = -col;
+        end -= offset;
+        row += offset * row_dir;
+        col += offset * col_dir;
+    }
+    const int8_t col_end = col + end * col_dir;
+    if (col_end >= width)
+    {
+        const int8_t offset = width - 1 - col_end;
+        end += offset;
+        row += offset * row_dir;
+        col += offset * col_dir;
+    }
+}
+
 bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result)
 {
     const Player otherPlayer = other_player(player);
@@ -453,4 +563,12 @@ Player GomokuGame::get_current_player() const
 int GomokuGame::get_player_score(Player player) const
 {
     return players_scores[player];
+}
+
+bool cell_set_contains(const CellSet &cell_set, int row, int col)
+{
+    auto row_it = cell_set.find(row);
+    if (row_it == cell_set.end())
+        return false;
+    return row_it->second.find(col) != row_it->second.end();
 }
