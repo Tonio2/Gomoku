@@ -73,7 +73,7 @@ GomokuGame::GomokuGame(uint width, uint height, bool capture_enabled)
     : board(width, height),
       _min_played(width, height),
       _max_played(0, 0),
-      _relevancy_matrix(width, height),
+      _relevancy_matrix(width + 4, height + 4),
       _relevant_cells({}),
       empty_cells(width * height),
       current_player(X),
@@ -134,7 +134,7 @@ Player GomokuGame::get_board_value(int row, int col) const
     return board(row, col);
 }
 
-CellChange GomokuGame::set_board_value(int row, int col, Player value)
+CellChange GomokuGame::set_board_value(int row, int col, Player value, bool updateRelevancyMatrix)
 {
     assert(coordinates_are_valid(row, col));
     assert(board(row, col) != value);
@@ -151,7 +151,8 @@ CellChange GomokuGame::set_board_value(int row, int col, Player value)
     // Assume that if the value is E, then the cell was occupied before because there is no situation in which you would empty an empty cell
     // and if the value is not E, then the cell was not occupied because you cannot turn a stone into another stone in Gomoku.
     empty_cells += (value == E) ? 1 : -1;
-    update_relevancy(row, col, value == E);
+    if (updateRelevancyMatrix) 
+        update_relevancy(row, col, value == E);
 
     return cell_change;
 }
@@ -184,7 +185,7 @@ std::pair<GomokuCellIndex, GomokuCellIndex> GomokuGame::get_played_bounds(int ma
 
 bool GomokuGame::has_player_bounds() const
 {
-    return _min_played.row <= _max_played.row && _min_played.col <= _max_played.col;
+    return empty_cells < get_board_width() * get_board_height();
 }
 
 const CellSet &GomokuGame::get_relevant_cells() const
@@ -194,7 +195,7 @@ const CellSet &GomokuGame::get_relevant_cells() const
 
 int8_t GomokuGame::get_cell_relevancy(int row, int col) const
 {
-    return _relevancy_matrix(row, col);
+    return _relevancy_matrix(row + 2, col + 2);
 }
 
 const GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player) const
@@ -244,7 +245,7 @@ bool GomokuGame::pattern_coordinate_is_valid(const PatternCellIndex &index) cons
     return coordinates_are_valid(index.row - 1, index.col - 1);
 }
 
-MoveResult GomokuGame::make_move(int row, int col)
+MoveResult GomokuGame::make_move(int row, int col, bool updateRelevancyMatrix)
 {
     TIMER
     MoveResult move_result;
@@ -265,13 +266,13 @@ MoveResult GomokuGame::make_move(int row, int col)
         throw std::invalid_argument("Cell is already occupied");
     }
 
-    const CellChange cell_change = set_board_value(row, col, current_player);
+    const CellChange cell_change = set_board_value(row, col, current_player, updateRelevancyMatrix);
     move_result.cell_changes.push_back(cell_change);
 
     bool captured = false;
 
     if (_capture_enabled)
-        captured = capture(row, col, current_player, move_result);
+        captured = capture(row, col, current_player, move_result, updateRelevancyMatrix);
 
     move_result.black_score_change = get_player_score(X) - old_black_score;
     move_result.white_score_change = get_player_score(O) - old_white_score;
@@ -285,7 +286,7 @@ MoveResult GomokuGame::make_move(int row, int col)
         if (new_open_three_count - old_open_three_count > 1)
         {
             Player p = current_player;
-            reverse_move(move_result);
+            reverse_move(move_result, updateRelevancyMatrix);
             current_player = p;
             throw std::invalid_argument("Invalid move: more than one open three");
         }
@@ -307,7 +308,7 @@ MoveResult GomokuGame::make_move(int row, int col)
     return move_result;
 }
 
-void GomokuGame::reverse_move(const MoveResult &move)
+void GomokuGame::reverse_move(const MoveResult &move, bool updateRelevancyMatrix)
 {
     TIMER
     modify_player_score(X, -move.black_score_change);
@@ -317,7 +318,7 @@ void GomokuGame::reverse_move(const MoveResult &move)
 
     for (const CellChange &cell_change : move.cell_changes)
     {
-        set_board_value(cell_change.row, cell_change.col, cell_change.old_value);
+        set_board_value(cell_change.row, cell_change.col, cell_change.old_value, updateRelevancyMatrix);
     }
 
     players_reconizers[X].update_patterns_with_move(*this, move);
@@ -360,155 +361,25 @@ void GomokuGame::reapply_move(const MoveResult &move)
         _max_played.col = col;
 }
 
+static const std::vector<std::pair<int, int>> _directions_offsets = {
+    {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+
 void GomokuGame::update_relevancy(int8_t row, int8_t col, bool is_new_empty_cell)
 {
     int8_t modify = is_new_empty_cell ? -1 : 1;
-    update_relevancy_lefttoright(row, col, modify);
-    update_relevancy_uptodown(row, col, modify);
-    update_relevancy_uplefttodownright(row, col, modify);
-    update_relevancy_uprighttodownleft(row, col, modify);
-}
-
-void GomokuGame::update_relevancy_lefttoright(int8_t row, int8_t col, int8_t modify)
-{
-    int8_t col_start = col - RELEVANCY_LENGTH;
-    int8_t end = 2 * RELEVANCY_LENGTH;
-
-    if (col_start < 0)
+    for (const auto &dir : _directions_offsets)
     {
-        end += col_start;
-        col_start = 0;
-    }
-    if (col_start + end >= board.get_width())
-    {
-        const int8_t offset = (col_start + end) - (board.get_width() - 1);
-        end -= offset;
-    }
+        for (int step = 1; step <= 2; ++step)
+        {
+            int newRow = row + step * dir.first;
+            int newCol = col + step * dir.second;
 
-    for (int8_t i = 0; i <= end; ++i)
-    {
-        modify_cell_relevancy(row, col_start + i, modify);
+            _relevancy_matrix(newRow + 2, newCol + 2) += modify;
+        }
     }
 }
 
-void GomokuGame::update_relevancy_uptodown(int8_t row, int8_t col, int8_t modify)
-{
-    int8_t row_start = row - RELEVANCY_LENGTH;
-    int8_t end = 2 * RELEVANCY_LENGTH;
-
-    if (row_start < 0)
-    {
-        end += row_start;
-        row_start = 0;
-    }
-    if (row_start + end >= board.get_height())
-    {
-        const int8_t offset = (row_start + end) - (board.get_height() - 1);
-        end -= offset;
-    }
-
-    for (int8_t i = 0; i <= end; ++i)
-    {
-        modify_cell_relevancy(row_start + i, col, modify);
-    }
-}
-
-void GomokuGame::update_relevancy_uplefttodownright(int8_t row, int8_t col, int8_t modify)
-{
-    int8_t row_start = row - RELEVANCY_LENGTH;
-    int8_t col_start = col - RELEVANCY_LENGTH;
-    int8_t end = 2 * RELEVANCY_LENGTH;
-
-    if (row_start < 0)
-    {
-        const int8_t offset = -row_start;
-        end -= offset;
-        row_start += offset;
-        col_start += offset;
-    }
-    if (row_start + end >= board.get_height())
-    {
-        const int8_t offset = (row_start + end) - (board.get_height() - 1);
-        end -= offset;
-    }
-    if (col_start < 0)
-    {
-        const int8_t offset = -col_start;
-        end -= offset;
-        row_start += offset;
-        col_start += offset;
-    }
-    if (col_start + end >= board.get_width())
-    {
-        const int8_t offset = (col_start + end) - (board.get_width() - 1);
-        end -= offset;
-    }
-
-    for (int8_t i = 0; i <= end; ++i)
-    {
-        modify_cell_relevancy(row_start + i, col_start + i, modify);
-    }
-}
-
-void GomokuGame::update_relevancy_uprighttodownleft(int8_t row, int8_t col, int8_t modify)
-{
-    int8_t row_start = row - RELEVANCY_LENGTH;
-    int8_t col_start = col + RELEVANCY_LENGTH;
-    int8_t end = 2 * RELEVANCY_LENGTH;
-
-    if (row_start < 0)
-    {
-        const int8_t offset = -row_start;
-        end -= offset;
-        row_start += offset;
-        col_start -= offset;
-    }
-    if (row_start + end >= board.get_height())
-    {
-        const int8_t offset = (row_start + end) - (board.get_height() - 1);
-        end -= offset;
-    }
-    if (col_start >= board.get_width())
-    {
-        const int8_t offset = col_start - (board.get_width() - 1);
-        end -= offset;
-        row_start += offset;
-        col_start -= offset;
-    }
-    if (col_start - end < 0)
-    {
-        // const int8_t offset = -(col_start - end);
-        // end -= offset;
-        end = col_start;
-    }
-
-    for (int8_t i = 0; i <= end; ++i)
-    {
-        modify_cell_relevancy(row_start + i, col_start - i, modify);
-    }
-}
-
-void GomokuGame::modify_cell_relevancy(int8_t row, int8_t col, int8_t modify)
-{
-    int8_t &relevancy = _relevancy_matrix(row, col);
-    const bool is_empty = board(row, col) == E;
-    const bool was_relevant = relevancy > 0 && is_empty;
-
-    relevancy += modify;
-
-    const bool is_relevant = relevancy > 0 && is_empty;
-
-    if (!is_relevant)
-    {
-        _relevant_cells[row].erase(col);
-    }
-    else if (is_relevant)
-    {
-        _relevant_cells[row].insert(col);
-    }
-}
-
-bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result)
+bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result, bool updateRelevancyMatrix)
 {
     const Player otherPlayer = other_player(player);
 
@@ -523,41 +394,41 @@ bool GomokuGame::try_direction_for_capture(int row, int col, int row_dir, int co
         return false;
 
     move_result.cell_changes.push_back(
-        set_board_value(row + row_dir, col + col_dir, E));
+        set_board_value(row + row_dir, col + col_dir, E, updateRelevancyMatrix));
 
     move_result.cell_changes.push_back(
-        set_board_value(row + 2 * row_dir, col + 2 * col_dir, E));
+        set_board_value(row + 2 * row_dir, col + 2 * col_dir, E, updateRelevancyMatrix));
 
     modify_player_score(player, 2);
     return true;
 }
 
-bool GomokuGame::capture(int row, int col, Player player, MoveResult &move_result)
+bool GomokuGame::capture(int row, int col, Player player, MoveResult &move_result, bool updateRelevancyMatrix)
 {
     bool ret = false;
     if (row < board.get_height() - 3)
     {
-        ret |= try_direction_for_capture(row, col, 1, 0, player, move_result);
+        ret |= try_direction_for_capture(row, col, 1, 0, player, move_result, updateRelevancyMatrix);
         if (col < board.get_width() - 3)
-            ret |= try_direction_for_capture(row, col, 1, 1, player, move_result);
+            ret |= try_direction_for_capture(row, col, 1, 1, player, move_result, updateRelevancyMatrix);
     }
     if (row > 2)
     {
-        ret |= try_direction_for_capture(row, col, -1, 0, player, move_result);
+        ret |= try_direction_for_capture(row, col, -1, 0, player, move_result, updateRelevancyMatrix);
         if (col > 2)
-            ret |= try_direction_for_capture(row, col, -1, -1, player, move_result);
+            ret |= try_direction_for_capture(row, col, -1, -1, player, move_result, updateRelevancyMatrix);
     }
     if (col < board.get_width() - 3)
     {
-        ret |= try_direction_for_capture(row, col, 0, 1, player, move_result);
+        ret |= try_direction_for_capture(row, col, 0, 1, player, move_result, updateRelevancyMatrix);
         if (row > 2)
-            ret |= try_direction_for_capture(row, col, -1, 1, player, move_result);
+            ret |= try_direction_for_capture(row, col, -1, 1, player, move_result, updateRelevancyMatrix);
     }
     if (col > 2)
     {
-        ret |= try_direction_for_capture(row, col, 0, -1, player, move_result);
+        ret |= try_direction_for_capture(row, col, 0, -1, player, move_result, updateRelevancyMatrix);
         if (row < board.get_height() - 3)
-            ret |= try_direction_for_capture(row, col, 1, -1, player, move_result);
+            ret |= try_direction_for_capture(row, col, 1, -1, player, move_result, updateRelevancyMatrix);
     }
     return ret;
 }

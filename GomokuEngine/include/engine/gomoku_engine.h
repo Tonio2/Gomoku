@@ -30,15 +30,10 @@ private:
 
     /** Relevancy */
     void update_relevancy(int8_t row, int8_t col, bool is_new_empty_cell);
-    void update_relevancy_lefttoright(int8_t row, int8_t col, int8_t modify);
-    void update_relevancy_uptodown(int8_t row, int8_t col, int8_t modify);
-    void update_relevancy_uplefttodownright(int8_t row, int8_t col, int8_t modify);
-    void update_relevancy_uprighttodownleft(int8_t row, int8_t col, int8_t modify);
-    void modify_cell_relevancy(int8_t row, int8_t col, int8_t modify);
 
     /** Capture */
-    bool try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result);
-    bool capture(int row, int col, Player player, MoveResult &move_result);
+    bool try_direction_for_capture(int row, int col, int row_dir, int col_dir, Player player, MoveResult &move_result, bool updateRelevancyMatrix = true);
+    bool capture(int row, int col, Player player, MoveResult &move_result, bool updateRelevancyMatrix = true);
 
     /** Board state */
 
@@ -53,8 +48,8 @@ public:
     virtual ~GomokuGame();
 
     bool is_game_over() const;
-    MoveResult make_move(int row, int col);
-    void reverse_move(const MoveResult &move);
+    MoveResult make_move(int row, int col, bool updateRelevancyMatrix = true);
+    void reverse_move(const MoveResult &move, bool updateRelevancyMatrix = true);
     void reapply_move(const MoveResult &move);
     void check_win(Player player);
     Player get_winner() const;
@@ -68,7 +63,7 @@ public:
     Player other_player(Player player) const;
     Player get_current_player() const;
     int get_player_score(Player player) const;
-    CellChange set_board_value(int row, int col, Player value);
+    CellChange set_board_value(int row, int col, Player value, bool updateRelevancyMatrix = true);
 
     std::pair<GomokuCellIndex, GomokuCellIndex> get_played_bounds(int margin = 0) const;
     bool has_player_bounds() const;
