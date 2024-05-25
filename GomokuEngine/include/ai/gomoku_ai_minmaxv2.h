@@ -17,14 +17,14 @@ namespace AI::MinMaxV2
     struct MoveEvaluation
     {
         std::pair<int, int> move;
-        int score = 0;
+        double score = 0;
         std::vector<MoveEvaluation> listMoves = {};
-
+        double initialScore = 0;
 #ifdef LOGGING
         int neededEvalCount = 1;
         int evaluatedEvalCount = 1;
         int totalEvalCount = 1;
-        int initialScore = 0;
+        
         int killerMoveHasBeenEvaluated = 0;
 #endif
     };
@@ -34,7 +34,7 @@ namespace AI::MinMaxV2
         uint8_t row;
         uint8_t col;
 
-        int score;
+        double score;
 
         bool operator==(const MoveHeuristic &other) const
         {
@@ -59,15 +59,15 @@ namespace AI::MinMaxV2
 
         std::vector<std::pair<int, int>> killer_moves;
 
-        void evaluateNode(const MoveHeuristic &move, int moveId, int _depth, MoveEvaluation &eval, int &alpha, int &beta, bool maximizingPlayer, int &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
+        void evaluateNode(const MoveHeuristic &move, int moveId, int _depth, MoveEvaluation &eval, double &alpha, double &beta, bool maximizingPlayer, double &extremEval, std::pair<int, int> &best_move, bool isFirstMove);
 
-        void minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bool maximizingPlayer, int row, int col);
-        int score_player(Player player);
+        void minimax(MoveEvaluation &eval, int _depth, double alpha, double beta, bool maximizingPlayer, int row, int col);
+        double score_player(Player player);
 
         void find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_moves, int _depth) const;
         bool is_cell_relevant(int row, int col) const;
 
-        int _heuristic_evaluation();
+        double _heuristic_evaluation();
         void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval);
 
     public:

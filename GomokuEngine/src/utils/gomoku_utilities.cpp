@@ -266,8 +266,8 @@ void logTooManyEvaluationsList(const MoveEvaluation &eval)
 
 int getBestMoveIndex(const MoveEvaluation &eval, bool maximizingPlayer)
 {
-    int bestScore = std::numeric_limits<int>::min();
-    int worstScore = std::numeric_limits<int>::max();
+    double bestScore = std::numeric_limits<int>::min();
+    double worstScore = std::numeric_limits<int>::max();
     int bestIndex = -1;
 
     for (size_t i = 0; i < eval.listMoves.size(); i++)
