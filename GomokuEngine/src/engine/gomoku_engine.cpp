@@ -129,11 +129,6 @@ GomokuGame &GomokuGame::operator=(const GomokuGame &copy)
 
 GomokuGame::~GomokuGame() {}
 
-Player GomokuGame::get_board_value(int row, int col) const
-{
-    return board(row, col);
-}
-
 CellChange GomokuGame::set_board_value(int row, int col, Player value, bool updateRelevancyMatrix)
 {
     assert(coordinates_are_valid(row, col));
@@ -193,10 +188,6 @@ const CellSet &GomokuGame::get_relevant_cells() const
     return _relevant_cells;
 }
 
-int8_t GomokuGame::get_cell_relevancy(int row, int col) const
-{
-    return _relevancy_matrix(row + 2, col + 2);
-}
 
 const GomokuPatternReconizer &GomokuGame::get_pattern_reconizer(Player player) const
 {
@@ -367,14 +358,18 @@ static const std::vector<std::pair<int, int>> _directions_offsets = {
 void GomokuGame::update_relevancy(int8_t row, int8_t col, bool is_new_empty_cell)
 {
     int8_t modify = is_new_empty_cell ? -1 : 1;
+    int baseRow = row + 2;
+    int baseCol = col + 2;
     for (const auto &dir : _directions_offsets)
     {
+        int dirFirst = dir.first;
+        int dirSecond = dir.second;
         for (int step = 1; step <= 2; ++step)
         {
-            int newRow = row + step * dir.first;
-            int newCol = col + step * dir.second;
+            int newRow = baseRow + step * dirFirst;
+            int newCol = baseCol + step * dirSecond;
 
-            _relevancy_matrix(newRow + 2, newCol + 2) += modify;
+            _relevancy_matrix(newRow, newCol) += modify;
         }
     }
 }
