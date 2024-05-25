@@ -188,10 +188,12 @@ const std::vector<int> &GomokuGame::get_patterns_count(Player player)
     return players_reconizers[player].get_pattern_count();
 }
 
-void GomokuGame::print_patterns()
+void GomokuGame::print_patterns(std::ofstream &out)
 {
-    players_reconizers[X].print_patterns();
-    players_reconizers[O].print_patterns();
+    out << get_player_score(X) << ",";
+    players_reconizers[X].print_patterns(out);
+    out << get_player_score(O) << ",";
+    players_reconizers[O].print_patterns(out);
 }
 
 std::vector<std::vector<int>> GomokuGame::get_board() const

@@ -10,9 +10,11 @@ def read_csv_files(directory):
     # pdb.set_trace()
     for filename in os.listdir(directory):
         if filename.endswith('.csv'):
-            filepath = os.path.join(directory, filename)
-            df = pd.read_csv(filepath, header=None)
-            data.append(df)
+            # Check if filename is an odd number
+            if int(filename.split('.')[0]) % 2 == 1:
+                filepath = os.path.join(directory, filename)
+                df = pd.read_csv(filepath, header=None)
+                data.append(df)
     return data
 
 # Function to process data and calculate percentages

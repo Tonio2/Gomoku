@@ -3,6 +3,8 @@
 
 #include "gomoku_ai_interface.h"
 #include "gomoku_ai_data.h"
+#include <iostream>
+#include <fstream>
 
 namespace AI::MinMaxV3
 {
@@ -21,6 +23,7 @@ namespace AI::MinMaxV3
         Player ai_player;
         Player human_player;
         GomokuAIData evaluation_data; // heuristic evaluation data
+        std::vector<DataPoint> data_points;
 
         std::vector<std::pair<int, int>> killer_moves;
 
@@ -35,9 +38,10 @@ namespace AI::MinMaxV3
         int _heuristic_evaluation();
         void sortMoves(std::vector<MoveHeuristic> &moves, bool maximizingPlayer, MoveEvaluation &eval);
 
+        std::pair<int, int> findMinMaxY(int targetX);
     public:
         GomokuAI(const GomokuAiSettings &settings);
-        MoveEvaluation suggest_move_evaluation(const GomokuGame &board);
+        MoveEvaluation suggest_move_evaluation(const GomokuGame &board, std::ofstream &out);
 
         const GomokuAIData &get_evaluation_data() const;
 

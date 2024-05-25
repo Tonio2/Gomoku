@@ -8,6 +8,11 @@ namespace AI
 
     using Move = Matrix<Player>::Index;
 
+    struct DataPoint {
+        int initial_score;
+        int score;
+    };
+
     struct GomokuAiSettings
     {
         int depth = 4;

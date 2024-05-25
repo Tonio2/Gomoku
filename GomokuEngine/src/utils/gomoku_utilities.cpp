@@ -225,6 +225,12 @@ void logMoveEvaluation(const MoveEvaluation &eval, std::string filename, int64_t
     csvOut.close();
 }
 
+void logNewDataPoint(const int initial_score, const int score, std::ofstream &out)
+{
+    out << initial_score << "," << score << "\n";
+}
+
+
 void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth)
 {
     if (depth == get_depth_from_env())

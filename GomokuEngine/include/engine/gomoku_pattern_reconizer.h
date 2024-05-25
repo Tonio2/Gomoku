@@ -125,7 +125,7 @@ public:
 
     void update_patterns_with_move(const GomokuGame &board, const MoveResult &Count_move);
 
-    void print_patterns();
+    void print_patterns(std::ofstream &out);
 
     const std::vector<int> &get_pattern_count() const;
 

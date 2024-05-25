@@ -129,12 +129,22 @@ CREATE_AI_FUNC(cpu4_d6, 6, 2, ai_data_cpu4)
 
 AI::IGomokuAI *create_test_ai()
 {
-    return new AI::MinMaxV3::GomokuAI({6, 2, ai_data_default});
+    return new AI::MinMaxV3::GomokuAI({3, 2, ai_data_default});
 }
 
-AI::IGomokuAI *create_test_ai_d7()
+AI::IGomokuAI *create_test_d4_ai()
 {
-    return new AI::MinMaxV3::GomokuAI({7, 2, ai_data_default});
+    return new AI::MinMaxV3::GomokuAI({4, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_test_d5_ai()
+{
+    return new AI::MinMaxV3::GomokuAI({5, 2, ai_data_default});
+}
+
+AI::IGomokuAI *create_test_d6_ai()
+{
+    return new AI::MinMaxV3::GomokuAI({6, 2, ai_data_default});
 }
 
 static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>>>
@@ -160,7 +170,9 @@ static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>
         {"cpu4_d5", create_cpu4_d5_ai},
         {"cpu4_d6", create_cpu4_d6_ai},
         {"test", create_test_ai},
-        {"test_d7", create_test_ai_d7},
+        {"test_d4", create_test_d4_ai},
+        {"test_d5", create_test_d5_ai},
+        {"test_d6", create_test_d6_ai},
 };
 
 static const std::vector<std::string> ai_names = []

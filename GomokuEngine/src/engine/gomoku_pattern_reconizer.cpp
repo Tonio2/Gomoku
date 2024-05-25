@@ -304,23 +304,28 @@ void GomokuPatternReconizer::update_patterns_with_move(const GomokuGame &board, 
     }
 }
 
-void GomokuPatternReconizer::print_patterns()
+void GomokuPatternReconizer::print_patterns(std::ofstream &out)
 {
-    std::cout << "Pattern(" << _gomoku_player << "):" << std::endl;
+    // std::cout << "Pattern(" << _gomoku_player << "):" << std::endl;
 
-    std::cout << " Tagged:" << std::endl;
-    for_each_tagged_structures(
-        [](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
-        {
-            std::cout << "  " << direction << " " << data << " [" << int(index.row) << ';' << int(index.col) << "]" << std::endl;
-        });
+    // std::cout << " Tagged:" << std::endl;
+    // for_each_tagged_structures(
+    //     [](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
+    //     {
+    //         std::cout << "  " << direction << " " << data << " [" << int(index.row) << ';' << int(index.col) << "]" << std::endl;
+    //     });
 
-    std::cout << " Cached: {";
+    // std::cout << " Cached: {";
+    // for (size_t i = 0; i < _cached_pattern_count.size(); i++)
+    // {
+    //     std::cout << StructureType(i) << ':' << _cached_pattern_count[i] << (i == _cached_pattern_count.size() - 1 ? "" : ",");
+    // }
+    // std::cout << "}" << std::endl;
+
     for (size_t i = 0; i < _cached_pattern_count.size(); i++)
     {
-        std::cout << StructureType(i) << ':' << _cached_pattern_count[i] << (i == _cached_pattern_count.size() - 1 ? "" : ",");
+        out << _cached_pattern_count[i] << ",";
     }
-    std::cout << "}" << std::endl;
 }
 
 const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const

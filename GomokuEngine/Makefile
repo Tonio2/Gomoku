@@ -18,6 +18,10 @@ ifeq ($(LOGGING),ON)
 	CXXFLAGS += -DLOGGING
 endif
 
+ifeq ($(DATA),ON)
+	CXXFLAGS += -DDATA
+endif
+
 ifeq ($(OS),Windows_NT)
 	detected_OS := Windows
 else

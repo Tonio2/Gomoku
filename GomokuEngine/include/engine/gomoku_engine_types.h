@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 enum Player : uint8_t
 {

@@ -57,6 +57,6 @@ public:
     bool has_player_bounds() const;
     const GomokuPatternReconizer &get_pattern_reconizer(Player player) const;
     const std::vector<int> &get_patterns_count(Player player);
-    void print_patterns();
+    void print_patterns(std::ofstream &out);
     std::vector<std::vector<int>> get_board() const;
 };

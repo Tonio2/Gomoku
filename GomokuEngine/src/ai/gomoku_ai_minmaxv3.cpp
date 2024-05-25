@@ -5,19 +5,26 @@
 #include <random>
 #include <chrono>
 #include "utils/gomoku_utilities.h"
+#include <filesystem>
 
 namespace AI::MinMaxV3
 {
 
 Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
 {
+    std::ofstream out("data_points_default_d6.txt", std::ios::app);
+    out << currentMove << ",";
     auto time = std::chrono::system_clock::now().time_since_epoch();
-    MoveEvaluation result = suggest_move_evaluation(board);
+    MoveEvaluation result = suggest_move_evaluation(board, out);
     auto time2 = std::chrono::system_clock::now().time_since_epoch();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time).count();
 #ifdef LOGGING
     std::string filename = "/tmp/evals/" + std::to_string(currentMove) + ".txt";
     logMoveEvaluation(result, filename, duration);
+    logNewDataPoint(result.initialScore, result.score);
+#endif
+#ifdef DATA
+    logNewDataPoint(result.initialScore, result.score, out);
 #endif
     auto [row, col] = getBestMove(result);
     return Move(row, col);
@@ -26,7 +33,8 @@ Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
 std::vector<Move> GomokuAI::suggest_move_sequence(const GomokuGame &board)
 {
     std::vector<Move> moves;
-    MoveEvaluation result = suggest_move_evaluation(board);
+    std::ofstream out("data_points_default_d6.txt", std::ios::app);
+    MoveEvaluation result = suggest_move_evaluation(board, out);
 #ifdef LOGGING
     std::string filename = "/tmp/evals/help.txt";
     logMoveEvaluation(result, filename);
@@ -48,6 +56,19 @@ GomokuAI::GomokuAI(const GomokuAiSettings &settings)
     : game(0, 0), depth(settings.depth), length(settings.length), evaluation_data(settings.data)
 {
     killer_moves = std::vector<std::pair<int, int>>(depth, {-1, -1});
+    // std::ifstream file("data_points_default_d6.txt");
+    // if (file.is_open()) {
+    //     int x, y;
+    //     char comma;
+    //     while (file >> x >> comma >> y) {
+    //         data_points.push_back({x, y});
+    //     }
+    //     file.close();
+    // } else {
+    //     std::cerr << "Unable to open file";
+    //     // Dsiplay current path
+    //     std::cout << std::filesystem::current_path() << std::endl;
+    // }
 }
 
 void sortMovesUtil(std::vector<MoveHeuristic> &moves, bool maximizingPlayer)
@@ -243,7 +264,7 @@ int GomokuAI::score_player(Player player)
         score += patterns_count[i] * evaluation_data.value_of_structure(i);
     }
     score += (patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
-    score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
+    // score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
     score += evaluation_data.value_of_captures(game.get_player_score(player));
     return score;
 }
@@ -258,7 +279,24 @@ int GomokuAI::get_heuristic_evaluation(const GomokuGame &board, Player player)
     return _heuristic_evaluation();
 }
 
-MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)
+std::pair<int, int> GomokuAI::findMinMaxY(int targetX) {
+    int range = targetX * 0.1;
+    int minY = std::numeric_limits<int>::max();
+    int maxY = std::numeric_limits<int>::min();
+
+    for (const auto& point : data_points) {
+        if (std::abs(point.initial_score - targetX) <= range) {
+            if (point.score < minY) minY = point.score;
+            if (point.score > maxY) maxY = point.score;
+        }
+    }
+
+    std::cout << "minY: " << minY << " maxY: " << maxY << std::endl;
+
+    return {minY, maxY};
+}
+
+MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board, std::ofstream &out)
 {
     Timer timer(__FUNCTION__);
 
@@ -268,8 +306,14 @@ MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)
 
     MoveEvaluation result;
     result.initialScore = _heuristic_evaluation();
+    game.print_patterns(out);
+    // std::pair<int, int> minMaxY = findMinMaxY(result.initialScore);
+    // int alpha = minMaxY.first;
+    // int beta = std::min(minMaxY.second, result.initialScore);
+    int alpha = std::numeric_limits<int>::min();
+    int beta = std::numeric_limits<int>::max();
     if (board.has_player_bounds())
-        minimax(result, depth, std::numeric_limits<int>::min(), _heuristic_evaluation(), true, -1, -1);
+        minimax(result, depth, alpha, beta, true, -1, -1);
     else
         result.listMoves.push_back(MoveEvaluation{{game.get_board_height() / 2, game.get_board_width() / 2}, 1});
     return result;

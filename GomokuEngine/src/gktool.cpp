@@ -211,7 +211,7 @@ void test_eval(std::string moves_string)
     std::cout << "Scores: X:" << game.get_player_score(X) << " O:" << game.get_player_score(O) << std::endl;
 
     // Display patterns
-    game.print_patterns();
+    // game.print_patterns();
 
     // Display player's to play next move
     std::cout << "Next move to: " << last_player << std::endl;
@@ -335,6 +335,23 @@ void fight(std::string ai_name1, std::string ai_name2)
     Timer::printAccumulatedTimes();
 }
 
+void extract_data()
+{
+    std::vector<std::string> ai_names = get_ai_names_list();
+    std::string main_ai_name = "test_d6";
+    for (std::string ai_name : ai_names)
+    {
+        std::cout << "Fighting " << main_ai_name << " vs " << ai_name << std::endl;
+        // Check ai_name does not start with test
+        if (ai_name.find("test") == 0)
+        {
+            continue;
+        }
+        fight(main_ai_name, ai_name);
+        std::cout << "---------------------------------" << std::endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     // If no arguments are given, run the test_problems function
@@ -365,6 +382,10 @@ int main(int argc, char *argv[])
     else if (arg1 == "fight")
     {
         fight(argv[2], argv[3]);
+    }
+    else if (arg1 == "data")
+    {
+        extract_data();
     }
     else
     {
