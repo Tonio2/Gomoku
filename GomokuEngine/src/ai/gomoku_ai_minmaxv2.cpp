@@ -274,14 +274,16 @@ void GomokuAI::find_relevant_moves(std::vector<MoveHeuristic> &out_relevant_move
     TIMER
 
     auto [min, max] = game.get_played_bounds(length);
+    out_relevant_moves.reserve((max.row - min.row + 1) * (max.col - min.col + 1));
 
+    const auto &killer_move = killer_moves[depth - _depth];
     for (int row = min.row; row <= max.row; ++row)
     {
         for (int col = min.col; col <= max.col; ++col)
         {
             if (game.get_cell_relevancy(row, col) <= 0 || game.get_board_value(row, col) != E)
                 continue;
-            if (killer_moves[depth - _depth] == std::pair<int, int>(row , col))
+            if (killer_move == std::pair<int, int>(row , col))
                 out_relevant_moves.emplace(out_relevant_moves.begin(), MoveHeuristic{uint8_t(row), uint8_t(col), 0});
             else
                 out_relevant_moves.emplace_back(MoveHeuristic{uint8_t(row), uint8_t(col), 0});

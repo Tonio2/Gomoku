@@ -53,7 +53,7 @@ public:
     void reapply_move(const MoveResult &move);
     void check_win(Player player);
     Player get_winner() const;
-    Player get_board_value(int row, int col) const;
+    inline Player get_board_value(int row, int col) const { return board(row, col); }
 
     int get_board_width() const;
     int get_board_height() const;
@@ -68,7 +68,7 @@ public:
     std::pair<GomokuCellIndex, GomokuCellIndex> get_played_bounds(int margin = 0) const;
     bool has_player_bounds() const;
     const CellSet &get_relevant_cells() const;
-    int8_t get_cell_relevancy(int row, int col) const;
+    inline int8_t get_cell_relevancy(int row, int col) const { return _relevancy_matrix(row + 2, col + 2); }
 
     const GomokuPatternReconizer &get_pattern_reconizer(Player player) const;
     const std::vector<int> &get_patterns_count(Player player);
