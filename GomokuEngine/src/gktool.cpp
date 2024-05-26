@@ -140,7 +140,6 @@ void test_problem(int problem_idx)
     std::cout << to_string(game, true);
     std::cout << "Best move for player " << player << ": " << coordinate_to_char(bestMove.first) << coordinate_to_char(bestMove.second) << std::endl;
     logMoveEvaluation(moveEvalutation, "log.txt");
-    logTooManyEvaluationsList(moveEvalutation);
     Timer::printAccumulatedTimes();
 
     std::vector<int> X_patterns = game.get_patterns_count(X);
