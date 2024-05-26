@@ -251,36 +251,42 @@ void GomokuAI::compute_relevant_moves(std::vector<MoveHeuristic> &out_relevant_m
     auto [min, max] = game.get_played_bounds(length);
     out_relevant_moves.reserve((max.row - min.row + 1) * (max.col - min.col + 1));
 
-    const auto &killer_move = killer_moves[depth - _depth];
-    bool killer_move_inserted = false;
-    for (int row = min.row; row <= max.row; ++row)
+    const auto &k_move = killer_moves[depth - _depth];
+    bool k_move_inserted = false;
+    if (game.get_cell_relevancy(k_move.first, k_move.second) > 0 && game.get_board_value(k_move.first, k_move.second) == E)
     {
-        for (int col = min.col; col <= max.col; ++col)
-        {
-            if (game.get_cell_relevancy(row, col) <= 0 || game.get_board_value(row, col) != E)
-                continue;
+        out_relevant_moves.emplace_back(MoveHeuristic{uint8_t(k_move.first), uint8_t(k_move.second), 0});
+        k_move_inserted = true;
+    }
 
-            if (!killer_move_inserted && killer_move == std::pair<int, int>(row , col))
+    if (!k_move_inserted)
+    {
+        for (int row = min.row; row <= max.row; ++row)
+        {
+            for (int col = min.col; col <= max.col; ++col)
             {
+                if (game.get_cell_relevancy(row, col) <= 0 || game.get_board_value(row, col) != E)
+                    continue;
+
                 out_relevant_moves.emplace_back(MoveHeuristic{uint8_t(row), uint8_t(col), 0});
-                killer_move_inserted = true;
-            }
-            else
-            {
-                out_relevant_moves.emplace_back(MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+                
             }
         }
     }
-
-    // Move the killer move to the front if it was found
-    if (killer_move_inserted)
+    else
     {
-        auto it = std::find_if(out_relevant_moves.begin(), out_relevant_moves.end(), [&](const MoveHeuristic& move) {
-            return move.row == killer_move.first && move.col == killer_move.second;
-        });
-        if (it != out_relevant_moves.begin())
+        for (int row = min.row; row <= max.row; ++row)
         {
-            std::iter_swap(out_relevant_moves.begin(), it);
+            for (int col = min.col; col <= max.col; ++col)
+            {
+                if (game.get_cell_relevancy(row, col) <= 0 || game.get_board_value(row, col) != E)
+                    continue;
+
+                if (k_move != std::pair<int, int>(row , col))
+                {
+                    out_relevant_moves.emplace_back(MoveHeuristic{uint8_t(row), uint8_t(col), 0});
+                }
+            }
         }
     }
 }
