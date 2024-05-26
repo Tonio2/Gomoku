@@ -4,8 +4,11 @@
 #include "gomoku_ai_interface.h"
 #include "gomoku_ai_data.h"
 
-namespace AI::MinMaxV2
+namespace AI::MinMaxV3
 {
+
+    
+
     class GomokuAI : public IGomokuAI
     {
     public:
@@ -43,4 +46,4 @@ namespace AI::MinMaxV2
         std::vector<MoveHeuristic> get_relevant_moves(const GomokuGame &board);
     };
 
-} // namespace AI::MinMaxV2
+} // namespace AI::MinMaxV3

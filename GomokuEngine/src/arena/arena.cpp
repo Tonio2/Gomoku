@@ -14,8 +14,8 @@ Arena::Arena() : _game_width(19), _game_height(19)
 
 void Arena::play(int argc, char *argv[])
 {
-    AI::MinMaxV2::GomokuAIData p1;
-    AI::MinMaxV2::GomokuAIData p2;
+    GomokuAIData p1;
+    GomokuAIData p2;
 
     if (argc > 2)
         p1.load_from_file(argv[2]);
@@ -57,7 +57,7 @@ void Arena::play(int argc, char *argv[])
 
     while (true)
     {
-        AI::MinMaxV2::GomokuAiSettings settings;
+        AI::GomokuAiSettings settings;
         settings.depth = get_depth_from_env();
 
         settings.data = p1;
@@ -74,10 +74,10 @@ void Arena::play(int argc, char *argv[])
 
         auto player_win = [&mutator, &streaker_index, &last_file](
                               std::string winner_name,
-                              AI::MinMaxV2::GomokuAIData &winner_data,
+                              GomokuAIData &winner_data,
                               int &winner_streak,
                               std::string loser_name,
-                              AI::MinMaxV2::GomokuAIData &loser_data,
+                              GomokuAIData &loser_data,
                               int &loser_streak)
         {
             // mutator.decrease_impact();

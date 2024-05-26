@@ -1,4 +1,4 @@
-#include "ai/gomoku_ai_minmaxv2.h"
+#include "ai/gomoku_ai_minmaxv3.h"
 #include <algorithm>
 #include <limits>
 #include <utility>
@@ -6,7 +6,7 @@
 
 #include "utils/gomoku_utilities.h"
 
-namespace AI::MinMaxV2
+namespace AI::MinMaxV3
 {
 
 Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
@@ -328,4 +328,4 @@ const GomokuAIData &GomokuAI::get_evaluation_data() const
     return evaluation_data;
 }
 
-} // namespace AI::MinMaxV2
+} // namespace AI::MinMaxV3

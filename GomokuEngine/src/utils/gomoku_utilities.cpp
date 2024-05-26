@@ -146,7 +146,7 @@ int get_depth_from_env(int default_depth)
     return default_depth;
 }
 
-using AI::MinMaxV2::MoveEvaluation;
+using AI::MoveEvaluation;
 
 void writeMoveEvaluation(std::ostream &out, const MoveEvaluation &eval, std::vector<std::vector<std::string>> &csvData, int depth, int i)
 {
