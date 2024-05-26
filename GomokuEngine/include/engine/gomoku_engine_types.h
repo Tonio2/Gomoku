@@ -41,6 +41,12 @@ enum StructureType : uint8_t
     COUNT_STRUCTURE_TYPE,
 };
 
+enum Pattern : uint8_t
+{
+    FORK = 10,
+    CAPTURE = 11,
+};
+
 bool compare_structure_type(StructureType lhs, StructureType rhs);
 std::ostream &operator<<(std::ostream &stream, StructureType structure_type);
 
