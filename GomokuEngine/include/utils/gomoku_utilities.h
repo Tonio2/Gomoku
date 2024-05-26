@@ -20,10 +20,6 @@ void writeMoveEvaluation(std::ostream &out, const AI::MoveEvaluation &eval, std:
 
 void logMoveEvaluation(const AI::MoveEvaluation &eval, std::string filename);
 
-void writeSurplusEvaluation(std::ofstream &out, const AI::MoveEvaluation &eval, int depth = 0);
-
-void logTooManyEvaluationsList(const AI::MoveEvaluation &eval);
-
 int getBestMoveIndex(const AI::MoveEvaluation &eval, bool maximizingPlayer = true);
 std::pair<int, int> getBestMove(const AI::MoveEvaluation &eval, bool maximizingPlayer = true);
 AI::MoveEvaluation &getBestMoveEvaluation(AI::MoveEvaluation &eval, bool maximizingPlayer = true);
