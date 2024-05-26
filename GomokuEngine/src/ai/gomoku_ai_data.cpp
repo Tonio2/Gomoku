@@ -20,11 +20,8 @@ GomokuAIData::GomokuAIData()
     values[StructureType::THREE] = 500;
     values[StructureType::OPEN_FOUR] = 10000;
     values[StructureType::FOUR] = 1000;
-    values[10] = 9000;
-    values[11] = 9000;
-    values[12] = 10;
-    values[13] = 1;
-    values[14] = 1;
+    values[Pattern::FORK] = 9000;
+    values[Pattern::CAPTURE] = 50;
 }
 
 GomokuAIData::GomokuAIData(const GomokuAIData &copy)
@@ -106,21 +103,12 @@ float GomokuAIData::value_of_structure(int structure_type) const
 
 float GomokuAIData::value_of_multiple_forced() const
 {
-    return values[STC + 0];
-}
-
-float GomokuAIData::value_of_multiple_o4() const
-{
-    return values[STC + 1];
+    return values[Pattern::FORK];
 }
 
 float GomokuAIData::value_of_captures(int capture_count) const
 {
-    const float a = values[STC + 2];
-    const float b = values[STC + 3];
-    const float c = values[STC + 4];
-
-    return a * (capture_count * capture_count) + b * (capture_count) + c;
+    return values[Pattern::CAPTURE] * (capture_count * capture_count);
 }
 
 std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data)

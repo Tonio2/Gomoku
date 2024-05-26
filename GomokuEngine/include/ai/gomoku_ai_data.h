@@ -17,7 +17,6 @@ public:
 
     float value_of_structure(int structure_type) const;
     float value_of_multiple_forced() const;
-    float value_of_multiple_o4() const;
     float value_of_captures(int capture_count) const;
 
     static const int STC = StructureType::COUNT_STRUCTURE_TYPE;
