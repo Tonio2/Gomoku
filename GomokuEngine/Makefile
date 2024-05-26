@@ -4,10 +4,9 @@ export
 EXECUTABLE_FILE=gktool
 PY_LIBRARY_FILE=pygomoku.so
 
-ifeq ($(BUILD_TYPE),DEBUG)
+
+ifeq ($(PROFILING),ON)
 	CXXFLAGS += -pg
-else
-	# CXXFLAGS += -march=native -msse4.2
 endif
 
 ifeq ($(TIMER),OFF)
