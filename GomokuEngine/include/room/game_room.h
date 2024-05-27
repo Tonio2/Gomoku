@@ -86,7 +86,7 @@ struct GameRoomSettings
     /** Is the first player an AI ? */
     GameEntitySetting p1;
     /** Is the second player an AI ? */
-    GameEntitySetting p2 = {true, "medium"};
+    GameEntitySetting p2 = {true, "default"};
 };
 
 std::vector<std::string> get_ai_names_list();
