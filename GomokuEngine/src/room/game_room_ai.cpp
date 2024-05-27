@@ -96,10 +96,10 @@ CREATE_AI_FUNC(default_d4, 4, 2, ai_data_default, 2)
 CREATE_AI_FUNC(default_d5, 5, 2, ai_data_default, 2)
 CREATE_AI_FUNC(default_d6, 6, 2, ai_data_default, 2)
 
-CREATE_AI_FUNC(test, 3, 2, ai_data_default, 3)
-CREATE_AI_FUNC(test_d4, 4, 2, ai_data_default, 3)
-CREATE_AI_FUNC(test_d5, 5, 2, ai_data_default, 3)
-CREATE_AI_FUNC(test_d6, 6, 2, ai_data_default, 3)
+CREATE_AI_FUNC(quiescent, 3, 2, ai_data_default, 3)
+CREATE_AI_FUNC(quiescent_d4, 4, 2, ai_data_default, 3)
+CREATE_AI_FUNC(quiescent_d5, 5, 2, ai_data_default, 3)
+CREATE_AI_FUNC(quiescent_d6, 6, 2, ai_data_default, 3)
 
 CREATE_AI_FUNC(cpu1, 3, 2, ai_data_cpu1, 2)
 CREATE_AI_FUNC(cpu1_d4, 4, 2, ai_data_cpu1, 2)
@@ -143,10 +143,10 @@ static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>
         {"cpu4_d4", create_cpu4_d4_ai},
         {"cpu4_d5", create_cpu4_d5_ai},
         {"cpu4_d6", create_cpu4_d6_ai},
-        {"test", create_test_ai},
-        {"test_d4", create_test_d4_ai},
-        {"test_d5", create_test_d5_ai},
-        {"test_d6", create_test_d6_ai},
+        {"quiescent", create_quiescent_ai},
+        {"quiescent_d4", create_quiescent_d4_ai},
+        {"quiescent_d5", create_quiescent_d5_ai},
+        {"quiescent_d6", create_quiescent_d6_ai},
 };
 
 static const std::vector<std::string> ai_names = []
