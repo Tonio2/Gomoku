@@ -166,7 +166,7 @@ void GomokuAI::minimax(MoveEvaluation &eval, int _depth, int alpha, int beta, bo
             {
                 deepening = false;
                 int initial_score = eval.score;
-                minimax(eval, 2, alpha, beta, maximizingPlayer);
+                minimax(eval, 4, alpha, beta, maximizingPlayer);
                 deepened_move_score = eval.score;
 
                 if (eval.score >= initial_score)
@@ -276,6 +276,7 @@ MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)
     human_player = board.other_player(ai_player);
     deepening = false;
     deepening_successful = false;
+    deepened_move_score = 0;
 
     MoveEvaluation result;
     result.initial_score = _heuristic_evaluation();
