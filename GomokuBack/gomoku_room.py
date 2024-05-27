@@ -149,15 +149,8 @@ def room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2):
     game_room_settings.p2.ai_name = players[1]["ai_name"]
     return game_room_settings
 
-def format_move_evaluation(move_evaluation):
-    ret = {
-        "move": [move_evaluation.move[0], move_evaluation.move[1]],
-        "score": move_evaluation.score,
-        "listMoves": []
-    }
-    for eval in move_evaluation.listMoves:
-        ret["listMoves"].append(format_move_evaluation(eval))
-    return ret
+def format_move_sequence(move_sequence):
+    return [[move.row, move.col] for move in move_sequence]
 
 class GomokuRoom:
     def __init__(self, size, mode, rule_style, ai_player, ai_name, ai_name2, init_moves=""):
@@ -270,8 +263,8 @@ class GomokuRoom:
         return self.room.has_pending_action()
 
     def get_suggestion(self):
-        move_evaluation = self.room.suggest_move()
-        return format_move_evaluation(move_evaluation)
+        move_sequence = self.room.suggest_move()
+        return format_move_sequence(move_sequence)
 
     def display_move_history(self):
         moves = ""

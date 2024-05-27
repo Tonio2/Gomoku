@@ -287,5 +287,5 @@ def get_suggestion():
     if not room:
         return jsonify({"success": False, "message": "Game not found"})
 
-    move_evaluation = room.get_suggestion()
-    return jsonify({"success": True, "moveEvaluation": move_evaluation})
+    move_sequence = room.get_suggestion()
+    return jsonify({"success": True, "moveSequence": move_sequence})
