@@ -128,6 +128,8 @@ public:
     bool can_reapply_last_action() const;
     void reapply_last_action();
 
+    void play_move_list(const std::string &move_list);
+
     std::vector<AI::Move> suggest_move();
     int get_heuristic_evaluation();
 
