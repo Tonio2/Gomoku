@@ -1,7 +1,7 @@
 
 #include "engine/gomoku_pattern_reconizer.h"
 #include "engine/gomoku_engine.h"
-#include <set>
+#include <unordered_set>
 #include <cassert>
 
 /** PatternCellState */
@@ -329,13 +329,21 @@ const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const
     return _cached_pattern_count;
 }
 
+struct CellIndexHash
+{
+    size_t operator()(const PatternCellIndex &index) const
+    {
+        return index.row * 100 + index.col;
+    }
+};
+
 bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &board)
 {
     if (_cached_pattern_count[StructureType::TWO] <= 0)
         return true;
 
-    std::vector<std::set<PatternCellIndex>> five_cells;
-    std::vector<std::set<PatternCellIndex>> two_cells;
+    std::vector<std::unordered_set<PatternCellIndex, CellIndexHash>> five_cells;
+    std::vector<std::unordered_set<PatternCellIndex, CellIndexHash>> two_cells;
 
     for_each_tagged_structures(
         [this, &five_cells, &two_cells, &board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
@@ -343,7 +351,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
             const uint8_t length = data.structure_length();
             if (length >= 5)
             {
-                five_cells.push_back(std::set<PatternCellIndex>());
+                five_cells.emplace_back();
                 for (uint8_t i = 1; i <= length; ++i)
                 {
                     PatternCellIndex struct_index = get_index_offset(index, direction, -i);
@@ -353,7 +361,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
             }
             else if (is_structure_capturable(board, index, data, direction))
             {
-                two_cells.push_back(std::set<PatternCellIndex>());
+                two_cells.emplace_back();
                 for (uint8_t i = 1; i <= length; ++i)
                 {
                     PatternCellIndex struct_index = get_index_offset(index, direction, -i);
@@ -362,7 +370,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
             }
         });
 
-    for (const std::set<PatternCellIndex> &two_cell : two_cells)
+    for (const auto &two_cell : two_cells)
     {
         for (const PatternCellIndex &index : two_cell)
         {

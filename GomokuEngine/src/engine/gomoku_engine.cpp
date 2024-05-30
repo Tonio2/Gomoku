@@ -23,11 +23,6 @@ std::ostream &operator<<(std::ostream &stream, Player player)
     return stream;
 }
 
-bool operator==(const GomokuCellIndex &lhs, const GomokuCellIndex &rhs)
-{
-    return lhs.row == rhs.row && lhs.col == rhs.col;
-}
-
 std::ostream &operator<<(std::ostream &stream, StructureType structure_type)
 {
     stream << structure_names[structure_type];
