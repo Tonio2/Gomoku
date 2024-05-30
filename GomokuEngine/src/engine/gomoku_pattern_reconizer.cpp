@@ -330,7 +330,8 @@ const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const
 
 bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &board)
 {
-    if (_cached_pattern_count[StructureType::TWO] <= 0)
+    if (get_pattern_count()[StructureType::TWO] <= 0
+        && get_pattern_count()[StructureType::THREE] <= 0)
         return true;
 
     // TODO: Check intersection of five or more patterns with blocked two
