@@ -17,6 +17,7 @@ GomokuKivy/Gomoku: lib/pygomoku.so
 	make -C GomokuKivy Gomoku
 
 resources:
+	rm -rf resources
 	cp -r GomokuKivy/resources .
 
 $(NAME): GomokuKivy/Gomoku resources
@@ -40,4 +41,4 @@ re_lib:
 	make -C GomokuEngine re_lib
 	cp -f GomokuEngine/pygomoku.so lib/pygomoku.so
 
-.PHONY: all run lib re reTerm startTerm
+.PHONY: all run lib re reTerm startTerm resources

@@ -5,6 +5,7 @@ class SharedObject:
 
     room_settings: GameRoomSettings
     room: GameRoom
+    pre_move_list: str = ''
 
     def __init__(self):
         self.room = None
@@ -12,6 +13,8 @@ class SharedObject:
 
     def create_room(self):
         self.room = GameRoom(self.room_settings)
+        self.room.play_move_list(self.pre_move_list)
+        self.pre_move_list = ""
 
     def clear_room(self):
         if self.room is not None:

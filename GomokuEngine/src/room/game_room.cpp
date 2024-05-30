@@ -173,6 +173,30 @@ void GameRoom::reapply_last_action()
     }
 }
 
+void GameRoom::play_move_list(const std::string &move_list)
+{
+    std::vector<std::string> moves = split(move_list, ',');
+
+    for (const std::string& move : moves)
+    {
+        if (move.size() != 2)
+        {
+            std::cerr << "Invalid move: " << move << std::endl;
+            continue;
+        }
+        int row = char_to_coordinate(move[0]);
+        int col = char_to_coordinate(move[1]);
+
+        if (!_game.coordinates_are_valid(row, col))
+        {
+            std::cerr << "Invalid move: " << move << std::endl;
+            continue;
+        }
+
+        GameActionResult result = perform_action_move(expected_player(), row, col);
+    }
+}
+
 std::vector<AI::Move> GameRoom::suggest_move()
 {
     return _ai_helper->suggest_move_sequence(_game);

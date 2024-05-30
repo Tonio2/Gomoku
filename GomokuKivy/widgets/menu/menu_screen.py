@@ -10,7 +10,6 @@ class MenuScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.root = MenuRootWidget()
 
     def switch_to_game(self):
         SharedObject.get_instance().create_room()

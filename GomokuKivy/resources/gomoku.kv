@@ -125,6 +125,12 @@
                     text: 'Start Game'
                     on_press: root.switch_to_game()
 
+                TextInput:
+                    text: ''
+                    multiline: False
+                    hint_text: 'Moves list'
+                    on_text: root_widget.set_move_list(self.text)
+
 <GameScreen>:
     GameRootWidget:
         board_widget: game_board_widget

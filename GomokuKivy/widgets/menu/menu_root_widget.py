@@ -98,3 +98,7 @@ class MenuRootWidget(Widget):
         else:
             shared_object.room_settings.set_turn_time(float(value))
         print("turn_time: ", shared_object.room_settings.get_turn_time())
+
+    def set_move_list(self, move_list: str):
+        shared_object = SharedObject.get_instance()
+        shared_object.pre_move_list = move_list

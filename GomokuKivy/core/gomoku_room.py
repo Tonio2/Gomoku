@@ -313,3 +313,6 @@ class GameRoom:
     def _perform_pending_action(self):
         result = self.room.perform_pending_action()
         print(result.message)
+
+    def play_move_list(self, move_list: str):
+        self.room.play_move_list(move_list)
