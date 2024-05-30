@@ -1,8 +1,8 @@
 
 #include "arena/ai_data_mutator.h"
-#include <random>
 #include <algorithm>
 #include <filesystem>
+#include <random>
 #include <sstream>
 
 static float random_float(float min, float max)
@@ -19,9 +19,9 @@ GomokuAIDataMutator::GomokuAIDataMutator()
 {
 }
 
-void GomokuAIDataMutator::mutate_data(GomokuAIData &data) const
+void GomokuAIDataMutator::mutate_data(AI::MinMaxV2::GomokuAIData &data) const
 {
-    for (int i = 0; i < GomokuAIData::VALUES_COUNT; i++)
+    for (int i = 0; i < AI::MinMaxV2::GomokuAIData::VALUES_COUNT; i++)
     {
         const bool modify = random_float(0, 1) <= _change_proba;
 

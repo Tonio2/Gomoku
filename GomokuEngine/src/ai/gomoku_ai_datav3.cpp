@@ -1,13 +1,14 @@
 
-#include "ai/gomoku_ai_data.h"
-#include <iostream>
-#include <fstream>
+#include "ai/gomoku_ai_datav3.h"
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
-#include <stdexcept>
+#include <iostream>
 #include <sstream>
+#include <stdexcept>
 
-
+namespace AI::MinMaxV3
+{
 GomokuAIData::GomokuAIData()
 {
     values[StructureType::NONE] = 0;
@@ -120,4 +121,5 @@ std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data)
             stream << ",";
     }
     return stream;
+}
 }

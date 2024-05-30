@@ -3,7 +3,8 @@
 
 #include "engine/gomoku_engine_types.h"
 
-
+namespace AI::MinMaxV3
+{
 class GomokuAIData
 {
 public:
@@ -30,3 +31,4 @@ private:
 };
 
 std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data);
+} // namespace AI::MinMaxV3
