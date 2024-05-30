@@ -41,7 +41,7 @@ public:
     {
         std::size_t operator()(const Index &index) const
         {
-            return static_cast<size_t>(index.row) * 256 + static_cast<size_t>(index.col);
+            return static_cast<std::size_t>(index.row) * 256 + static_cast<std::size_t>(index.col);
         }
     };
 
