@@ -39,7 +39,7 @@ public:
 
     struct IndexHash
     {
-        size_t operator()(const Index &index) const
+        std::size_t operator()(const Index &index) const
         {
             return static_cast<size_t>(index.row) * 256 + static_cast<size_t>(index.col);
         }
