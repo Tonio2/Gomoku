@@ -342,11 +342,14 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
     if (_cached_pattern_count[StructureType::TWO] <= 0)
         return true;
 
-    std::vector<std::unordered_set<PatternCellIndex, CellIndexHash>> five_cells;
-    std::vector<std::unordered_set<PatternCellIndex, CellIndexHash>> two_cells;
+    using CellHashSet = std::unordered_set<PatternCellIndex, CellIndexHash>;
+    std::vector<CellHashSet> five_cells;
+    five_cells.reserve(_cached_pattern_count[StructureType::FIVE_OR_MORE]);
+    CellHashSet capturable_indices;
+    capturable_indices.reserve(_cached_pattern_count[StructureType::TWO] * 2);
 
     for_each_tagged_structures(
-        [this, &five_cells, &two_cells, &board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
+        [this, &five_cells, &capturable_indices, &board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
             const uint8_t length = data.structure_length();
             if (length >= 5)
@@ -361,31 +364,31 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
             }
             else if (is_structure_capturable(board, index, data, direction))
             {
-                two_cells.emplace_back();
                 for (uint8_t i = 1; i <= length; ++i)
                 {
                     PatternCellIndex struct_index = get_index_offset(index, direction, -i);
-                    two_cells.back().insert(struct_index);
+                    capturable_indices.insert(struct_index);
                 }
             }
         });
 
-    for (const auto &two_cell : two_cells)
-    {
-        for (const PatternCellIndex &index : two_cell)
+    auto is_five_capturable = [&capturable_indices](const CellHashSet &five_cell) {
+        for (const PatternCellIndex &index : five_cell)
         {
-            for (int i = five_cells.size() - 1; i >= 0; --i)
+            if (capturable_indices.find(index) != capturable_indices.end())
             {
-                if (five_cells[i].find(index) != five_cells[i].end())
-                {
-                    five_cells.erase(five_cells.begin() + i);
-                    continue;
-                }
+                return true;
             }
         }
-    }
+        return false;
+    };
 
-    return !five_cells.empty();
+    for (const CellHashSet &five_cell : five_cells)
+    {
+        if (!is_five_capturable(five_cell))
+            return true;
+    }
+    return false;
 }
 
 bool GomokuPatternReconizer::can_be_captured(const GomokuGame &board)
