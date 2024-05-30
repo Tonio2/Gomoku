@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "engine/gomoku_engine.h"
 #include "ai/gomoku_ai_interface.h"
+#include "engine/gomoku_engine.h"
 
 /** Identifier attributed to each players. The player id will never change.
  * The case of swap will only change the player's corresponding gomoku player */
@@ -66,7 +66,7 @@ struct GameActionResult
 struct GameEntitySetting
 {
     bool is_ai = false;
-    std::string ai_name = "medium";
+    std::string ai_name = "default";
 
     AI::IGomokuAI *make_ai() const;
 };
@@ -86,7 +86,7 @@ struct GameRoomSettings
     /** Is the first player an AI ? */
     GameEntitySetting p1;
     /** Is the second player an AI ? */
-    GameEntitySetting p2 = {true, "medium"};
+    GameEntitySetting p2 = {true, "default"};
 };
 
 std::vector<std::string> get_ai_names_list();

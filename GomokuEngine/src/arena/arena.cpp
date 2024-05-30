@@ -1,8 +1,8 @@
 
 #include "arena/arena.h"
+#include "ai/gomoku_ai_minmaxv2.h"
 #include "arena/ai_data_mutator.h"
 #include "engine/gomoku_engine.h"
-#include "ai/gomoku_ai_minmaxv2.h"
 #include "utils/gomoku_utilities.h"
 #include <filesystem>
 #include <iostream>

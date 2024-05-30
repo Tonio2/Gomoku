@@ -106,7 +106,7 @@ const getSuggestion = async (
 ): Promise<{
   success: boolean;
   message: string;
-  moveEvaluation: MoveEvaluation;
+  moveSequence: [number, number][];
 }> => {
   const response = await axios.get(GET_SUGGESTION_URL + `?user_id=${userId}`);
   return response.data;

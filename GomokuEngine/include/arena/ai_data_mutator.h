@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "ai/gomoku_ai_data.h"
+#include "ai/gomoku_ai_datav2.h"
 
 class GomokuAIDataMutator
 {

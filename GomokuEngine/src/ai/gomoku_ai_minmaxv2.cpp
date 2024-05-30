@@ -13,7 +13,7 @@ Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
 {
     MoveEvaluation result = suggest_move_evaluation(board);
 #ifdef LOGGING
-    std::string filename = "/tmp/move_evaluation/" + std::to_string(currentMove) + ".txt";
+    std::string filename = "/tmp/evals/" + std::to_string(currentMove) + ".txt";
     logMoveEvaluation(result, filename);
 #endif
     auto [row, col] = getBestMove(result);
@@ -235,7 +235,6 @@ int GomokuAI::score_player(Player player)
         score += patterns_count[i] * evaluation_data.value_of_structure(i);
     }
     score += (patterns_count[OPEN_THREE] + patterns_count[FOUR] + patterns_count[OPEN_FOUR] >= 2) ? evaluation_data.value_of_multiple_forced() : 0;
-    score += (patterns_count[OPEN_FOUR] >= 2 ? evaluation_data.value_of_multiple_o4() : 0);
     score += evaluation_data.value_of_captures(game.get_player_score(player));
     return score;
 }

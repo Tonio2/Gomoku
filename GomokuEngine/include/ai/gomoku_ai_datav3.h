@@ -3,9 +3,8 @@
 
 #include "engine/gomoku_engine_types.h"
 
-namespace AI::MinMaxV2
+namespace AI::MinMaxV3
 {
-
 class GomokuAIData
 {
 public:
@@ -19,7 +18,6 @@ public:
 
     float value_of_structure(int structure_type) const;
     float value_of_multiple_forced() const;
-    float value_of_multiple_o4() const;
     float value_of_captures(int capture_count) const;
 
     static const int STC = StructureType::COUNT_STRUCTURE_TYPE;
@@ -33,5 +31,4 @@ private:
 };
 
 std::ostream &operator<<(std::ostream &stream, const GomokuAIData &ai_data);
-
-} // namespace AI::MinMaxV2
+} // namespace AI::MinMaxV3

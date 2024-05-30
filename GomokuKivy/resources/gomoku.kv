@@ -63,7 +63,7 @@
                         Spinner:
                             id: p1_ai_name_spinner
                             disabled: True
-                            text: 'medium'
+                            text: 'default'
                             values: root_widget.get_ai_difficulties_list()
                             on_text: root_widget.set_ai_difficulty(1, self.text)
 
@@ -75,7 +75,7 @@
 
                         Spinner:
                             id: p2_ai_name_spinner
-                            text: 'medium'
+                            text: 'default'
                             values: root_widget.get_ai_difficulties_list()
                             on_text: root_widget.set_ai_difficulty(2, self.text)
 

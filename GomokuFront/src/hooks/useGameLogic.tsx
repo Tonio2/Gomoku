@@ -42,13 +42,13 @@ const useGameLogic = (
   );
 
   const aiName = useMemo(
-    () => new URLSearchParams(window.location.search).get("aiName") || "medium",
+    () => new URLSearchParams(window.location.search).get("aiName") || "default",
     []
   );
 
   const aiName2 = useMemo(
     () =>
-      new URLSearchParams(window.location.search).get("aiName2") || "medium",
+      new URLSearchParams(window.location.search).get("aiName2") || "default",
     []
   );
 
@@ -203,24 +203,23 @@ const useGameLogic = (
   const getAISuggestion = async () => {
     try {
       setFetchingSuggestions(true);
-      let { moveEvaluation } = await api.getSuggestion(userId);
+      let { moveSequence } = await api.getSuggestion(userId);
       const newSuggestionBoard = emptySuggestionBoard(size);
       let maximizing = true;
-      let index = 1;
-      while (moveEvaluation.listMoves && moveEvaluation.listMoves.length > 0) {
-        const bestEval = getBestEval(moveEvaluation, maximizing);
+      let i = 0;
+      while (i < moveSequence.length) {
         const nextColor = players[nextPlayerId].color + 1;
         const otherColor = nextColor === 1 ? 2 : 1;
-        newSuggestionBoard[bestEval.move[0]][bestEval.move[1]] = [
-          currentMove + index,
+        newSuggestionBoard[moveSequence[i][0]][moveSequence[i][1]] = [
+          currentMove + i,
           maximizing ? nextColor : otherColor,
         ];
-        moveEvaluation = bestEval;
         maximizing = !maximizing;
-        index++;
+        i++;
       }
       setSuggestionsBoard(newSuggestionBoard);
     } catch (error: any) {
+      console.log(error);
       console.error("Server error");
     } finally {
       setFetchingSuggestions(false);

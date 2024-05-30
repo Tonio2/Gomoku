@@ -241,35 +241,6 @@ void logMoveEvaluation(const MoveEvaluation &eval, std::string filename)
     csvOut.close();
 }
 
-void writeSurplusEvaluation(std::ofstream &out, const MoveEvaluation &eval, int depth)
-{
-    if (depth == get_depth_from_env())
-    {
-        return;
-    }
-
-    if (not eval.listMoves.empty())
-    {
-        for (const auto &move : eval.listMoves)
-        {
-            writeSurplusEvaluation(out, move, depth + 1);
-        }
-    }
-}
-
-void logTooManyEvaluationsList(const MoveEvaluation &eval)
-{
-    std::ofstream out("surplusEval.txt");
-    if (!out.is_open())
-    {
-        std::cerr << "Failed to open log.txt" << std::endl;
-        return;
-    }
-
-    writeSurplusEvaluation(out, eval);
-    out.close();
-}
-
 int getBestMoveIndex(const MoveEvaluation &eval, bool maximizingPlayer)
 {
     int bestScore = std::numeric_limits<int>::min();
