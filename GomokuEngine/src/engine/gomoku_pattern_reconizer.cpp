@@ -329,20 +329,12 @@ const std::vector<int> &GomokuPatternReconizer::get_pattern_count() const
     return _cached_pattern_count;
 }
 
-struct CellIndexHash
-{
-    size_t operator()(const PatternCellIndex &index) const
-    {
-        return index.row * 100 + index.col;
-    }
-};
-
 bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &board)
 {
     if (_cached_pattern_count[StructureType::TWO] <= 0)
         return true;
 
-    using CellHashSet = std::unordered_set<PatternCellIndex, CellIndexHash>;
+    using CellHashSet = std::unordered_set<PatternCellIndex, Matrix<PatternCellData>::IndexHash>;
     std::vector<CellHashSet> five_cells;
     five_cells.reserve(_cached_pattern_count[StructureType::FIVE_OR_MORE]);
     CellHashSet capturable_indices;

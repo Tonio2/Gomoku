@@ -37,6 +37,14 @@ public:
         }
     };
 
+    struct IndexHash
+    {
+        size_t operator()(const Index &index) const
+        {
+            return static_cast<size_t>(index.row) * 256 + static_cast<size_t>(index.col);
+        }
+    };
+
     /** Init */
 
     Matrix() : _width(0), _height(0), _elements(0)
