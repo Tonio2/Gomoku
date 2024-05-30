@@ -370,7 +370,9 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
 
 bool GomokuPatternReconizer::can_be_captured(const GomokuGame &board)
 {
-    if (get_pattern_count()[StructureType::TWO] <= 0)
+    if (get_pattern_count()[StructureType::TWO] <= 0
+        // Blocked two can be hidden in gap three
+        && get_pattern_count()[StructureType::THREE] <= 0)
         return false;
 
     bool capturable = false;

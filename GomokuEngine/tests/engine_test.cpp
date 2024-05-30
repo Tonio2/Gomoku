@@ -166,6 +166,12 @@ TEST(CaptureTest, BlockedByWall_InDownDirection)
     test_game_status(move_str, false);
 }
 
+TEST(CaptureTest, WinByCaptureAvailableInGapOpenThree)
+{
+    std::string move_str = "99,89,7A,88,8A,7B,6A,5A,A8,9A,87,B7,89,88,8B,98,78,67,89,88,A9,A7,69,AA,A8,6B,5B,6B,BA,C7,7C,49,79,58,76,38,27,D7,E7,B5,97,9A,6D,7B,68,3A,2B,3B,39,3D";
+    test_game_status(move_str, true, Player::BLACK);
+}
+
 TEST(FiveInRowTest, WinWithFive)
 {
     std::string move_str = "35,85,36,86,37,87,38,88,39";

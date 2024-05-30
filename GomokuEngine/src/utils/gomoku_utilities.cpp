@@ -36,14 +36,20 @@ std::string to_string(const GomokuGame &game, bool with_coordinates, int distanc
         Player value = game.get_board_value(row, col);
         if (distance > 0)
         {
-            StructureType black_struct = game.get_pattern_reconizer(X)
-                                             .highest_structure_around(GomokuCellIndex(row, col), distance);
-            StructureType white_struct = game.get_pattern_reconizer(O)
-                                             .highest_structure_around(GomokuCellIndex(row, col), distance);
-            if (black_struct > StructureType::NONE || white_struct > StructureType::NONE)
-                ss << "*";
-            else
-                ss << ".";
+            if (value != Player::EMPTY)
+            {
+                ss << value;
+            }
+            else {
+                StructureType black_struct = game.get_pattern_reconizer(X)
+                                                .highest_structure_around(GomokuCellIndex(row, col), distance);
+                StructureType white_struct = game.get_pattern_reconizer(O)
+                                                .highest_structure_around(GomokuCellIndex(row, col), distance);
+                if (black_struct > StructureType::NONE || white_struct > StructureType::NONE)
+                    ss << "*";
+                else
+                    ss << ".";
+            }
         }
         else if (distance == 0)
         {
