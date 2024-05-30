@@ -252,6 +252,12 @@ TEST(FiveInRowTest, TestShouldWinIfSecondFiveInARowIsNotCapturable)
     test_game_status(move_str, true, Player::BLACK);
 }
 
+TEST(FiveInRowTest, TestShouldNotWinAsFiveInRowCanBeCaptureByClosedTwoInsideGapOpenThree)
+{
+    std::string move_str = "99,77,9A,68,89,59,86,78,AB,79,7A,98,58,6B,88,69,49,6C,6A,76,75,9B,78,99,97,89";
+    test_game_status(move_str, false, Player::EMPTY);
+}
+
 TEST(DoubleThreeTest, TestMakeDoubleThreeThrowError)
 {
     GomokuGame game(19, 19);
