@@ -1,12 +1,20 @@
 
 #pragma once
 
-#include "gomoku_ai_data.h"
+#include "gomoku_ai_datav3.h"
 #include "gomoku_ai_interface.h"
 #include <fstream>
 
 namespace AI::MinMaxV3
 {
+
+struct GomokuAiSettings
+{
+    int depth = 4;
+    int length = 2;
+    GomokuAIData data = GomokuAIData();
+};
+
 struct MoveHeuristic
 {
     uint8_t row;

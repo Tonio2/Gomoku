@@ -7,8 +7,8 @@ const GameSetting: React.FC = () => {
   const [size, setSize] = useState<number>(19); // Default board size
   const [mode, setMode] = useState<number>(0); // Default mode: Human vs AI
   const [starter, setStarter] = useState<number>(0); // Default starter: Human
-  const [aiName, setAiName] = useState<string>("medium");
-  const [aiName2, setAiName2] = useState<string>("medium");
+  const [aiName, setAiName] = useState<string>("default");
+  const [aiName2, setAiName2] = useState<string>("default");
   const [ruleStyle, setRuleStyle] = useState<number>(0); // Default rule style: Standard
 
   const [size2, setSize2] = useState<number>(19);

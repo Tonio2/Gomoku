@@ -126,7 +126,7 @@ def format_actions_history(actions_history, players):
 def room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2):
     player = {
         "is_ai": False,
-        "ai_name": "medium",
+        "ai_name": "default",
     }
     players = [player, player.copy()]
     if mode == MODE_PVAI:
@@ -149,11 +149,15 @@ def room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2):
     game_room_settings.p2.ai_name = players[1]["ai_name"]
     return game_room_settings
 
+
 def format_move_sequence(move_sequence):
     return [[move.row, move.col] for move in move_sequence]
 
+
 class GomokuRoom:
-    def __init__(self, size, mode, rule_style, ai_player, ai_name, ai_name2, init_moves=""):
+    def __init__(
+        self, size, mode, rule_style, ai_player, ai_name, ai_name2, init_moves=""
+    ):
         """Init room
         Parameters:
         size (int): Between 10 and 25
@@ -185,7 +189,7 @@ class GomokuRoom:
         self.room = pygomoku.GameRoom(
             room_settings(size, mode, rule_style, ai_player, ai_name, ai_name2)
         )
-        
+
         if init_moves != "":
             moves = init_moves.split(",")
             for move in moves:
@@ -193,13 +197,22 @@ class GomokuRoom:
                     raise RoomError("Invalid move")
                 row = BOARD_COORDINATES.index(move[0])
                 col = BOARD_COORDINATES.index(move[1])
-                action_result = self.room.perform_action_move(self.get_next_player(), row, col)
+                action_result = self.room.perform_action_move(
+                    self.get_next_player(), row, col
+                )
                 if not action_result.success:
                     raise RoomError(action_result.message)
 
     def reset(self):
         self.room = pygomoku.GameRoom(
-            room_settings(self.size, self.mode, self.rule_style, self.ai_player, self.ai_name, self.ai_name2)
+            room_settings(
+                self.size,
+                self.mode,
+                self.rule_style,
+                self.ai_player,
+                self.ai_name,
+                self.ai_name2,
+            )
         )
 
     def get_players(self):
@@ -271,7 +284,11 @@ class GomokuRoom:
         actions = self.get_actions_history()
         for action in actions:
             if action.action_type == pygomoku.GameActionType.MOVE:
-                moves += BOARD_COORDINATES[action.action_value.move.row] + BOARD_COORDINATES[action.action_value.move.col] + ","
+                moves += (
+                    BOARD_COORDINATES[action.action_value.move.row]
+                    + BOARD_COORDINATES[action.action_value.move.col]
+                    + ","
+                )
         print(moves)
 
     def get_state(self):

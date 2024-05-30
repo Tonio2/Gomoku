@@ -1,5 +1,5 @@
 
-#include "ai/gomoku_ai_data.h"
+#include "ai/gomoku_ai_datav2.h"
 #include "ai/gomoku_ai_minmaxv2.h"
 #include "arena/arena.h"
 #include "engine/gomoku_engine.h"
@@ -35,11 +35,11 @@ void test_problems()
         std::vector<std::string> moves = split(problem[0], ',');
         apply_moves(game, moves);
 
-        AI::GomokuAiSettings ai_settings;
+        AI::MinMaxV2::GomokuAiSettings ai_settings;
         ai_settings.depth = get_depth_from_env();
         AI::MinMaxV2::GomokuAI AI(ai_settings);
         // Suggest a move
-        AI::MoveEvaluation moveEvalutation = AI.suggest_move_evaluation(game);
+        AI::MinMaxV2::MoveEvaluation moveEvalutation = AI.suggest_move_evaluation(game);
         // Get the best move
         std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
 
@@ -129,11 +129,11 @@ void test_problem(int problem_idx)
     GomokuGame game(19, 19);
     apply_moves(game, moves);
 
-    AI::GomokuAiSettings ai_settings;
+    AI::MinMaxV2::GomokuAiSettings ai_settings;
     ai_settings.depth = get_depth_from_env();
     AI::MinMaxV2::GomokuAI AI(ai_settings);
     // Suggest a move
-    AI::MoveEvaluation moveEvalutation = AI.suggest_move_evaluation(game);
+    AI::MinMaxV2::MoveEvaluation moveEvalutation = AI.suggest_move_evaluation(game);
     // Get the best move
     std::pair<int, int> bestMove = getBestMove(moveEvalutation, true);
     // Print the best move
@@ -158,9 +158,9 @@ void test_problem(int problem_idx)
     std::cout << std::endl;
 }
 
-const GomokuAIData ai_data = []()
+const AI::MinMaxV2::GomokuAIData ai_data = []()
 {
-    GomokuAIData data;
+    AI::MinMaxV2::GomokuAIData data;
     data.values[0] = 0;
     data.values[1] = 1.18881e+09;
     data.values[2] = 175.305;
@@ -219,7 +219,7 @@ void test_eval(std::string moves_string)
     std::cout << "Board evaluation for " << last_player << ": " << evaluation << std::endl;
 
     // Display the suggested move
-    std::vector<AI::MoveHeuristic> relevant_moves = AI.get_relevant_moves(game);
+    std::vector<AI::MinMaxV2::MoveHeuristic> relevant_moves = AI.get_relevant_moves(game);
     std::cout << "Relevant moves (" << relevant_moves.size() << "): [";
     for (auto move : relevant_moves)
     {
@@ -227,7 +227,7 @@ void test_eval(std::string moves_string)
     }
     std::cout << "]" << std::endl;
 
-    AI::MoveEvaluation moveEvaluation = AI.suggest_move_evaluation(game);
+    AI::MinMaxV2::MoveEvaluation moveEvaluation = AI.suggest_move_evaluation(game);
     logMoveEvaluation(moveEvaluation, "log.txt");
     std::pair<int, int> bestMove = getBestMove(moveEvaluation, true);
     std::cout << "Suggested move: " << bestMove.first << "," << bestMove.second << std::endl;

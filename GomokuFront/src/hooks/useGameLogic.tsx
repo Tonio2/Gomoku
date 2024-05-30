@@ -42,13 +42,13 @@ const useGameLogic = (
   );
 
   const aiName = useMemo(
-    () => new URLSearchParams(window.location.search).get("aiName") || "medium",
+    () => new URLSearchParams(window.location.search).get("aiName") || "default",
     []
   );
 
   const aiName2 = useMemo(
     () =>
-      new URLSearchParams(window.location.search).get("aiName2") || "medium",
+      new URLSearchParams(window.location.search).get("aiName2") || "default",
     []
   );
 

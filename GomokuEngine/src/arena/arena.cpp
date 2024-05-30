@@ -1,8 +1,8 @@
 
 #include "arena/arena.h"
+#include "ai/gomoku_ai_minmaxv2.h"
 #include "arena/ai_data_mutator.h"
 #include "engine/gomoku_engine.h"
-#include "ai/gomoku_ai_minmaxv2.h"
 #include "utils/gomoku_utilities.h"
 #include <filesystem>
 #include <iostream>
@@ -14,8 +14,8 @@ Arena::Arena() : _game_width(19), _game_height(19)
 
 void Arena::play(int argc, char *argv[])
 {
-    GomokuAIData p1;
-    GomokuAIData p2;
+    AI::MinMaxV2::GomokuAIData p1;
+    AI::MinMaxV2::GomokuAIData p2;
 
     if (argc > 2)
         p1.load_from_file(argv[2]);
@@ -57,7 +57,7 @@ void Arena::play(int argc, char *argv[])
 
     while (true)
     {
-        AI::GomokuAiSettings settings;
+        AI::MinMaxV2::GomokuAiSettings settings;
         settings.depth = get_depth_from_env();
 
         settings.data = p1;
@@ -74,10 +74,10 @@ void Arena::play(int argc, char *argv[])
 
         auto player_win = [&mutator, &streaker_index, &last_file](
                               std::string winner_name,
-                              GomokuAIData &winner_data,
+                              AI::MinMaxV2::GomokuAIData &winner_data,
                               int &winner_streak,
                               std::string loser_name,
-                              GomokuAIData &loser_data,
+                              AI::MinMaxV2::GomokuAIData &loser_data,
                               int &loser_streak)
         {
             // mutator.decrease_impact();

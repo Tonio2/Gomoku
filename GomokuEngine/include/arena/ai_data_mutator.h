@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "ai/gomoku_ai_data.h"
+#include "ai/gomoku_ai_datav2.h"
 
 class GomokuAIDataMutator
 {
@@ -9,7 +9,7 @@ class GomokuAIDataMutator
 public:
     GomokuAIDataMutator();
 
-    void mutate_data(GomokuAIData &data) const;
+    void mutate_data(AI::MinMaxV2::GomokuAIData &data) const;
 
     void increase_impact();
 

@@ -1,12 +1,14 @@
-#include "room/game_room.h"
 #include "ai/gomoku_ai_minmaxv2.h"
 #include "ai/gomoku_ai_minmaxv3.h"
+#include "room/game_room.h"
 
-static const GomokuAIData ai_data_default = GomokuAIData();
+static const AI::MinMaxV2::GomokuAIData ai_data_default = AI::MinMaxV2::GomokuAIData();
 
-static const GomokuAIData ai_data_cpu1 = []()
+static const AI::MinMaxV3::GomokuAIData ai_data_defaultv3 = AI::MinMaxV3::GomokuAIData();
+
+static const AI::MinMaxV2::GomokuAIData ai_data_cpu1 = []()
 {
-    GomokuAIData data;
+    AI::MinMaxV2::GomokuAIData data;
     data.values[StructureType::NONE] = 0;
     data.values[StructureType::FIVE_OR_MORE] = 2013470;
     data.values[StructureType::OPEN_ONE] = 7.8;
@@ -22,9 +24,9 @@ static const GomokuAIData ai_data_cpu1 = []()
     return data;
 }();
 
-static const GomokuAIData ai_data_cpu2 = []()
+static const AI::MinMaxV2::GomokuAIData ai_data_cpu2 = []()
 {
-    GomokuAIData data;
+    AI::MinMaxV2::GomokuAIData data;
     data.values[StructureType::NONE] = 0;
     data.values[StructureType::FIVE_OR_MORE] = 1.18881e+09;
     data.values[StructureType::OPEN_ONE] = 175.305;
@@ -40,9 +42,9 @@ static const GomokuAIData ai_data_cpu2 = []()
     return data;
 }();
 
-static const GomokuAIData ai_data_cpu3 = []()
+static const AI::MinMaxV2::GomokuAIData ai_data_cpu3 = []()
 {
-    GomokuAIData data;
+    AI::MinMaxV2::GomokuAIData data;
     data.values[StructureType::NONE] = 0;
     data.values[StructureType::FIVE_OR_MORE] = 322.666;
     data.values[StructureType::OPEN_ONE] = 277.998;
@@ -58,9 +60,9 @@ static const GomokuAIData ai_data_cpu3 = []()
     return data;
 }();
 
-static const GomokuAIData ai_data_cpu4 = []()
+static const AI::MinMaxV2::GomokuAIData ai_data_cpu4 = []()
 {
-    GomokuAIData data;
+    AI::MinMaxV2::GomokuAIData data;
     data.values[StructureType::NONE] = 0;
     data.values[StructureType::FIVE_OR_MORE] = 911878;
     data.values[StructureType::OPEN_ONE] = 417;
@@ -77,49 +79,58 @@ static const GomokuAIData ai_data_cpu4 = []()
 }();
 
 // Function to create AI
-AI::IGomokuAI *create_ai(int depth, int length, const GomokuAIData &data, int version)
+AI::IGomokuAI *create_aiv2(int depth, int length, const AI::MinMaxV2::GomokuAIData &data)
 {
-    if (version == 2)
-        return new AI::MinMaxV2::GomokuAI({depth, length, data});
+    return new AI::MinMaxV2::GomokuAI({depth, length, data});
+}
+
+AI::IGomokuAI *create_aiv3(int depth, int length, const AI::MinMaxV3::GomokuAIData &data)
+{
     return new AI::MinMaxV3::GomokuAI({depth, length, data});
 }
 
 // Helper macros to simplify AI creation functions
-#define CREATE_AI_FUNC(name, depth, length, data, version) \
-    AI::IGomokuAI *create_##name##_ai()            \
-    {                                              \
-        return create_ai(depth, length, data, version);    \
+#define CREATE_AI_FUNC(name, depth, length, data) \
+    AI::IGomokuAI *create_##name##_ai()           \
+    {                                             \
+        return create_aiv2(depth, length, data);  \
     }
 
-CREATE_AI_FUNC(default, 3, 2, ai_data_default, 2)
-CREATE_AI_FUNC(default_d4, 4, 2, ai_data_default, 2)
-CREATE_AI_FUNC(default_d5, 5, 2, ai_data_default, 2)
-CREATE_AI_FUNC(default_d6, 6, 2, ai_data_default, 2)
+#define CREATE_AI_FUNCV3(name, depth, length, data) \
+    AI::IGomokuAI *create_##name##_ai()             \
+    {                                               \
+        return create_aiv2(depth, length, data);    \
+    }
 
-CREATE_AI_FUNC(quiescent, 3, 2, ai_data_default, 3)
-CREATE_AI_FUNC(quiescent_d4, 4, 2, ai_data_default, 3)
-CREATE_AI_FUNC(quiescent_d5, 5, 2, ai_data_default, 3)
-CREATE_AI_FUNC(quiescent_d6, 6, 2, ai_data_default, 3)
+CREATE_AI_FUNC(default, 3, 2, ai_data_default)
+CREATE_AI_FUNC(default_d4, 4, 2, ai_data_default)
+CREATE_AI_FUNC(default_d5, 5, 2, ai_data_default)
+CREATE_AI_FUNC(default_d6, 6, 2, ai_data_default)
 
-CREATE_AI_FUNC(cpu1, 3, 2, ai_data_cpu1, 2)
-CREATE_AI_FUNC(cpu1_d4, 4, 2, ai_data_cpu1, 2)
-CREATE_AI_FUNC(cpu1_d5, 5, 2, ai_data_cpu1, 2)
-CREATE_AI_FUNC(cpu1_d6, 6, 2, ai_data_cpu1, 2)
+CREATE_AI_FUNCV3(quiescent, 3, 2, ai_data_default)
+CREATE_AI_FUNCV3(quiescent_d4, 4, 2, ai_data_default)
+CREATE_AI_FUNCV3(quiescent_d5, 5, 2, ai_data_default)
+CREATE_AI_FUNCV3(quiescent_d6, 6, 2, ai_data_default)
 
-CREATE_AI_FUNC(cpu2, 3, 2, ai_data_cpu2, 2)
-CREATE_AI_FUNC(cpu2_d4, 4, 2, ai_data_cpu2, 2)
-CREATE_AI_FUNC(cpu2_d5, 5, 2, ai_data_cpu2, 2)
-CREATE_AI_FUNC(cpu2_d6, 6, 2, ai_data_cpu2, 2)
+CREATE_AI_FUNC(cpu1, 3, 2, ai_data_cpu1)
+CREATE_AI_FUNC(cpu1_d4, 4, 2, ai_data_cpu1)
+CREATE_AI_FUNC(cpu1_d5, 5, 2, ai_data_cpu1)
+CREATE_AI_FUNC(cpu1_d6, 6, 2, ai_data_cpu1)
 
-CREATE_AI_FUNC(cpu3, 3, 2, ai_data_cpu3, 2)
-CREATE_AI_FUNC(cpu3_d4, 4, 2, ai_data_cpu3, 2)
-CREATE_AI_FUNC(cpu3_d5, 5, 2, ai_data_cpu3, 2)
-CREATE_AI_FUNC(cpu3_d6, 6, 2, ai_data_cpu3, 2)
+CREATE_AI_FUNC(cpu2, 3, 2, ai_data_cpu2)
+CREATE_AI_FUNC(cpu2_d4, 4, 2, ai_data_cpu2)
+CREATE_AI_FUNC(cpu2_d5, 5, 2, ai_data_cpu2)
+CREATE_AI_FUNC(cpu2_d6, 6, 2, ai_data_cpu2)
 
-CREATE_AI_FUNC(cpu4, 3, 2, ai_data_cpu4, 2)
-CREATE_AI_FUNC(cpu4_d4, 4, 2, ai_data_cpu4, 2)
-CREATE_AI_FUNC(cpu4_d5, 5, 2, ai_data_cpu4, 2)
-CREATE_AI_FUNC(cpu4_d6, 6, 2, ai_data_cpu4, 2)
+CREATE_AI_FUNC(cpu3, 3, 2, ai_data_cpu3)
+CREATE_AI_FUNC(cpu3_d4, 4, 2, ai_data_cpu3)
+CREATE_AI_FUNC(cpu3_d5, 5, 2, ai_data_cpu3)
+CREATE_AI_FUNC(cpu3_d6, 6, 2, ai_data_cpu3)
+
+CREATE_AI_FUNC(cpu4, 3, 2, ai_data_cpu4)
+CREATE_AI_FUNC(cpu4_d4, 4, 2, ai_data_cpu4)
+CREATE_AI_FUNC(cpu4_d5, 5, 2, ai_data_cpu4)
+CREATE_AI_FUNC(cpu4_d6, 6, 2, ai_data_cpu4)
 
 static const std::vector<std::pair<std::string, std::function<AI::IGomokuAI *()>>>
     ai_makers = {
