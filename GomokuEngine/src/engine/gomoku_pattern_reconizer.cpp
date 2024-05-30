@@ -352,7 +352,7 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
                         if (dir == direction)
                             continue;
 
-                        auto structure = get_structure_at(struct_index, PatternDirection(dir));
+                        auto structure = get_structure_at(struct_index, PatternDirection(dir), 1, false);
 
                         const PatternCellData &cell_data = _cell_matrices[dir][PatternCellIndex(structure.second)];
                         if (is_structure_capturable(board, structure.second, cell_data, PatternDirection(dir)))
@@ -389,7 +389,7 @@ bool GomokuPatternReconizer::can_be_captured(const GomokuGame &board)
     return capturable;
 }
 
-std::pair<StructureType, PatternCellIndex> GomokuPatternReconizer::get_structure_at(PatternCellIndex index, PatternDirection direction, int min_distance) const
+std::pair<StructureType, PatternCellIndex> GomokuPatternReconizer::get_structure_at(PatternCellIndex index, PatternDirection direction, int min_distance, bool check_first_gap) const
 {
     const Matrix<PatternCellData> &cell_matrix(_cell_matrices[direction]);
 
@@ -437,7 +437,7 @@ std::pair<StructureType, PatternCellIndex> GomokuPatternReconizer::get_structure
         return std::make_pair(StructureType::NONE, i);
     };
 
-    return find_structure(PatternCellIndex(index), min_distance, true, false);
+    return find_structure(PatternCellIndex(index), min_distance, true, !check_first_gap);
 }
 
 StructureType GomokuPatternReconizer::highest_structure_around(PatternCellIndex index, int distance) const

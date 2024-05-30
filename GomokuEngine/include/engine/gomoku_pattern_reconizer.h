@@ -132,7 +132,7 @@ public:
     bool five_or_more_cant_be_captured(const GomokuGame &board);
     bool can_be_captured(const GomokuGame &board);
 
-    std::pair<StructureType, PatternCellIndex> get_structure_at(PatternCellIndex index, PatternDirection direction, int min_distance = 1) const;
+    std::pair<StructureType, PatternCellIndex> get_structure_at(PatternCellIndex index, PatternDirection direction, int min_distance = 1, bool check_first_gap = true) const;
     StructureType highest_structure_around(PatternCellIndex index, int distance) const;
 
     const Matrix<PatternCellData> &get_pattern_cell_matrix(PatternDirection direction) const;
