@@ -17,8 +17,10 @@ namespace AI::MinMaxV3
 
 Move GomokuAI::suggest_move(const GomokuGame &board, int currentMove)
 {
+#ifdef LOGGING
     std::cout << "Suggesting move " << currentMove << std::endl;
     std::cout << "=========================================" << std::endl;
+#endif
     MoveEvaluation result = suggest_move_evaluation(board);
     LOG_MOVE_EVALUATION
     auto [row, col] = getBestMove(result);
@@ -286,8 +288,10 @@ MoveEvaluation GomokuAI::suggest_move_evaluation(const GomokuGame &board)
         while (result.score >= result.initial_score && !deepening_successful)
         {
             minimax(result, depth, std::numeric_limits<int>::min(), result.initial_score, true);
+#ifdef LOGGING
             std::cout << "Score: " << result.score << std::endl;
             std::cout << "Deepening score: " << deepened_move_score << std::endl;
+#endif
             deepening = true;
         }
     }
