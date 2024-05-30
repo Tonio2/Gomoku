@@ -30,6 +30,11 @@ public:
                 return col < other.col;
             return row < other.row;
         }
+
+        bool operator==(const Index &other) const
+        {
+            return row == other.row && col == other.col;
+        }
     };
 
     /** Init */

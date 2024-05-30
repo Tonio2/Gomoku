@@ -24,8 +24,6 @@ std::ostream &operator<<(std::ostream &stream, Player player);
 
 typedef Matrix<Player>::Index GomokuCellIndex;
 
-bool operator==(const GomokuCellIndex &lhs, const GomokuCellIndex &rhs);
-
 enum StructureType : uint8_t
 {
     NONE = 0,
