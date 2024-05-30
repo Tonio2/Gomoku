@@ -1,6 +1,7 @@
 
 #include "engine/gomoku_pattern_reconizer.h"
 #include "engine/gomoku_engine.h"
+#include <set>
 #include <cassert>
 
 /** PatternCellState */
@@ -333,39 +334,50 @@ bool GomokuPatternReconizer::five_or_more_cant_be_captured(const GomokuGame &boa
     if (_cached_pattern_count[StructureType::TWO] <= 0)
         return true;
 
-    // TODO: Check intersection of five or more patterns with blocked two
-    int five_count = get_pattern_count()[StructureType::FIVE_OR_MORE];
-    int five_capturables = 0;
+    std::vector<std::set<PatternCellIndex>> five_cells;
+    std::vector<std::set<PatternCellIndex>> two_cells;
 
     for_each_tagged_structures(
-        [this, &five_capturables, &board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
+        [this, &five_cells, &two_cells, &board](PatternCellIndex index, const PatternCellData &data, PatternDirection direction, bool &should_continue)
         {
             const uint8_t length = data.structure_length();
             if (length >= 5)
             {
+                five_cells.push_back(std::set<PatternCellIndex>());
                 for (uint8_t i = 1; i <= length; ++i)
                 {
                     PatternCellIndex struct_index = get_index_offset(index, direction, -i);
 
-                    for (int dir = 0; dir < PatternDirection::Count_PatternDirection; ++dir)
-                    {
-                        if (dir == direction)
-                            continue;
-
-                        auto structure = get_structure_at(struct_index, PatternDirection(dir), 1, false);
-
-                        const PatternCellData &cell_data = _cell_matrices[dir][PatternCellIndex(structure.second)];
-                        if (is_structure_capturable(board, structure.second, cell_data, PatternDirection(dir)))
-                        {
-                            ++five_capturables;
-                            return;
-                        }
-                    }
+                    five_cells.back().insert(struct_index);
+                }
+            }
+            else if (is_structure_capturable(board, index, data, direction))
+            {
+                two_cells.push_back(std::set<PatternCellIndex>());
+                for (uint8_t i = 1; i <= length; ++i)
+                {
+                    PatternCellIndex struct_index = get_index_offset(index, direction, -i);
+                    two_cells.back().insert(struct_index);
                 }
             }
         });
 
-    return five_count > five_capturables;
+    for (const std::set<PatternCellIndex> &two_cell : two_cells)
+    {
+        for (const PatternCellIndex &index : two_cell)
+        {
+            for (int i = five_cells.size() - 1; i >= 0; --i)
+            {
+                if (five_cells[i].find(index) != five_cells[i].end())
+                {
+                    five_cells.erase(five_cells.begin() + i);
+                    continue;
+                }
+            }
+        }
+    }
+
+    return !five_cells.empty();
 }
 
 bool GomokuPatternReconizer::can_be_captured(const GomokuGame &board)

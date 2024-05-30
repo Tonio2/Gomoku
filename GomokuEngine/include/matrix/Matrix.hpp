@@ -23,6 +23,13 @@ public:
         {
             return matrix.is_in_bound(row, col);
         }
+
+        bool operator<(const Index &other) const
+        {
+            if (row == other.row)
+                return col < other.col;
+            return row < other.row;
+        }
     };
 
     /** Init */
