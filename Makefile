@@ -13,7 +13,7 @@ lib: lib_dir
 	make -C GomokuEngine lib
 	cp -f GomokuEngine/pygomoku.so lib/pygomoku.so
 
-GomokuKivy/Gomoku: lib/pygomoku.so
+GomokuKivy/Gomoku: lib
 	make -C GomokuKivy Gomoku
 
 resources:
