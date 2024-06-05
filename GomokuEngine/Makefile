@@ -72,10 +72,10 @@ run: $(EXECUTABLE_FILE)
 	./$(EXECUTABLE_FILE)
 
 test: cmake_test
-	@make $(TEST_BINS)
-
-$(TEST_BINS):
-	./$@
+	@for test_bin in $(TEST_BINS); do \
+		echo "Running test $$test_bin"; \
+		./$$test_bin; \
+	done
 
 clean:
 	rm -rf build
@@ -95,4 +95,4 @@ fclean_gktool: fclean $(EXECUTABLE_FILE)
 
 re_gktool: fclean $(EXECUTABLE_FILE)
 
-.PHONY: all submodule cmake install run test $(TEST_BINS) clean
+.PHONY: all submodule cmake install run test  clean
