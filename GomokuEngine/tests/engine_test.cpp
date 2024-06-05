@@ -264,6 +264,12 @@ TEST(FiveInRowTest, TestShouldNotWinAsFiveInRowCanBeCaptureByClosedTwoInsideGapO
     test_game_status(move_str, false, Player::EMPTY);
 }
 
+TEST(FiveInRowTest, TestShouldNotWinAsFiveInRowCanBeCaptureByClosedTwoInsideGapOpenThree2)
+{
+    std::string move_str = "88,66,89,87,8A,76,98,65,67,64,56,78,86,A8,45,76,98,63,62,69,5A,A5,96,A6,A7,96,B6,A4";
+    test_game_status(move_str, false, Player::EMPTY);
+}
+
 TEST(DoubleThreeTest, TestMakeDoubleThreeThrowError)
 {
     GomokuGame game(19, 19);
