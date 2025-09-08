@@ -3,6 +3,11 @@
 > **C++ engine + Python bindings + Kivy UI + React/Flask WebApp**
 > Play Gomoku against advanced AIs or challenge friends online. The goal of this project is simple: **build an unbeatable Gomoku AI.**
 
+<p align="center">
+  <img alt="Kivy" src="./assets/web_room.png" width="90%"><br/>
+  <em>Web – Online room & play</em>
+</p>
+
 ---
 
 ## 🌟 Highlights
