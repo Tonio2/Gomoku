@@ -164,6 +164,14 @@ You can also run the curated **puzzles** suite (see Docs) to validate typical ta
 
 ---
 
+## 🔄 Continuous integration
+
+Every push on the `main` branch triggers the full test suite to ensure continuous integration.
+
+[View workflow](.github/workflows/gomoku-engine-tests.yml)
+
+---
+
 ## 🔭 Roadmap
 
 - Online matchmaking & ELO
