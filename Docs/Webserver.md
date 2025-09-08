@@ -27,11 +27,6 @@ flask --app server_gomoku.py run --debug --host=0.0.0.0 --port 5000
 
 ```bash
 cd GomokuFront
-npm start
-```
-
-**If not done already, install requirements**
-
-```
 npm i
+npm start
 ```
